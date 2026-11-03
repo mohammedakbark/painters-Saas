@@ -9,7 +9,7 @@ export const PLATFORM_SIGN_IN_PATH = '/platform/sign-in';
 export const PLATFORM_NO_ACCESS_PATH = '/platform/no-access';
 
 export type PlatformAccess =
-  | { kind: 'admin'; email: string | null }
+  | { kind: 'admin'; email: string | null; token: string }
   | { kind: 'forbidden'; account: string | null };
 
 /**
@@ -34,7 +34,7 @@ export const getPlatformAccess = cache(async (): Promise<PlatformAccess> => {
   }
 
   return me.platformRole === 'SUPER_ADMIN'
-    ? { kind: 'admin', email: me.email }
+    ? { kind: 'admin', email: me.email, token }
     : { kind: 'forbidden', account: me.email ?? me.phone };
 });
 
@@ -46,10 +46,12 @@ export const getPlatformAccess = cache(async (): Promise<PlatformAccess> => {
  */
 export async function requirePlatformAdmin(): Promise<{
   email: string | null;
+  /** The verified admin's access token, for API calls made by the page. */
+  token: string;
 }> {
   const access = await getPlatformAccess();
   if (access.kind !== 'admin') {
     redirect(PLATFORM_NO_ACCESS_PATH);
   }
-  return { email: access.email };
+  return { email: access.email, token: access.token };
 }

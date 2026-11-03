@@ -110,6 +110,7 @@ Keep this list accurate. It records what the code does today, not what is planne
 | Registering a shop requires a verified mobile number; email-only accounts are refused | `apps/api/src/shops/shops.service.ts` | SHP-001 |
 | The operator script never promotes an existing account to platform admin (sign-up is public) | `platform-admin-provisioning.ts` | SHP-001 |
 | Framework 400 messages (which can echo input) are replaced by a generic detail | `problem-details.filter.ts` | SHP-001 |
+| The platform shop registry is platform-admin only, read-only, and exposes registration facts only (name, status, dates, master name and mobile). Reads are not audited: it is onboarding data, not private tenant business data | `apps/api/src/platform-shops/` | PLT-001 |
 
 Known gaps (tracked in `DECISIONS_AND_OPEN_QUESTIONS.md` questions 46–51):
 - Access tokens remain valid until expiry after sign-out.

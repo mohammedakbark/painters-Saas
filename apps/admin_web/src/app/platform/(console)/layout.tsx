@@ -10,6 +10,7 @@ export const metadata: Metadata = { title: 'Platform · Admin portal' };
 
 const PLATFORM_NAV: readonly NavItem[] = [
   { href: '/platform', label: 'Overview', exact: true },
+  { href: '/platform/shops', label: 'Shops' },
 ];
 
 /**

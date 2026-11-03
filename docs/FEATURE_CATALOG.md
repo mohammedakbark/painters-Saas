@@ -73,7 +73,7 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 | Feature | Status | Notes |
 |---|---|---|
 | Platform admin sign-in | **Implemented (AUTH-001)** | Email + password; MFA and password reset before production. Spec: `docs/features/AUTH-001-platform-admin-sign-in.md`. |
-| Create/manage shops | Changed (D-024) | Shops self-register; the platform admin reviews them. Read-only shop registry next (PLT-001). |
+| Create/manage shops | Changed (D-024) | Shops self-register. **Read-only shop registry implemented (PLT-001):** the platform admin lists and opens registered shops. Spec: `docs/features/PLT-001-platform-shop-registry.md`. |
 | Shop onboarding review | Confirmed (D-025) | Approve after the owner completes the checklist and submits; only approved shops are visible to customers and painters (PLT-002). Rejection rules: question 50. |
 | Suspend/reactivate shops | Proposed | Needs policy and audit trail. |
 | Platform-level overview/configuration | Confirmed direction | Separate platform permissions. |

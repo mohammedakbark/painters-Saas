@@ -228,7 +228,7 @@ Verified compatible with Flutter 3.47.9 but **not added yet** (added with the fi
 │   │   ├── prisma/                 # schema.prisma + migrations/
 │   │   ├── src/
 │   │   │   ├── app.setup.ts        # /v1 prefix, validation pipe, problem filter
-│   │   │   ├── auth/  users/  platform-admin/  identity/  audit/  shops/  shop-access/
+│   │   │   ├── auth/  users/  platform-admin/  platform-shops/  identity/  audit/  shops/  shop-access/
 │   │   │   ├── common/http  common/validation  config/  health/  openapi/  prisma/
 │   │   │   └── scripts/            # export-openapi, create-platform-admin
 │   │   └── test/                   # e2e suites + support (test tokens, fake identity, DB reset)
@@ -249,7 +249,7 @@ The two toolchains are independent. pnpm manages only `apps/api` and `apps/admin
 ### 14.3 What exists
 
 - **API:**
-  - Routes: `GET /health` and `GET /health/ready` (public, unversioned); `GET /v1/me`, `POST /v1/shops` and `GET /v1/shops/:shopId` (authenticated). Shop routes are tenant-scoped by `ShopAccessGuard` (membership of the shop in the URL; 404 otherwise).
+  - Routes: `GET /health` and `GET /health/ready` (public, unversioned); `GET /v1/me`, `POST /v1/shops` and `GET /v1/shops/:shopId` (authenticated); `GET /v1/platform/shops` and `GET /v1/platform/shops/:shopId` (platform admins; read-only registry with cursor pagination). Shop routes are tenant-scoped by `ShopAccessGuard` (membership of the shop in the URL; 404 otherwise).
   - Every other route needs a valid Supabase access token (global `AuthGuard`, ADR 0005).
   - Errors are RFC 9457 problem details; request validation uses Zod (ADR 0006).
   - Tables: `users`, `platform_admins`, `audit_events` (append-only), `shops` (status `DRAFT` only so far), `shop_memberships` (role `MASTER` only so far; one master per shop).
@@ -259,7 +259,7 @@ The two toolchains are independent. pnpm manages only `apps/api` and `apps/admin
 - **Web:**
   - `/`: portal home.
   - `/platform/sign-in`: email + password.
-  - `/platform`: platform console (overview), with every page gated by `requirePlatformAdmin()`.
+  - `/platform`: platform console (overview), plus `/platform/shops` (registry list) and `/platform/shops/[shopId]` (detail). Every page is gated by `requirePlatformAdmin()`.
   - `/platform/no-access`.
   - `/sign-in` (shop users, mobile OTP), `/shops` (my shops), `/shops/new` (register), `/shops/[shopId]` (shop console, gated by `requireShopAccess()` in layout and pages).
   - Design tokens as Tailwind v4 `@theme` variables, with the default palette, font sizes, radii and breakpoints reset.

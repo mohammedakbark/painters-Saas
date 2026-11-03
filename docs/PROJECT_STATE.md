@@ -1,8 +1,8 @@
 # Project State — Living Document
 
 **Last updated:** 2026-11-03  
-**Current stage:** Phase 1: identity and shop accounts. AUTH-001 and SHP-001 done; PLT-001 (platform shop registry) next.  
-**Overall status:** Foundation complete with CI green on GitHub. Platform admin sign-in and shop self-registration with tenant-scoped access implemented and verified locally.  
+**Current stage:** Phase 1: identity and shop accounts. AUTH-001, SHP-001 and PLT-001 done; SHP-002 (Shop App sign-in) next.  
+**Overall status:** Foundation complete with CI green on GitHub. Platform admin sign-in, shop self-registration with tenant-scoped access, and the platform shop registry implemented and verified locally.  
 **Product name:** Not decided
 
 > Claude Code must read this file before every task and update it after every completed task or meaningful project change.
@@ -15,8 +15,8 @@
 |---|---|---|
 | AUTH-001: Platform admin sign-in, plus auth and API conventions | **Complete (local)**; commit `3697e4f` on `feat/auth-001-platform-admin-sign-in` | `docs/features/AUTH-001-platform-admin-sign-in.md` |
 | SHP-001: Shop owner registration and sign-in (web), tenant-scoped access | **Complete (local)**; branch `feat/shp-001-shop-registration` (stacked on AUTH-001) | `docs/features/SHP-001-shop-registration-and-sign-in.md` |
-| PLT-001: Platform shop registry (read-only list and detail of registered shops) | Next | to be written |
-| SHP-002: Shop App sign-in (Flutter, login-only) | Planned | to be written |
+| PLT-001: Platform shop registry (read-only list and detail of registered shops) | **Complete (local)**; branch `feat/plt-001-shop-registry` (stacked on SHP-001) | `docs/features/PLT-001-platform-shop-registry.md` |
+| SHP-002: Shop App sign-in (Flutter, login-only) | Next | to be written |
 | Onboarding profile (address, support mobile), shop photo, catalogue (CAT-001), then submit for review and PLT-002 approval | Planned | The catalogue needs answers to questions 13, 15, 16 and 17; approval needs question 50 |
 
 **M0: Project foundation** is `DONE`. The first commit (`c56f614`, pushed by the product owner) ran the `CI` workflow on GitHub with all three jobs green under Node 24.
@@ -30,7 +30,7 @@ apps/api/                         NestJS 12 API: auth guard (JWKS), /v1/me, plat
 apps/customer_app/                Flutter shell (android, ios): placeholder screen + widget test
 apps/shop_app/                    Flutter shell (android, ios): placeholder screen + widget test
 packages/flutter_shared/          Design tokens, AppTheme.light(), Inter 4.1 fonts, token + contrast tests
-packages/api_contracts/           Generated openapi.json (health, /v1/me, /v1/shops, /v1/shops/{shopId})
+packages/api_contracts/           Generated openapi.json (health, /v1/me, /v1/shops*, /v1/platform/shops*)
 infra/local/                      Docker Compose Postgres 17 for app data (dev + separate test DB)
 infra/supabase/                   Supabase CLI config: Auth only, test OTPs, local ES256 signing key (gitignored)
 docs/  prompts/  .claude/skills/  CLAUDE.md  README.md
@@ -81,11 +81,15 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
   - web mobile-OTP sign-in, my shops, register a shop, shop console shell, not-found and error states;
   - Supabase sign-up enabled;
   - the operator script no longer promotes existing accounts.
+- [x] PLT-001:
+  - read-only platform shop registry: `GET /v1/platform/shops` (cursor pagination) and `GET /v1/platform/shops/:shopId`;
+  - web `/platform/shops` list (table and cards) and detail;
+  - **Shops** navigation item.
 
 ## 5. Not done
 
-- [ ] PLT-001, SHP-002 and the onboarding/approval features (see §1).
-- [ ] Push and CI run for the AUTH-001 and SHP-001 branches (not pushed; product owner decides).
+- [ ] SHP-002 and the onboarding/approval features (see §1).
+- [ ] Push and CI run for the AUTH-001, SHP-001 and PLT-001 branches (not pushed; product owner decides).
 - [ ] Product answers: questions 49 (registration limit), 50 (rejection) and 51 (email sign-up mitigation).
 - [ ] Production SMS vendor + DLT registration (question 46). Platform admin MFA and password reset (question 47). Session policy after sign-out (question 48).
 - [ ] Hosting approved or any cloud resource created: none exists, including no Supabase project.
@@ -95,6 +99,17 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 - [ ] iOS build verification (requires macOS).
 
 ## 6. Checks run on 2026-11-03 (local, Windows 11, Node 22.21.0)
+
+### PLT-001
+
+| Check | Result |
+|---|---|
+| `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm build` | Passed |
+| `pnpm test`: api 60, admin_web 74 | Passed |
+| `pnpm --filter api test:e2e`: 60 tests, 12 of them new (registry pagination, detail, 404s, query validation, owner 403, 401) | Passed |
+| `db:check-drift` and OpenAPI export | No difference; `/v1/platform/shops*` documented |
+| HTTP walkthrough with real local Supabase sessions (11 checks: list, order, owner contact, detail, not-found, tampered cursor, owner gets no-access with no data, signed-out redirect) | Verified |
+| Interactive browser walkthrough | **Not run** (skipped at the product owner's request) |
 
 ### SHP-001
 
@@ -130,11 +145,10 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 
 ## 7. Next actions
 
-1. PLT-001: the platform shop registry. Platform admins list and open registered shops; read-only.
-2. SHP-002: Shop App sign-in in Flutter (supabase_flutter, Riverpod, go_router, Dio; login-only).
-3. The onboarding profile (address, support mobile), then the shop photo (needs a storage decision), then the catalogue. Ask questions 13, 15, 16 and 17 first.
-4. Submit for review and PLT-002 approval (needs question 50).
-5. Install Node 24 locally. Push the branches when the product owner wants CI runs.
+1. SHP-002: Shop App sign-in in Flutter (supabase_flutter, Riverpod, go_router, Dio; login-only).
+2. The onboarding profile (address, support mobile), then the shop photo (needs a storage decision), then the catalogue. Ask questions 13, 15, 16 and 17 first.
+3. Submit for review and PLT-002 approval (needs question 50).
+4. Install Node 24 locally. Push the branches when the product owner wants CI runs.
 
 ## 8. Feature progress
 
@@ -186,3 +200,4 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-03 | First commit pushed by the product owner; CI green on GitHub (Node 24). |
 | 2026-11-03 | Phase 0 auth decisions recorded (D-021–D-023). AUTH-001 implemented: auth foundation, platform admin sign-in, ADR 0005 and ADR 0006. |
 | 2026-11-03 | Shop model changed by the product owner (D-024–D-026; D-023 superseded). SHP-001 implemented: shop self-registration, shop sign-in on the web, tenant-scoped shop access. |
+| 2026-11-03 | PLT-001 implemented: read-only platform shop registry. |
