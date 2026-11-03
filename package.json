@@ -1,0 +1,22 @@
+{
+  "name": "paint-shop-platform",
+  "private": true,
+  "description": "Monorepo root for the Paint Shop SaaS Platform (TypeScript workspace). Flutter packages use the Dart pub workspace in pubspec.yaml.",
+  "packageManager": "pnpm@12.16.1",
+  "engines": {
+    "node": ">=24.11.0 <25"
+  },
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "pnpm -r --if-present run lint",
+    "typecheck": "pnpm -r --if-present run typecheck",
+    "test": "pnpm -r --if-present run test",
+    "build": "pnpm -r --if-present run build",
+    "db:up": "docker compose -f infra/local/compose.yaml --env-file infra/local/.env up -d --wait",
+    "db:down": "docker compose -f infra/local/compose.yaml --env-file infra/local/.env down"
+  },
+  "devDependencies": {
+    "prettier": "3.9.10"
+  }
+}

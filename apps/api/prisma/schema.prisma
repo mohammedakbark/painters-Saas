@@ -1,0 +1,12 @@
+// Prisma Migrate owns the application schema in this database.
+// No models exist yet: tables are added feature by feature, each with a reviewed
+// migration (see docs/TECHNICAL_ARCHITECTURE.md). Do not add placeholder models.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}

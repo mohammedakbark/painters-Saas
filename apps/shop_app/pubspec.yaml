@@ -1,0 +1,23 @@
+name: shop_app
+description: Shop App for shop owners and staff (login-only; accounts are created on the web).
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.0
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_shared:
+    path: ../../packages/flutter_shared
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true

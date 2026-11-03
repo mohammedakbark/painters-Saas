@@ -1,0 +1,31 @@
+# Local development database only. Never point this at production data.
+# Usage (from the repo root):
+#   cp infra/local/.env.example infra/local/.env   # then set a local-only password
+#   pnpm db:up / pnpm db:down
+name: paintshop-local
+
+services:
+  postgres:
+    # Major version matches the Postgres 17 line used by Supabase managed projects.
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER in infra/local/.env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in infra/local/.env}
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in infra/local/.env}
+      POSTGRES_TEST_DB: ${POSTGRES_TEST_DB:?Set POSTGRES_TEST_DB in infra/local/.env}
+    ports:
+      # Bound to localhost only so the database is not exposed on the network.
+      - '127.0.0.1:${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:

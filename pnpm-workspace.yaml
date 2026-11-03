@@ -1,0 +1,22 @@
+# TypeScript workspace only. Flutter packages are managed by the Dart pub
+# workspace declared in the root pubspec.yaml and are never installed by pnpm.
+packages:
+  - apps/admin_web
+  - apps/api
+
+# Supply-chain guard: pnpm's default minimumReleaseAge (1440 minutes) is kept.
+# Do not add minimumReleaseAgeExclude entries; pin an older release instead.
+# Strict mode makes pnpm fail instead of silently writing exclusions.
+minimumReleaseAgeStrict: true
+
+# Dependency build scripts are denied unless reviewed and listed here
+# (pnpm fails the install on any unreviewed build script).
+allowBuilds:
+  # Prisma CLI and migration/schema engines.
+  prisma: true
+  '@prisma/engines': true
+  # Install-time usage analytics pulled in by swagger-ui-dist. Not needed.
+  '@scarf/scarf': false
+  # Denied by the Next.js template: both ship prebuilt platform binaries.
+  sharp: false
+  unrs-resolver: false

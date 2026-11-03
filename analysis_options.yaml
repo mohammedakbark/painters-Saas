@@ -1,0 +1,25 @@
+# Shared static-analysis rules for every Flutter/Dart package in the pub workspace.
+# Packages do not define their own analysis_options.yaml, so this file applies.
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  exclude:
+    - '**/build/**'
+    - '**/node_modules/**'
+    - '**/*.g.dart'
+    - '**/*.freezed.dart'
+    - apps/admin_web/**
+    - apps/api/**
+
+linter:
+  rules:
+    - always_declare_return_types
+    - avoid_dynamic_calls
+    - directives_ordering
+    - prefer_final_locals
+    - prefer_single_quotes
+    - unawaited_futures

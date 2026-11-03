@@ -1,0 +1,24 @@
+# Normalize line endings to LF in the repository and working tree so that
+# Prettier and `dart format` checks behave the same on Windows, macOS and CI.
+* text=auto eol=lf
+
+# Windows-only scripts must keep CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary assets
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.jar binary
+*.pdf binary
+
+# Shell scripts executed inside Linux containers must keep LF.
+*.sh text eol=lf

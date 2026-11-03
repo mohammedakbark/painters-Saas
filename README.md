@@ -1,0 +1,78 @@
+# Paint Shop SaaS Platform — Project Starter Kit
+
+**Working title:** Paint Shop SaaS Platform  
+**Product name:** Not decided  
+**Stage:** Product definition and technical foundation  
+**Last updated:** 2026-11-03
+
+This repository is intended to become a multi-tenant SaaS platform connecting independent paint shops, painters and normal customers. The product name, logo and final visual identity are intentionally not fixed yet.
+
+## Included documentation
+
+- `CLAUDE.md` — permanent project instructions for Claude Code.
+- `docs/PRODUCT_OVERVIEW.md` — what the product is, why it exists, users and workflows.
+- `docs/FEATURE_CATALOG.md` — feature inventory and suggested delivery phases.
+- `docs/TECHNICAL_ARCHITECTURE.md` — proposed stack, architecture and hosting.
+- `docs/DESIGN_SYSTEM.md` — provisional colors, typography, spacing and UI rules.
+- `docs/DATA_AND_SECURITY.md` — tenant isolation, roles, financial and sensitive-data rules.
+- `docs/PROJECT_STATE.md` — living progress file Claude must read and update for every task.
+- `docs/DECISIONS_AND_OPEN_QUESTIONS.md` — confirmed decisions, proposals and unresolved questions.
+- `docs/DEVELOPMENT_WORKFLOW.md` — one-feature-at-a-time workflow.
+- `docs/features/FEATURE_SPEC_TEMPLATE.md` — template for documenting each feature.
+- `docs/adr/` — architecture decision records.
+- `prompts/01_FOUNDATION_SETUP_PROMPT.md` — first prompt to create the repository foundation.
+- `.claude/skills/` — reusable Claude Code workflows.
+
+## How to use
+
+1. Create an empty Git repository.
+2. Extract this kit into the repository root. `CLAUDE.md` must be at the root.
+3. Review `docs/PRODUCT_OVERVIEW.md` and `docs/DECISIONS_AND_OPEN_QUESTIONS.md`.
+4. Open Claude Code from the repository root.
+5. Give Claude the prompt in `prompts/01_FOUNDATION_SETUP_PROMPT.md`.
+6. Review and approve the foundation plan before asking Claude to implement features.
+7. Commit the docs and project foundation to Git so the context is available on every computer.
+
+## Important rule
+
+Do not ask Claude to implement the entire product in one request. Work on one feature at a time. Every feature needs documented requirements, acceptance criteria, tests and updated documentation.
+
+## Git and secrets
+
+Commit documentation, source code, migrations, tests and safe configuration examples. Never commit real `.env` files, API keys, database passwords, OTP credentials, private signing keys, customer data or identity documents.
+
+## Current status
+
+The **project foundation (M0)** is in place: a monorepo with Flutter app shells, a Next.js admin portal shell, a NestJS API shell, a shared Flutter design-token package, local PostgreSQL, quality checks and GitHub Actions CI. **No product features, database schema or cloud infrastructure exist yet.** See `docs/PROJECT_STATE.md` for the live status.
+
+## Repository layout
+
+| Path | What it is |
+|---|---|
+| `apps/customer_app`, `apps/shop_app` | Flutter apps (Android, iOS) |
+| `apps/admin_web` | Next.js Shop Admin + Platform Super Admin portal |
+| `apps/api` | NestJS modular-monolith API (Prisma, PostgreSQL) |
+| `packages/flutter_shared` | Design tokens and theme shared by the Flutter apps |
+| `packages/api_contracts` | Generated OpenAPI document |
+| `infra/local` | Local-only Docker Compose PostgreSQL |
+
+TypeScript projects use **pnpm**; Flutter projects use a **Dart pub workspace** with Flutter pinned by **FVM**. Details: `docs/TECHNICAL_ARCHITECTURE.md` §14 and ADR 0004.
+
+## Quick start
+
+Prerequisites: Node 24 LTS, pnpm 12.16.1 (`npm i -g pnpm@12.16.1`), FVM (`dart pub global activate fvm`, then `fvm install`), Docker Desktop and the Android SDK.
+
+```sh
+pnpm install
+fvm flutter pub get
+cp infra/local/.env.example infra/local/.env       # set a local-only password
+cp apps/api/.env.example apps/api/.env
+cp apps/api/.env.test.example apps/api/.env.test
+pnpm db:up
+
+pnpm --filter api start:dev                         # http://localhost:3000/health, docs at /docs
+pnpm --filter admin_web dev --port 3001             # http://localhost:3001
+cd apps/customer_app && fvm flutter run
+```
+
+Checks: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm --filter api test:e2e`, `fvm dart format --set-exit-if-changed apps/customer_app apps/shop_app packages/flutter_shared`, `fvm flutter analyze`, and `fvm flutter test` in each Flutter package.

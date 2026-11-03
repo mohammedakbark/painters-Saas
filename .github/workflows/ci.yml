@@ -1,0 +1,133 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Third-party actions are pinned to full commit SHAs (the tag is noted alongside).
+jobs:
+  typescript:
+    name: TypeScript (api, admin_web)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17-alpine
+        # Ephemeral CI-only container; these credentials protect nothing.
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci-only-not-a-secret
+          POSTGRES_DB: paintshop_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci -d paintshop_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://ci:ci-only-not-a-secret@localhost:5432/paintshop_test
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Reads the pnpm version from the root package.json `packageManager` field.
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Format check (Prettier)
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Unit and component tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: API e2e tests (real Postgres)
+        run: pnpm --filter api test:e2e
+        env:
+          NODE_ENV: test
+
+      - name: OpenAPI contract is up to date
+        run: |
+          pnpm --filter api openapi:export
+          if [ -n "$(git status --porcelain -- packages/api_contracts/openapi.json)" ]; then
+            echo "::error file=packages/api_contracts/openapi.json::OpenAPI document is out of date. Run 'pnpm --filter api openapi:export' and commit the result."
+            git diff -- packages/api_contracts/openapi.json
+            exit 1
+          fi
+
+  flutter:
+    name: Flutter (customer_app, shop_app, flutter_shared)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Uses the exact Flutter version pinned in .fvmrc (same as local `fvm`).
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version-file: .fvmrc
+          channel: stable
+          cache: true
+
+      - name: Resolve pub workspace
+        run: flutter pub get
+
+      - name: Format check (dart format)
+        run: dart format --output=none --set-exit-if-changed apps/customer_app apps/shop_app packages/flutter_shared
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Tests
+        run: |
+          for package in packages/flutter_shared apps/customer_app apps/shop_app; do
+            echo "::group::flutter test $package"
+            (cd "$package" && flutter test)
+            echo "::endgroup::"
+          done
+
+  repository:
+    name: Repository checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate local Docker Compose configuration
+        run: docker compose -f infra/local/compose.yaml --env-file infra/local/.env.example config --quiet
+
+      - name: Lint GitHub Actions workflows
+        run: >-
+          docker run --rm -v "$PWD:/repo" -w /repo
+          rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
+          -color

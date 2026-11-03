@@ -1,0 +1,17 @@
+# Dart pub workspace root (not a package). Resolves the Flutter apps and shared
+# Flutter packages together with one lockfile. The TypeScript apps use pnpm.
+# Flutter SDK version: pinned in .fvmrc; run Flutter/Dart through `fvm`.
+name: paint_shop_workspace
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+
+workspace:
+  - apps/customer_app
+  - apps/shop_app
+  - packages/flutter_shared
+
+dev_dependencies:
+  # Referenced by the shared analysis_options.yaml at the repo root.
+  flutter_lints: ^6.0.0

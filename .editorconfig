@@ -1,0 +1,25 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{js,jsx,mjs,cjs,ts,tsx,mts,cts,json,yml,yaml,css,scss,html,md,prisma,sql}]
+indent_style = space
+indent_size = 2
+
+[*.dart]
+indent_style = space
+indent_size = 2
+
+[*.{kt,kts,gradle,swift}]
+indent_style = space
+indent_size = 4
+
+[*.{bat,cmd}]
+end_of_line = crlf
+
+[Makefile]
+indent_style = tab

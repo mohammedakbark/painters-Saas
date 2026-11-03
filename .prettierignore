@@ -1,0 +1,25 @@
+# Prettier formats the TypeScript workspace and repo config only.
+# Product documentation and prompts are hand-written and not auto-formatted.
+docs/
+prompts/
+.claude/
+CLAUDE.md
+README.md
+
+# Flutter workspace (formatted by `dart format`)
+apps/customer_app/
+apps/shop_app/
+packages/flutter_shared/
+pubspec.yaml
+pubspec.lock
+analysis_options.yaml
+
+# Generated and build output
+pnpm-lock.yaml
+node_modules/
+.next/
+dist/
+coverage/
+apps/api/src/generated/
+apps/admin_web/next-env.d.ts
+packages/api_contracts/openapi.json
