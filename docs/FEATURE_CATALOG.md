@@ -6,7 +6,7 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 
 | Feature | Status | Notes |
 |---|---|---|
-| Mobile registration/login | Confirmed direction | OTP is the proposed flow; provider must be selected. |
+| Mobile registration/login | Confirmed direction | Mobile OTP via Supabase Auth (D-021, D-022); SMS vendor open (question 46). |
 | Customer type | Confirmed | Painter/Contractor or Normal Customer. |
 | Profile and address | Confirmed | Exact fields to finalize. |
 | Identity verification | Confirmed direction / Open details | Separate from shop credit approval; documents and timing open. |
@@ -71,7 +71,8 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 
 | Feature | Status | Notes |
 |---|---|---|
-| Create/manage shops | Confirmed | Shop creation creates master account. |
+| Platform admin sign-in | **Implemented (AUTH-001)** | Email + password; MFA and password reset before production. Spec: `docs/features/AUTH-001-platform-admin-sign-in.md`. |
+| Create/manage shops | Confirmed | Shop creation creates master account. First build: platform admin only (D-023). |
 | Shop onboarding review | Confirmed direction | Activate after checklist completion. |
 | Suspend/reactivate shops | Proposed | Needs policy and audit trail. |
 | Platform-level overview/configuration | Confirmed direction | Separate platform permissions. |
@@ -82,12 +83,12 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 | Capability | Status | Notes |
 |---|---|---|
 | Shared multi-tenant database | Confirmed | Strong isolation between shops. |
-| Global customer identity | Proposed | One customer can interact with multiple shops. |
+| Global customer identity | Proposed / foundation implemented | Global `User` linked to the Supabase account (AUTH-001); customer profile comes with customer registration. |
 | Shop membership and roles | Confirmed direction | Master and staff roles. |
 | Tenant authorization on every API | Mandatory | Backend enforced; frontend hiding is not security. |
-| Audit trail | Mandatory for sensitive actions | Credit, bills, payments, role changes, ratings and platform actions. |
+| Audit trail | Mandatory for sensitive actions | Credit, bills, payments, role changes, ratings and platform actions. Append-only `audit_events` table implemented (AUTH-001). |
 | Transaction-safe financial ledger | Mandatory | No unexplained balance overwrites. |
-| OpenAPI/Swagger | Proposed | API contract documentation. |
+| OpenAPI/Swagger | Implemented | `/docs` outside production; contract exported to `packages/api_contracts/openapi.json` and checked in CI. |
 | Online payment gateway | Later | Explicitly deferred. |
 | SaaS subscription billing | Later | Explicitly deferred. |
 | Dedicated search engine | Later | Start with PostgreSQL search and measure. |

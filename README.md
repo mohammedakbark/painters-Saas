@@ -43,7 +43,7 @@ Commit documentation, source code, migrations, tests and safe configuration exam
 
 ## Current status
 
-The **project foundation (M0)** is in place: a monorepo with Flutter app shells, a Next.js admin portal shell, a NestJS API shell, a shared Flutter design-token package, local PostgreSQL, quality checks and GitHub Actions CI. **No product features, database schema or cloud infrastructure exist yet.** See `docs/PROJECT_STATE.md` for the live status.
+The **project foundation (M0)** is in place: a monorepo with Flutter app shells, a Next.js admin portal, a NestJS API, a shared Flutter design-token package, local PostgreSQL, quality checks and GitHub Actions CI. The first feature, **AUTH-001 (platform admin sign-in)**, is implemented on top of Supabase Auth. Shop and customer features are not built yet, and **no cloud infrastructure exists**. See `docs/PROJECT_STATE.md` for the live status.
 
 ## Repository layout
 
@@ -54,13 +54,14 @@ The **project foundation (M0)** is in place: a monorepo with Flutter app shells,
 | `apps/api` | NestJS modular-monolith API (Prisma, PostgreSQL) |
 | `packages/flutter_shared` | Design tokens and theme shared by the Flutter apps |
 | `packages/api_contracts` | Generated OpenAPI document |
-| `infra/local` | Local-only Docker Compose PostgreSQL |
+| `infra/local` | Local-only Docker Compose PostgreSQL (app data) |
+| `infra/supabase` | Local-only Supabase CLI config (Auth only) |
 
 TypeScript projects use **pnpm**; Flutter projects use a **Dart pub workspace** with Flutter pinned by **FVM**. Details: `docs/TECHNICAL_ARCHITECTURE.md` §14 and ADR 0004.
 
 ## Quick start
 
-Prerequisites: Node 24 LTS, pnpm 12.16.1 (`npm i -g pnpm@12.16.1`), FVM (`dart pub global activate fvm`, then `fvm install`), Docker Desktop and the Android SDK.
+Prerequisites: Node 24 LTS, pnpm 12.16.1 (`npm i -g pnpm@12.16.1`), FVM (`dart pub global activate fvm`, then `fvm install`), Docker Desktop and the Android SDK. The Supabase CLI is installed by `pnpm install`.
 
 ```sh
 pnpm install
@@ -68,11 +69,17 @@ fvm flutter pub get
 cp infra/local/.env.example infra/local/.env       # set a local-only password
 cp apps/api/.env.example apps/api/.env
 cp apps/api/.env.test.example apps/api/.env.test
+cp apps/admin_web/.env.example apps/admin_web/.env.local
 pnpm db:up
+pnpm supabase:keys && pnpm supabase:start         # local Supabase Auth
+pnpm supabase:status                                # copy the secret key into apps/api/.env and the
+                                                    # publishable key into apps/admin_web/.env.local
+pnpm --filter api db:migrate:deploy
+pnpm --filter api platform-admin:create --email admin@example.com
 
 pnpm --filter api start:dev                         # http://localhost:3000/health, docs at /docs
-pnpm --filter admin_web dev --port 3001             # http://localhost:3001
+pnpm --filter admin_web dev --port 3001             # http://localhost:3001/platform/sign-in
 cd apps/customer_app && fvm flutter run
 ```
 
-Checks: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm --filter api test:e2e`, `fvm dart format --set-exit-if-changed apps/customer_app apps/shop_app packages/flutter_shared`, `fvm flutter analyze`, and `fvm flutter test` in each Flutter package.
+Checks: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm --filter api test:e2e`, `pnpm --filter api db:check-drift`, `fvm dart format --set-exit-if-changed apps/customer_app apps/shop_app packages/flutter_shared`, `fvm flutter analyze`, and `fvm flutter test` in each Flutter package.

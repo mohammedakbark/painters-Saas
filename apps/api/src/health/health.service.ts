@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  Logger,
-  ServiceUnavailableException,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { DependencyStatus, ReadinessResponseDto } from './health.dto.js';
 
@@ -12,17 +8,13 @@ export class HealthService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  /** Resolves when every dependency is reachable; otherwise throws HTTP 503. */
+  /** Reports each dependency. The controller answers 503 when status is 'error'. */
   async checkReadiness(): Promise<ReadinessResponseDto> {
     const database = await this.checkDatabase();
-    const response: ReadinessResponseDto = {
+    return {
       status: database === 'up' ? 'ok' : 'error',
       checks: { database },
     };
-    if (database === 'down') {
-      throw new ServiceUnavailableException(response);
-    }
-    return response;
   }
 
   private async checkDatabase(): Promise<DependencyStatus> {

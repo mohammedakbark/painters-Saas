@@ -36,6 +36,12 @@ jobs:
           --health-retries 10
     env:
       DATABASE_URL: postgresql://ci:ci-only-not-a-secret@localhost:5432/paintshop_test
+      # Well-formed placeholders for API config validation. The e2e tests sign
+      # their own tokens and fake the identity provider; nothing is contacted.
+      AUTH_ISSUER: http://auth.test.invalid/auth/v1
+      AUTH_JWKS_URL: http://auth.test.invalid/auth/v1/.well-known/jwks.json
+      SUPABASE_URL: http://auth.test.invalid
+      SUPABASE_SECRET_KEY: ci-only-not-a-secret
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -67,10 +73,14 @@ jobs:
       - name: Build
         run: pnpm build
 
+      # Applies the Prisma migrations to the test database first.
       - name: API e2e tests (real Postgres)
         run: pnpm --filter api test:e2e
         env:
           NODE_ENV: test
+
+      - name: Migrations match schema.prisma
+        run: pnpm --filter api db:check-drift
 
       - name: OpenAPI contract is up to date
         run: |

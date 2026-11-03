@@ -4,9 +4,9 @@ One responsive web portal with separate Shop Admin and Platform Super Admin area
 (see `docs/PRODUCT_OVERVIEW.md` §3.3–3.4). Authorization is enforced by the API and
 server-side. Hiding navigation is not security.
 
-**Current state:** foundation shell only. It has one placeholder page, design tokens in
-`src/app/globals.css`, Inter through `next/font` and a Vitest smoke test. No admin
-areas or features exist yet.
+**Current state:** platform admin sign-in (AUTH-001): `/platform/sign-in` (email + password through a Server Action), the platform console shell at `/platform`, `/platform/no-access` and an error boundary. Sessions live in HTTP-only cookies (`@supabase/ssr`); `src/proxy.ts` refreshes them. All API calls are made from the server (`src/lib/api`). Every console page calls `requirePlatformAdmin()` itself.
+
+Setup: copy `.env.example` to `.env.local` and paste the local publishable key from `pnpm supabase:status`. No variable is `NEXT_PUBLIC_*`.
 
 ## Commands (run from the repo root with `pnpm --filter admin_web <script>`)
 

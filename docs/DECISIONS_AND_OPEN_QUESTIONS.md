@@ -26,6 +26,9 @@ This document prevents assumptions from silently becoming requirements.
 | D-018 | Online payment gateway comes later. | Confirmed |
 | D-019 | Subscription billing and paid-seat billing are not in the first build. | Confirmed |
 | D-020 | Initial market Kerala, English UI, Android, iOS and responsive web. | Confirmed |
+| D-021 | Supabase Auth is the identity provider. | Confirmed (product owner, 2026-11-03) |
+| D-022 | Customers and shop users (master and staff) sign in with mobile OTP; Platform Super Admins sign in with email + password, with MFA added before production. | Confirmed (product owner, 2026-11-03) |
+| D-023 | In the first build, only Platform Super Admin creates shops (no shop self-registration). | Confirmed (product owner, 2026-11-03) |
 
 ## 2. Proposed technical decisions — require approval
 
@@ -45,7 +48,7 @@ This document prevents assumptions from silently becoming requirements.
 
 Do not treat proposals as approved until the product owner confirms them.
 
-**Status after foundation (2026-11-03):** P-001–P-004 were accepted for the foundation and implemented (ADR 0004). P-005 (Supabase), P-006 (Render/Vercel) and P-007 (Riverpod) remain proposals; nothing for them is implemented or provisioned. P-008 is implemented as provisional tokens only.
+**Status after foundation (2026-11-03):** P-001–P-004 were accepted for the foundation and implemented (ADR 0004). P-006 (Render/Vercel) and P-007 (Riverpod) remain proposals; nothing for them is implemented or provisioned. P-005: Supabase **Auth** is accepted (D-021) and implemented locally (ADR 0005); Supabase-managed Postgres and Storage remain proposals, and no Supabase project exists. P-008 is implemented as provisional tokens only.
 
 ## 2a. Confirmed technical decisions (foundation)
 
@@ -60,11 +63,16 @@ Do not treat proposals as approved until the product owner confirms them.
 | T-007 | Local development database is plain PostgreSQL 17 in Docker Compose. The Supabase CLI stack is deferred until the auth decision. | ADR 0004 |
 | T-008 | NestJS 12 official defaults: native ESM, oxlint, Vitest. Next.js 16 defaults: App Router, Turbopack, Cache Components. | ADR 0004 |
 | T-009 | Supply-chain controls: pnpm 24 h minimum release age (strict), reviewed `allowBuilds`, CI actions pinned by SHA. | ADR 0004 |
+| T-010 | API access tokens are verified in NestJS against the provider JWKS (asymmetric keys only); a global `User` is created just in time; platform permission lives only in `PlatformAdmin`. | ADR 0005 |
+| T-011 | Local Supabase CLI (`infra/supabase`) runs Auth only; app data stays in the compose Postgres (T-007 still applies to app data). | ADR 0005 |
+| T-012 | API validation uses Zod 4 with Nest's built-in Standard Schema pipe (answers question 43). | ADR 0006 |
+| T-013 | Business routes are under `/v1`; errors are RFC 9457 problem details with a `code` extension (answers question 44). | ADR 0006 |
+| T-014 | UUIDv7 primary keys, `timestamptz(3)`, cursor pagination (`limit` ≤ 50, `nextCursor`), RLS enabled on every table, append-only audit events. | ADR 0005, ADR 0006 |
 
 ## 3. Open product questions
 
 ### Shop onboarding and relationship
-1. Can a shop register itself, or can only Platform Super Admin create shops?
+1. ~~Can a shop register itself, or can only Platform Super Admin create shops?~~ **Resolved for the first build (D-023):** only Platform Super Admin. Self-registration may be revisited later.
 2. Can a customer browse any shop without adding it to `My Shops`?
 3. Does adding a shop happen immediately, by request/approval or invitation?
 4. Can a shop edit its profile after activation, or are some changes platform-approved?
@@ -121,16 +129,20 @@ Do not treat proposals as approved until the product owner confirms them.
 
 ### Technical (raised during foundation)
 41. What are the final Android application IDs and iOS bundle identifiers? Currently `com.example.*` placeholders, which the stores reject. This depends on the product name.
-42. Which auth/OTP provider will be used? Once decided, should local development move to the Supabase CLI stack?
-43. Which DTO validation approach will the API use (class-validator or Zod/Standard Schema)?
-44. What are the API versioning prefix (for example `/v1`) and the standard error-response shape?
+42. ~~Which auth/OTP provider will be used? Once decided, should local development move to the Supabase CLI stack?~~ **Resolved:** Supabase Auth (D-021); local development runs the Supabase CLI for Auth only (T-011). The SMS vendor is question 46.
+43. ~~Which DTO validation approach will the API use (class-validator or Zod/Standard Schema)?~~ **Resolved:** Zod 4 + Standard Schema (T-012).
+44. ~~What are the API versioning prefix (for example `/v1`) and the standard error-response shape?~~ **Resolved:** `/v1` and RFC 9457 problem details (T-013).
 45. Are the hosting proposals (Supabase, Render, Vercel) approved? Before the first deploy, confirm Node 24 + pnpm 12 support on the chosen hosts.
+46. Which SMS vendor sends production OTPs (for example MSG91 through Supabase's Send SMS Hook, or Twilio/Vonage), and who completes the DLT registration of the sender ID and OTP template? Required before customers or shop users can sign in on a hosted environment.
+47. Platform admin MFA (TOTP) and password reset must exist before production. When should they be scheduled, and is TOTP acceptable as the second factor?
+48. What session policy applies after sign-out or account removal? Access tokens stay valid until expiry (1 hour by default). Options: a shorter token lifetime, or a server-side session check for platform routes.
 
 ## 3a. Temporary assumptions (foundation)
 
 - App identifiers use Flutter's `com.example` placeholder (see question 41).
 - Working display names "Customer App", "Shop App" and "Admin portal" are used until the product name is decided.
 - Local database names `paintshop_dev` / `paintshop_test` are neutral placeholders and do not imply a product name.
+- One platform role (`SUPER_ADMIN`) is enough for now; narrower platform roles are added only if the product needs them (AUTH-001).
 
 ## 4. Rules while questions are open
 

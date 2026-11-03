@@ -14,9 +14,14 @@
     "test": "pnpm -r --if-present run test",
     "build": "pnpm -r --if-present run build",
     "db:up": "docker compose -f infra/local/compose.yaml --env-file infra/local/.env up -d --wait",
-    "db:down": "docker compose -f infra/local/compose.yaml --env-file infra/local/.env down"
+    "db:down": "docker compose -f infra/local/compose.yaml --env-file infra/local/.env down",
+    "supabase:keys": "node infra/supabase/ensure-signing-key.mjs",
+    "supabase:start": "supabase start --workdir infra",
+    "supabase:stop": "supabase stop --workdir infra",
+    "supabase:status": "supabase status --workdir infra"
   },
   "devDependencies": {
-    "prettier": "3.9.10"
+    "prettier": "3.9.10",
+    "supabase": "2.122.0"
   }
 }

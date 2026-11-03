@@ -1,7 +1,7 @@
 # Data, Tenant Isolation and Security Principles
 
 **Status:** Mandatory baseline; detailed controls must be implemented and tested  
-**Last updated:** 2026-11-03
+**Last updated:** 2026-11-03 (implemented controls added after AUTH-001)
 
 This product handles customer identity information, shop business data, orders, bills, payments, credit and rewards. Security is a core product requirement.
 
@@ -85,3 +85,29 @@ At minimum, audit shop creation/approval/suspension/ownership changes; account a
 ## 10. Privacy and compliance review
 
 The initial market is India. Before production collection of identity documents or launch of financial/credit-related workflows, obtain appropriate privacy, security and legal review for applicable Indian data-protection, consumer, tax and payment requirements. This document is an engineering baseline, not legal advice.
+
+## 11. Controls implemented so far
+
+Keep this list accurate. It records what the code does today, not what is planned.
+
+| Control | Where | Feature |
+|---|---|---|
+| Every API route requires a verified access token unless explicitly `@Public()` (only `/health`, `/health/ready`) | `apps/api/src/auth/auth.guard.ts` | AUTH-001 |
+| Access tokens verified against the JWKS: asymmetric keys only (HS256 and `none` rejected), issuer, audience, expiry, `sub`/`iat`; anonymous sessions rejected | `apps/api/src/auth/access-token-verifier.ts` | AUTH-001 |
+| Platform permission only from the `platform_admins` table, never from shop membership or token claims | `apps/api/src/platform-admin/platform-admin.guard.ts` | AUTH-001 |
+| No public sign-up; platform admins created only by an audited operator script with a hidden password prompt and a 12-character mixed-case-and-digit policy | `apps/api/src/scripts/create-platform-admin.ts`, `infra/supabase/config.toml` | AUTH-001 |
+| An identity is never linked automatically to another user's email/phone (409 `identity_conflict`) | `apps/api/src/users/users.service.ts` | AUTH-001 |
+| Supabase secret key only in the API environment; web and mobile get the publishable key only (web keeps even that server-side) | `apps/api/.env`, `apps/admin_web/src/lib/env.ts` | AUTH-001 |
+| Web session in HTTP-only, SameSite=Lax cookies (Secure in production); sign-in and sign-out are Server Actions | `apps/admin_web/src/lib/supabase/` | AUTH-001 |
+| Wrong email and wrong password share one message (no account enumeration on the platform sign-in) | `apps/admin_web/src/lib/auth/sign-in.ts` | AUTH-001 |
+| Every console page re-checks access (layouts are not an authorization boundary in Next.js) | `requirePlatformAdmin()` | AUTH-001 |
+| Audit events are append-only (database trigger blocks UPDATE/DELETE for every role) and written in the same transaction as the change | migration `auth_001_identity`, `apps/api/src/audit/audit.ts` | AUTH-001 |
+| Row Level Security enabled on every table (defense in depth against the Supabase Data API) | every migration | AUTH-001 |
+| Errors are problem documents; unexpected errors return a bare 500 and are logged server-side; tokens, passwords and OTPs are never logged; env errors never echo values | `apps/api/src/common/http/`, `apps/api/src/config/env.ts` | AUTH-001 |
+| E2E tests refuse to run against a database whose name does not contain "test" | `apps/api/test/test-env.ts` | AUTH-001 |
+
+Known gaps (tracked in `DECISIONS_AND_OPEN_QUESTIONS.md` questions 46–48):
+- Access tokens remain valid until expiry after sign-out.
+- No platform admin MFA or password reset yet.
+- No API-level rate limiting yet (Supabase Auth rate-limits sign-in and OTP).
+- The production SMS vendor is not chosen.

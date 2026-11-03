@@ -23,3 +23,7 @@ coverage/
 apps/api/src/generated/
 apps/admin_web/next-env.d.ts
 packages/api_contracts/openapi.json
+
+# Local Supabase CLI state and private signing keys (gitignored)
+infra/supabase/signing_keys.json
+infra/supabase/.temp/

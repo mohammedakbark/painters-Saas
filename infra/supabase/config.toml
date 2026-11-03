@@ -1,0 +1,124 @@
+# Local Supabase stack — AUTH ONLY (ADR 0005).
+#
+# Run from the repo root: `pnpm supabase:start` / `pnpm supabase:stop` / `pnpm supabase:status`.
+# The application database is NOT this one: app data lives in the Docker Compose Postgres in
+# infra/local (Prisma migrations). This stack provides Supabase Auth (GoTrue) behind the local
+# API gateway on http://127.0.0.1:54321. Every other Supabase service is disabled.
+#
+# Reference: https://supabase.com/docs/guides/local-development/cli/config
+#
+# !! This file is for LOCAL DEVELOPMENT ONLY. Never run `supabase config push` with it:
+# !! it contains fixed test OTPs (see [auth.sms.test_otp]) that must never reach a hosted project.
+
+project_id = "paintshop-local"
+
+[api]
+# PostgREST (the Data API) is disabled. Clients never read data from Supabase directly; all data
+# goes through the NestJS API. The hosted project must also have the Data API disabled.
+enabled = false
+# Port of the local API gateway (Auth is served at /auth/v1).
+port = 54321
+
+[db]
+# Supabase's own Postgres (holds the auth schema only). Not the application database.
+port = 54322
+shadow_port = 54320
+major_version = 17
+
+[db.migrations]
+enabled = false
+
+[db.seed]
+enabled = false
+
+[realtime]
+enabled = false
+
+[studio]
+enabled = false
+
+[local_smtp]
+enabled = false
+
+[storage]
+enabled = false
+
+[edge_runtime]
+enabled = false
+
+[analytics]
+enabled = false
+
+[auth]
+enabled = true
+site_url = "http://localhost:3001"
+additional_redirect_urls = ["http://localhost:3001"]
+jwt_expiry = 3600
+# ES256 signing key, generated locally with `pnpm supabase:keys`. Gitignored; never commit it.
+# Tokens are verified by the API through the JWKS endpoint (asymmetric keys only).
+signing_keys_path = "./signing_keys.json"
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+# No public sign-up yet. Platform admins are created with `pnpm --filter api platform-admin:create`
+# and shop master accounts by the platform API. Customer phone sign-up arrives in Phase 2.
+enable_signup = false
+enable_anonymous_sign_ins = false
+enable_manual_linking = false
+# Platform admin passwords (email + password sign-in).
+minimum_password_length = 12
+password_requirements = "lower_upper_letters_digits"
+
+[auth.rate_limit]
+sms_sent = 30
+token_refresh = 150
+sign_in_sign_ups = 30
+token_verifications = 30
+
+[auth.email]
+# Despite its name, this key turns the EMAIL PROVIDER on (GOTRUE_EXTERNAL_EMAIL_ENABLED); platform
+# admins need it for email + password sign-in. New sign-ups stay blocked by `[auth] enable_signup`.
+enable_signup = true
+enable_confirmations = false
+double_confirm_changes = true
+secure_password_change = false
+max_frequency = "60s"
+otp_length = 6
+otp_expiry = 3600
+
+[auth.sms]
+# Despite its name, this key turns the PHONE PROVIDER on (GOTRUE_EXTERNAL_PHONE_ENABLED); shop users
+# need it for OTP sign-in. New sign-ups stay blocked by `[auth] enable_signup`.
+enable_signup = true
+enable_confirmations = false
+template = "Your verification code is {{ .Code }}"
+# Minimum time before another OTP can be requested for the same number (resend cooldown).
+max_frequency = "60s"
+
+# Fixed OTPs for local testing. Keys are the phone number with country code, without "+".
+# No SMS is sent for these numbers. LOCAL ONLY — never push this to a hosted project.
+[auth.sms.test_otp]
+919999900001 = "123456"
+919999900002 = "123456"
+919999900003 = "123456"
+
+# Supabase requires an enabled SMS provider for phone sign-in. Locally only the test numbers above
+# are used, so these are placeholders and nothing is ever sent. The production SMS vendor (for
+# example MSG91 via the Send SMS Hook) and DLT registration are an open decision.
+[auth.sms.twilio]
+enabled = true
+account_sid = "ACLOCALPLACEHOLDER"
+message_service_sid = "MGLOCALPLACEHOLDER"
+# Placeholder, not a credential: test numbers never reach Twilio.
+auth_token = "local-placeholder-not-a-secret"
+
+[auth.mfa]
+max_enrolled_factors = 10
+
+# Platform admin MFA (TOTP) is planned before production; not enabled yet.
+[auth.mfa.totp]
+enroll_enabled = false
+verify_enabled = false
+
+[auth.mfa.phone]
+enroll_enabled = false
+verify_enabled = false

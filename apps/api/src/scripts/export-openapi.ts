@@ -1,7 +1,9 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { NestFactory } from '@nestjs/core';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from '../app.module.js';
+import { configureApp } from '../app.setup.js';
 import { createOpenApiDocument } from '../openapi/openapi.js';
 
 /**
@@ -16,9 +18,10 @@ async function exportOpenApi(): Promise<void> {
   }
   const outputPath = resolve(target);
 
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: ['error', 'warn'],
   });
+  configureApp(app);
   try {
     const document = createOpenApiDocument(app);
     await mkdir(dirname(outputPath), { recursive: true });

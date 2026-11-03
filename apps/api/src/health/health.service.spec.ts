@@ -1,4 +1,4 @@
-import { Logger, ServiceUnavailableException } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import type { PrismaService } from '../prisma/prisma.service.js';
 import { HealthService } from './health.service.js';
 
@@ -29,15 +29,12 @@ describe('HealthService', () => {
     });
   });
 
-  it('throws 503 with the failing check when the database is unreachable', async () => {
+  it('reports the failing check when the database is unreachable', async () => {
     const service = createService(() =>
       Promise.reject(new Error('connect ECONNREFUSED 127.0.0.1:5432')),
     );
 
-    const error: unknown = await service.checkReadiness().catch((e) => e);
-
-    expect(error).toBeInstanceOf(ServiceUnavailableException);
-    expect((error as ServiceUnavailableException).getResponse()).toEqual({
+    await expect(service.checkReadiness()).resolves.toEqual({
       status: 'error',
       checks: { database: 'down' },
     });
@@ -48,7 +45,7 @@ describe('HealthService', () => {
       Promise.reject(new Error('password authentication failed for user "x"')),
     );
 
-    await service.checkReadiness().catch(() => undefined);
+    await service.checkReadiness();
 
     expect(warn).toHaveBeenCalledTimes(1);
     expect(String(warn.mock.calls[0]?.[0])).not.toContain('password');
