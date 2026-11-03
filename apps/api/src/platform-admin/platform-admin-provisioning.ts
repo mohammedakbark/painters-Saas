@@ -8,7 +8,7 @@ import {
 } from '../identity/identity-admin.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 
-export type ProvisionOutcome = 'created' | 'granted_existing' | 'already_admin';
+export type ProvisionOutcome = 'created' | 'already_admin';
 
 /** A problem the operator can fix. The message is safe to print. */
 export class ProvisioningError extends Error {
@@ -77,8 +77,13 @@ export class PlatformAdminProvisioning {
       return 'already_admin';
     }
     if (existing) {
-      await this.grant(existing.id, 'existing_user');
-      return 'granted_existing';
+      // Never promote an existing account: with public sign-up enabled, anyone
+      // could have registered this email first and would become an admin.
+      throw new ProvisioningError(
+        'An account with this email already exists and is not a platform admin. ' +
+          'Existing accounts are never promoted. Use a different email, or remove ' +
+          'that account first.',
+      );
     }
 
     const password = await readPassword();
@@ -112,21 +117,6 @@ export class PlatformAdminProvisioning {
     return 'created';
   }
 
-  private async grant(userId: string, source: string): Promise<void> {
-    await this.prisma.$transaction(async (tx) => {
-      await tx.platformAdmin.create({
-        data: { userId, role: 'SUPER_ADMIN' },
-      });
-      await recordAuditEvent(tx, {
-        actor: { type: 'SYSTEM' },
-        action: AuditAction.PlatformAdminGranted,
-        entityType: 'user',
-        entityId: userId,
-        metadata: { role: 'SUPER_ADMIN', source: `operator_script:${source}` },
-      });
-    });
-  }
-
   private async createIdentity(
     email: string,
     password: string,
@@ -140,9 +130,9 @@ export class PlatformAdminProvisioning {
     } catch (error) {
       if (error instanceof IdentityConflictError) {
         throw new ProvisioningError(
-          'An Auth account with this email already exists but is not linked to a ' +
-            'local user. Sign in with it once (any API call creates the link), then ' +
-            're-run this command.',
+          'An Auth account with this email already exists. Existing accounts are ' +
+            'never promoted to platform admin. Use a different email, or remove ' +
+            'that account first.',
         );
       }
       if (error instanceof IdentityRejectedError) {

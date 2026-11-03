@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import Home from './page';
 
 describe('Home page', () => {
-  it('renders the portal heading and the platform sign-in link', () => {
+  it('renders the portal heading and both sign-in links', () => {
     render(<Home />);
 
     expect(
@@ -12,5 +12,10 @@ describe('Home page', () => {
     expect(
       screen.getByRole('link', { name: /Platform admin/ }).getAttribute('href'),
     ).toBe('/platform/sign-in');
+    expect(
+      screen
+        .getByRole('link', { name: /Shop owners and staff/ })
+        .getAttribute('href'),
+    ).toBe('/sign-in');
   });
 });

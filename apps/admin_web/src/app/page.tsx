@@ -14,6 +14,19 @@ export default function Home() {
       <ul className="flex flex-col gap-3">
         <li>
           <Link
+            href="/sign-in"
+            className="flex flex-col gap-1 rounded-large border border-border-default bg-surface-default px-5 py-4 hover:border-border-strong focus-visible:outline-2 focus-visible:outline-brand-primary"
+          >
+            <span className="text-title font-semibold text-brand-primary">
+              Shop owners and staff
+            </span>
+            <span className="text-body text-text-secondary">
+              Sign in or register your shop with your mobile number.
+            </span>
+          </Link>
+        </li>
+        <li>
+          <Link
             href="/platform/sign-in"
             className="flex flex-col gap-1 rounded-large border border-border-default bg-surface-default px-5 py-4 hover:border-border-strong focus-visible:outline-2 focus-visible:outline-brand-primary"
           >

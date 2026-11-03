@@ -231,3 +231,4 @@ Migration `auth_001_identity`:
 |---|---|
 | 2026-11-03 | Initial feature specification |
 | 2026-11-03 | Implemented and verified locally; implementation notes added |
+| 2026-11-03 | SHP-001 enabled public sign-up (shops self-register), so `platform-admin:create` no longer promotes an existing account; it refuses and asks for a different email or for the account to be removed. The "grant existing user" outcome was removed. |

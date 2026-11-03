@@ -59,9 +59,11 @@ jwt_expiry = 3600
 signing_keys_path = "./signing_keys.json"
 enable_refresh_token_rotation = true
 refresh_token_reuse_interval = 10
-# No public sign-up yet. Platform admins are created with `pnpm --filter api platform-admin:create`
-# and shop master accounts by the platform API. Customer phone sign-up arrives in Phase 2.
-enable_signup = false
+# Sign-up is on: shop owners self-register with a mobile OTP (D-024). Supabase has one global
+# switch, so email sign-up is technically possible too; such accounts get no access (no platform
+# role, and the API requires a verified mobile number to register a shop). Platform admins are
+# created only with `pnpm --filter api platform-admin:create`, which never promotes existing accounts.
+enable_signup = true
 enable_anonymous_sign_ins = false
 enable_manual_linking = false
 # Platform admin passwords (email + password sign-in).
@@ -76,7 +78,7 @@ token_verifications = 30
 
 [auth.email]
 # Despite its name, this key turns the EMAIL PROVIDER on (GOTRUE_EXTERNAL_EMAIL_ENABLED); platform
-# admins need it for email + password sign-in. New sign-ups stay blocked by `[auth] enable_signup`.
+# admins need it for email + password sign-in.
 enable_signup = true
 enable_confirmations = false
 double_confirm_changes = true
@@ -87,7 +89,7 @@ otp_expiry = 3600
 
 [auth.sms]
 # Despite its name, this key turns the PHONE PROVIDER on (GOTRUE_EXTERNAL_PHONE_ENABLED); shop users
-# need it for OTP sign-in. New sign-ups stay blocked by `[auth] enable_signup`.
+# need it for OTP sign-in and sign-up.
 enable_signup = true
 enable_confirmations = false
 template = "Your verification code is {{ .Code }}"

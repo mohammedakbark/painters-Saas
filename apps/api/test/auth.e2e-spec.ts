@@ -112,6 +112,7 @@ describe('Authentication and GET /v1/me (e2e, real Postgres)', () => {
       phone: '+919999900001',
       displayName: null,
       platformRole: null,
+      shopMemberships: [],
     });
     const stored = await testApp.prisma.user.findUniqueOrThrow({
       where: { authSubject: sub },

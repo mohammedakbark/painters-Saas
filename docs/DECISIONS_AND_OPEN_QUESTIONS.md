@@ -28,7 +28,10 @@ This document prevents assumptions from silently becoming requirements.
 | D-020 | Initial market Kerala, English UI, Android, iOS and responsive web. | Confirmed |
 | D-021 | Supabase Auth is the identity provider. | Confirmed (product owner, 2026-11-03) |
 | D-022 | Customers and shop users (master and staff) sign in with mobile OTP; Platform Super Admins sign in with email + password, with MFA added before production. | Confirmed (product owner, 2026-11-03) |
-| D-023 | In the first build, only Platform Super Admin creates shops (no shop self-registration). | Confirmed (product owner, 2026-11-03) |
+| D-023 | ~~In the first build, only Platform Super Admin creates shops.~~ **Superseded by D-024** the same day. | Superseded |
+| D-024 | Anyone can register their shop themselves on the web portal (mobile OTP); the registering person becomes the protected master account. The Shop App stays login-only (D-013). | Confirmed (product owner, 2026-11-03) |
+| D-025 | A self-registered shop is shown to customers and painters only after a Platform Super Admin approves it. The owner first completes the onboarding checklist (D-012) and submits the shop for review; the admin reviews the complete shop. | Confirmed (product owner, 2026-11-03) |
+| D-026 | One person (one mobile number) may be the master account of several shops; each shop's data stays separate and every request works on one shop. | Confirmed (product owner, 2026-11-03) |
 
 ## 2. Proposed technical decisions — require approval
 
@@ -72,7 +75,7 @@ Do not treat proposals as approved until the product owner confirms them.
 ## 3. Open product questions
 
 ### Shop onboarding and relationship
-1. ~~Can a shop register itself, or can only Platform Super Admin create shops?~~ **Resolved for the first build (D-023):** only Platform Super Admin. Self-registration may be revisited later.
+1. ~~Can a shop register itself, or can only Platform Super Admin create shops?~~ **Resolved (D-024, D-025):** shops self-register on the web; a platform admin approves them after the onboarding checklist.
 2. Can a customer browse any shop without adding it to `My Shops`?
 3. Does adding a shop happen immediately, by request/approval or invitation?
 4. Can a shop edit its profile after activation, or are some changes platform-approved?
@@ -136,6 +139,9 @@ Do not treat proposals as approved until the product owner confirms them.
 46. Which SMS vendor sends production OTPs (for example MSG91 through Supabase's Send SMS Hook, or Twilio/Vonage), and who completes the DLT registration of the sender ID and OTP template? Required before customers or shop users can sign in on a hosted environment.
 47. Platform admin MFA (TOTP) and password reset must exist before production. When should they be scheduled, and is TOTP acceptable as the second factor?
 48. What session policy applies after sign-out or account removal? Access tokens stay valid until expiry (1 hour by default). Options: a shorter token lifetime, or a server-side session check for platform routes.
+49. Should the number of shops one person can register, or have waiting as drafts/pending review, be limited? Today it is unlimited; unapproved shops are never visible to customers.
+50. What does a platform admin do with a shop it does not approve: reject with a reason and allow resubmission, or something else? (Needed for the approval feature, PLT-002.)
+51. Public email sign-up is technically possible because Supabase has one global sign-up switch; such accounts get no access. For the hosted project, which mitigation is preferred: email confirmations + CAPTCHA, or a before-user-created hook that only allows phone sign-ups?
 
 ## 3a. Temporary assumptions (foundation)
 
@@ -143,6 +149,9 @@ Do not treat proposals as approved until the product owner confirms them.
 - Working display names "Customer App", "Shop App" and "Admin portal" are used until the product name is decided.
 - Local database names `paintshop_dev` / `paintshop_test` are neutral placeholders and do not imply a product name.
 - One platform role (`SUPER_ADMIN`) is enough for now; narrower platform roles are added only if the product needs them (AUTH-001).
+- Shop registration asks only for the shop name and the owner's name; address, photo and support mobile are collected by the onboarding profile feature (SHP-001).
+- Mobile numbers are Indian (+91) only for the initial Kerala market (SHP-001).
+- Shop names are not unique across the platform (SHP-001).
 
 ## 4. Rules while questions are open
 

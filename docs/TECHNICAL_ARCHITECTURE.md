@@ -218,7 +218,9 @@ Verified compatible with Flutter 3.47.9 but **not added yet** (added with the fi
 │   ├── admin_web/                  # Next.js portal
 │   │   └── src/
 │   │       ├── proxy.ts            # session refresh + optimistic redirect
-│   │       ├── app/platform/       # sign-in, (console) layout + pages, no-access, error boundary
+│   │       ├── app/platform/       # platform sign-in, (console) layout + pages, no-access, error boundary
+│   │       ├── app/sign-in/        # shop users: two-step mobile OTP
+│   │       ├── app/shops/          # my shops, register a shop, [shopId] console, not-found, error
 │   │       ├── components/ui/      # Button, SubmitButton, Field, Alert, PageHeader, Spinner, StateMessage
 │   │       ├── components/layout/  # AppShell, NavLinks
 │   │       └── lib/                # env, supabase/, api/ (server-only client), auth/ (DAL)
@@ -226,7 +228,7 @@ Verified compatible with Flutter 3.47.9 but **not added yet** (added with the fi
 │   │   ├── prisma/                 # schema.prisma + migrations/
 │   │   ├── src/
 │   │   │   ├── app.setup.ts        # /v1 prefix, validation pipe, problem filter
-│   │   │   ├── auth/  users/  platform-admin/  identity/  audit/
+│   │   │   ├── auth/  users/  platform-admin/  identity/  audit/  shops/  shop-access/
 │   │   │   ├── common/http  common/validation  config/  health/  openapi/  prisma/
 │   │   │   └── scripts/            # export-openapi, create-platform-admin
 │   │   └── test/                   # e2e suites + support (test tokens, fake identity, DB reset)
@@ -247,11 +249,11 @@ The two toolchains are independent. pnpm manages only `apps/api` and `apps/admin
 ### 14.3 What exists
 
 - **API:**
-  - Routes: `GET /health` and `GET /health/ready` (public, unversioned) and `GET /v1/me` (authenticated).
+  - Routes: `GET /health` and `GET /health/ready` (public, unversioned); `GET /v1/me`, `POST /v1/shops` and `GET /v1/shops/:shopId` (authenticated). Shop routes are tenant-scoped by `ShopAccessGuard` (membership of the shop in the URL; 404 otherwise).
   - Every other route needs a valid Supabase access token (global `AuthGuard`, ADR 0005).
   - Errors are RFC 9457 problem details; request validation uses Zod (ADR 0006).
-  - Tables: `users`, `platform_admins`, `audit_events` (append-only).
-  - Platform admins are created only by the operator script.
+  - Tables: `users`, `platform_admins`, `audit_events` (append-only), `shops` (status `DRAFT` only so far), `shop_memberships` (role `MASTER` only so far; one master per shop).
+  - Platform admins are created only by the operator script. Shops are self-registered by phone-verified users (D-024).
   - Swagger UI at `/docs` and JSON at `/docs-json` when `NODE_ENV` is not `production`.
   - The Prisma client and the JWKS fetch are both lazy, so building the app and exporting OpenAPI need neither a database nor Supabase.
 - **Web:**
@@ -259,6 +261,7 @@ The two toolchains are independent. pnpm manages only `apps/api` and `apps/admin
   - `/platform/sign-in`: email + password.
   - `/platform`: platform console (overview), with every page gated by `requirePlatformAdmin()`.
   - `/platform/no-access`.
+  - `/sign-in` (shop users, mobile OTP), `/shops` (my shops), `/shops/new` (register), `/shops/[shopId]` (shop console, gated by `requireShopAccess()` in layout and pages).
   - Design tokens as Tailwind v4 `@theme` variables, with the default palette, font sizes, radii and breakpoints reset.
   - Cache Components is enabled: session reads sit behind `<Suspense>` and `connection()`.
 - **Flutter:** each app shows a placeholder screen with `AppTheme.light()` from `flutter_shared`. `flutter_shared` holds the tokens, the Material 3 theme and the Inter 4.1 static fonts (OFL 1.1).
@@ -287,7 +290,7 @@ cd apps/customer_app && fvm flutter run        # or apps/shop_app
 - **Postgres port taken:** if 5432 is already used (for example by another project's Postgres), set `POSTGRES_PORT` in `infra/local/.env` and use the same port in `apps/api/.env` and `.env.test`.
 - **API port taken:** if 3000 is used, set `PORT` in `apps/api/.env` and `API_BASE_URL` in `apps/admin_web/.env.local` to match.
 - **Hidden password prompt:** run `platform-admin:create` from a real terminal (PowerShell or Windows Terminal). In Git Bash/mintty Node cannot hide input, so the script warns and reads the line as typed.
-- **Test OTPs:** the local Auth stack has fixed test OTPs for `+91 99999 00001`–`00003` (code `123456`); no SMS is sent. Public sign-up is disabled.
+- **Test OTPs:** the local Auth stack has fixed test OTPs for `+91 99999 00001`–`00003` (code `123456`); no SMS is sent. Sign-up is enabled (shop self-registration); the first OTP sign-in with a new number creates the account.
 - **Port exposure:** the Supabase CLI publishes its ports on all interfaces. Keep the firewall on for untrusted networks (ADR 0005).
 
 ### 14.5 Quality commands

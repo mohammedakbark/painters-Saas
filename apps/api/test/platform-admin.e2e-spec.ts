@@ -120,16 +120,19 @@ describe('Platform admin access (e2e, real Postgres)', () => {
       expect(await testApp.prisma.auditEvent.count()).toBe(1);
     });
 
-    it('grants access to an existing local user without creating an identity', async () => {
+    it('never promotes an existing account (it could have been self-registered)', async () => {
       await testApp.prisma.user.create({
         data: { authSubject: randomUUID(), email: 'ops@example.com' },
       });
+      const readPassword = vi.fn(() => Promise.resolve(STRONG_PASSWORD));
 
-      await expect(provision('ops@example.com')).resolves.toBe(
-        'granted_existing',
-      );
+      await expect(
+        provisioning.provision('ops@example.com', readPassword),
+      ).rejects.toThrow(/already exists and is not a platform admin/);
+      expect(readPassword).not.toHaveBeenCalled();
       expect(testApp.identity.users.size).toBe(0);
-      expect(await testApp.prisma.auditEvent.count()).toBe(1);
+      expect(await testApp.prisma.platformAdmin.count()).toBe(0);
+      expect(await testApp.prisma.auditEvent.count()).toBe(0);
     });
 
     it.each([
@@ -156,7 +159,7 @@ describe('Platform admin access (e2e, real Postgres)', () => {
       testApp.identity.users.set(randomUUID(), { email: 'root@example.com' });
 
       await expect(provision('root@example.com')).rejects.toThrow(
-        /already exists but is not linked/,
+        /An Auth account with this email already exists/,
       );
       expect(await testApp.prisma.user.count()).toBe(0);
     });

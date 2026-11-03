@@ -101,6 +101,11 @@ function clientSafeDetail(
   if (isBodyParseError(exception)) {
     return { detail: 'The request body is not valid JSON.' };
   }
+  // Nest maps body-parser SyntaxErrors (malformed JSON) and URIErrors to a
+  // BadRequestException carrying the parser message, which can echo input.
+  if (exception instanceof HttpException && status === 400) {
+    return { detail: 'The request is malformed.' };
+  }
   if (exception instanceof HttpException && status === 404) {
     return { detail: 'The requested resource was not found.' };
   }

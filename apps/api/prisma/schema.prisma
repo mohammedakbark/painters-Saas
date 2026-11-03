@@ -33,8 +33,9 @@ model User {
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  platformAdmin PlatformAdmin?
-  auditEvents   AuditEvent[]
+  platformAdmin   PlatformAdmin?
+  auditEvents     AuditEvent[]
+  shopMemberships ShopMembership[]
 
   @@map("users")
 }
@@ -84,8 +85,60 @@ model AuditEvent {
   metadata    Json?
 
   actor User? @relation(fields: [actorUserId], references: [id], onDelete: Restrict)
+  shop  Shop? @relation(fields: [shopId], references: [id], onDelete: Restrict)
 
   @@index([shopId, occurredAt])
   @@index([entityType, entityId])
   @@map("audit_events")
+}
+
+// ---------------------------------------------------------------------------
+// Shops and membership (SHP-001)
+// ---------------------------------------------------------------------------
+
+/// Lifecycle of a shop. New shops are drafts and are never visible to
+/// customers. Review and approval statuses arrive with that feature.
+enum ShopStatus {
+  DRAFT
+
+  @@map("shop_status")
+}
+
+/// The tenant. Every shop-owned record references a shop.
+model Shop {
+  id        String     @id @default(uuid(7)) @db.Uuid
+  /// Trimmed, 2–120 characters (CHECK constraint in the migration).
+  name      String
+  status    ShopStatus @default(DRAFT)
+  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  memberships ShopMembership[]
+  auditEvents AuditEvent[]
+
+  @@map("shops")
+}
+
+/// Shop roles. MASTER is the protected owner account (one per shop, partial
+/// unique index in the migration). Staff roles arrive with staff management.
+enum ShopRole {
+  MASTER
+
+  @@map("shop_role")
+}
+
+/// Links a user to a shop. The only source of shop authorization.
+model ShopMembership {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  shopId    String   @map("shop_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  role      ShopRole
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  shop Shop @relation(fields: [shopId], references: [id], onDelete: Restrict)
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@unique([shopId, userId])
+  @@index([userId])
+  @@map("shop_memberships")
 }

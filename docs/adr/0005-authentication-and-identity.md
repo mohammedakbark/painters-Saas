@@ -15,10 +15,10 @@ Every feature after the foundation needs a verified identity. Platform admins ne
 - **Supabase Auth** is the identity provider.
 - **Customers and shop users** (master and staff) sign in with **mobile OTP**.
 - **Platform Super Admins** sign in with **email + password**. MFA for platform admins is required before production; it is not built yet.
-- Public sign-up is **disabled** for now:
-  - Platform admins are created by an operator script (`pnpm --filter api platform-admin:create`).
-  - Shop master accounts are created by the platform API (PLT-001).
-  - Customer phone sign-up is enabled with the customer registration feature (Phase 2).
+- **Sign-up:**
+  - It was initially disabled (AUTH-001).
+  - Since SHP-001 it is **enabled**, so shop owners self-register with a mobile OTP (D-024). Supabase has one global switch, so public email sign-up is technically possible too. Such accounts get no access: they have no platform role, and the API requires a verified mobile number to register a shop. Hosted mitigation is open question 51.
+  - Platform admins are created only by the operator script (`pnpm --filter api platform-admin:create`). The script **never promotes an existing account**, because anyone could have registered that email first.
 
 ### Token verification in the API
 

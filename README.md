@@ -43,7 +43,11 @@ Commit documentation, source code, migrations, tests and safe configuration exam
 
 ## Current status
 
-The **project foundation (M0)** is in place: a monorepo with Flutter app shells, a Next.js admin portal, a NestJS API, a shared Flutter design-token package, local PostgreSQL, quality checks and GitHub Actions CI. The first feature, **AUTH-001 (platform admin sign-in)**, is implemented on top of Supabase Auth. Shop and customer features are not built yet, and **no cloud infrastructure exists**. See `docs/PROJECT_STATE.md` for the live status.
+The **project foundation (M0)** is in place: a monorepo with Flutter app shells, a Next.js admin portal, a NestJS API, a shared Flutter design-token package, local PostgreSQL, quality checks and GitHub Actions CI. Built on Supabase Auth so far:
+- **AUTH-001:** platform admin sign-in.
+- **SHP-001:** shop owners sign in with a mobile OTP and register their shop, with tenant-scoped shop access.
+
+Catalogue, customer and order features are not built yet, and **no cloud infrastructure exists**. See `docs/PROJECT_STATE.md` for the live status.
 
 ## Repository layout
 
@@ -78,7 +82,8 @@ pnpm --filter api db:migrate:deploy
 pnpm --filter api platform-admin:create --email admin@example.com
 
 pnpm --filter api start:dev                         # http://localhost:3000/health, docs at /docs
-pnpm --filter admin_web dev --port 3001             # http://localhost:3001/platform/sign-in
+pnpm --filter admin_web dev --port 3001             # http://localhost:3001 (local shop sign-in: numbers
+                                                    # 99999 00001-00003, code 123456)
 cd apps/customer_app && fvm flutter run
 ```
 

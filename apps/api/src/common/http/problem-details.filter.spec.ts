@@ -1,5 +1,6 @@
 import {
   type ArgumentsHost,
+  BadRequestException,
   ForbiddenException,
   HttpStatus,
   Logger,
@@ -123,6 +124,19 @@ describe('ProblemDetailsFilter', () => {
       title: 'Bad Request',
       status: 400,
       detail: 'The request body is not valid JSON.',
+    });
+  });
+
+  it('replaces framework 400 messages, which can echo the input', () => {
+    const response = render(
+      new BadRequestException('Unexpected token s in JSON at position 2'),
+    );
+
+    expect(response.body).toEqual({
+      type: 'about:blank',
+      title: 'Bad Request',
+      status: 400,
+      detail: 'The request is malformed.',
     });
   });
 

@@ -40,8 +40,8 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 | Feature | Status | Notes |
 |---|---|---|
 | One shared Shop App | Confirmed | Not a separate binary per shop/staff member. |
-| Login-only access | Confirmed | Accounts created through web administration. |
-| Master account created with shop | Confirmed | Protected owner-level permissions. |
+| Login-only access | Confirmed | Accounts are created on the web portal (shop self-registration, D-024); the Shop App never offers sign-up. |
+| Master account created with shop | **Implemented (SHP-001)** | The registering person becomes the MASTER; the database allows one master per shop. One person may master several shops (D-026). |
 | Role-based staff access | Confirmed direction | Additional staff seats may be paid later. |
 | View/manage assigned orders | Confirmed direction | Depends on role. |
 | Update order status | Confirmed direction | Exact statuses/transitions open. |
@@ -51,7 +51,8 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 
 | Feature | Status | Notes |
 |---|---|---|
-| Shop profile/onboarding checklist | Confirmed | Photo, address, support mobile, minimum 10 products before public discovery. |
+| Shop self-registration (web) | **Implemented (SHP-001)** | Mobile OTP sign-in/up, register shop name + owner name; the shop starts as a private Draft. Spec: `docs/features/SHP-001-shop-registration-and-sign-in.md`. |
+| Shop profile/onboarding checklist | Confirmed | Photo, address, support mobile, minimum 10 products before public discovery; then the owner submits for review (D-025). |
 | Product/category/brand/pack management | Confirmed | Catalogue requirements in Product Overview. |
 | Product images and shade codes | Confirmed | Storage and catalogue integration to decide. |
 | Shop prices and offers | Confirmed | Customer-specific pricing rules need detail. |
@@ -72,8 +73,8 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 | Feature | Status | Notes |
 |---|---|---|
 | Platform admin sign-in | **Implemented (AUTH-001)** | Email + password; MFA and password reset before production. Spec: `docs/features/AUTH-001-platform-admin-sign-in.md`. |
-| Create/manage shops | Confirmed | Shop creation creates master account. First build: platform admin only (D-023). |
-| Shop onboarding review | Confirmed direction | Activate after checklist completion. |
+| Create/manage shops | Changed (D-024) | Shops self-register; the platform admin reviews them. Read-only shop registry next (PLT-001). |
+| Shop onboarding review | Confirmed (D-025) | Approve after the owner completes the checklist and submits; only approved shops are visible to customers and painters (PLT-002). Rejection rules: question 50. |
 | Suspend/reactivate shops | Proposed | Needs policy and audit trail. |
 | Platform-level overview/configuration | Confirmed direction | Separate platform permissions. |
 | Future plans/seat entitlements | Later | Architecture-ready only; no billing now. |
@@ -84,8 +85,8 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 |---|---|---|
 | Shared multi-tenant database | Confirmed | Strong isolation between shops. |
 | Global customer identity | Proposed / foundation implemented | Global `User` linked to the Supabase account (AUTH-001); customer profile comes with customer registration. |
-| Shop membership and roles | Confirmed direction | Master and staff roles. |
-| Tenant authorization on every API | Mandatory | Backend enforced; frontend hiding is not security. |
+| Shop membership and roles | Master implemented (SHP-001) | Staff roles come with staff management. |
+| Tenant authorization on every API | Mandatory / implemented for shop routes | `ShopAccessGuard` on every `/v1/shops/:shopId` route; cross-tenant e2e tests (SHP-001). |
 | Audit trail | Mandatory for sensitive actions | Credit, bills, payments, role changes, ratings and platform actions. Append-only `audit_events` table implemented (AUTH-001). |
 | Transaction-safe financial ledger | Mandatory | No unexplained balance overwrites. |
 | OpenAPI/Swagger | Implemented | `/docs` outside production; contract exported to `packages/api_contracts/openapi.json` and checked in CI. |
@@ -103,7 +104,7 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 - Define authentication, roles and tenant boundaries.
 
 ### Phase 1 — Shop onboarding and catalogue
-- Platform admin shop creation and master-account creation.
+- ~~Platform admin shop creation and master-account creation.~~ Replaced by shop self-registration (SHP-001, done) and a platform shop registry plus review (PLT-001, PLT-002).
 - Shop profile completion checklist.
 - Product/category/brand/pack management.
 - Product images and shade/colour-code fields.

@@ -4,6 +4,7 @@ import { AuthModule } from './auth/auth.module.js';
 import { validateEnv } from './config/env.js';
 import { HealthModule } from './health/health.module.js';
 import { PlatformAdminModule } from './platform-admin/platform-admin.module.js';
+import { ShopsModule } from './shops/shops.module.js';
 import { UsersModule } from './users/users.module.js';
 
 @Module({
@@ -20,6 +21,7 @@ import { UsersModule } from './users/users.module.js';
     HealthModule,
     UsersModule,
     PlatformAdminModule,
+    ShopsModule,
   ],
 })
 export class AppModule {}

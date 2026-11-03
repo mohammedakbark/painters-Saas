@@ -32,7 +32,7 @@
             "bearer": []
           }
         ],
-        "summary": "The authenticated caller and their roles.",
+        "summary": "The authenticated caller, their platform role and their shops.",
         "tags": [
           "me"
         ]
@@ -91,6 +91,129 @@
           "health"
         ]
       }
+    },
+    "/v1/shops": {
+      "post": {
+        "operationId": "ShopsController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterShopRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyShop"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account has no verified mobile number.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Register a shop. The caller becomes its master account.",
+        "tags": [
+          "shops"
+        ]
+      }
+    },
+    "/v1/shops/{shopId}": {
+      "get": {
+        "operationId": "ShopsController_get",
+        "parameters": [
+          {
+            "name": "shopId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyShop"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown shop, or the caller is not a member.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "A shop the caller is a member of.",
+        "tags": [
+          "shops"
+        ]
+      }
     }
   },
   "info": {
@@ -141,6 +264,42 @@
             "enum": [
               "SUPER_ADMIN"
             ]
+          },
+          "shopMemberships": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "shopId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "shopName": {
+                  "type": "string"
+                },
+                "shopStatus": {
+                  "type": "string",
+                  "enum": [
+                    "DRAFT"
+                  ]
+                },
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "MASTER"
+                  ]
+                }
+              },
+              "required": [
+                "shopId",
+                "shopName",
+                "shopStatus",
+                "role"
+              ],
+              "additionalProperties": false
+            },
+            "description": "Shops the caller belongs to, most recent first."
           }
         },
         "required": [
@@ -148,7 +307,8 @@
           "email",
           "phone",
           "displayName",
-          "platformRole"
+          "platformRole",
+          "shopMemberships"
         ],
         "additionalProperties": false
       },
@@ -252,6 +412,63 @@
           "status",
           "checks"
         ]
+      },
+      "RegisterShopRequest": {
+        "type": "object",
+        "properties": {
+          "shopName": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "ownerName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "shopName",
+          "ownerName"
+        ]
+      },
+      "MyShop": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT"
+            ]
+          },
+          "myRole": {
+            "type": "string",
+            "enum": [
+              "MASTER"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "status",
+          "myRole",
+          "createdAt"
+        ],
+        "additionalProperties": false
       }
     }
   }

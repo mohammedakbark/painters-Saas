@@ -7,8 +7,8 @@ import { AUTH_COOKIE_OPTIONS } from '@/lib/supabase/cookie-options';
  * 1. Refreshes the Supabase session cookies when the access token is close to
  *    expiry, so Server Components always see a usable token.
  * 2. Optimistically redirects signed-out visitors away from the platform
- *    console. This is a convenience only: every page and the API still
- *    authorize each request themselves.
+ *    console and the shop area. This is a convenience only: every page and
+ *    the API still authorize each request themselves.
  */
 export async function proxy(request: NextRequest) {
   const url = process.env.SUPABASE_URL;
@@ -43,21 +43,27 @@ export async function proxy(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const signedIn = Boolean(data?.claims);
 
-  const { pathname } = request.nextUrl;
-  if (!signedIn && isPlatformConsolePath(pathname)) {
+  const signInPath = signedIn ? null : signInPathFor(request.nextUrl.pathname);
+  if (signInPath) {
     const signIn = request.nextUrl.clone();
-    signIn.pathname = '/platform/sign-in';
+    signIn.pathname = signInPath;
     signIn.search = '';
     return NextResponse.redirect(signIn);
   }
   return response;
 }
 
-function isPlatformConsolePath(pathname: string): boolean {
-  return (
-    (pathname === '/platform' || pathname.startsWith('/platform/')) &&
-    pathname !== '/platform/sign-in'
-  );
+/** Where a signed-out visitor to this path must sign in; null for public pages. */
+function signInPathFor(pathname: string): string | null {
+  const within = (prefix: string) =>
+    pathname === prefix || pathname.startsWith(`${prefix}/`);
+  if (within('/platform') && pathname !== '/platform/sign-in') {
+    return '/platform/sign-in';
+  }
+  if (within('/shops')) {
+    return '/sign-in';
+  }
+  return null;
 }
 
 export const config = {

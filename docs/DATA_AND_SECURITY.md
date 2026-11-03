@@ -105,9 +105,16 @@ Keep this list accurate. It records what the code does today, not what is planne
 | Row Level Security enabled on every table (defense in depth against the Supabase Data API) | every migration | AUTH-001 |
 | Errors are problem documents; unexpected errors return a bare 500 and are logged server-side; tokens, passwords and OTPs are never logged; env errors never echo values | `apps/api/src/common/http/`, `apps/api/src/config/env.ts` | AUTH-001 |
 | E2E tests refuse to run against a database whose name does not contain "test" | `apps/api/test/test-env.ts` | AUTH-001 |
+| Shop routes require membership of the shop in the URL; non-members (including platform admins), unknown and malformed ids all get the same 404 | `apps/api/src/shop-access/shop-access.guard.ts` | SHP-001 |
+| Exactly one MASTER per shop (partial unique index); no API changes or removes memberships yet | migration `shp_001_shops` | SHP-001 |
+| Registering a shop requires a verified mobile number; email-only accounts are refused | `apps/api/src/shops/shops.service.ts` | SHP-001 |
+| The operator script never promotes an existing account to platform admin (sign-up is public) | `platform-admin-provisioning.ts` | SHP-001 |
+| Framework 400 messages (which can echo input) are replaced by a generic detail | `problem-details.filter.ts` | SHP-001 |
 
-Known gaps (tracked in `DECISIONS_AND_OPEN_QUESTIONS.md` questions 46–48):
+Known gaps (tracked in `DECISIONS_AND_OPEN_QUESTIONS.md` questions 46–51):
 - Access tokens remain valid until expiry after sign-out.
 - No platform admin MFA or password reset yet.
 - No API-level rate limiting yet (Supabase Auth rate-limits sign-in and OTP).
 - The production SMS vendor is not chosen.
+- Public email sign-up is possible (one global Supabase switch); such accounts have no access (question 51).
+- No limit on shop registrations per person (question 49).

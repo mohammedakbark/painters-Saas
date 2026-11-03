@@ -3,6 +3,8 @@ import type { Prisma } from '../generated/prisma/client.js';
 /** Audited actions. Add new actions here so names stay consistent. */
 export const AuditAction = {
   PlatformAdminGranted: 'platform_admin.granted',
+  ShopRegistered: 'shop.registered',
+  ShopMasterAssigned: 'shop_membership.master_assigned',
 } as const;
 
 export type AuditAction = (typeof AuditAction)[keyof typeof AuditAction];

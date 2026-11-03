@@ -6,6 +6,14 @@ server-side. Hiding navigation is not security.
 
 **Current state:** platform admin sign-in (AUTH-001): `/platform/sign-in` (email + password through a Server Action), the platform console shell at `/platform`, `/platform/no-access` and an error boundary. Sessions live in HTTP-only cookies (`@supabase/ssr`); `src/proxy.ts` refreshes them. All API calls are made from the server (`src/lib/api`). Every console page calls `requirePlatformAdmin()` itself.
 
+Shop area (SHP-001):
+- `/sign-in`: two-step mobile OTP.
+- `/shops`: my shops.
+- `/shops/new`: register a shop.
+- `/shops/[shopId]`: shop console.
+
+The layout and every page call `requireShopAccess(shopId)`. The API answers 404 for shops the user is not a member of.
+
 Setup: copy `.env.example` to `.env.local` and paste the local publishable key from `pnpm supabase:status`. No variable is `NEXT_PUBLIC_*`.
 
 ## Commands (run from the repo root with `pnpm --filter admin_web <script>`)

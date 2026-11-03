@@ -24,6 +24,14 @@ const VARIANTS: Record<ButtonVariant, string> = {
     'border border-border-strong bg-surface-default text-text-primary hover:bg-surface-subtle',
 };
 
+/** Button styles, shared with ButtonLink so links that act as actions look the same. */
+export function buttonClasses(
+  variant: ButtonVariant = 'primary',
+  className?: string,
+): string {
+  return cn(BASE, VARIANTS[variant], className);
+}
+
 export function Button({
   variant = 'primary',
   pending = false,
@@ -39,7 +47,7 @@ export function Button({
       type={type}
       disabled={disabled || pending}
       aria-busy={pending || undefined}
-      className={cn(BASE, VARIANTS[variant], className)}
+      className={buttonClasses(variant, className)}
       {...rest}
     >
       {pending ? <Spinner className="size-4" /> : null}

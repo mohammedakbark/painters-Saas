@@ -15,11 +15,11 @@ import { readHiddenLine } from './read-hidden-line.js';
  *
  * Creates a confirmed Supabase Auth account (the password is read from a
  * hidden prompt, never from arguments), the local user, the PlatformAdmin row
- * and a `platform_admin.granted` audit event. Re-running it is harmless.
+ * and a `platform_admin.granted` audit event. Re-running it for an existing
+ * admin is harmless; other existing accounts are never promoted.
  */
 const MESSAGES: Record<ProvisionOutcome, string> = {
   created: 'Created the account and granted platform admin access.',
-  granted_existing: 'Granted platform admin access to the existing user.',
   already_admin: 'This user is already a platform admin. Nothing changed.',
 };
 

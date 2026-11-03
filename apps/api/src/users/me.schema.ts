@@ -1,5 +1,9 @@
 import { z } from 'zod';
-import { PlatformRole } from '../generated/prisma/enums.js';
+import {
+  PlatformRole,
+  ShopRole,
+  ShopStatus,
+} from '../generated/prisma/enums.js';
 
 export const MeResponseSchema = z
   .object({
@@ -14,6 +18,16 @@ export const MeResponseSchema = z
       .enum(PlatformRole)
       .nullable()
       .meta({ description: 'Null unless the caller is a platform admin.' }),
+    shopMemberships: z
+      .array(
+        z.object({
+          shopId: z.uuid(),
+          shopName: z.string(),
+          shopStatus: z.enum(ShopStatus),
+          role: z.enum(ShopRole),
+        }),
+      )
+      .meta({ description: 'Shops the caller belongs to, most recent first.' }),
   })
   .meta({ id: 'MeResponse' });
 

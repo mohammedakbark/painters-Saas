@@ -9,6 +9,14 @@ const meSchema = z.object({
   phone: z.string().nullable(),
   displayName: z.string().nullable(),
   platformRole: z.enum(['SUPER_ADMIN']).nullable(),
+  shopMemberships: z.array(
+    z.object({
+      shopId: z.string(),
+      shopName: z.string(),
+      shopStatus: z.enum(['DRAFT']),
+      role: z.enum(['MASTER']),
+    }),
+  ),
 });
 
 export type Me = z.infer<typeof meSchema>;
