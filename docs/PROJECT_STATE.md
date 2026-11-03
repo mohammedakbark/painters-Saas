@@ -1,8 +1,8 @@
 # Project State — Living Document
 
 **Last updated:** 2026-11-03  
-**Current stage:** Phase 1: identity and shop accounts. AUTH-001, SHP-001 and PLT-001 done; SHP-002 (Shop App sign-in) next.  
-**Overall status:** Foundation complete with CI green on GitHub. Platform admin sign-in, shop self-registration with tenant-scoped access, and the platform shop registry implemented and verified locally.  
+**Current stage:** Phase 1: identity and shop accounts done (AUTH-001, SHP-001, PLT-001, SHP-002). The next features need product answers: onboarding profile, then the catalogue (questions 13, 15, 16 and 17).  
+**Overall status:** Foundation complete with CI green on GitHub. Implemented and verified locally: platform admin sign-in, shop self-registration with tenant-scoped access, the platform shop registry, and Shop App sign-in (Android emulator).  
 **Product name:** Not decided
 
 > Claude Code must read this file before every task and update it after every completed task or meaningful project change.
@@ -16,7 +16,7 @@
 | AUTH-001: Platform admin sign-in, plus auth and API conventions | **Complete (local)**; commit `3697e4f` on `feat/auth-001-platform-admin-sign-in` | `docs/features/AUTH-001-platform-admin-sign-in.md` |
 | SHP-001: Shop owner registration and sign-in (web), tenant-scoped access | **Complete (local)**; branch `feat/shp-001-shop-registration` (stacked on AUTH-001) | `docs/features/SHP-001-shop-registration-and-sign-in.md` |
 | PLT-001: Platform shop registry (read-only list and detail of registered shops) | **Complete (local)**; branch `feat/plt-001-shop-registry` (stacked on SHP-001) | `docs/features/PLT-001-platform-shop-registry.md` |
-| SHP-002: Shop App sign-in (Flutter, login-only) | Next | to be written |
+| SHP-002: Shop App sign-in (Flutter, login-only) | **Complete (local, Android emulator)**; branch `feat/shp-002-shop-app-sign-in` (stacked on PLT-001) | `docs/features/SHP-002-shop-app-sign-in.md` |
 | Onboarding profile (address, support mobile), shop photo, catalogue (CAT-001), then submit for review and PLT-002 approval | Planned | The catalogue needs answers to questions 13, 15, 16 and 17; approval needs question 50 |
 
 **M0: Project foundation** is `DONE`. The first commit (`c56f614`, pushed by the product owner) ran the `CI` workflow on GitHub with all three jobs green under Node 24.
@@ -28,8 +28,8 @@
 apps/admin_web/                   Next.js 16 portal: platform sign-in + console shell; shop OTP sign-in, my shops, register a shop, shop console shell; UI components
 apps/api/                         NestJS 12 API: auth guard (JWKS), /v1/me, platform-admin guard + operator script, shops + shop-access guard, audit, problem errors
 apps/customer_app/                Flutter shell (android, ios): placeholder screen + widget test
-apps/shop_app/                    Flutter shell (android, ios): placeholder screen + widget test
-packages/flutter_shared/          Design tokens, AppTheme.light(), Inter 4.1 fonts, token + contrast tests
+apps/shop_app/                    Flutter Shop App: OTP sign-in (Supabase), shop list, shop home, secure session storage (Riverpod, go_router, Dio)
+packages/flutter_shared/          Design tokens, AppTheme.light(), Inter 4.1 fonts, IndianMobileNumber, Loading/Message/Error views
 packages/api_contracts/           Generated openapi.json (health, /v1/me, /v1/shops*, /v1/platform/shops*)
 infra/local/                      Docker Compose Postgres 17 for app data (dev + separate test DB)
 infra/supabase/                   Supabase CLI config: Auth only, test OTPs, local ES256 signing key (gitignored)
@@ -85,20 +85,38 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
   - read-only platform shop registry: `GET /v1/platform/shops` (cursor pagination) and `GET /v1/platform/shops/:shopId`;
   - web `/platform/shops` list (table and cards) and detail;
   - **Shops** navigation item.
+- [x] SHP-002:
+  - Shop App mobile-OTP sign-in (login-only), shop list, shop home and sign-out;
+  - session in the platform keystore;
+  - shared Flutter state views and mobile parser;
+  - verified on the Android emulator against the local stack.
 
 ## 5. Not done
 
-- [ ] SHP-002 and the onboarding/approval features (see §1).
-- [ ] Push and CI run for the AUTH-001, SHP-001 and PLT-001 branches (not pushed; product owner decides).
+- [ ] Onboarding profile, shop photo, catalogue, submit for review and approval (see §1).
+- [ ] Push and CI run for the AUTH-001, SHP-001, PLT-001 and SHP-002 branches (not pushed; product owner decides).
 - [ ] Product answers: questions 49 (registration limit), 50 (rejection) and 51 (email sign-up mitigation).
 - [ ] Production SMS vendor + DLT registration (question 46). Platform admin MFA and password reset (question 47). Session policy after sign-out (question 48).
 - [ ] Hosting approved or any cloud resource created: none exists, including no Supabase project.
 - [ ] Final app identifiers (currently `com.example`).
-- [ ] Riverpod, go_router, Dio, supabase_flutter: verified compatible, not added (SHP-001 adds them).
+- [ ] Customer App features (registration, discovery, ordering); the Shop App now uses Riverpod, go_router, Dio and supabase_flutter.
 - [ ] Playwright browser tests and an interactive browser walkthrough of the portal.
 - [ ] iOS build verification (requires macOS).
 
 ## 6. Checks run on 2026-11-03 (local, Windows 11, Node 22.21.0)
+
+### SHP-002
+
+| Check | Result |
+|---|---|
+| `fvm flutter analyze` | No issues |
+| `fvm dart format` check (lib and test of the 3 Flutter packages) | Clean |
+| `fvm flutter test`: shop_app 19, flutter_shared 38, customer_app 1 | Passed |
+| `fvm flutter build apk --debug --dart-define-from-file=config/local.json` (shop_app) | Passed |
+| APK scan: no Supabase secret key value (only the publishable key, by design) | Verified |
+| Android emulator walkthrough against local Supabase + API: sign in, wrong code, shop list (tenant-scoped for two owners), shop home, restart keeps the session, sign out, unregistered number creates no account | Verified |
+| No plaintext token in app storage (encrypted secure storage) | Verified |
+| iOS build | **Not run** (requires macOS) |
 
 ### PLT-001
 
@@ -145,10 +163,11 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 
 ## 7. Next actions
 
-1. SHP-002: Shop App sign-in in Flutter (supabase_flutter, Riverpod, go_router, Dio; login-only).
-2. The onboarding profile (address, support mobile), then the shop photo (needs a storage decision), then the catalogue. Ask questions 13, 15, 16 and 17 first.
-3. Submit for review and PLT-002 approval (needs question 50).
-4. Install Node 24 locally. Push the branches when the product owner wants CI runs.
+1. **SHP-003: onboarding profile.** The owner adds the shop address and customer-support mobile, with a checklist on the shop console (web, plus read-only in the Shop App). Before building it, confirm which address fields are required (open question).
+2. **Shop photo.** Needs a storage decision (Supabase Storage public bucket proposed in §3 of the architecture doc).
+3. **Catalogue (CAT-001).** Ask questions 13, 15, 16 and 17 first.
+4. **Submit for review and PLT-002 approval.** Needs question 50; questions 49 and 51 are hardening.
+5. **Housekeeping.** Install Node 24 locally. Push the branches when the product owner wants CI runs.
 
 ## 8. Feature progress
 
@@ -158,7 +177,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | Architecture | Foundation + auth implemented | Hosting still proposed |
 | Design system | Provisional tokens implemented; first web components | Flutter `flutter_shared` + web `globals.css` + `components/ui` |
 | Platform admin sign-in | **Complete (local)** | AUTH-001 |
-| Shop onboarding | Registration done (SHP-001) | Profile, photo, products, submit and approval still to come |
+| Shop onboarding | Registration done (SHP-001); Shop App sign-in done (SHP-002) | Profile, photo, products, submit and approval still to come |
 | Customer authentication | Not started | Supabase phone OTP decided; SMS vendor open |
 | Catalogue | Not started | Inventory/tinting scope open |
 | Cross-shop search | Not started | Price visibility open |
@@ -201,3 +220,4 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-03 | Phase 0 auth decisions recorded (D-021–D-023). AUTH-001 implemented: auth foundation, platform admin sign-in, ADR 0005 and ADR 0006. |
 | 2026-11-03 | Shop model changed by the product owner (D-024–D-026; D-023 superseded). SHP-001 implemented: shop self-registration, shop sign-in on the web, tenant-scoped shop access. |
 | 2026-11-03 | PLT-001 implemented: read-only platform shop registry. |
+| 2026-11-03 | SHP-002 implemented: Shop App sign-in, shop list and home (Flutter), verified on the Android emulator. |

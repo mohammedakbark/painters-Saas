@@ -71,6 +71,7 @@ Do not treat proposals as approved until the product owner confirms them.
 | T-012 | API validation uses Zod 4 with Nest's built-in Standard Schema pipe (answers question 43). | ADR 0006 |
 | T-013 | Business routes are under `/v1`; errors are RFC 9457 problem details with a `code` extension (answers question 44). | ADR 0006 |
 | T-014 | UUIDv7 primary keys, `timestamptz(3)`, cursor pagination (`limit` ≤ 50, `nextCursor`), RLS enabled on every table, append-only audit events. | ADR 0005, ADR 0006 |
+| T-015 | Shop App stack: Riverpod 3 (P-007 adopted for the Shop App), go_router, Dio, supabase_flutter (sign-in only) and flutter_secure_storage for the session. Shared Flutter widgets and the mobile parser live in `flutter_shared`. | SHP-002 |
 
 ## 3. Open product questions
 

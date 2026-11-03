@@ -46,3 +46,6 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Local build configuration (copy of config/local.example.json). Never commit it.
+/config/local.json

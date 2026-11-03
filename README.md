@@ -46,6 +46,8 @@ Commit documentation, source code, migrations, tests and safe configuration exam
 The **project foundation (M0)** is in place: a monorepo with Flutter app shells, a Next.js admin portal, a NestJS API, a shared Flutter design-token package, local PostgreSQL, quality checks and GitHub Actions CI. Built on Supabase Auth so far:
 - **AUTH-001:** platform admin sign-in.
 - **SHP-001:** shop owners sign in with a mobile OTP and register their shop, with tenant-scoped shop access.
+- **PLT-001:** platform shop registry (read-only).
+- **SHP-002:** Shop App sign-in, shop list and shop home (Flutter).
 
 Catalogue, customer and order features are not built yet, and **no cloud infrastructure exists**. See `docs/PROJECT_STATE.md` for the live status.
 
@@ -84,7 +86,8 @@ pnpm --filter api platform-admin:create --email admin@example.com
 pnpm --filter api start:dev                         # http://localhost:3000/health, docs at /docs
 pnpm --filter admin_web dev --port 3001             # http://localhost:3001 (local shop sign-in: numbers
                                                     # 99999 00001-00003, code 123456)
-cd apps/customer_app && fvm flutter run
+cd apps/shop_app && cp config/local.example.json config/local.json   # set the publishable key + API port
+fvm flutter run --dart-define-from-file=config/local.json
 ```
 
 Checks: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm --filter api test:e2e`, `pnpm --filter api db:check-drift`, `fvm dart format --set-exit-if-changed apps/customer_app apps/shop_app packages/flutter_shared`, `fvm flutter analyze`, and `fvm flutter test` in each Flutter package.

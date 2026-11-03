@@ -39,7 +39,7 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 
 | Feature | Status | Notes |
 |---|---|---|
-| One shared Shop App | Confirmed | Not a separate binary per shop/staff member. |
+| One shared Shop App | Confirmed / sign-in implemented (SHP-002) | Not a separate binary per shop/staff member. Mobile OTP sign-in, shop list and shop home exist. Spec: `docs/features/SHP-002-shop-app-sign-in.md`. |
 | Login-only access | Confirmed | Accounts are created on the web portal (shop self-registration, D-024); the Shop App never offers sign-up. |
 | Master account created with shop | **Implemented (SHP-001)** | The registering person becomes the MASTER; the database allows one master per shop. One person may master several shops (D-026). |
 | Role-based staff access | Confirmed direction | Additional staff seats may be paid later. |

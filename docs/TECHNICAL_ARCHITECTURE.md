@@ -207,7 +207,7 @@ M0 foundation implemented 2026-11-03 (ADR 0004), then AUTH-001 (ADR 0005, ADR 00
 | Database (local/CI) | PostgreSQL in Docker | `postgres:17-alpine` (matches Supabase's Postgres 17 line) |
 | CI | GitHub Actions | checkout v7.0.1, setup-node v7.1.0, pnpm/action-setup v6.1.0, flutter-action v2.23.0, actionlint 1.7.12 (all SHA/digest pinned) |
 
-Verified compatible with Flutter 3.47.9 but **not added yet** (added with the first feature that needs them): flutter_riverpod 3.4.3, go_router 18.1.2, dio 5.11.1, supabase_flutter 2.18.3, flutter_secure_storage 11.2.0, freezed 4.0.3, json_serializable 6.15.2. Also deferred on the web: shadcn/ui, TanStack Query, React Hook Form and Playwright.
+Shop App (SHP-002): supabase_flutter ^2.18.3, flutter_riverpod ^3.4.3, go_router ^18.1.2, dio ^5.11.1, flutter_secure_storage ^11.2.0. Verified compatible but **not added yet**: freezed 4.0.3, json_serializable 6.15.2. Also deferred on the web: shadcn/ui, TanStack Query, React Hook Form and Playwright.
 
 ### 14.2 Structure
 
@@ -233,10 +233,10 @@ Verified compatible with Flutter 3.47.9 but **not added yet** (added with the fi
 │   │   │   └── scripts/            # export-openapi, create-platform-admin
 │   │   └── test/                   # e2e suites + support (test tokens, fake identity, DB reset)
 │   ├── customer_app/               # Flutter shell (android, ios)
-│   └── shop_app/                   # Flutter shell (android, ios)
+│   └── shop_app/                   # Flutter Shop App: lib/src/{config,auth,api,shops,routing,features}
 ├── packages/
 │   ├── api_contracts/              # generated openapi.json (no package.json yet)
-│   └── flutter_shared/             # design tokens, AppTheme, bundled Inter fonts
+│   └── flutter_shared/             # design tokens, AppTheme, Inter fonts, IndianMobileNumber, state views
 ├── infra/local/                    # Docker Compose Postgres for app data (local only)
 ├── infra/supabase/                 # Supabase CLI config: Auth only (local only)
 ├── docs/  prompts/  .claude/skills/  CLAUDE.md  README.md
@@ -264,7 +264,10 @@ The two toolchains are independent. pnpm manages only `apps/api` and `apps/admin
   - `/sign-in` (shop users, mobile OTP), `/shops` (my shops), `/shops/new` (register), `/shops/[shopId]` (shop console, gated by `requireShopAccess()` in layout and pages).
   - Design tokens as Tailwind v4 `@theme` variables, with the default palette, font sizes, radii and breakpoints reset.
   - Cache Components is enabled: session reads sit behind `<Suspense>` and `connection()`.
-- **Flutter:** each app shows a placeholder screen with `AppTheme.light()` from `flutter_shared`. `flutter_shared` holds the tokens, the Material 3 theme and the Inter 4.1 static fonts (OFL 1.1).
+- **Flutter:**
+  - The **Shop App** has mobile OTP sign-in (login-only), the user's shops and a shop home. Riverpod providers, go_router redirects on auth state, and a Dio client with a bearer token and problem `code` parsing. The session is stored in the keystore.
+  - The Customer App is still a placeholder.
+  - Both use `AppTheme.light()` from `flutter_shared`. `flutter_shared` holds the tokens, the Material 3 theme and the Inter 4.1 static fonts (OFL 1.1).
 
 ### 14.4 Local development
 
@@ -284,7 +287,7 @@ pnpm --filter api db:migrate:deploy            # apply migrations to the dev dat
 pnpm --filter api platform-admin:create --email admin@example.com   # hidden password prompt
 pnpm --filter api start:dev                    # API on :3000, docs at /docs
 pnpm --filter admin_web dev --port 3001        # web portal; sign in at /platform/sign-in
-cd apps/customer_app && fvm flutter run        # or apps/shop_app
+cd apps/shop_app && fvm flutter run --dart-define-from-file=config/local.json
 ```
 
 - **Postgres port taken:** if 5432 is already used (for example by another project's Postgres), set `POSTGRES_PORT` in `infra/local/.env` and use the same port in `apps/api/.env` and `.env.test`.
@@ -318,7 +321,7 @@ cd apps/customer_app && fvm flutter run        # or apps/shop_app
 | `apps/api/.env` | `NODE_ENV`, `PORT`, `DATABASE_URL`, `AUTH_ISSUER`, `AUTH_JWKS_URL`, `AUTH_AUDIENCE`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY` | Validated at startup; https required in production; `SUPABASE_SECRET_KEY` is server-only |
 | `apps/api/.env.test` | `NODE_ENV`, `DATABASE_URL`, `AUTH_ISSUER`, `AUTH_JWKS_URL`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY` | e2e only; test DB; auth values are placeholders (tests sign their own tokens) |
 | `apps/admin_web/.env.local` | `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `API_BASE_URL` | All server-only (no `NEXT_PUBLIC_*`); read at request time |
-| Flutter | (none yet) | When needed: `--dart-define-from-file`, non-secret values only |
+| `apps/shop_app/config/local.json` | `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `API_BASE_URL` | Passed with `--dart-define-from-file`; non-secret values only; gitignored (example: `config/local.example.json`). The Android emulator reaches the host at `10.0.2.2`. |
 
 Storage and SMS variables are defined when those features and providers arrive. Secret keys must exist only on the server.
 

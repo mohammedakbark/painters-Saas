@@ -1,44 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_shared/flutter_shared.dart';
 
-/// Root widget of the Shop App (shop owners and staff).
-class ShopApp extends StatelessWidget {
+import 'src/routing/router.dart';
+
+/// Root widget of the Shop App (shop owners and staff; login-only).
+class ShopApp extends ConsumerWidget {
   const ShopApp({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return MaterialApp.router(
+      title: 'Shop App',
+      theme: AppTheme.light(),
+      routerConfig: ref.watch(routerProvider),
+    );
+  }
+}
+
+/// Shown instead of the app when the build-time configuration is invalid.
+class ConfigErrorApp extends StatelessWidget {
+  const ConfigErrorApp({super.key, required this.problems});
+
+  final List<String> problems;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Shop App',
       theme: AppTheme.light(),
-      home: const _FoundationHome(),
-    );
-  }
-}
-
-/// Temporary foundation screen. Replaced by the login shell feature.
-class _FoundationHome extends StatelessWidget {
-  const _FoundationHome();
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.screenPadding),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Shop App', style: textTheme.headlineLarge),
-              const SizedBox(height: AppSpacing.s8),
-              Text(
-                'Foundation build. No features are available yet.',
-                style: textTheme.bodyLarge?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            ],
+      home: Scaffold(
+        body: SafeArea(
+          child: MessageView(
+            icon: Icons.settings_outlined,
+            title: 'The app is not configured',
+            message:
+                '${problems.join(' ')} Build with '
+                '--dart-define-from-file=config/local.json.',
           ),
         ),
       ),
