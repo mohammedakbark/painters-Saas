@@ -70,6 +70,7 @@ For every task:
 7. Review tenant isolation, permissions and edge states.
 8. Update the feature document, ADR if needed, and `docs/PROJECT_STATE.md`.
 9. Summarize files changed, tests run, limitations and next logical task.
+10. Until go-live (D-035): when everything above is complete and green, fast-forward merge the feature branch into `dev`, push `dev` and delete the feature branch. Never merge a feature with failing or unrun required checks.
 
 Do not mark a feature complete if acceptance criteria remain unmet or required tests were not run. Clearly report checks that could not be run.
 

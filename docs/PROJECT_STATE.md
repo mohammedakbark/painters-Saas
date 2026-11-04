@@ -13,16 +13,18 @@
 
 | Feature | Status | Spec |
 |---|---|---|
-| AUTH-001: Platform admin sign-in, plus auth and API conventions | **Complete (local)**; commit `3697e4f` on `feat/auth-001-platform-admin-sign-in` | `docs/features/AUTH-001-platform-admin-sign-in.md` |
-| SHP-001: Shop owner registration and sign-in (web), tenant-scoped access | **Complete (local)**; branch `feat/shp-001-shop-registration` (stacked on AUTH-001) | `docs/features/SHP-001-shop-registration-and-sign-in.md` |
-| PLT-001: Platform shop registry (read-only list and detail of registered shops) | **Complete (local)**; branch `feat/plt-001-shop-registry` (stacked on SHP-001) | `docs/features/PLT-001-platform-shop-registry.md` |
-| SHP-002: Shop App sign-in (Flutter, login-only) | **Complete (local, Android emulator)**; branch `feat/shp-002-shop-app-sign-in` (stacked on PLT-001) | `docs/features/SHP-002-shop-app-sign-in.md` |
-| DS-001: Single-source design tokens and brand names (D-034) | **Complete (local)**; branch `feat/ds-001-design-tokens` (stacked on SHP-002) | `docs/features/DS-001-design-tokens.md` |
-| SHP-003: Shop profile, address and map location (D-027) | **Complete (local; Chrome + Android emulator)**; branch `feat/shp-003-shop-profile-location` (stacked on DS-001). Google map rendering not verified (no keys yet) | `docs/features/SHP-003-shop-profile-and-location.md` |
-| SHP-004: Shop photo and portable media storage (D-028) | **Complete (local; Chrome + Android emulator + local Supabase Storage)**; branch `feat/shp-004-shop-photo` (stacked on SHP-003) | `docs/features/SHP-004-shop-photo.md`, ADR 0007 |
-| CAT-001: Platform brand catalogue (D-030) | **Complete (local; Chrome)**; branch `feat/cat-001-platform-catalogue` (stacked on SHP-004) | `docs/features/CAT-001-platform-brand-catalogue.md`, ADR 0008 |
-| CAT-002: Shop catalogue (D-029, D-030) | **Complete (local; Chrome)**; branch `feat/cat-002-shop-catalogue` (stacked on CAT-001) | `docs/features/CAT-002-shop-catalogue.md` |
-| PLT-002: Review workflow: submit, approve or request changes, resubmit (D-032, D-033) | **Complete (local; Chrome owner side, platform side over HTTP, Android emulator)**; branch `feat/plt-002-shop-review` (stacked on CAT-002) | `docs/features/PLT-002-shop-review.md` |
+| AUTH-001: Platform admin sign-in, plus auth and API conventions | **Complete (local)**; commit `3697e4f` | `docs/features/AUTH-001-platform-admin-sign-in.md` |
+| SHP-001: Shop owner registration and sign-in (web), tenant-scoped access | **Complete (local)** | `docs/features/SHP-001-shop-registration-and-sign-in.md` |
+| PLT-001: Platform shop registry (read-only list and detail of registered shops) | **Complete (local)** | `docs/features/PLT-001-platform-shop-registry.md` |
+| SHP-002: Shop App sign-in (Flutter, login-only) | **Complete (local, Android emulator)** | `docs/features/SHP-002-shop-app-sign-in.md` |
+| DS-001: Single-source design tokens and brand names (D-034) | **Complete (local)** | `docs/features/DS-001-design-tokens.md` |
+| SHP-003: Shop profile, address and map location (D-027) | **Complete (local; Chrome + Android emulator)**. Google map rendering not verified (no keys yet) | `docs/features/SHP-003-shop-profile-and-location.md` |
+| SHP-004: Shop photo and portable media storage (D-028) | **Complete (local; Chrome + Android emulator + local Supabase Storage)** | `docs/features/SHP-004-shop-photo.md`, ADR 0007 |
+| CAT-001: Platform brand catalogue (D-030) | **Complete (local; Chrome)** | `docs/features/CAT-001-platform-brand-catalogue.md`, ADR 0008 |
+| CAT-002: Shop catalogue (D-029, D-030) | **Complete (local; Chrome)** | `docs/features/CAT-002-shop-catalogue.md` |
+| PLT-002: Review workflow: submit, approve or request changes, resubmit (D-032, D-033) | **Complete (local; Chrome owner side, platform side over HTTP, Android emulator)** | `docs/features/PLT-002-shop-review.md` |
+
+**Git (D-035):** every feature above is in `dev` (fast-forward merged and pushed on 2026-11-04; one commit per feature, `3697e4f` … `9c7885b`); the per-feature branches were deleted. From now on each finished feature is merged into `dev` and pushed the same way. `main` still holds only `c56f614` (project setup) until a release.
 
 **M0: Project foundation** is `DONE`. The first commit (`c56f614`, pushed by the product owner) ran the `CI` workflow on GitHub with all three jobs green under Node 24.
 
@@ -136,7 +138,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 ## 5. Not done
 
 - [ ] Google Cloud project and Maps keys (product owner; D-027; steps in `docs/guides/GOOGLE_MAPS_SETUP.md`). Until then the map screens use the no-map fallback, and the Google map, place search and address suggestions are unverified.
-- [ ] Push and CI run for the AUTH-001, SHP-001, PLT-001, SHP-002, DS-001, SHP-003, SHP-004, CAT-001, CAT-002 and PLT-002 branches (not pushed; product owner decides).
+- [ ] First GitHub Actions run on `dev` (all features up to PLT-002, pushed 2026-11-04): check the result on GitHub.
 - [ ] PLT-002 decision form submitted from a browser by a platform admin (verified over HTTP and the API; the session could not use the test admin password in Chrome).
 - [ ] Decision notifications to the owner (SMS/push; question 53).
 - [ ] Product owner to confirm two CAT-002 assumptions: the selling price may not exceed the MRP, and the 10-product rule counts active products with at least one pack size (DECISIONS §3a).
@@ -298,10 +300,10 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 
 ## 7. Next actions
 
-1. **Product owner checks:** try the platform **Reviews** decision form in Chrome as the platform admin; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule); push the branches for CI when ready.
+1. **Product owner checks:** try the platform **Reviews** decision form in Chrome as the platform admin; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
 2. **Next phase (to plan with the product owner):** Shop App catalogue screens, or the Customer App foundation (customer sign-up and shop discovery of Live shops). Questions 49 and 51 are hardening before any hosted environment.
 3. **Product owner:** Google Maps keys (`docs/guides/GOOGLE_MAPS_SETUP.md`); real brand catalogue data; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
-4. **Housekeeping.** Install Node 24 locally. Push the branches when the product owner wants CI runs.
+4. **Housekeeping.** Install Node 24 locally.
 
 ## 8. Feature progress
 

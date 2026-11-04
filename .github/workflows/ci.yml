@@ -3,7 +3,8 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main]
+    # dev: every finished feature is merged and pushed here (D-035).
+    branches: [main, dev]
   workflow_dispatch:
 
 permissions:

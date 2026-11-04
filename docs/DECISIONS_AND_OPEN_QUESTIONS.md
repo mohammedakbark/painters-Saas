@@ -40,6 +40,7 @@ This document prevents assumptions from silently becoming requirements.
 | D-032 | A platform admin who does not approve a shop requests changes with one or more reasons (for example no photo, no location) or "other" with a note. The owner fixes the shop and resubmits. | Confirmed (product owner, 2026-11-04); implemented in PLT-002 |
 | D-033 | While a shop is waiting for review, its profile, photo and location are locked; the owner can withdraw the submission to edit. After approval the owner edits freely, every change is audited, and no new review is needed. Products can always be edited. | Confirmed (product owner, 2026-11-04); implemented in PLT-002 |
 | D-034 | Colours, fonts, radii, spacing and the product/app names are defined in one place and used everywhere, so a rebrand or a new logo is a single change. | Confirmed (product owner, 2026-11-04); implemented by DS-001 |
+| D-035 | Git workflow until go-live: when a feature is complete (every check green, verified, docs updated) it is fast-forward merged into `dev` and pushed, and its feature branch is deleted. No pull requests until go-live; then work moves to pull requests into `dev`. `main` holds released code. CI runs on pushes to `main` and `dev` and on pull requests. | Confirmed (product owner, 2026-11-04) |
 
 ## 2. Proposed technical decisions — require approval
 
