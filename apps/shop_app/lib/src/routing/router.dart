@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../features/shops/shop_home_screen.dart';
 import '../features/shops/shop_picker_screen.dart';
+import '../features/shops/shop_profile_screen.dart';
 import '../features/sign_in/sign_in_screen.dart';
 import '../providers.dart';
 
@@ -43,6 +44,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: ':shopId',
             builder: (context, state) =>
                 ShopHomeScreen(shopId: state.pathParameters['shopId']!),
+            routes: [
+              GoRoute(
+                path: 'profile',
+                builder: (context, state) =>
+                    ShopProfileScreen(shopId: state.pathParameters['shopId']!),
+              ),
+            ],
           ),
         ],
       ),

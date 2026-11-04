@@ -337,6 +337,288 @@
           "shops"
         ]
       }
+    },
+    "/v1/shops/{shopId}/profile": {
+      "get": {
+        "operationId": "ShopProfileController_get",
+        "parameters": [
+          {
+            "name": "shopId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopProfile"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown shop, or the caller is not a member.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The shop profile: support mobile, address, map location.",
+        "tags": [
+          "shops"
+        ]
+      },
+      "put": {
+        "operationId": "ShopProfileController_update",
+        "parameters": [
+          {
+            "name": "shopId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateShopProfileRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopProfile"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller is a member but not allowed to change the profile.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown shop, or the caller is not a member.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Replace the support mobile and address; optionally set the location.",
+        "tags": [
+          "shops"
+        ]
+      }
+    },
+    "/v1/shops/{shopId}/location": {
+      "put": {
+        "operationId": "ShopProfileController_updateLocation",
+        "parameters": [
+          {
+            "name": "shopId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShopLocationInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopProfile"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller is a member but not allowed to change the profile.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown shop, or the caller is not a member.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Set the shop location only.",
+        "tags": [
+          "shops"
+        ]
+      }
+    },
+    "/v1/shops/{shopId}/onboarding": {
+      "get": {
+        "operationId": "ShopProfileController_onboarding",
+        "parameters": [
+          {
+            "name": "shopId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopOnboarding"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown shop, or the caller is not a member.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Onboarding checklist: what is done and missing.",
+        "tags": [
+          "shops"
+        ]
+      }
     }
   },
   "info": {
@@ -687,6 +969,294 @@
           "status",
           "myRole",
           "createdAt"
+        ],
+        "additionalProperties": false
+      },
+      "ShopProfile": {
+        "type": "object",
+        "properties": {
+          "shopId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "shopName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT"
+            ]
+          },
+          "supportPhone": {
+            "nullable": true,
+            "description": "E.164, for example +919876543210.",
+            "type": "string"
+          },
+          "address": {
+            "nullable": true,
+            "type": "object",
+            "properties": {
+              "line1": {
+                "type": "string"
+              },
+              "line2": {
+                "nullable": true,
+                "type": "string"
+              },
+              "landmark": {
+                "nullable": true,
+                "type": "string"
+              },
+              "city": {
+                "type": "string"
+              },
+              "district": {
+                "type": "string"
+              },
+              "stateCode": {
+                "type": "string"
+              },
+              "stateName": {
+                "type": "string"
+              },
+              "postalCode": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "line1",
+              "line2",
+              "landmark",
+              "city",
+              "district",
+              "stateCode",
+              "stateName",
+              "postalCode"
+            ],
+            "additionalProperties": false
+          },
+          "location": {
+            "nullable": true,
+            "type": "object",
+            "properties": {
+              "latitude": {
+                "type": "number"
+              },
+              "longitude": {
+                "type": "number"
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "MAP_PIN",
+                  "DEVICE_GPS"
+                ]
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              }
+            },
+            "required": [
+              "latitude",
+              "longitude",
+              "source",
+              "updatedAt"
+            ],
+            "additionalProperties": false
+          },
+          "updatedAt": {
+            "nullable": true,
+            "description": "When the profile was last changed.",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          }
+        },
+        "required": [
+          "shopId",
+          "shopName",
+          "status",
+          "supportPhone",
+          "address",
+          "location",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "UpdateShopProfileRequest": {
+        "type": "object",
+        "properties": {
+          "supportPhone": {
+            "nullable": true,
+            "description": "Customer-support mobile (Indian). Null clears it. Stored as E.164.",
+            "type": "string"
+          },
+          "address": {
+            "nullable": true,
+            "description": "The full address, or null to clear it.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ShopAddressInput"
+              }
+            ]
+          },
+          "location": {
+            "description": "Omit to keep the current location.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ShopLocationInput"
+              }
+            ]
+          }
+        },
+        "required": [
+          "supportPhone",
+          "address"
+        ]
+      },
+      "ShopAddressInput": {
+        "type": "object",
+        "properties": {
+          "line1": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "line2": {
+            "nullable": true,
+            "type": "string",
+            "maxLength": 200
+          },
+          "landmark": {
+            "nullable": true,
+            "type": "string",
+            "maxLength": 120
+          },
+          "city": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "district": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "stateCode": {
+            "type": "string",
+            "enum": [
+              "AN",
+              "AP",
+              "AR",
+              "AS",
+              "BR",
+              "CH",
+              "CG",
+              "DH",
+              "DL",
+              "GA",
+              "GJ",
+              "HR",
+              "HP",
+              "JK",
+              "JH",
+              "KA",
+              "KL",
+              "LA",
+              "LD",
+              "MP",
+              "MH",
+              "MN",
+              "ML",
+              "MZ",
+              "NL",
+              "OD",
+              "PY",
+              "PB",
+              "RJ",
+              "SK",
+              "TN",
+              "TG",
+              "TR",
+              "UP",
+              "UK",
+              "WB"
+            ]
+          },
+          "postalCode": {
+            "type": "string",
+            "pattern": "^[1-9]\\d{5}$"
+          }
+        },
+        "required": [
+          "line1",
+          "city",
+          "district",
+          "stateCode",
+          "postalCode"
+        ]
+      },
+      "ShopLocationInput": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "minimum": 6,
+            "maximum": 38
+          },
+          "longitude": {
+            "type": "number",
+            "minimum": 68,
+            "maximum": 98
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "MAP_PIN",
+              "DEVICE_GPS"
+            ]
+          }
+        },
+        "required": [
+          "latitude",
+          "longitude",
+          "source"
+        ]
+      },
+      "ShopOnboarding": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "enum": [
+                    "address",
+                    "location",
+                    "support_phone"
+                  ]
+                },
+                "done": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "key",
+                "done"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "items"
         ],
         "additionalProperties": false
       }

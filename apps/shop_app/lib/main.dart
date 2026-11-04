@@ -9,6 +9,7 @@ import 'src/auth/supabase_auth_repository.dart';
 import 'src/config/app_config.dart';
 import 'src/providers.dart';
 import 'src/shops/shop_access_repository.dart';
+import 'src/shops/shop_profile.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,6 +43,10 @@ Future<void> main() async {
         shopAccessRepositoryProvider.overrideWithValue(
           ApiShopAccessRepository(api),
         ),
+        shopProfileRepositoryProvider.overrideWithValue(
+          ApiShopProfileRepository(api),
+        ),
+        mapsEnabledProvider.overrideWithValue(config.mapsEnabled),
       ],
       child: const ShopApp(),
     ),

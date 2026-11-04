@@ -104,6 +104,16 @@ enum ShopStatus {
   @@map("shop_status")
 }
 
+/// How the shop's map location was set (SHP-003).
+enum ShopLocationSource {
+  /// Placed or moved on the map, or chosen from a place search.
+  MAP_PIN
+  /// The device's current location (browser or Shop App).
+  DEVICE_GPS
+
+  @@map("shop_location_source")
+}
+
 /// The tenant. Every shop-owned record references a shop.
 model Shop {
   id        String     @id @default(uuid(7)) @db.Uuid
@@ -112,6 +122,28 @@ model Shop {
   status    ShopStatus @default(DRAFT)
   createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  // Profile (SHP-003). Nullable while the shop is a draft; the onboarding
+  // checklist reports what is missing. CHECK constraints in the migration.
+
+  /// Customer-support mobile, E.164 (+91…). Not shown to customers yet (question 39).
+  supportPhone      String?             @map("support_phone")
+  /// The address fields are set and cleared together (CHECK constraint).
+  addressLine1      String?             @map("address_line1")
+  addressLine2      String?             @map("address_line2")
+  landmark          String?
+  city              String?
+  district          String?
+  /// Two-letter state/UT code (ISO 3166-2:IN subdivision part), for example KL.
+  stateCode         String?             @map("state_code")
+  /// Indian PIN code, 6 digits.
+  postalCode        String?             @map("postal_code")
+  /// Latitude, longitude and source are set together (CHECK constraint).
+  latitude          Decimal?            @db.Decimal(9, 6)
+  longitude         Decimal?            @db.Decimal(9, 6)
+  locationSource    ShopLocationSource? @map("location_source")
+  locationUpdatedAt DateTime?           @map("location_updated_at") @db.Timestamptz(3)
+  profileUpdatedAt  DateTime?           @map("profile_updated_at") @db.Timestamptz(3)
 
   memberships ShopMembership[]
   auditEvents AuditEvent[]

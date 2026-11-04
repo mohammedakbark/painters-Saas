@@ -1,11 +1,20 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Sign-in (Supabase Auth) and the API need network access in every build. -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- "Use my current location" on the shop profile (SHP-003); asked only on tap. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <application
         android:label="Shop App"
         android:allowBackup="false"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- Google Maps Android key (public by design; restrict it to this package
+             and signing certificate). Set GOOGLE_MAPS_API_KEY in android/local.properties
+             (gitignored); empty when not set, and the app then shows coordinates. -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${googleMapsApiKey}"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

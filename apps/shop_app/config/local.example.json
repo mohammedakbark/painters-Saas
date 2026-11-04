@@ -1,5 +1,6 @@
 {
   "SUPABASE_URL": "http://10.0.2.2:54321",
   "SUPABASE_PUBLISHABLE_KEY": "replace-with-the-local-publishable-key",
-  "API_BASE_URL": "http://10.0.2.2:3000"
+  "API_BASE_URL": "http://10.0.2.2:3000",
+  "GOOGLE_MAPS_ENABLED": false
 }

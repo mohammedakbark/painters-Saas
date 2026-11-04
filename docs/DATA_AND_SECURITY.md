@@ -111,6 +111,9 @@ Keep this list accurate. It records what the code does today, not what is planne
 | The operator script never promotes an existing account to platform admin (sign-up is public) | `platform-admin-provisioning.ts` | SHP-001 |
 | Framework 400 messages (which can echo input) are replaced by a generic detail | `problem-details.filter.ts` | SHP-001 |
 | Shop App: sessions are stored in the platform keystore (`flutter_secure_storage`), the app never creates accounts (`shouldCreateUser: false`), it holds only non-secret configuration, cleartext HTTP is allowed only in debug builds, and Android auto-backup is off | `apps/shop_app/lib/src/auth/`, Android debug manifest | SHP-002 |
+| Shop profile writes need the MASTER role (`requireShopRole`); every profile route is shop-scoped (404 for non-members); audit records changed field names or the location source only, never phone numbers, addresses or coordinates | `apps/api/src/shops/shop-profile.service.ts`, `apps/api/src/shop-access/shop-roles.ts` | SHP-003 |
+| The owner's device location is read only on "Use my current location" and saved only after confirmation; imprecise (> 500 m) and out-of-India positions are refused; the Shop App logs only the error type in debug builds | web `location-picker.tsx`, Shop App `location_service.dart` | SHP-003 |
+| Google Maps keys are public by design and must be restricted (websites / Android package + SHA-1, specific APIs); the web key is server-side env passed only when configured; native keys live in gitignored files | `docs/guides/GOOGLE_MAPS_SETUP.md` | SHP-003 |
 | The platform shop registry is platform-admin only, read-only, and exposes registration facts only (name, status, dates, master name and mobile). Reads are not audited: it is onboarding data, not private tenant business data | `apps/api/src/platform-shops/` | PLT-001 |
 
 Known gaps (tracked in `DECISIONS_AND_OPEN_QUESTIONS.md` questions 46–51):

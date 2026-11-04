@@ -12,7 +12,11 @@ Shop area (SHP-001):
 - `/shops/new`: register a shop.
 - `/shops/[shopId]`: shop console.
 
-The layout and every page call `requireShopAccess(shopId)`. The API answers 404 for shops the user is not a member of.
+- `/shops/[shopId]/profile`: support mobile, address and map location (SHP-003).
+
+The layout and every page call `requireShopAccess(shopId)`. The API answers 404 for shops the user is not a member of. Each page reads its data inside its own `<Suspense>` so navigation between console pages is instant.
+
+Google Maps is optional: set `GOOGLE_MAPS_BROWSER_KEY` (public by design, restricted to this site and three APIs) to show the map picker; see `docs/guides/GOOGLE_MAPS_SETUP.md`.
 
 Setup: copy `.env.example` to `.env.local` and paste the local publishable key from `pnpm supabase:status`. No variable is `NEXT_PUBLIC_*`.
 
@@ -34,4 +38,4 @@ e.g. `pnpm --filter admin_web dev --port 3001`.
 Use the token utilities only, for example `bg-brand-primary`,
 `text-text-secondary`, `border-border-default`, `text-heading1`, `rounded-medium`
 and `desktop:`. Tailwind's default palette and sizes are intentionally removed.
-Keep `globals.css` in sync with `packages/flutter_shared`.
+Tokens are generated from `packages/design_tokens/tokens.json` into `src/app/tokens.css` (`pnpm tokens:generate`); never edit that file by hand.

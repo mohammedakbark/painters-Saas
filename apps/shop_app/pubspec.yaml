@@ -16,6 +16,7 @@ dependencies:
   flutter_secure_storage: 11.2.0
   flutter_shared:
     path: ../../packages/flutter_shared
+  geolocator: 14.1.2
   go_router: 18.1.2
   supabase_flutter: 2.18.3
 

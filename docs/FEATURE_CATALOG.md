@@ -52,7 +52,7 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 | Feature | Status | Notes |
 |---|---|---|
 | Shop self-registration (web) | **Implemented (SHP-001)** | Mobile OTP sign-in/up, register shop name + owner name; the shop starts as a private Draft. Spec: `docs/features/SHP-001-shop-registration-and-sign-in.md`. |
-| Shop profile/onboarding checklist | Confirmed | Photo, address, support mobile, minimum 10 products before public discovery; then the owner submits for review (D-025). |
+| Shop profile/onboarding checklist | Confirmed / **profile + checklist implemented (SHP-003)** | Address, map location (Google map picker or current location, D-027) and support mobile are done; photo (SHP-004) and 10 products (CAT-002) follow, then the owner submits for review (D-025). Spec: `docs/features/SHP-003-shop-profile-and-location.md`. |
 | Product/category/brand/pack management | Confirmed | Catalogue requirements in Product Overview. |
 | Product images and shade codes | Confirmed | Storage and catalogue integration to decide. |
 | Shop prices and offers | Confirmed | Customer-specific pricing rules need detail. |

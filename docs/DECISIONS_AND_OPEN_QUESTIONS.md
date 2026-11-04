@@ -164,6 +164,10 @@ Do not treat proposals as approved until the product owner confirms them.
 - Shop registration asks only for the shop name and the owner's name; address, photo and support mobile are collected by the onboarding profile feature (SHP-001).
 - Mobile numbers are Indian (+91) only for the initial Kerala market (SHP-001).
 - Shop names are not unique across the platform (SHP-001).
+- Shop coordinates must be inside India's bounding box (latitude 6–38, longitude 68–98) for the initial market (SHP-003).
+- A device location less precise than 500 m is not used as the shop pin (SHP-003; data quality).
+- The shop address is structured (shop number and street, optional area and landmark, city or town, district, state, PIN code) and all-or-nothing; state codes are ISO 3166-2:IN subdivision codes (SHP-003).
+- On Android the Shop App reads the location from the system provider, not Google Play services, so no extra Google consent prompt is shown (SHP-003).
 
 ## 4. Rules while questions are open
 

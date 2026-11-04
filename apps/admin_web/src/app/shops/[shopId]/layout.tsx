@@ -39,6 +39,7 @@ async function ShopConsole({
       areaLabel={shop.name}
       nav={[
         { href: `/shops/${shop.id}`, label: 'Overview', exact: true },
+        { href: `/shops/${shop.id}/profile`, label: 'Profile' },
         { href: '/shops', label: 'All my shops', exact: true },
       ]}
       account={account}

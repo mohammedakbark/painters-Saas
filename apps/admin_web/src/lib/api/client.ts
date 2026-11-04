@@ -8,7 +8,7 @@ export interface ApiRequest<T> {
   token: string;
   /** Validates and types the response body. */
   schema: z.ZodType<T>;
-  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
 }
 

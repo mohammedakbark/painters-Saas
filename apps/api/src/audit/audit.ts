@@ -5,6 +5,8 @@ export const AuditAction = {
   PlatformAdminGranted: 'platform_admin.granted',
   ShopRegistered: 'shop.registered',
   ShopMasterAssigned: 'shop_membership.master_assigned',
+  ShopProfileUpdated: 'shop.profile_updated',
+  ShopLocationUpdated: 'shop.location_updated',
 } as const;
 
 export type AuditAction = (typeof AuditAction)[keyof typeof AuditAction];

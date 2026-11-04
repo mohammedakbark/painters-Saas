@@ -2,17 +2,24 @@
 /// `--dart-define-from-file=config/local.json` (see `config/local.example.json`).
 ///
 /// Only non-secret values belong here: the Supabase URL, the Supabase
-/// **publishable** key and the API base URL. Never put a secret key in the app.
+/// **publishable** key, the API base URL and whether a Google Maps key was
+/// configured for this build. Never put a secret key in the app.
 class AppConfig {
   const AppConfig({
     required this.supabaseUrl,
     required this.supabasePublishableKey,
     required this.apiBaseUrl,
+    this.mapsEnabled = false,
   });
 
   final Uri supabaseUrl;
   final String supabasePublishableKey;
   final Uri apiBaseUrl;
+
+  /// True when the native Google Maps key is set for this build (Android
+  /// `local.properties`, iOS `MapsKey.xcconfig`). Without it, maps show the
+  /// coordinates instead (D-027).
+  final bool mapsEnabled;
 
   /// Reads and validates the compile-time values. Throws [AppConfigError]
   /// naming the missing or invalid keys.
@@ -22,12 +29,14 @@ class AppConfig {
       'SUPABASE_PUBLISHABLE_KEY',
     ),
     apiBaseUrl: const String.fromEnvironment('API_BASE_URL'),
+    mapsEnabled: const bool.fromEnvironment('GOOGLE_MAPS_ENABLED'),
   );
 
   static AppConfig parse({
     required String supabaseUrl,
     required String supabasePublishableKey,
     required String apiBaseUrl,
+    bool mapsEnabled = false,
   }) {
     final problems = <String>[];
     final supabase = _httpUri(supabaseUrl);
@@ -48,6 +57,7 @@ class AppConfig {
       supabaseUrl: supabase!,
       supabasePublishableKey: supabasePublishableKey.trim(),
       apiBaseUrl: api!,
+      mapsEnabled: mapsEnabled,
     );
   }
 

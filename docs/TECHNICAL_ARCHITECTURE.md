@@ -207,7 +207,7 @@ M0 foundation implemented 2026-11-03 (ADR 0004), then AUTH-001 (ADR 0005, ADR 00
 | Database (local/CI) | PostgreSQL in Docker | `postgres:17-alpine` (matches Supabase's Postgres 17 line) |
 | CI | GitHub Actions | checkout v7.0.1, setup-node v7.1.0, pnpm/action-setup v6.1.0, flutter-action v2.23.0, actionlint 1.7.12 (all SHA/digest pinned) |
 
-Shop App (SHP-002): supabase_flutter ^2.18.3, flutter_riverpod ^3.4.3, go_router ^18.1.2, dio ^5.11.1, flutter_secure_storage ^11.2.0. Verified compatible but **not added yet**: freezed 4.0.3, json_serializable 6.15.2. Also deferred on the web: shadcn/ui, TanStack Query, React Hook Form and Playwright.
+Shop App (SHP-002): supabase_flutter ^2.18.3, flutter_riverpod ^3.4.3, go_router ^18.1.2, dio ^5.11.1, flutter_secure_storage ^11.2.0; geolocator 14.1.2 (SHP-003). `flutter_shared`: google_maps_flutter 2.19.0 (SHP-003). Web: @vis.gl/react-google-maps 1.10.2 and @types/google.maps 3.66.9 (SHP-003). Verified compatible but **not added yet**: freezed 4.0.3, json_serializable 6.15.2. Also deferred on the web: shadcn/ui, TanStack Query, React Hook Form and Playwright.
 
 ### 14.2 Structure
 
@@ -250,7 +250,7 @@ The two toolchains are independent. pnpm manages `apps/api`, `apps/admin_web` an
 ### 14.3 What exists
 
 - **API:**
-  - Routes: `GET /health` and `GET /health/ready` (public, unversioned); `GET /v1/me`, `POST /v1/shops` and `GET /v1/shops/:shopId` (authenticated); `GET /v1/platform/shops` and `GET /v1/platform/shops/:shopId` (platform admins; read-only registry with cursor pagination). Shop routes are tenant-scoped by `ShopAccessGuard` (membership of the shop in the URL; 404 otherwise).
+  - Routes: `GET /health` and `GET /health/ready` (public, unversioned); `GET /v1/me`, `POST /v1/shops` and `GET /v1/shops/:shopId` (authenticated); `GET/PUT /v1/shops/:shopId/profile`, `PUT /v1/shops/:shopId/location` and `GET /v1/shops/:shopId/onboarding` (shop-scoped; writes need MASTER, SHP-003); `GET /v1/platform/shops` and `GET /v1/platform/shops/:shopId` (platform admins; read-only registry with cursor pagination). Shop routes are tenant-scoped by `ShopAccessGuard` (membership of the shop in the URL; 404 otherwise).
   - Every other route needs a valid Supabase access token (global `AuthGuard`, ADR 0005).
   - Errors are RFC 9457 problem details; request validation uses Zod (ADR 0006).
   - Tables: `users`, `platform_admins`, `audit_events` (append-only), `shops` (status `DRAFT` only so far), `shop_memberships` (role `MASTER` only so far; one master per shop).
@@ -262,11 +262,12 @@ The two toolchains are independent. pnpm manages `apps/api`, `apps/admin_web` an
   - `/platform/sign-in`: email + password.
   - `/platform`: platform console (overview), plus `/platform/shops` (registry list) and `/platform/shops/[shopId]` (detail). Every page is gated by `requirePlatformAdmin()`.
   - `/platform/no-access`.
-  - `/sign-in` (shop users, mobile OTP), `/shops` (my shops), `/shops/new` (register), `/shops/[shopId]` (shop console, gated by `requireShopAccess()` in layout and pages).
+  - `/sign-in` (shop users, mobile OTP), `/shops` (my shops), `/shops/new` (register), `/shops/[shopId]` (shop console with the onboarding checklist, gated by `requireShopAccess()` in layout and pages) and `/shops/[shopId]/profile` (support mobile, address, map location; SHP-003).
+  - Console pages read request data inside their own `<Suspense>` so client navigation between them is instant (shop console since SHP-003).
   - Design tokens as Tailwind v4 `@theme` variables generated from `packages/design_tokens` (`src/app/tokens.css`), with the default palette, font sizes, radii, container sizes and breakpoints reset.
   - Cache Components is enabled: session reads sit behind `<Suspense>` and `connection()`.
 - **Flutter:**
-  - The **Shop App** has mobile OTP sign-in (login-only), the user's shops and a shop home. Riverpod providers, go_router redirects on auth state, and a Dio client with a bearer token and problem `code` parsing. The session is stored in the keystore.
+  - The **Shop App** has mobile OTP sign-in (login-only), the user's shops, a shop home and a shop profile screen with the map and "Use my current location" (SHP-003; Android uses the system location provider). Riverpod providers, go_router redirects on auth state, and a Dio client with a bearer token and problem `code` parsing. The session is stored in the keystore.
   - The Customer App is still a placeholder.
   - Both use `AppTheme.light()` from `flutter_shared`. `flutter_shared` holds the tokens, the Material 3 theme and the Inter 4.1 static fonts (OFL 1.1).
 
@@ -322,8 +323,8 @@ cd apps/shop_app && fvm flutter run --dart-define-from-file=config/local.json
 | `infra/local/.env` | `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_TEST_DB`, `POSTGRES_PORT` | Local container only |
 | `apps/api/.env` | `NODE_ENV`, `PORT`, `DATABASE_URL`, `AUTH_ISSUER`, `AUTH_JWKS_URL`, `AUTH_AUDIENCE`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY` | Validated at startup; https required in production; `SUPABASE_SECRET_KEY` is server-only |
 | `apps/api/.env.test` | `NODE_ENV`, `DATABASE_URL`, `AUTH_ISSUER`, `AUTH_JWKS_URL`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY` | e2e only; test DB; auth values are placeholders (tests sign their own tokens) |
-| `apps/admin_web/.env.local` | `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `API_BASE_URL` | All server-only (no `NEXT_PUBLIC_*`); read at request time |
-| `apps/shop_app/config/local.json` | `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `API_BASE_URL` | Passed with `--dart-define-from-file`; non-secret values only; gitignored (example: `config/local.example.json`). The Android emulator reaches the host at `10.0.2.2`. |
+| `apps/admin_web/.env.local` | `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `API_BASE_URL`; optional `GOOGLE_MAPS_BROWSER_KEY`, `GOOGLE_MAPS_MAP_ID` | All server-only (no `NEXT_PUBLIC_*`); read at request time. The Maps browser key is public by design and is passed to the profile page only when set (restrict it; `docs/guides/GOOGLE_MAPS_SETUP.md`) |
+| `apps/shop_app/config/local.json` | `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `API_BASE_URL`, `GOOGLE_MAPS_ENABLED` (default false) | Passed with `--dart-define-from-file`; non-secret values only; gitignored (example: `config/local.example.json`). The Android emulator reaches the host at `10.0.2.2`. |
 
 Storage and SMS variables are defined when those features and providers arrive. Secret keys must exist only on the server.
 

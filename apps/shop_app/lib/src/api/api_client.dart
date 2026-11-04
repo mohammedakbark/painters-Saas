@@ -43,9 +43,21 @@ class ApiClient {
   final Dio _dio;
 
   /// GETs [path] and returns the decoded JSON object. Throws [ApiException].
-  Future<Map<String, Object?>> getJson(String path) async {
+  Future<Map<String, Object?>> getJson(String path) =>
+      _send(() => _dio.get<Object?>(path));
+
+  /// PUTs a JSON [body] to [path] and returns the decoded JSON object.
+  /// Throws [ApiException].
+  Future<Map<String, Object?>> putJson(
+    String path,
+    Map<String, Object?> body,
+  ) => _send(() => _dio.put<Object?>(path, data: body));
+
+  Future<Map<String, Object?>> _send(
+    Future<Response<Object?>> Function() request,
+  ) async {
     try {
-      final response = await _dio.get<Object?>(path);
+      final response = await request();
       final data = response.data;
       if (data is Map<String, Object?>) {
         return data;

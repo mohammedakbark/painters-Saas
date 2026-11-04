@@ -91,6 +91,18 @@ class _ShopOverview extends StatelessWidget {
             ),
           ),
         ),
+        const SizedBox(height: AppSpacing.s16),
+        Card(
+          margin: EdgeInsets.zero,
+          child: ListTile(
+            minTileHeight: AppSpacing.minTouchTarget,
+            leading: const Icon(Icons.storefront_outlined),
+            title: const Text('Shop profile'),
+            subtitle: const Text('Address, support mobile and map location'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.go('/shops/${shop.id}/profile'),
+          ),
+        ),
       ],
     );
   }
