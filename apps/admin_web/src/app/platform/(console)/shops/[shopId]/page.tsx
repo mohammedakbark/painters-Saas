@@ -13,7 +13,7 @@ import { formatDateTime } from '@/lib/format';
 import { formatIndianMobile } from '@/lib/phone';
 import { shopStatusLabel } from '@/lib/shops/labels';
 
-export const metadata: Metadata = { title: 'Shop · Platform · Admin portal' };
+export const metadata: Metadata = { title: 'Shop' };
 
 export default async function PlatformShopPage({
   params,

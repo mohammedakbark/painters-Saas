@@ -61,6 +61,10 @@ jobs:
       - name: Format check (Prettier)
         run: pnpm format:check
 
+      # Web and Flutter token files are generated from packages/design_tokens.
+      - name: Design tokens are up to date
+        run: pnpm tokens:check
+
       - name: Lint
         run: pnpm lint
 

@@ -5,7 +5,7 @@ import { ApiError } from '@/lib/api/problem';
 import { requirePlatformAdmin } from '@/lib/auth/platform-access';
 import { ShopRegistryList } from './shop-registry-list';
 
-export const metadata: Metadata = { title: 'Shops · Platform · Admin portal' };
+export const metadata: Metadata = { title: 'Shops' };
 
 export default async function PlatformShopsPage({
   searchParams,

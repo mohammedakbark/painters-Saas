@@ -38,10 +38,14 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(AppSpacing.screenPadding),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
+              constraints: const BoxConstraints(
+                maxWidth: AppLayout.formMaxWidth,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  const BrandMark(appName: AppBrand.shopAppName),
+                  const SizedBox(height: AppSpacing.s16),
                   Text(
                     'Shop owners and staff',
                     style: textTheme.labelLarge?.copyWith(

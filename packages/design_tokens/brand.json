@@ -1,0 +1,8 @@
+{
+  "$comment": "Working names until the product name and logo are decided (question 41). Edit this file, then run `pnpm tokens:generate`. Native app labels and launcher icons are separate manual steps (see README.md).",
+  "productName": "Paint Shop Platform",
+  "adminPortalName": "Admin portal",
+  "adminPortalDescription": "Shop Admin and Platform Super Admin portal.",
+  "shopAppName": "Shop App",
+  "customerAppName": "Customer App"
+}

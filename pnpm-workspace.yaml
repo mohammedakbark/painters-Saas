@@ -3,6 +3,7 @@
 packages:
   - apps/admin_web
   - apps/api
+  - packages/design_tokens
 
 # Supply-chain guard: pnpm's default minimumReleaseAge (1440 minutes) is kept.
 # Do not add minimumReleaseAgeExclude entries; pin an older release instead.

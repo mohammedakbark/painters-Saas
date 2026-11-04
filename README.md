@@ -48,6 +48,7 @@ The **project foundation (M0)** is in place: a monorepo with Flutter app shells,
 - **SHP-001:** shop owners sign in with a mobile OTP and register their shop, with tenant-scoped shop access.
 - **PLT-001:** platform shop registry (read-only).
 - **SHP-002:** Shop App sign-in, shop list and shop home (Flutter).
+- **DS-001:** one source for colours, fonts, sizes and app names (`packages/design_tokens`; see its README to rebrand).
 
 Catalogue, customer and order features are not built yet, and **no cloud infrastructure exists**. See `docs/PROJECT_STATE.md` for the live status.
 

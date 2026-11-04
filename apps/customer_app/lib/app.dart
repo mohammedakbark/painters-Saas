@@ -8,7 +8,7 @@ class CustomerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Customer App',
+      title: AppBrand.customerAppName,
       theme: AppTheme.light(),
       home: const _FoundationHome(),
     );
@@ -30,7 +30,9 @@ class _FoundationHome extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Customer App', style: textTheme.headlineLarge),
+              const BrandMark(appName: AppBrand.customerAppName),
+              const SizedBox(height: AppSpacing.s8),
+              Text('Welcome', style: textTheme.headlineLarge),
               const SizedBox(height: AppSpacing.s8),
               Text(
                 'Foundation build. No features are available yet.',

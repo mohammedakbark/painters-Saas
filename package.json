@@ -18,7 +18,9 @@
     "supabase:keys": "node infra/supabase/ensure-signing-key.mjs",
     "supabase:start": "supabase start --workdir infra",
     "supabase:stop": "supabase stop --workdir infra",
-    "supabase:status": "supabase status --workdir infra"
+    "supabase:status": "supabase status --workdir infra",
+    "tokens:generate": "pnpm --filter design-tokens run generate",
+    "tokens:check": "pnpm --filter design-tokens run check"
   },
   "devDependencies": {
     "prettier": "3.9.10",

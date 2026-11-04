@@ -1,0 +1,11 @@
+{
+  "name": "design-tokens",
+  "private": true,
+  "description": "Single source of the design tokens and brand names; generates the web theme and the Flutter token classes (DS-001).",
+  "type": "module",
+  "scripts": {
+    "generate": "node generate.mjs",
+    "check": "node generate.mjs --check",
+    "test": "node --test"
+  }
+}

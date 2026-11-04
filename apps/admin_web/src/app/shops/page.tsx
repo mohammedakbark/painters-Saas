@@ -12,12 +12,12 @@ import { formatIndianMobile } from '@/lib/phone';
 import { shopRoleLabel, shopStatusLabel } from '@/lib/shops/labels';
 import { signOutOfShop } from './actions';
 
-export const metadata: Metadata = { title: 'Your shops · Admin portal' };
+export const metadata: Metadata = { title: 'Your shops' };
 
 /** The shops the signed-in user belongs to, and the way to register a new one. */
 export default function MyShopsPage() {
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col gap-6 px-4 py-8 medium:px-6">
+    <main className="mx-auto flex min-h-dvh w-full max-w-content flex-col gap-6 px-4 py-8 medium:px-6">
       <Suspense
         fallback={
           <p

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { BrandMark } from '@/components/brand/brand-mark';
 import { SubmitButton } from '@/components/ui/submit-button';
 import { type NavItem, NavLinks } from './nav-links';
 
@@ -22,15 +23,13 @@ export function AppShell({
   children: ReactNode;
 }) {
   return (
-    <div className="min-h-dvh desktop:grid desktop:grid-cols-[16rem_minmax(0,1fr)]">
+    <div className="min-h-dvh desktop:grid desktop:grid-cols-[var(--container-sidebar)_minmax(0,1fr)]">
       <aside className="hidden border-r border-border-default bg-surface-default desktop:flex desktop:min-h-dvh desktop:flex-col">
         <div className="px-6 py-5">
           <p className="text-caption font-medium tracking-wide text-text-secondary uppercase">
             {areaLabel}
           </p>
-          <p className="text-title font-semibold text-text-primary">
-            Admin portal
-          </p>
+          <BrandMark />
         </div>
         <NavLinks items={nav} orientation="vertical" />
         <div className="mt-auto flex flex-col gap-3 border-t border-border-default p-4">
@@ -71,7 +70,7 @@ export function AppShell({
           </div>
           <NavLinks items={nav} orientation="horizontal" />
         </header>
-        <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 medium:px-6 desktop:px-8 desktop:py-8">
+        <main className="mx-auto flex w-full max-w-page flex-1 flex-col gap-6 px-4 py-6 medium:px-6 desktop:px-8 desktop:py-8">
           {children}
         </main>
       </div>

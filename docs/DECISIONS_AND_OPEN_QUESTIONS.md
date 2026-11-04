@@ -32,6 +32,14 @@ This document prevents assumptions from silently becoming requirements.
 | D-024 | Anyone can register their shop themselves on the web portal (mobile OTP); the registering person becomes the protected master account. The Shop App stays login-only (D-013). | Confirmed (product owner, 2026-11-03) |
 | D-025 | A self-registered shop is shown to customers and painters only after a Platform Super Admin approves it. The owner first completes the onboarding checklist (D-012) and submits the shop for review; the admin reviews the complete shop. | Confirmed (product owner, 2026-11-03) |
 | D-026 | One person (one mobile number) may be the master account of several shops; each shop's data stays separate and every request works on one shop. | Confirmed (product owner, 2026-11-03) |
+| D-027 | The shop address is chosen on a Google map (search, pin, address fields suggested from the pin) or with "Use my current location". The shop's location is shown on a map in the mobile apps. The product owner creates the Google Cloud project and keys later; until then the screens must work without a map (typed address fields and current location). | Confirmed (product owner, 2026-11-04) |
+| D-028 | Until there are real customers, use the free tier of every external service. Every provider (database host, file storage, maps, notifications) must stay replaceable without rewriting features. | Confirmed (product owner, 2026-11-04) |
+| D-029 | Availability is a switch on each pack size: available or unavailable (no stock quantities). An unavailable pack cannot be bought or added to the cart. A customer can request an unavailable item with a quantity, and the shop owner is notified to arrange it (request and notification are built with the Customer App). | Confirmed (product owner, 2026-11-04) |
+| D-030 | The platform maintains brand catalogues (brands, products, pack sizes, shades) that every shop can use. Platform admins fill them by hand or by CSV import from official shade cards and price lists; brand websites are not scraped. Shops can also add their own products and shades and mark favourite (commonly used) shades. | Confirmed (product owner, 2026-11-04) |
+| D-031 | No per-customer product prices. A shop can set a default discount for a specific painter, give a discount on the final bill, and pay painter commission either as a fixed amount per amount spent (for example ₹200 per ₹10,000) or as a percentage, as the shop chooses. Painter discounts and commission are painter-only and never shown to normal customers. Built in the billing and commission phases. | Confirmed (product owner, 2026-11-04) |
+| D-032 | A platform admin who does not approve a shop requests changes with one or more reasons (for example no photo, no location) or "other" with a note. The owner fixes the shop and resubmits. | Confirmed (product owner, 2026-11-04) |
+| D-033 | While a shop is waiting for review, its profile, photo and location are locked; the owner can withdraw the submission to edit. After approval the owner edits freely, every change is audited, and no new review is needed. Products can always be edited. | Confirmed (product owner, 2026-11-04) |
+| D-034 | Colours, fonts, radii, spacing and the product/app names are defined in one place and used everywhere, so a rebrand or a new logo is a single change. | Confirmed (product owner, 2026-11-04); implemented by DS-001 |
 
 ## 2. Proposed technical decisions — require approval
 
@@ -71,6 +79,7 @@ Do not treat proposals as approved until the product owner confirms them.
 | T-012 | API validation uses Zod 4 with Nest's built-in Standard Schema pipe (answers question 43). | ADR 0006 |
 | T-013 | Business routes are under `/v1`; errors are RFC 9457 problem details with a `code` extension (answers question 44). | ADR 0006 |
 | T-014 | UUIDv7 primary keys, `timestamptz(3)`, cursor pagination (`limit` ≤ 50, `nextCursor`), RLS enabled on every table, append-only audit events. | ADR 0005, ADR 0006 |
+| T-016 | Design tokens and working brand names live only in `packages/design_tokens` (`tokens.json`, `brand.json`); the web `@theme` file and the Flutter token/brand classes are generated and checked in CI (`pnpm tokens:check`). The generator enforces WCAG AA for the listed text pairs. | DS-001 |
 | T-015 | Shop App stack: Riverpod 3 (P-007 adopted for the Shop App), go_router, Dio, supabase_flutter (sign-in only) and flutter_secure_storage for the session. Shared Flutter widgets and the mobile parser live in `flutter_shared`. | SHP-002 |
 
 ## 3. Open product questions
@@ -79,7 +88,7 @@ Do not treat proposals as approved until the product owner confirms them.
 1. ~~Can a shop register itself, or can only Platform Super Admin create shops?~~ **Resolved (D-024, D-025):** shops self-register on the web; a platform admin approves them after the onboarding checklist.
 2. Can a customer browse any shop without adding it to `My Shops`?
 3. Does adding a shop happen immediately, by request/approval or invitation?
-4. Can a shop edit its profile after activation, or are some changes platform-approved?
+4. ~~Can a shop edit its profile after activation, or are some changes platform-approved?~~ **Resolved (D-033):** locked only while in review; free, audited edits after approval.
 5. What is the master-account recovery and ownership-transfer process?
 
 ### Cross-shop search
@@ -94,14 +103,14 @@ Do not treat proposals as approved until the product owner confirms them.
 12. Which roles can see verification status and raw documents?
 
 ### Products and inventory
-13. Is stock quantity tracked in the first version or manually marked available?
+13. ~~Is stock quantity tracked in the first version or manually marked available?~~ **Resolved (D-029):** available/unavailable per pack size; no quantities.
 14. Is inventory shared across web and mobile in real time?
-15. Are tinting/mixing and manufacturer shade catalogues required in MVP?
-16. Can a shop create custom shade codes, or must it select from brand catalogues?
-17. Are customer-specific prices/discounts required at launch?
+15. Are tinting/mixing and manufacturer shade catalogues required in MVP? **Partly resolved (D-030):** platform-maintained brand shade catalogues are required. The tinting/mixing workflow is still open (question 52).
+16. ~~Can a shop create custom shade codes, or must it select from brand catalogues?~~ **Resolved (D-030):** both; shops can add their own shades and mark favourites.
+17. ~~Are customer-specific prices/discounts required at launch?~~ **Resolved (D-031):** no per-customer prices; a default discount per painter and a final-bill discount.
 
 ### Painter commission and rewards
-18. Is commission calculated per product, brand, category, order or painter?
+18. Is commission calculated per product, brand, category, order or painter? **Partly resolved (D-031):** on the painter's purchase amount, as a fixed amount per amount spent or a percentage, chosen by the shop. Product/brand exclusions are still open.
 19. Is commission paid as cash, shop credit, discount, points or another settlement?
 20. When is commission earned: order placement, fulfilment, bill settlement or another event?
 21. Are reward points shop-specific? This is the recommended default.
@@ -141,7 +150,9 @@ Do not treat proposals as approved until the product owner confirms them.
 47. Platform admin MFA (TOTP) and password reset must exist before production. When should they be scheduled, and is TOTP acceptable as the second factor?
 48. What session policy applies after sign-out or account removal? Access tokens stay valid until expiry (1 hour by default). Options: a shorter token lifetime, or a server-side session check for platform routes.
 49. Should the number of shops one person can register, or have waiting as drafts/pending review, be limited? Today it is unlimited; unapproved shops are never visible to customers.
-50. What does a platform admin do with a shop it does not approve: reject with a reason and allow resubmission, or something else? (Needed for the approval feature, PLT-002.)
+50. ~~What does a platform admin do with a shop it does not approve?~~ **Resolved (D-032):** request changes with reasons; the owner fixes and resubmits.
+52. What is the tinting/mixing workflow: does the shop record the base and colorant, or only the chosen shade code? (Raised with D-030.)
+53. Through which channel is the shop owner notified of a customer's product request and of review decisions: in-app only, push notification or SMS? (Raised with D-029 and D-032.)
 51. Public email sign-up is technically possible because Supabase has one global sign-up switch; such accounts get no access. For the hosted project, which mitigation is preferred: email confirmations + CAPTCHA, or a before-user-created hook that only allows phone sign-ups?
 
 ## 3a. Temporary assumptions (foundation)

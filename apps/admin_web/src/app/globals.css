@@ -1,64 +1,10 @@
 @import 'tailwindcss';
 
 /*
- * Design tokens from docs/DESIGN_SYSTEM.md (provisional).
- * Keep in sync with packages/flutter_shared/lib/src/tokens/.
- *
- * Tailwind's default colours, fonts, font sizes, radii and breakpoints are
- * reset so that only project tokens are available as utilities, e.g.
- * `bg-brand-primary`, `text-text-secondary`, `border-border-default`,
- * `text-heading1`, `rounded-medium`, `desktop:grid-cols-2`.
- *
- * Spacing keeps Tailwind's default 4px base (`--spacing: 0.25rem`), which
- * matches the design-system scale: use steps 1, 2, 3, 4, 5, 6, 8, 10, 12, 16
- * (4, 8, 12, 16, 20, 24, 32, 40, 48, 64 px).
+ * Design tokens are generated from packages/design_tokens/tokens.json into
+ * ./tokens.css (`pnpm tokens:generate`). Never add colours, sizes or radii here.
  */
-@theme {
-  --color-*: initial;
-  --color-brand-primary: #1f4b7a;
-  --color-brand-primary-strong: #163a5f;
-  --color-brand-primary-soft: #eaf1f8;
-  --color-brand-accent: #f5b544;
-  --color-surface-default: #ffffff;
-  --color-surface-subtle: #f7f9fc;
-  --color-surface-raised: #ffffff;
-  --color-text-primary: #17212f;
-  --color-text-secondary: #667085;
-  --color-text-disabled: #98a2b3;
-  --color-border-default: #e4e7ec;
-  --color-border-strong: #cbd5e1;
-  --color-status-success: #15803d;
-  --color-status-warning: #b45309;
-  --color-status-error: #b42318;
-  --color-status-info: #2563eb;
-
-  --font-*: initial;
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-
-  /* Sizes only; apply the weight from the design-system table with font-* utilities. */
-  --text-*: initial;
-  --text-display: 2rem;
-  --text-heading1: 1.75rem;
-  --text-heading2: 1.5rem;
-  --text-heading3: 1.25rem;
-  --text-title: 1.125rem;
-  --text-body-large: 1rem;
-  --text-body: 0.875rem;
-  --text-caption: 0.75rem;
-
-  --radius-*: initial;
-  --radius-small: 0.5rem;
-  --radius-medium: 0.75rem;
-  --radius-large: 1rem;
-  --radius-xlarge: 1.25rem;
-  --radius-pill: 999px;
-
-  /* compact < 600px (default) · medium 600–899 · desktop 900–1199 · wide ≥ 1200 */
-  --breakpoint-*: initial;
-  --breakpoint-medium: 37.5rem;
-  --breakpoint-desktop: 56.25rem;
-  --breakpoint-wide: 75rem;
-}
+@import './tokens.css';
 
 @layer base {
   html {

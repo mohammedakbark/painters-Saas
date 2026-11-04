@@ -93,6 +93,7 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 | Online payment gateway | Later | Explicitly deferred. |
 | SaaS subscription billing | Later | Explicitly deferred. |
 | Dedicated search engine | Later | Start with PostgreSQL search and measure. |
+| Single-source design tokens and brand names | **Implemented (DS-001)** | `packages/design_tokens` generates the web theme and Flutter tokens; rebrand in one place (D-034). Spec: `docs/features/DS-001-design-tokens.md`. |
 
 ## Suggested implementation phases
 

@@ -1,12 +1,13 @@
 import Link from 'next/link';
+import { BrandMark } from '@/components/brand/brand-mark';
 
 // Portal entry point. Each area authorizes on the server, so this page is
 // static and only routes people to the right sign-in.
 export default function Home() {
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-xl flex-col justify-center gap-6 px-4 py-12">
+    <main className="mx-auto flex min-h-dvh w-full max-w-narrow flex-col justify-center gap-6 px-4 py-12">
       <div className="flex flex-col gap-2">
-        <h1 className="text-heading1 font-bold">Admin portal</h1>
+        <BrandMark as="h1" size="heading1" />
         <p className="text-body-large text-text-secondary">
           Choose how you want to sign in.
         </p>

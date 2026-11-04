@@ -1,24 +1,21 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { BRAND } from '@/lib/brand';
+import { appFont } from './fonts';
 import './globals.css';
 
-// Downloaded at build time and self-hosted by next/font (no runtime Google request).
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-});
-
 export const metadata: Metadata = {
-  title: 'Admin portal',
-  description: 'Shop Admin and Platform Super Admin portal.',
+  title: {
+    default: BRAND.adminPortalName,
+    template: `%s · ${BRAND.adminPortalName}`,
+  },
+  description: BRAND.adminPortalDescription,
   // Administration surface: keep it out of search engines.
   robots: { index: false, follow: false },
 };
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={appFont.variable}>
       <body>{children}</body>
     </html>
   );

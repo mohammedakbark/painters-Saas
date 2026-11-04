@@ -22,7 +22,7 @@ export function StateMessage({
     <section
       role={role}
       className={cn(
-        'mx-auto flex w-full max-w-md flex-col items-center gap-3 rounded-large border border-border-default bg-surface-default px-6 py-10 text-center',
+        'mx-auto flex w-full max-w-form flex-col items-center gap-3 rounded-large border border-border-default bg-surface-default px-6 py-10 text-center',
         className,
       )}
     >

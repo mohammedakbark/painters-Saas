@@ -1,7 +1,7 @@
 # Design System
 
 **Status:** Provisional visual foundation — review before detailed screen design  
-**Last updated:** 2026-11-03
+**Last updated:** 2026-11-04
 
 The product should feel clear, dependable and practical for local paint shops, painters and customers. Avoid a generic admin-template appearance. Prioritize product information, readable prices, clear shop context and simple actions. Product name/logo are not decided.
 
@@ -15,7 +15,7 @@ The product should feel clear, dependable and practical for local paint shops, p
 - Use color to communicate meaning, not decoration.
 - Product imagery and shade information should be prominent.
 
-Values below are initial tokens, not final brand approval. Keep them centralized.
+Values below are initial tokens, not final brand approval. **Source of truth:** `packages/design_tokens/tokens.json` (and `brand.json` for product/app names), since DS-001. The tables here describe the tokens; if they ever differ, `tokens.json` wins. Change a token there, run `pnpm tokens:generate`, then update this document. Rebranding steps (colours, font, logo, names): `packages/design_tokens/README.md`.
 
 ## 2. Colour tokens
 
@@ -37,6 +37,8 @@ Values below are initial tokens, not final brand approval. Keep them centralized
 | `status.warning` | `#B45309` | Warning |
 | `status.error` | `#B42318` | Error/destructive |
 | `status.info` | `#2563EB` | Informational |
+
+The generator fails if a text/background pair listed in `tokens.json` (`contrastPairs`) is below WCAG AA (4.5:1).
 
 Rules: use one primary action per screen; use accent yellow sparingly and dark text on it; never use color alone for status; verify contrast to WCAG AA; paint shade colors are catalogue data, not app brand tokens.
 
@@ -62,6 +64,7 @@ Body text should normally be at least 14 px. Use tabular numerals for prices/tot
 Use a 4 px base scale: `4, 8, 12, 16, 20, 24, 32, 40, 48, 64`.
 
 - Standard mobile side padding: 16 px; 20–24 px on larger phones.
+- Content widths (web utilities and Flutter `AppLayout`): `form` 448 px (sign-in and short forms), `narrow` 576 px, `content` 768 px, `page` 1152 px, `sidebar` 256 px. Tailwind's default container sizes are reset, so only these exist.
 - Keep related controls close; use larger spacing between sections.
 - Avoid arbitrary one-off spacing values unless necessary.
 - Centralize tokens in Flutter and web.
@@ -117,11 +120,12 @@ Prefer small composable components. Avoid universal components with dozens of un
 
 ## 10. Accessibility and change control
 
-Use semantic labels, keyboard navigation on web, readable contrast and scalable text. Do not communicate status by color alone. If a token changes, update this document and both token implementations, check affected components/screens and update `docs/PROJECT_STATE.md`.
+Use semantic labels, keyboard navigation on web, readable contrast and scalable text. Do not communicate status by color alone. If a token changes, change `packages/design_tokens/tokens.json`, run `pnpm tokens:generate`, update this document, check affected components/screens and update `docs/PROJECT_STATE.md`. CI fails when the generated files are out of date.
 
-Token implementations (since 2026-11-03):
-- Flutter: `packages/flutter_shared/lib/src/tokens/` and `AppTheme.light()`. Inter is bundled in `packages/flutter_shared/fonts`. Tests check token sizes and WCAG AA contrast for the documented text/background pairs.
-- Web: the Tailwind v4 `@theme` block in `apps/admin_web/src/app/globals.css`. Tailwind's default palette, font sizes, radii and breakpoints are reset, so only these tokens are available. Inter is loaded with `next/font`.
+Token implementations (generated since DS-001, 2026-11-04):
+- Source: `packages/design_tokens/tokens.json` and `brand.json`; generator `generate.mjs` (`pnpm tokens:generate`, `pnpm tokens:check`).
+- Flutter: generated `AppColors`, `AppTypography`, `AppRadius`, `AppSpacing`, `AppLayout` and `AppBrand` in `packages/flutter_shared/lib/src/`; hand-written `AppTheme.light()` (Material mapping) and `BrandMark`. Inter is bundled in `packages/flutter_shared/fonts`. Tests check token sizes and WCAG AA contrast.
+- Web: generated `apps/admin_web/src/app/tokens.css` (Tailwind v4 `@theme`, imported by `globals.css`) and `src/lib/brand.ts`. Tailwind's default palette, font sizes, radii, container sizes and breakpoints are reset, so only these tokens are available. The font is loaded once in `src/app/fonts.ts` (`next/font`). `BrandMark` (`src/components/brand/`) shows the product mark; page titles use the root title template.
 - Where this document lists a weight range (for example 600/700), Flutter uses the first value. On the web, apply the weight with a `font-*` utility.
 - Web components (since AUTH-001, `apps/admin_web/src/components`): `Button` (primary/secondary, pending state, 48 px minimum height), `SubmitButton`, `Field` (label, helper text and error linked through `aria-describedby`), `Alert` (tone stated in text, `role="alert"` for errors), `PageHeader`, `Spinner`, `StateMessage` (empty/error/access states) and `AppShell` (persistent sidebar from the `desktop` breakpoint, compact top bar below it). They use the token utilities only.
 - Flutter shared widgets (since SHP-002, `packages/flutter_shared`): `LoadingView` (spinner with a visible message), `MessageView` (title, explanation and action for empty, access and not-found states) and `ErrorView` (with "Try again"). The Shop App shows status as text (a chip), uses 48 px minimum touch targets, and lets error text wrap instead of truncating.

@@ -3,11 +3,11 @@ import Link from 'next/link';
 import { signInToPlatform } from './actions';
 import { SignInForm } from './sign-in-form';
 
-export const metadata: Metadata = { title: 'Platform sign-in · Admin portal' };
+export const metadata: Metadata = { title: 'Platform sign-in' };
 
 export default function PlatformSignInPage() {
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center gap-6 px-4 py-12">
+    <main className="mx-auto flex min-h-dvh w-full max-w-form flex-col justify-center gap-6 px-4 py-12">
       <div className="flex flex-col gap-2">
         <p className="text-caption font-medium tracking-wide text-text-secondary uppercase">
           Platform admin

@@ -11,7 +11,7 @@ class ShopApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
-      title: 'Shop App',
+      title: AppBrand.shopAppName,
       theme: AppTheme.light(),
       routerConfig: ref.watch(routerProvider),
     );
@@ -27,7 +27,7 @@ class ConfigErrorApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Shop App',
+      title: AppBrand.shopAppName,
       theme: AppTheme.light(),
       home: Scaffold(
         body: SafeArea(

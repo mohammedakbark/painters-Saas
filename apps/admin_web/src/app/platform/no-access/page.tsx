@@ -8,7 +8,7 @@ import { getPlatformAccess } from '@/lib/auth/platform-access';
 import { signOutOfPlatform } from '../actions';
 
 export const metadata: Metadata = {
-  title: 'No platform access · Admin portal',
+  title: 'No platform access',
 };
 
 /** Where signed-in accounts without platform access are sent. */

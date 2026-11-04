@@ -4,9 +4,17 @@ import { AppShell } from '@/components/layout/app-shell';
 import type { NavItem } from '@/components/layout/nav-links';
 import { Spinner } from '@/components/ui/spinner';
 import { requirePlatformAdmin } from '@/lib/auth/platform-access';
+import { BRAND } from '@/lib/brand';
 import { signOutOfPlatform } from '../actions';
 
-export const metadata: Metadata = { title: 'Platform · Admin portal' };
+// A nested layout with a plain string title would stop the root template, so
+// the console defines its own template for its pages.
+export const metadata: Metadata = {
+  title: {
+    default: 'Platform',
+    template: `%s · Platform · ${BRAND.adminPortalName}`,
+  },
+};
 
 const PLATFORM_NAV: readonly NavItem[] = [
   { href: '/platform', label: 'Overview', exact: true },

@@ -32,6 +32,27 @@ abstract final class AppTheme {
     surfaceTint: Color(0x00000000),
   );
 
+  /// Maps the typography tokens onto Material 3 text-theme slots so standard
+  /// widgets use only token sizes. Slots without a matching token (larger
+  /// displays, titles, labels) reuse the closest token.
+  static TextTheme get textTheme => TextTheme(
+    displayLarge: AppTypography.display,
+    displayMedium: AppTypography.display,
+    displaySmall: AppTypography.display,
+    headlineLarge: AppTypography.heading1,
+    headlineMedium: AppTypography.heading2,
+    headlineSmall: AppTypography.heading3,
+    titleLarge: AppTypography.title,
+    titleMedium: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.w500),
+    titleSmall: AppTypography.body.copyWith(fontWeight: FontWeight.w500),
+    bodyLarge: AppTypography.bodyLarge,
+    bodyMedium: AppTypography.body,
+    bodySmall: AppTypography.caption,
+    labelLarge: AppTypography.body.copyWith(fontWeight: FontWeight.w500),
+    labelMedium: AppTypography.caption.copyWith(fontWeight: FontWeight.w500),
+    labelSmall: AppTypography.caption.copyWith(fontWeight: FontWeight.w500),
+  );
+
   static ThemeData light() {
     final controlShape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(AppRadius.medium),
@@ -42,7 +63,7 @@ abstract final class AppTheme {
       colorScheme: lightColorScheme,
       fontFamily: AppTypography.fontFamily,
       package: AppTypography.fontPackage,
-      textTheme: AppTypography.textTheme,
+      textTheme: textTheme,
       scaffoldBackgroundColor: AppColors.surfaceSubtle,
       disabledColor: AppColors.textDisabled,
       dividerTheme: const DividerThemeData(

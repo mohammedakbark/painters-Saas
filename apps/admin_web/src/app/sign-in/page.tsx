@@ -3,11 +3,11 @@ import Link from 'next/link';
 import { otpSignIn } from './actions';
 import { OtpSignInForm } from './otp-sign-in-form';
 
-export const metadata: Metadata = { title: 'Shop sign-in · Admin portal' };
+export const metadata: Metadata = { title: 'Shop sign-in' };
 
 export default function ShopSignInPage() {
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center gap-6 px-4 py-12">
+    <main className="mx-auto flex min-h-dvh w-full max-w-form flex-col justify-center gap-6 px-4 py-12">
       <div className="flex flex-col gap-2">
         <p className="text-caption font-medium tracking-wide text-text-secondary uppercase">
           Shop owners and staff

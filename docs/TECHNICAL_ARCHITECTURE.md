@@ -236,7 +236,8 @@ Shop App (SHP-002): supabase_flutter ^2.18.3, flutter_riverpod ^3.4.3, go_router
 │   └── shop_app/                   # Flutter Shop App: lib/src/{config,auth,api,shops,routing,features}
 ├── packages/
 │   ├── api_contracts/              # generated openapi.json (no package.json yet)
-│   └── flutter_shared/             # design tokens, AppTheme, Inter fonts, IndianMobileNumber, state views
+│   ├── design_tokens/              # tokens.json + brand.json → generated web theme and Flutter tokens (DS-001)
+│   └── flutter_shared/             # generated tokens + AppBrand, AppTheme, BrandMark, Inter fonts, IndianMobileNumber, state views
 ├── infra/local/                    # Docker Compose Postgres for app data (local only)
 ├── infra/supabase/                 # Supabase CLI config: Auth only (local only)
 ├── docs/  prompts/  .claude/skills/  CLAUDE.md  README.md
@@ -244,7 +245,7 @@ Shop App (SHP-002): supabase_flutter ^2.18.3, flutter_riverpod ^3.4.3, go_router
 └── pubspec.yaml  pubspec.lock  analysis_options.yaml  .fvmrc          # Dart pub workspace
 ```
 
-The two toolchains are independent. pnpm manages only `apps/api` and `apps/admin_web`. The Dart pub workspace (root `pubspec.yaml`, one lockfile) manages the Flutter apps and `flutter_shared`.
+The two toolchains are independent. pnpm manages `apps/api`, `apps/admin_web` and the dependency-free `packages/design_tokens` generator. The Dart pub workspace (root `pubspec.yaml`, one lockfile) manages the Flutter apps and `flutter_shared`.
 
 ### 14.3 What exists
 
@@ -262,7 +263,7 @@ The two toolchains are independent. pnpm manages only `apps/api` and `apps/admin
   - `/platform`: platform console (overview), plus `/platform/shops` (registry list) and `/platform/shops/[shopId]` (detail). Every page is gated by `requirePlatformAdmin()`.
   - `/platform/no-access`.
   - `/sign-in` (shop users, mobile OTP), `/shops` (my shops), `/shops/new` (register), `/shops/[shopId]` (shop console, gated by `requireShopAccess()` in layout and pages).
-  - Design tokens as Tailwind v4 `@theme` variables, with the default palette, font sizes, radii and breakpoints reset.
+  - Design tokens as Tailwind v4 `@theme` variables generated from `packages/design_tokens` (`src/app/tokens.css`), with the default palette, font sizes, radii, container sizes and breakpoints reset.
   - Cache Components is enabled: session reads sit behind `<Suspense>` and `connection()`.
 - **Flutter:**
   - The **Shop App** has mobile OTP sign-in (login-only), the user's shops and a shop home. Riverpod providers, go_router redirects on auth state, and a Dio client with a bearer token and problem `code` parsing. The session is stored in the keystore.
@@ -312,6 +313,7 @@ cd apps/shop_app && fvm flutter run --dart-define-from-file=config/local.json
 | Flutter format | `fvm dart format --set-exit-if-changed apps/customer_app apps/shop_app packages/flutter_shared` |
 | Flutter analyze | `fvm flutter analyze` (repo root) |
 | Flutter tests | `fvm flutter test` in each Flutter package |
+| Design tokens | `pnpm tokens:generate` (after editing `packages/design_tokens/*.json`), `pnpm tokens:check`, `pnpm --filter design-tokens test` |
 
 ### 14.6 Environment variables (names only; examples hold placeholders)
 
@@ -329,7 +331,7 @@ Storage and SMS variables are defined when those features and providers arrive. 
 
 Runs on pull requests, pushes to `main` and manual dispatch, with `permissions: contents: read` and cancel-in-progress.
 
-- **typescript:** frozen install → Prettier check → lint → typecheck → unit/component tests → build → API e2e against a `postgres:17-alpine` service (migrations applied first) → migration drift check → OpenAPI drift check. Auth values are CI-only placeholders; the e2e tests inject a test ES256 key set and an in-memory identity provider, so CI needs no Supabase.
+- **typescript:** frozen install → Prettier check → design-token check → lint → typecheck → unit/component tests → build → API e2e against a `postgres:17-alpine` service (migrations applied first) → migration drift check → OpenAPI drift check. Auth values are CI-only placeholders; the e2e tests inject a test ES256 key set and an in-memory identity provider, so CI needs no Supabase.
 - **flutter:** Flutter from `.fvmrc` → `pub get` → `dart format` check → `flutter analyze` → `flutter test` per package.
 - **repository:** `docker compose config` validation and actionlint.
 

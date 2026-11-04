@@ -58,7 +58,7 @@ Alternate and failure paths:
   - error text that wraps (never truncated);
   - pending states on buttons;
   - OTP autofill hints;
-  - a 420 px maximum width.
+  - the `AppLayout.formMaxWidth` maximum width (448 px since DS-001; 420 px before).
 - The shop list uses cards with a touch target of at least 48 px.
 - Loading, empty, error, expired-session and not-found states use the shared `LoadingView`, `MessageView` and `ErrorView` from `flutter_shared`.
 - Status is always shown as text (a chip with the "Draft" label).
@@ -157,3 +157,4 @@ None.
 | Date | Change |
 |---|---|
 | 2026-11-03 | Specification written together with the implementation (the plan and decisions were agreed beforehand); implemented and verified locally |
+| 2026-11-04 | DS-001: sign-in screen shows the `BrandMark`; form width comes from `AppLayout.formMaxWidth` (448 px) |
