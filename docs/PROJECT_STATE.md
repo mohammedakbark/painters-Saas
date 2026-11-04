@@ -24,7 +24,7 @@
 | CAT-002: Shop catalogue (D-029, D-030) | **Complete (local; Chrome)** | `docs/features/CAT-002-shop-catalogue.md` |
 | PLT-002: Review workflow: submit, approve or request changes, resubmit (D-032, D-033) | **Complete (local; Chrome owner side, platform side over HTTP, Android emulator)** | `docs/features/PLT-002-shop-review.md` |
 
-**Git (D-035):** every feature above is in `dev` (fast-forward merged and pushed on 2026-11-04; one commit per feature, `3697e4f` … `9c7885b`); the per-feature branches were deleted. From now on each finished feature is merged into `dev` and pushed the same way. `main` still holds only `c56f614` (project setup) until a release.
+**Git (D-035):** every feature above is in `dev` (fast-forward merged and pushed on 2026-11-04; one commit per feature, `3697e4f` … `9c7885b`); the local per-feature branches were deleted. The first GitHub Actions run on `dev` (`8497b81`) passed all three jobs (TypeScript, Flutter, repository checks). The old remote branch `feat/shp-002-shop-app-sign-in` is still on GitHub (its commits are in `dev`); the product owner can delete it. From now on each finished feature is merged into `dev` and pushed the same way. `main` still holds only `c56f614` (project setup) until a release.
 
 **M0: Project foundation** is `DONE`. The first commit (`c56f614`, pushed by the product owner) ran the `CI` workflow on GitHub with all three jobs green under Node 24.
 
@@ -138,7 +138,6 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 ## 5. Not done
 
 - [ ] Google Cloud project and Maps keys (product owner; D-027; steps in `docs/guides/GOOGLE_MAPS_SETUP.md`). Until then the map screens use the no-map fallback, and the Google map, place search and address suggestions are unverified.
-- [ ] First GitHub Actions run on `dev` (all features up to PLT-002, pushed 2026-11-04): check the result on GitHub.
 - [ ] PLT-002 decision form submitted from a browser by a platform admin (verified over HTTP and the API; the session could not use the test admin password in Chrome).
 - [ ] Decision notifications to the owner (SMS/push; question 53).
 - [ ] Product owner to confirm two CAT-002 assumptions: the selling price may not exceed the MRP, and the 10-product rule counts active products with at least one pack size (DECISIONS §3a).
