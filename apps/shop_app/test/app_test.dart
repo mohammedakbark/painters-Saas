@@ -5,6 +5,7 @@ import 'package:shop_app/src/api/api_client.dart';
 import 'package:shop_app/src/auth/auth_repository.dart';
 import 'package:shop_app/src/features/sign_in/sign_in_controller.dart';
 import 'package:shop_app/src/shops/shop_models.dart';
+import 'package:shop_app/src/shops/shop_review.dart';
 
 import 'support/fakes.dart';
 
@@ -193,6 +194,85 @@ void main() {
       expect(find.text('Draft'), findsOneWidget);
       expect(
         find.textContaining('Not visible to customers or painters yet.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('shows the requested changes with their reasons and note', (
+      tester,
+    ) async {
+      final profiles = FakeShopProfileRepository();
+      profiles.reviews['shop-a'] = ShopReviewState(
+        status: 'CHANGES_REQUESTED',
+        missing: const [],
+        submittedAt: null,
+        lastDecision: ShopReviewDecision(
+          decision: 'CHANGES_REQUESTED',
+          reasons: const ['PHOTO_MISSING_OR_UNCLEAR', 'OTHER'],
+          note: 'Show the name board.',
+          decidedAt: DateTime.utc(2026, 11, 4, 6),
+        ),
+      );
+      await tester.pumpWidget(
+        testApp(
+          auth: FakeAuthRepository(signedIn: true),
+          shops: FakeShopAccessRepository(
+            memberships: [lakshmi],
+            shops: {'shop-a': lakshmiShop},
+          ),
+          profiles: profiles,
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Lakshmi Paints'));
+      await tester.pumpAndSettle();
+
+      // The status chip and the section heading.
+      expect(find.text('Changes requested'), findsNWidgets(2));
+      expect(
+        find.text('• The shop photo is missing or unclear'),
+        findsOneWidget,
+      );
+      expect(
+        find.text('Note from the platform team: "Show the name board."'),
+        findsOneWidget,
+      );
+      expect(
+        find.text('Fix these, then submit your shop again on the web portal.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('explains the lock while the shop is in review', (
+      tester,
+    ) async {
+      final profiles = FakeShopProfileRepository();
+      profiles.reviews['shop-a'] = ShopReviewState(
+        status: 'PENDING_REVIEW',
+        missing: const [],
+        submittedAt: DateTime.utc(2026, 11, 3, 20),
+        lastDecision: null,
+      );
+      await tester.pumpWidget(
+        testApp(
+          auth: FakeAuthRepository(signedIn: true),
+          shops: FakeShopAccessRepository(
+            memberships: [lakshmi],
+            shops: {'shop-a': lakshmiShop},
+          ),
+          profiles: profiles,
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Lakshmi Paints'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('In review'), findsOneWidget);
+      // 20:00 UTC is the next day in India.
+      expect(
+        find.textContaining(
+          'Submitted on 4 Nov 2026. Until the review is done',
+        ),
         findsOneWidget,
       );
     });

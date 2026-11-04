@@ -46,12 +46,15 @@ export function ShopProfileForm({
   maps,
   canEdit,
   cancelHref,
+  viewOnlyNote = 'Only the shop owner can change the profile.',
 }: {
   action: SaveProfileAction;
   initialValues: ProfileFormValues;
   maps: MapsConfig | null;
   canEdit: boolean;
   cancelHref: string;
+  /** Why the form is read-only; null when the page already explains it. */
+  viewOnlyNote?: string | null;
 }) {
   const [state, formAction, pending] = useActionState(action, {
     values: initialValues,
@@ -119,9 +122,9 @@ export function ShopProfileForm({
           {state.formError}
         </Alert>
       ) : null}
-      {!canEdit ? (
+      {!canEdit && viewOnlyNote ? (
         <Alert tone="info" title="View only">
-          Only the shop owner can change the profile.
+          {viewOnlyNote}
         </Alert>
       ) : null}
 

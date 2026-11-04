@@ -11,5 +11,6 @@ import { ShopShadesService } from './shop-shades.service.js';
   imports: [PrismaModule, ShopAccessModule, CatalogueModule],
   controllers: [ShopCatalogueController],
   providers: [ShopProductsService, ShopShadesService],
+  exports: [ShopProductsService],
 })
 export class ShopCatalogueModule {}

@@ -4,7 +4,7 @@ import type { ProfileRequestBody } from '@/lib/shops/profile';
 import { apiRequest } from './client';
 
 // Mirrors ShopProfile and ShopOnboarding in packages/api_contracts/openapi.json.
-const shopProfileSchema = z.object({
+export const shopProfileSchema = z.object({
   shopId: z.string(),
   shopName: z.string(),
   status: z.string(),
@@ -37,7 +37,7 @@ const shopProfileSchema = z.object({
 
 export type ShopProfile = z.infer<typeof shopProfileSchema>;
 
-const onboardingSchema = z.object({
+export const onboardingSchema = z.object({
   // Keys are open-ended: later features add checklist items.
   items: z.array(
     z.object({

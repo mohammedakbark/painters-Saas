@@ -30,6 +30,9 @@ abstract final class ShopProfileMessages {
       '${meters >= 1000 ? '${(meters / 1000).round()} km' : '${meters.round()} m'}, '
       'which is too rough for a shop pin. Go outside or near a door, then '
       'try again.';
+  static const inReview =
+      'Your shop is waiting for review, so its location is locked. To change '
+      'it, withdraw the submission on the web portal.';
   static const outsideIndia =
       'This location is outside India. Stand at the shop and try again.';
   static const saved = 'Shop location saved.';
@@ -350,6 +353,10 @@ class _LocationSectionState extends ConsumerState<_LocationSection> {
       if (!mounted) return;
       setState(() => _busy = false);
       _show(ShopProfileMessages.forbidden);
+    } on ShopInReview {
+      if (!mounted) return;
+      setState(() => _busy = false);
+      _show(ShopProfileMessages.inReview);
     } on ShopNotFound {
       if (!mounted) return;
       setState(() => _busy = false);

@@ -1,5 +1,6 @@
 import '../api/api_client.dart';
 import 'shop_access_repository.dart';
+import 'shop_review.dart';
 
 /// The shop's address (from `GET /v1/shops/{id}/profile`).
 class ShopAddress {
@@ -124,6 +125,11 @@ class ShopProfileForbidden implements Exception {
   const ShopProfileForbidden();
 }
 
+/// The shop is waiting for review, so its location is locked (D-033).
+class ShopInReview implements Exception {
+  const ShopInReview();
+}
+
 /// Reads the profile and sets the location. The API checks membership and
 /// role; this never decides access itself.
 abstract interface class ShopProfileRepository {
@@ -137,6 +143,9 @@ abstract interface class ShopProfileRepository {
     required double latitude,
     required double longitude,
   });
+
+  /// The review status (PLT-002). Throws [ShopNotFound] like [fetchProfile].
+  Future<ShopReviewState> fetchReview(String shopId);
 }
 
 class ApiShopProfileRepository implements ShopProfileRepository {
@@ -164,6 +173,20 @@ class ApiShopProfileRepository implements ShopProfileRepository {
     }),
   );
 
+  @override
+  Future<ShopReviewState> fetchReview(String shopId) async {
+    try {
+      return ShopReviewState.fromJson(
+        await _api.getJson(_path(shopId, 'review')),
+      );
+    } on ApiException catch (error) {
+      if (error.status == 404) {
+        throw const ShopNotFound();
+      }
+      rethrow;
+    }
+  }
+
   Future<ShopProfile> _guard(
     Future<Map<String, Object?>> Function() call,
   ) async {
@@ -175,6 +198,9 @@ class ApiShopProfileRepository implements ShopProfileRepository {
       }
       if (error.status == 403) {
         throw const ShopProfileForbidden();
+      }
+      if (error.code == 'shop_in_review') {
+        throw const ShopInReview();
       }
       rethrow;
     }

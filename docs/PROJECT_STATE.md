@@ -1,7 +1,7 @@
 # Project State — Living Document
 
 **Last updated:** 2026-11-04  
-**Current stage:** Phase 1: shop onboarding. Identity and shop accounts done (AUTH-001, SHP-001, PLT-001, SHP-002). The product owner answered the onboarding and catalogue questions on 2026-11-04 (D-027 to D-034). DS-001 (single-source theme), SHP-003 (shop profile and map location), SHP-004 (shop photo, portable storage), CAT-001 (platform brand catalogue) and CAT-002 (shop catalogue) done; PLT-002 (review workflow) next.  
+**Current stage:** Phase 1: shop onboarding. Identity and shop accounts done (AUTH-001, SHP-001, PLT-001, SHP-002). The product owner answered the onboarding and catalogue questions on 2026-11-04 (D-027 to D-034). DS-001 (single-source theme), SHP-003 (shop profile and map location), SHP-004 (shop photo, portable storage), CAT-001 (platform brand catalogue), CAT-002 (shop catalogue) and PLT-002 (shop review) done: a shop can now go from registration to Live locally. Next: product owner checks (see §7), then the next phase.  
 **Overall status:** Foundation complete with CI green on GitHub. Implemented and verified locally: platform admin sign-in, shop self-registration with tenant-scoped access, the platform shop registry, and Shop App sign-in (Android emulator).  
 **Product name:** Not decided
 
@@ -22,7 +22,7 @@
 | SHP-004: Shop photo and portable media storage (D-028) | **Complete (local; Chrome + Android emulator + local Supabase Storage)**; branch `feat/shp-004-shop-photo` (stacked on SHP-003) | `docs/features/SHP-004-shop-photo.md`, ADR 0007 |
 | CAT-001: Platform brand catalogue (D-030) | **Complete (local; Chrome)**; branch `feat/cat-001-platform-catalogue` (stacked on SHP-004) | `docs/features/CAT-001-platform-brand-catalogue.md`, ADR 0008 |
 | CAT-002: Shop catalogue (D-029, D-030) | **Complete (local; Chrome)**; branch `feat/cat-002-shop-catalogue` (stacked on CAT-001) | `docs/features/CAT-002-shop-catalogue.md` |
-| PLT-002: Review workflow: submit, approve or request changes, resubmit (D-032, D-033) | Planned | to be written |
+| PLT-002: Review workflow: submit, approve or request changes, resubmit (D-032, D-033) | **Complete (local; Chrome owner side, platform side over HTTP, Android emulator)**; branch `feat/plt-002-shop-review` (stacked on CAT-002) | `docs/features/PLT-002-shop-review.md` |
 
 **M0: Project foundation** is `DONE`. The first commit (`c56f614`, pushed by the product owner) ran the `CI` workflow on GitHub with all three jobs green under Node 24.
 
@@ -127,12 +127,18 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
   - onboarding checklist **Products** item (10 active products with a pack size);
   - shop portal **Catalogue** (products, add from brand catalogue, own product, product page, shades);
   - fix to CAT-001: shade search kept on later pages.
+- [x] PLT-002 (shop review):
+  - statuses Draft → In review → Live or Changes requested; `shop_reviews` history with one open review per shop;
+  - submit (complete checklist only), withdraw, approve, request changes with reasons and a note; resubmission;
+  - profile, location and photo locked while in review (D-033), products never locked;
+  - platform **Reviews** queue and audited review page; owner status panel; Shop App status and requested changes.
 
 ## 5. Not done
 
-- [ ] SHP-003, SHP-004, CAT-001, CAT-002 and PLT-002 (see §1).
 - [ ] Google Cloud project and Maps keys (product owner; D-027; steps in `docs/guides/GOOGLE_MAPS_SETUP.md`). Until then the map screens use the no-map fallback, and the Google map, place search and address suggestions are unverified.
-- [ ] Push and CI run for the AUTH-001, SHP-001, PLT-001, SHP-002, DS-001, SHP-003, SHP-004, CAT-001 and CAT-002 branches (not pushed; product owner decides).
+- [ ] Push and CI run for the AUTH-001, SHP-001, PLT-001, SHP-002, DS-001, SHP-003, SHP-004, CAT-001, CAT-002 and PLT-002 branches (not pushed; product owner decides).
+- [ ] PLT-002 decision form submitted from a browser by a platform admin (verified over HTTP and the API; the session could not use the test admin password in Chrome).
+- [ ] Decision notifications to the owner (SMS/push; question 53).
 - [ ] Product owner to confirm two CAT-002 assumptions: the selling price may not exceed the MRP, and the 10-product rule counts active products with at least one pack size (DECISIONS §3a).
 - [ ] Shop App catalogue screens (the API is ready).
 - [ ] Real brand catalogue data (platform admins, from official shade cards and price lists; D-030).
@@ -146,6 +152,20 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 - [ ] iOS build verification (requires macOS).
 
 ## 6. Checks run (local, Windows 11, Node 22.21.0)
+
+### PLT-002 (2026-11-04)
+
+| Check | Result |
+|---|---|
+| `pnpm format:check`, `pnpm tokens:check`, `pnpm lint`, `pnpm typecheck`, `pnpm build` | Passed |
+| `pnpm test`: api 116, admin_web 143 (8 new), design_tokens 15 | Passed |
+| `pnpm --filter api test:e2e`: 121 (6 new: checklist gate, lock, withdraw, request changes → resubmit → approve, validation, access) | Passed |
+| `db:check-drift`; OpenAPI export (6 new paths, none removed) | No difference / updated |
+| Shop App: `fvm flutter analyze`, `dart format lib test`, `fvm flutter test` (34, 2 new), `build apk --debug` | Passed |
+| Secret scan of the web bundle and the debug APK | None found |
+| **Chrome** (this computer, local test owner): submit, lock on the profile page, changes requested shown, photo fixed, resubmit, withdraw, resubmit, Live | Verified |
+| Platform side over HTTP + API (local test admin; password read by a local script, never printed): queue, review page, registry link, decisions, 409 on a second decision, history | Verified |
+| **Android emulator** (`emulator-5554`): shop list and home show Live | Verified |
 
 ### CAT-002 (2026-11-04)
 
@@ -278,9 +298,10 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 
 ## 7. Next actions
 
-1. **PLT-002: review workflow** (D-032, D-033): submit when the checklist is complete, approve or request changes with reasons, resubmit. Questions 49 and 51 are hardening.
-2. **Product owner:** Google Maps keys (`docs/guides/GOOGLE_MAPS_SETUP.md`); real brand catalogue data; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
-3. **Housekeeping.** Install Node 24 locally. Push the branches when the product owner wants CI runs.
+1. **Product owner checks:** try the platform **Reviews** decision form in Chrome as the platform admin; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule); push the branches for CI when ready.
+2. **Next phase (to plan with the product owner):** Shop App catalogue screens, or the Customer App foundation (customer sign-up and shop discovery of Live shops). Questions 49 and 51 are hardening before any hosted environment.
+3. **Product owner:** Google Maps keys (`docs/guides/GOOGLE_MAPS_SETUP.md`); real brand catalogue data; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
+4. **Housekeeping.** Install Node 24 locally. Push the branches when the product owner wants CI runs.
 
 ## 8. Feature progress
 
@@ -290,7 +311,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | Architecture | Foundation + auth implemented | Hosting still proposed |
 | Design system | Provisional tokens from one source (DS-001); first web and Flutter components | `packages/design_tokens` → web `tokens.css` + Flutter `flutter_shared` |
 | Platform admin sign-in | **Complete (local)** | AUTH-001 |
-| Shop onboarding | Registration (SHP-001), Shop App sign-in (SHP-002), profile + map location + checklist (SHP-003), photo (SHP-004) | Products, submit and approval still to come |
+| Shop onboarding | **Complete locally:** registration (SHP-001), Shop App sign-in (SHP-002), profile + map location + checklist (SHP-003), photo (SHP-004), products (CAT-002), review and approval (PLT-002) | Decision notifications later (question 53) |
 | Customer authentication | Not started | Supabase phone OTP decided; SMS vendor open |
 | Catalogue | Brand catalogue (CAT-001) and shop catalogue (CAT-002) done on the web; Shop App screens later | Customer requests for unavailable items with the Customer App (D-029); tinting open (question 52) |
 | Cross-shop search | Not started | Price visibility open |
@@ -339,3 +360,4 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-04 | SHP-004 implemented: shop photo with a portable S3-protocol storage port and metadata-stripping image pipeline (ADR 0007). |
 | 2026-11-04 | CAT-001 implemented: platform brand catalogue with CSV import and read API (ADR 0008). |
 | 2026-11-04 | CAT-002 implemented: shop catalogue with per-pack prices and availability, own products, favourite and own shades, products checklist item. |
+| 2026-11-04 | PLT-002 implemented: shop review (submit, withdraw, approve, request changes with reasons, resubmit) with the D-033 edit lock. |

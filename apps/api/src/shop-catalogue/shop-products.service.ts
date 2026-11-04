@@ -121,6 +121,30 @@ export class ShopProductsService {
     };
   }
 
+  /**
+   * A shop's active products for the platform review (PLT-002), newest first.
+   * The caller must already have authorized platform access to this shop.
+   */
+  async activeForReview(
+    shopId: string,
+    limit: number,
+  ): Promise<{ total: number; items: ShopProductResponse[] }> {
+    const where = { shopId, status: 'ACTIVE' as const };
+    const [total, rows] = await Promise.all([
+      this.prisma.shopProduct.count({ where }),
+      this.prisma.shopProduct.findMany({
+        where,
+        orderBy: { id: 'desc' },
+        take: limit,
+        select: SHOP_PRODUCT_SELECT,
+      }),
+    ]);
+    return {
+      total,
+      items: rows.map((row) => toShopProduct(row, this.images)),
+    };
+  }
+
   async get(
     shop: ShopContext,
     productId: string,

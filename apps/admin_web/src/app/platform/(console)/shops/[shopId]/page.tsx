@@ -40,9 +40,14 @@ async function PlatformShop({ params }: PageProps<'/platform/shops/[shopId]'>) {
         title={shop.name}
         description={status.description}
         actions={
-          <ButtonLink href="/platform/shops" variant="secondary">
-            All shops
-          </ButtonLink>
+          <>
+            <ButtonLink href={`/platform/reviews/${shop.id}`}>
+              Review details
+            </ButtonLink>
+            <ButtonLink href="/platform/shops" variant="secondary">
+              All shops
+            </ButtonLink>
+          </>
         }
       />
       <section className="rounded-large border border-border-default bg-surface-default p-6">

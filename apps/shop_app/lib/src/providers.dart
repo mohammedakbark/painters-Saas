@@ -5,6 +5,7 @@ import 'location/location_service.dart';
 import 'shops/shop_access_repository.dart';
 import 'shops/shop_models.dart';
 import 'shops/shop_profile.dart';
+import 'shops/shop_review.dart';
 
 /// Overridden in `main()` (and in tests) with the real or a fake implementation.
 final authRepositoryProvider = Provider<AuthRepository>(
@@ -42,6 +43,14 @@ final shopProvider = FutureProvider.autoDispose.family<MyShop, String>(
   (ref, shopId) => ref.watch(shopAccessRepositoryProvider).fetchShop(shopId),
   retry: _noRetry,
 );
+
+/// The shop's review status (`GET /v1/shops/{id}/review`, PLT-002).
+final shopReviewProvider = FutureProvider.autoDispose
+    .family<ShopReviewState, String>(
+      (ref, shopId) =>
+          ref.watch(shopProfileRepositoryProvider).fetchReview(shopId),
+      retry: _noRetry,
+    );
 
 /// The shop's support mobile, address and location (`GET /v1/shops/{id}/profile`).
 final shopProfileProvider = FutureProvider.autoDispose

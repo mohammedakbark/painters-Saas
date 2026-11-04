@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module.js';
 import { CatalogueModule } from './catalogue/catalogue.module.js';
 import { ShopCatalogueModule } from './shop-catalogue/shop-catalogue.module.js';
+import { ShopReviewModule } from './shop-review/shop-review.module.js';
 import { validateEnv } from './config/env.js';
 import { HealthModule } from './health/health.module.js';
 import { PlatformAdminModule } from './platform-admin/platform-admin.module.js';
@@ -32,6 +33,7 @@ import { UsersModule } from './users/users.module.js';
     MediaModule,
     CatalogueModule,
     ShopCatalogueModule,
+    ShopReviewModule,
   ],
 })
 export class AppModule {}

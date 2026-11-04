@@ -1,12 +1,13 @@
 import 'server-only';
 import { z } from 'zod';
+import { SHOP_STATUSES } from '@/lib/shops/labels';
 import { apiRequest } from './client';
 
 // Mirrors ShopRegistryEntry / ShopRegistryPage in packages/api_contracts/openapi.json.
-const registryEntrySchema = z.object({
+export const shopRegistryEntrySchema = z.object({
   id: z.string(),
   name: z.string(),
-  status: z.enum(['DRAFT']),
+  status: z.enum(SHOP_STATUSES),
   createdAt: z.string(),
   updatedAt: z.string(),
   master: z
@@ -15,11 +16,11 @@ const registryEntrySchema = z.object({
 });
 
 const registryPageSchema = z.object({
-  items: z.array(registryEntrySchema),
+  items: z.array(shopRegistryEntrySchema),
   nextCursor: z.string().nullable(),
 });
 
-export type ShopRegistryEntry = z.infer<typeof registryEntrySchema>;
+export type ShopRegistryEntry = z.infer<typeof shopRegistryEntrySchema>;
 export type ShopRegistryPage = z.infer<typeof registryPageSchema>;
 
 export const REGISTRY_PAGE_SIZE = 20;
@@ -44,6 +45,6 @@ export function getRegisteredShop(
 ): Promise<ShopRegistryEntry> {
   return apiRequest(`/v1/platform/shops/${encodeURIComponent(shopId)}`, {
     token,
-    schema: registryEntrySchema,
+    schema: shopRegistryEntrySchema,
   });
 }

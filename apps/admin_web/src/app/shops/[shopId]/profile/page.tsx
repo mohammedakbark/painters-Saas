@@ -39,10 +39,19 @@ async function ShopProfileContent({
   const query = await searchParams;
   const saved = query.saved === '1';
   const photoSaved = query.photo === '1';
-  const canEdit = shop.myRole === 'MASTER';
+  // Locked while the shop waits for review (D-033); the API enforces it too.
+  const inReview = shop.status === 'PENDING_REVIEW';
+  const canEdit = shop.myRole === 'MASTER' && !inReview;
 
   return (
     <>
+      {inReview ? (
+        <Alert tone="info" title="Locked while in review">
+          Your shop is waiting for review, so the profile, photo and location
+          can&apos;t be changed. To make changes, withdraw the submission on the
+          Overview page.
+        </Alert>
+      ) : null}
       {saved ? (
         <Alert tone="success" title="Profile saved">
           Your shop profile is up to date.
@@ -76,6 +85,7 @@ async function ShopProfileContent({
           initialValues={toFormValues(profile)}
           maps={mapsConfig()}
           canEdit={canEdit}
+          viewOnlyNote={inReview ? null : undefined}
           cancelHref={`/shops/${shop.id}`}
         />
       </div>

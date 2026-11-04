@@ -7,6 +7,7 @@ import 'package:shop_app/src/providers.dart';
 import 'package:shop_app/src/shops/shop_access_repository.dart';
 import 'package:shop_app/src/shops/shop_models.dart';
 import 'package:shop_app/src/shops/shop_profile.dart';
+import 'package:shop_app/src/shops/shop_review.dart';
 
 class FakeAuthRepository extends ChangeNotifier implements AuthRepository {
   FakeAuthRepository({this.signedIn = false});
@@ -103,6 +104,23 @@ class FakeShopProfileRepository implements ShopProfileRepository {
 
   /// When set, saveDeviceLocation() fails with it.
   Object? saveError;
+
+  /// Review status per shop; a draft with nothing missing by default.
+  final Map<String, ShopReviewState> reviews = {};
+
+  @override
+  Future<ShopReviewState> fetchReview(String shopId) async {
+    if (!profiles.containsKey(shopId) && !reviews.containsKey(shopId)) {
+      throw const ShopNotFound();
+    }
+    return reviews[shopId] ??
+        const ShopReviewState(
+          status: 'DRAFT',
+          missing: [],
+          submittedAt: null,
+          lastDecision: null,
+        );
+  }
 
   @override
   Future<ShopProfile> fetchProfile(String shopId) async {

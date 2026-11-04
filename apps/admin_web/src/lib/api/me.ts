@@ -1,5 +1,6 @@
 import 'server-only';
 import { z } from 'zod';
+import { SHOP_STATUSES } from '@/lib/shops/labels';
 import { apiRequest } from './client';
 
 // Mirrors MeResponse in packages/api_contracts/openapi.json.
@@ -13,7 +14,7 @@ const meSchema = z.object({
     z.object({
       shopId: z.string(),
       shopName: z.string(),
-      shopStatus: z.enum(['DRAFT']),
+      shopStatus: z.enum(SHOP_STATUSES),
       role: z.enum(['MASTER']),
     }),
   ),

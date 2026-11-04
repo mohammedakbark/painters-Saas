@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../providers.dart';
 import '../../shops/shop_access_repository.dart';
 import '../../shops/shop_models.dart';
+import '../../shops/shop_review.dart';
 import 'sign_out_button.dart';
 
 /// Home of one shop. The API checks membership; non-members see "not found".
@@ -46,13 +47,15 @@ class ShopHomeScreen extends ConsumerWidget {
   }
 }
 
-class _ShopOverview extends StatelessWidget {
+class _ShopOverview extends ConsumerWidget {
   const _ShopOverview({required this.shop});
 
   final MyShop shop;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final review = ref.watch(shopReviewProvider(shop.id)).value;
+    final status = review?.status ?? shop.status;
     final textTheme = Theme.of(context).textTheme;
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.screenPadding),
@@ -78,15 +81,16 @@ class _ShopOverview extends StatelessWidget {
                   children: [
                     Text('Status', style: textTheme.titleMedium),
                     const SizedBox(width: AppSpacing.s12),
-                    Chip(label: Text(shopStatusLabel(shop.status))),
+                    Chip(label: Text(shopStatusLabel(status))),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.s8),
                 Text(
-                  '${shopStatusDescription(shop.status)} Orders and products '
+                  '${shopStatusDescription(status)} Orders and products '
                   'will appear here as those features are released.',
                   style: textTheme.bodyLarge,
                 ),
+                if (review != null) ..._reviewDetails(review, textTheme),
               ],
             ),
           ),
@@ -106,4 +110,56 @@ class _ShopOverview extends StatelessWidget {
       ],
     );
   }
+}
+
+/// What the owner should know about the review (PLT-002). Submitting and
+/// withdrawing happen on the web portal; the app only shows the state.
+List<Widget> _reviewDetails(ShopReviewState review, TextTheme textTheme) {
+  final last = review.lastDecision;
+  final submittedAt = review.submittedAt;
+  final body = textTheme.bodyLarge;
+  return switch (review.status) {
+    'PENDING_REVIEW' => [
+      const SizedBox(height: AppSpacing.s12),
+      Text(
+        '${submittedAt == null ? 'Submitted' : 'Submitted on ${formatIstDate(submittedAt)}'}. '
+        'Until the review is done, the profile, photo and location are locked.',
+        style: body,
+      ),
+    ],
+    'CHANGES_REQUESTED' when last != null => [
+      const SizedBox(height: AppSpacing.s12),
+      Semantics(
+        header: true,
+        child: Text('Changes requested', style: textTheme.titleMedium),
+      ),
+      const SizedBox(height: AppSpacing.s4),
+      for (final reason in last.reasons)
+        Padding(
+          padding: const EdgeInsets.only(top: AppSpacing.s4),
+          child: Text('• ${reviewReasonLabel(reason)}', style: body),
+        ),
+      if (last.note != null) ...[
+        const SizedBox(height: AppSpacing.s8),
+        Text('Note from the platform team: "${last.note}"', style: body),
+      ],
+      const SizedBox(height: AppSpacing.s8),
+      Text(
+        'Fix these, then submit your shop again on the web portal.',
+        style: body,
+      ),
+    ],
+    'DRAFT' || 'CHANGES_REQUESTED' => [
+      const SizedBox(height: AppSpacing.s12),
+      Text(
+        review.missing.isEmpty
+            ? 'Your checklist is complete. Submit your shop for review on '
+                  'the web portal.'
+            : 'Still to do before review: '
+                  '${review.missing.map(checklistItemName).join(', ')}.',
+        style: body,
+      ),
+    ],
+    _ => const [],
+  };
 }

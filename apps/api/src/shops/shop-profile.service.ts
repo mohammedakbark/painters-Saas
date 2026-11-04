@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { AuditAction, recordAuditEvent } from '../audit/audit.js';
 import { ONBOARDING_MIN_PRODUCTS } from '../shop-catalogue/shop-catalogue-rules.js';
+import { lockShopForProfileEdit } from './shop-edit-lock.js';
 import type { CurrentUserContext } from '../auth/current-user.js';
 import { parseIndianMobile } from '../common/phone/indian-mobile.js';
 import { Prisma } from '../generated/prisma/client.js';
@@ -56,7 +57,12 @@ export class ShopProfileService {
   ) {}
 
   async get(shop: ShopContext): Promise<ShopProfileResponse> {
-    return this.toProfile(await this.load(shop.shopId));
+    return this.profileOf(shop.shopId);
+  }
+
+  /** The profile by shop id, for callers that already authorized access (PLT-002). */
+  async profileOf(shopId: string): Promise<ShopProfileResponse> {
+    return this.toProfile(await this.load(shopId));
   }
 
   /**
@@ -73,6 +79,7 @@ export class ShopProfileService {
     const now = new Date();
 
     const updated = await this.prisma.$transaction(async (tx) => {
+      await lockShopForProfileEdit(tx, shop.shopId);
       const before = await tx.shop.findUnique({
         where: { id: shop.shopId },
         select: PROFILE_SELECT,
@@ -122,6 +129,7 @@ export class ShopProfileService {
     const now = new Date();
 
     const updated = await this.prisma.$transaction(async (tx) => {
+      await lockShopForProfileEdit(tx, shop.shopId);
       const after = await tx.shop.update({
         where: { id: shop.shopId },
         data: { ...locationData(input, now), profileUpdatedAt: now },
@@ -147,9 +155,14 @@ export class ShopProfileService {
    * same rule. Products count when active with at least one pack size.
    */
   async onboarding(shop: ShopContext): Promise<ShopOnboardingResponse> {
-    const row = await this.load(shop.shopId);
+    return this.onboardingOf(shop.shopId);
+  }
+
+  /** The checklist by shop id, for callers that already authorized access (PLT-002). */
+  async onboardingOf(shopId: string): Promise<ShopOnboardingResponse> {
+    const row = await this.load(shopId);
     const products = await this.prisma.shopProduct.count({
-      where: { shopId: shop.shopId, status: 'ACTIVE', packs: { some: {} } },
+      where: { shopId, status: 'ACTIVE', packs: { some: {} } },
     });
     return {
       items: [

@@ -26,7 +26,7 @@ const shopPackSchema = z.object({
   available: z.boolean(),
 });
 
-const shopProductSchema = z.object({
+export const shopProductSchema = z.object({
   id: z.string(),
   source: z.enum(['catalogue', 'own']),
   catalogueProductId: z.string().nullable(),

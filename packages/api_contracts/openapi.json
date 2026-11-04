@@ -3874,6 +3874,433 @@
           "shop catalogue"
         ]
       }
+    },
+    "/v1/shops/{shopId}/review": {
+      "get": {
+        "operationId": "ShopReviewController_state",
+        "parameters": [
+          {
+            "name": "shopId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopReviewState"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown shop, or the caller is not a member.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Review status: what is missing, the open submission and the last decision.",
+        "tags": [
+          "shops"
+        ]
+      }
+    },
+    "/v1/shops/{shopId}/review-submission": {
+      "post": {
+        "operationId": "ShopReviewController_submit",
+        "parameters": [
+          {
+            "name": "shopId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopReviewState"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown shop, or the caller is not a member.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Submit the shop for review (the checklist must be complete); locks profile, photo and location.",
+        "tags": [
+          "shops"
+        ]
+      }
+    },
+    "/v1/shops/{shopId}/review-submission/withdraw": {
+      "post": {
+        "operationId": "ShopReviewController_withdraw",
+        "parameters": [
+          {
+            "name": "shopId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopReviewState"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown shop, or the caller is not a member.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Withdraw the submission to edit the shop again.",
+        "tags": [
+          "shops"
+        ]
+      }
+    },
+    "/v1/platform/reviews": {
+      "get": {
+        "operationId": "PlatformReviewsController_queue",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopReviewQueuePage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Shops waiting for review, oldest first.",
+        "tags": [
+          "platform"
+        ]
+      }
+    },
+    "/v1/platform/shops/{shopId}/review": {
+      "get": {
+        "operationId": "PlatformReviewsController_snapshot",
+        "parameters": [
+          {
+            "name": "shopId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopReviewSnapshot"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The shop's profile, checklist, products and review history (each view is audited).",
+        "tags": [
+          "platform"
+        ]
+      }
+    },
+    "/v1/platform/shops/{shopId}/review/decision": {
+      "post": {
+        "operationId": "PlatformReviewsController_decide",
+        "parameters": [
+          {
+            "name": "shopId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShopReviewDecisionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopReviewDecisionResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Approve the shop (it goes live) or request changes with reasons.",
+        "tags": [
+          "platform"
+        ]
+      }
     }
   },
   "info": {
@@ -3941,7 +4368,10 @@
                 "shopStatus": {
                   "type": "string",
                   "enum": [
-                    "DRAFT"
+                    "DRAFT",
+                    "PENDING_REVIEW",
+                    "CHANGES_REQUESTED",
+                    "ACTIVE"
                   ]
                 },
                 "role": {
@@ -4126,7 +4556,10 @@
           "status": {
             "type": "string",
             "enum": [
-              "DRAFT"
+              "DRAFT",
+              "PENDING_REVIEW",
+              "CHANGES_REQUESTED",
+              "ACTIVE"
             ]
           },
           "createdAt": {
@@ -4203,7 +4636,10 @@
           "status": {
             "type": "string",
             "enum": [
-              "DRAFT"
+              "DRAFT",
+              "PENDING_REVIEW",
+              "CHANGES_REQUESTED",
+              "ACTIVE"
             ]
           },
           "myRole": {
@@ -4241,7 +4677,10 @@
           "status": {
             "type": "string",
             "enum": [
-              "DRAFT"
+              "DRAFT",
+              "PENDING_REVIEW",
+              "CHANGES_REQUESTED",
+              "ACTIVE"
             ]
           },
           "supportPhone": {
@@ -6099,6 +6538,368 @@
             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
           }
         }
+      },
+      "ShopReviewState": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "PENDING_REVIEW",
+              "CHANGES_REQUESTED",
+              "ACTIVE"
+            ]
+          },
+          "missing": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "address",
+                "location",
+                "support_phone",
+                "photo",
+                "products"
+              ]
+            },
+            "description": "Checklist items still to do; empty when complete."
+          },
+          "canSubmit": {
+            "type": "boolean",
+            "description": "The checklist is complete and the shop is a draft or has changes requested."
+          },
+          "open": {
+            "nullable": true,
+            "description": "The submission waiting for review, if any.",
+            "type": "object",
+            "properties": {
+              "submittedAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              }
+            },
+            "required": [
+              "submittedAt"
+            ],
+            "additionalProperties": false
+          },
+          "lastDecision": {
+            "nullable": true,
+            "description": "The latest approval or change request.",
+            "type": "object",
+            "properties": {
+              "decision": {
+                "type": "string",
+                "enum": [
+                  "APPROVED",
+                  "CHANGES_REQUESTED"
+                ]
+              },
+              "reasons": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "PHOTO_MISSING_OR_UNCLEAR",
+                    "LOCATION_MISSING_OR_WRONG",
+                    "ADDRESS_INCOMPLETE",
+                    "SUPPORT_PHONE_INVALID",
+                    "PRODUCTS_INSUFFICIENT",
+                    "PRODUCT_DETAILS_INCORRECT",
+                    "OTHER"
+                  ]
+                }
+              },
+              "note": {
+                "nullable": true,
+                "type": "string"
+              },
+              "decidedAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              }
+            },
+            "required": [
+              "decision",
+              "reasons",
+              "note",
+              "decidedAt"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "status",
+          "missing",
+          "canSubmit",
+          "open",
+          "lastDecision"
+        ],
+        "additionalProperties": false
+      },
+      "ShopReviewQueueQuery": {
+        "type": "object",
+        "properties": {
+          "cursor": {
+            "type": "string",
+            "maxLength": 400
+          },
+          "limit": {
+            "default": 20,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50
+          }
+        }
+      },
+      "ShopReviewQueuePage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "reviewId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "shopId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "shopName": {
+                  "type": "string"
+                },
+                "submittedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                },
+                "resubmission": {
+                  "type": "boolean",
+                  "description": "Submitted again after a change request."
+                }
+              },
+              "required": [
+                "reviewId",
+                "shopId",
+                "shopName",
+                "submittedAt",
+                "resubmission"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "nextCursor": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "additionalProperties": false
+      },
+      "ShopReviewSnapshot": {
+        "type": "object",
+        "properties": {
+          "shop": {
+            "$ref": "#/components/schemas/ShopRegistryEntry"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/ShopProfile"
+          },
+          "checklist": {
+            "$ref": "#/components/schemas/ShopOnboarding"
+          },
+          "products": {
+            "type": "object",
+            "properties": {
+              "activeCount": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ShopProduct"
+                },
+                "description": "The newest 50 active products."
+              }
+            },
+            "required": [
+              "activeCount",
+              "items"
+            ],
+            "additionalProperties": false
+          },
+          "open": {
+            "nullable": true,
+            "type": "object",
+            "properties": {
+              "reviewId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "submittedAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              "resubmission": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "reviewId",
+              "submittedAt",
+              "resubmission"
+            ],
+            "additionalProperties": false
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "decision": {
+                  "type": "string",
+                  "enum": [
+                    "APPROVED",
+                    "CHANGES_REQUESTED",
+                    "WITHDRAWN"
+                  ]
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "PHOTO_MISSING_OR_UNCLEAR",
+                      "LOCATION_MISSING_OR_WRONG",
+                      "ADDRESS_INCOMPLETE",
+                      "SUPPORT_PHONE_INVALID",
+                      "PRODUCTS_INSUFFICIENT",
+                      "PRODUCT_DETAILS_INCORRECT",
+                      "OTHER"
+                    ]
+                  }
+                },
+                "note": {
+                  "nullable": true,
+                  "type": "string"
+                },
+                "decidedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                },
+                "submittedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                }
+              },
+              "required": [
+                "decision",
+                "reasons",
+                "note",
+                "decidedAt",
+                "submittedAt"
+              ],
+              "additionalProperties": false
+            },
+            "description": "Decided submissions, newest first (up to 10)."
+          }
+        },
+        "required": [
+          "shop",
+          "profile",
+          "checklist",
+          "products",
+          "open",
+          "history"
+        ],
+        "additionalProperties": false
+      },
+      "ShopReviewDecisionRequest": {
+        "type": "object",
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "APPROVED",
+              "CHANGES_REQUESTED"
+            ]
+          },
+          "reasons": {
+            "default": [],
+            "maxItems": 7,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "PHOTO_MISSING_OR_UNCLEAR",
+                "LOCATION_MISSING_OR_WRONG",
+                "ADDRESS_INCOMPLETE",
+                "SUPPORT_PHONE_INVALID",
+                "PRODUCTS_INSUFFICIENT",
+                "PRODUCT_DETAILS_INCORRECT",
+                "OTHER"
+              ]
+            }
+          },
+          "note": {
+            "description": "Shown to the owner. Required with OTHER.",
+            "nullable": true,
+            "type": "string",
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "decision"
+        ]
+      },
+      "ShopReviewDecisionResult": {
+        "type": "object",
+        "properties": {
+          "shopId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "PENDING_REVIEW",
+              "CHANGES_REQUESTED",
+              "ACTIVE"
+            ]
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "APPROVED",
+              "CHANGES_REQUESTED"
+            ]
+          }
+        },
+        "required": [
+          "shopId",
+          "status",
+          "decision"
+        ],
+        "additionalProperties": false
       }
     }
   }

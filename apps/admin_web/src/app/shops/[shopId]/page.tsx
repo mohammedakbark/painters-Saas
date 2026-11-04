@@ -4,9 +4,12 @@ import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { OnboardingChecklist } from '@/components/shops/onboarding-checklist';
 import { PageHeader } from '@/components/ui/page-header';
+import { ReviewPanel } from '@/components/shops/review-panel';
 import { getShopOnboarding } from '@/lib/api/shop-profile';
+import { getShopReview } from '@/lib/api/shop-review';
 import { requireShopAccess, requireShopSession } from '@/lib/auth/shop-access';
 import { shopRoleLabel, shopStatusLabel } from '@/lib/shops/labels';
+import { submitForReviewAction, withdrawReviewAction } from './review-actions';
 
 /**
  * Request data is read inside Suspense so navigating here from another page
@@ -27,12 +30,13 @@ async function ShopOverview({
 }: PageProps<'/shops/[shopId]'>) {
   const { shopId } = await params;
   const shop = await requireShopAccess(shopId);
-  const onboarding = await getShopOnboarding(
-    await requireShopSession(),
-    shopId,
-  );
+  const token = await requireShopSession();
+  const [onboarding, review] = await Promise.all([
+    getShopOnboarding(token, shopId),
+    getShopReview(token, shopId),
+  ]);
   const justRegistered = (await searchParams).registered === '1';
-  const status = shopStatusLabel(shop.status);
+  const status = shopStatusLabel(review.status);
 
   return (
     <>
@@ -48,10 +52,17 @@ async function ShopOverview({
           <Badge tone={status.tone}>{status.label}</Badge>
         </div>
         <p className="text-body-large text-text-secondary">
-          {status.description} Before your shop can go live you will complete
-          its profile (photo, address and support mobile), add at least 10
-          products and submit it for review by the platform team.
+          {status.description}
+          {review.status === 'DRAFT'
+            ? ' Before your shop can go live you complete its profile (photo, address and support mobile), add at least 10 products and submit it for review by the platform team.'
+            : null}
         </p>
+        <ReviewPanel
+          review={review}
+          canEdit={shop.myRole === 'MASTER'}
+          submitAction={submitForReviewAction.bind(null, shop.id)}
+          withdrawAction={withdrawReviewAction.bind(null, shop.id)}
+        />
       </section>
       <OnboardingChecklist shopId={shop.id} onboarding={onboarding} />
     </>

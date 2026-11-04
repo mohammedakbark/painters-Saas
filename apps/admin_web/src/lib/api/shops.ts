@@ -1,12 +1,13 @@
 import 'server-only';
 import { z } from 'zod';
+import { SHOP_STATUSES } from '@/lib/shops/labels';
 import { apiRequest } from './client';
 
 // Mirrors MyShop in packages/api_contracts/openapi.json.
 const myShopSchema = z.object({
   id: z.string(),
   name: z.string(),
-  status: z.enum(['DRAFT']),
+  status: z.enum(SHOP_STATUSES),
   myRole: z.enum(['MASTER']),
   createdAt: z.string(),
 });

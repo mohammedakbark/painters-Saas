@@ -60,11 +60,18 @@ class MyShop {
 /// User-facing labels; unknown values are shown as sent.
 String shopStatusLabel(String status) => switch (status) {
   'DRAFT' => 'Draft',
+  'PENDING_REVIEW' => 'In review',
+  'CHANGES_REQUESTED' => 'Changes requested',
+  'ACTIVE' => 'Live',
   _ => status,
 };
 
 String shopStatusDescription(String status) => switch (status) {
   'DRAFT' => 'Not visible to customers or painters yet.',
+  'PENDING_REVIEW' =>
+    'Waiting for the platform team. Not visible to customers or painters yet.',
+  'CHANGES_REQUESTED' => 'The platform team asked for changes. Not visible to customers or painters yet.',
+  'ACTIVE' => 'Approved and visible to customers and painters.',
   _ => '',
 };
 

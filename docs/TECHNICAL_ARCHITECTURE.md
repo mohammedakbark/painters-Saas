@@ -228,7 +228,7 @@ Shop App (SHP-002): supabase_flutter ^2.18.3, flutter_riverpod ^3.4.3, go_router
 │   │   ├── prisma/                 # schema.prisma + migrations/
 │   │   ├── src/
 │   │   │   ├── app.setup.ts        # /v1 prefix, validation pipe, problem filter
-│   │   │   ├── auth/  users/  platform-admin/  platform-shops/  identity/  audit/  shops/  shop-access/  storage/  media/  catalogue/  shop-catalogue/
+│   │   │   ├── auth/  users/  platform-admin/  platform-shops/  identity/  audit/  shops/  shop-access/  storage/  media/  catalogue/  shop-catalogue/  shop-review/
 │   │   │   ├── common/http  common/validation  config/  health/  openapi/  prisma/
 │   │   │   └── scripts/            # export-openapi, create-platform-admin
 │   │   └── test/                   # e2e suites + support (test tokens, fake identity, DB reset)
@@ -252,6 +252,7 @@ The two toolchains are independent. pnpm manages `apps/api`, `apps/admin_web` an
 - **API:**
   - Routes: `GET /health` and `GET /health/ready` (public, unversioned); `GET /v1/me`, `POST /v1/shops` and `GET /v1/shops/:shopId` (authenticated); `GET/PUT /v1/shops/:shopId/profile`, `PUT /v1/shops/:shopId/location`, `PUT /v1/shops/:shopId/photo` (multipart) and `GET /v1/shops/:shopId/onboarding` (shop-scoped; writes need MASTER, SHP-003/SHP-004);
   - Files: `src/storage/` (`ObjectStorage` port, `S3ObjectStorage`) and `src/media/` (sharp image pipeline, `ImageStore`), ADR 0007;
+  - Shop review (PLT-002): `/v1/shops/:shopId/review`, `review-submission`, `review-submission/withdraw` (owner) and `/v1/platform/reviews`, `/v1/platform/shops/:shopId/review` (audited), `.../review/decision` (platform admins); status changes and profile edits serialize on a shop row lock (`src/shops/shop-edit-lock.ts`);
   - Shop catalogue (CAT-002, ADR 0008): `/v1/shops/:shopId/catalogue/**` (products with packs and photo, brand-catalogue browsing with the shop's listing, favourite and own shades; members read, the master writes); the onboarding checklist counts products;
   - Catalogue (CAT-001, ADR 0008): `/v1/platform/catalogue/**` (platform admins: categories, brands, products with packs and image, shades, CSV imports) and `/v1/catalogue/**` (any signed-in user, active entries only); keyset cursors by name/code (`src/common/pagination/keyset-cursor.ts`); `GET /v1/platform/shops` and `GET /v1/platform/shops/:shopId` (platform admins; read-only registry with cursor pagination). Shop routes are tenant-scoped by `ShopAccessGuard` (membership of the shop in the URL; 404 otherwise).
   - Every other route needs a valid Supabase access token (global `AuthGuard`, ADR 0005).
@@ -263,7 +264,7 @@ The two toolchains are independent. pnpm manages `apps/api`, `apps/admin_web` an
 - **Web:**
   - `/`: portal home.
   - `/platform/sign-in`: email + password.
-  - `/platform`: platform console (overview), plus `/platform/shops` (registry list), `/platform/shops/[shopId]` (detail) and `/platform/catalogue/**` (brand catalogue, CAT-001). Every page is gated by `requirePlatformAdmin()` and reads its data inside its own `<Suspense>`.
+  - `/platform`: platform console (overview), plus `/platform/shops` (registry list), `/platform/shops/[shopId]` (detail), `/platform/reviews` and `/platform/reviews/[shopId]` (shop review, PLT-002) and `/platform/catalogue/**` (brand catalogue, CAT-001). Every page is gated by `requirePlatformAdmin()` and reads its data inside its own `<Suspense>`.
   - `/platform/no-access`.
   - `/sign-in` (shop users, mobile OTP), `/shops` (my shops), `/shops/new` (register), `/shops/[shopId]` (shop console with the onboarding checklist, gated by `requireShopAccess()` in layout and pages) and `/shops/[shopId]/profile` (support mobile, address, map location; SHP-003) and `/shops/[shopId]/catalogue/**` (products, add from brand catalogue, own products, product page, shades; CAT-002).
   - Console pages read request data inside their own `<Suspense>` so client navigation between them is instant (shop console since SHP-003).

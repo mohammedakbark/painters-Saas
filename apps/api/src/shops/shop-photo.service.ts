@@ -12,6 +12,7 @@ import {
   requireShopRole,
 } from '../shop-access/shop-roles.js';
 import type { ShopProfileResponse } from './shop-profile.schemas.js';
+import { lockShopForProfileEdit, shopInReview } from './shop-edit-lock.js';
 import { ShopProfileService } from './shop-profile.service.js';
 
 /** The uploaded file as parsed by the multipart interceptor. */
@@ -39,6 +40,14 @@ export class ShopPhotoService {
     file: UploadedImage | undefined,
   ): Promise<ShopProfileResponse> {
     requireShopRole(shop, PROFILE_MANAGER_ROLES);
+    // Fail fast before processing the image; re-checked under the row lock.
+    const current = await this.prisma.shop.findUnique({
+      where: { id: shop.shopId },
+      select: { status: true },
+    });
+    if (current?.status === 'PENDING_REVIEW') {
+      throw shopInReview();
+    }
     const image = await this.images.store(
       `shops/${shop.shopId}/photo`,
       file?.buffer,
@@ -48,6 +57,7 @@ export class ShopPhotoService {
     let previousKey: string | null;
     try {
       previousKey = await this.prisma.$transaction(async (tx) => {
+        await lockShopForProfileEdit(tx, shop.shopId);
         const before = await tx.shop.findUnique({
           where: { id: shop.shopId },
           select: { photoKey: true },

@@ -7,5 +7,6 @@ import { PlatformShopsService } from './platform-shops.service.js';
   imports: [PrismaModule],
   controllers: [PlatformShopsController],
   providers: [PlatformShopsService],
+  exports: [PlatformShopsService],
 })
 export class PlatformShopsModule {}
