@@ -5,6 +5,7 @@ import { PageLoading } from '@/components/layout/page-loading';
 import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { ButtonLink } from '@/components/ui/button-link';
+import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StateMessage } from '@/components/ui/state-message';
 import { listReviewQueue } from '@/lib/api/shop-review';
@@ -51,9 +52,10 @@ async function ReviewQueue({ searchParams }: PageProps<'/platform/reviews'>) {
       ) : (
         <ul className="flex flex-col gap-3">
           {page.items.map((item) => (
-            <li
+            <Card
+              as="li"
               key={item.reviewId}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-large border border-border-default bg-surface-default p-5"
+              className="flex flex-wrap items-center justify-between gap-3 p-5"
             >
               <div className="flex flex-col gap-1">
                 <Link
@@ -71,7 +73,7 @@ async function ReviewQueue({ searchParams }: PageProps<'/platform/reviews'>) {
               ) : (
                 <Badge>First submission</Badge>
               )}
-            </li>
+            </Card>
           ))}
         </ul>
       )}

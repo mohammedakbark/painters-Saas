@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { Suspense } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { ButtonLink } from '@/components/ui/button-link';
+import { CardLink } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { Spinner } from '@/components/ui/spinner';
 import { StateMessage } from '@/components/ui/state-message';
@@ -70,9 +70,9 @@ async function MyShops() {
             const status = shopStatusLabel(membership.shopStatus);
             return (
               <li key={membership.shopId}>
-                <Link
+                <CardLink
                   href={`/shops/${membership.shopId}`}
-                  className="flex flex-col gap-2 rounded-large border border-border-default bg-surface-default px-5 py-4 hover:border-border-strong focus-visible:outline-2 focus-visible:outline-brand-primary medium:flex-row medium:items-center medium:justify-between"
+                  className="flex flex-col gap-2 px-5 py-4 medium:flex-row medium:items-center medium:justify-between"
                 >
                   <span className="flex flex-col gap-1">
                     <span className="text-title font-semibold text-text-primary">
@@ -83,7 +83,7 @@ async function MyShops() {
                     </span>
                   </span>
                   <Badge tone={status.tone}>{status.label}</Badge>
-                </Link>
+                </CardLink>
               </li>
             );
           })}

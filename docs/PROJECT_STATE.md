@@ -1,7 +1,7 @@
 # Project State — Living Document
 
 **Last updated:** 2026-11-04  
-**Current stage:** Phase 1: shop onboarding. Identity and shop accounts done (AUTH-001, SHP-001, PLT-001, SHP-002). The product owner answered the onboarding and catalogue questions on 2026-11-04 (D-027 to D-034). DS-001 (single-source theme), SHP-003 (shop profile and map location), SHP-004 (shop photo, portable storage), CAT-001 (platform brand catalogue), CAT-002 (shop catalogue) and PLT-002 (shop review) done: a shop can now go from registration to Live locally. Next: product owner checks (see §7), then the next phase.  
+**Current stage:** Phase 1: shop onboarding. Identity and shop accounts done (AUTH-001, SHP-001, PLT-001, SHP-002). The product owner answered the onboarding and catalogue questions on 2026-11-04 (D-027 to D-034). DS-001 (single-source theme), SHP-003 (shop profile and map location), SHP-004 (shop photo, portable storage), CAT-001 (platform brand catalogue), CAT-002 (shop catalogue) and PLT-002 (shop review) done: a shop can now go from registration to Live locally. DS-002 (the project's own UI components, D-039) done. Next: SHP-005 (Shop App catalogue), then the Customer App.  
 **Overall status:** Foundation complete with CI green on GitHub. Implemented and verified locally: platform admin sign-in, shop self-registration with tenant-scoped access, the platform shop registry, and Shop App sign-in (Android emulator).  
 **Product name:** Not decided
 
@@ -23,6 +23,7 @@
 | CAT-001: Platform brand catalogue (D-030) | **Complete (local; Chrome)** | `docs/features/CAT-001-platform-brand-catalogue.md`, ADR 0008 |
 | CAT-002: Shop catalogue (D-029, D-030) | **Complete (local; Chrome)** | `docs/features/CAT-002-shop-catalogue.md` |
 | PLT-002: Review workflow: submit, approve or request changes, resubmit (D-032, D-033) | **Complete (local; Chrome owner side, platform side over HTTP, Android emulator)** | `docs/features/PLT-002-shop-review.md` |
+| DS-002: The project's own UI components with component tokens and a CI guard (D-039) | **Complete (local; Chrome shop pages, Android emulator)** | `docs/features/DS-002-components.md` |
 
 **Git (D-035):** every feature above is in `dev` (fast-forward merged and pushed on 2026-11-04; one commit per feature, `3697e4f` … `9c7885b`); the local per-feature branches were deleted. The first GitHub Actions run on `dev` (`8497b81`) passed all three jobs (TypeScript, Flutter, repository checks). The old remote branch `feat/shp-002-shop-app-sign-in` is still on GitHub (its commits are in `dev`); the product owner can delete it. From now on each finished feature is merged into `dev` and pushed the same way. `main` still holds only `c56f614` (project setup) until a release.
 
@@ -36,8 +37,8 @@ apps/admin_web/                   Next.js 16 portal: platform sign-in + console 
 apps/api/                         NestJS 12 API: auth guard (JWKS), /v1/me, platform-admin guard + operator script, shops + shop-access guard, audit, problem errors
 apps/customer_app/                Flutter shell (android, ios): placeholder screen + widget test
 apps/shop_app/                    Flutter Shop App: OTP sign-in (Supabase), shop list, shop home, secure session storage (Riverpod, go_router, Dio)
-packages/design_tokens/           tokens.json + brand.json (single source) and the generator for the web theme and Flutter tokens
-packages/flutter_shared/          Generated tokens + AppBrand, AppTheme.light(), BrandMark, Inter 4.1 fonts, IndianMobileNumber, Loading/Message/Error views
+packages/design_tokens/           tokens.json + brand.json (single source, incl. component tokens), the generator for the web theme and Flutter tokens, and the component guard (pnpm ui:check)
+packages/flutter_shared/          Generated tokens + AppBrand, AppTheme.light(), UI components (AppButton, AppTextField, AppDropdown, sheets, dialogs, snack bars, …), BrandMark, Inter 4.1 fonts, IndianMobileNumber, Loading/Message/Error views
 packages/api_contracts/           Generated openapi.json (health, /v1/me, /v1/shops*, /v1/platform/shops*)
 infra/local/                      Docker Compose Postgres 17 for app data (dev + separate test DB)
 infra/supabase/                   Supabase CLI config: Auth + Storage (S3 protocol, public `shop-media` bucket), test OTPs, local ES256 signing key (gitignored)
@@ -134,6 +135,11 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
   - submit (complete checklist only), withdraw, approve, request changes with reasons and a note; resubmission;
   - profile, location and photo locked while in review (D-033), products never locked;
   - platform **Reviews** queue and audited review page; owner status panel; Shop App status and requested changes.
+- [x] DS-002 (D-039, the product owner's request to make every control a project component):
+  - component tokens in `tokens.json` (control, card, panel, sheet, dialog, snack bar, badge, button variants, …) generated into web utilities and `AppComponentTokens`;
+  - web `Card`, `CardList`, `CardLink`, `Panel`, `SearchForm`, `FileField`, radio and checkbox groups; every screen moved onto the components;
+  - Flutter `AppButton`, `AppTextField`, `AppSearchField`, `AppDropdown`, switch/checkbox/radio/segmented rows, `AppCard`, `AppSection`, `AppNavRow`, `AppBadge`, `AppInlineMessage`, `showAppSnackBar`, `showAppBottomSheet`, `showAppDialog`, `showAppConfirmDialog`, `AppSpinner`, `AppNetworkImage`; the Shop App uses only these;
+  - `pnpm ui:check` in CI blocks raw controls in screens.
 
 ## 5. Not done
 
@@ -153,6 +159,20 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 - [ ] iOS build verification (requires macOS).
 
 ## 6. Checks run (local, Windows 11, Node 22.21.0)
+
+### DS-002 (2026-11-04)
+
+| Check | Result |
+|---|---|
+| `pnpm format:check`, `pnpm tokens:check`, `pnpm ui:check` (90 files), `pnpm lint`, `pnpm typecheck` | Passed |
+| `pnpm test`: api 116, admin_web 149 (6 new), design_tokens 29 (14 new: component tokens, guard rules, repository clean) | Passed |
+| `pnpm --filter admin_web build`; built CSS contains `rounded-control`, `min-h-control`, `rounded-card`, `rounded-panel`, `divide-card-border`, `file:min-h-control`, button colour utilities | Passed |
+| Flutter: `fvm flutter analyze`, `dart format` (lib, test), `fvm flutter test`: flutter_shared 61 (19 new), customer_app 1, shop_app 34; `build apk --debug` | Passed |
+| **Chrome** (this computer, local test owner): your shops, overview, catalogue, shades, profile (photo frame, file chooser, form, no-map note); computed radii 16/12 px, heights 48 px and colours unchanged; no console errors | Verified |
+| **Android emulator** (`emulator-5554`): sign-in (both steps), shop list, home (status badge), profile, location loading state and error message; button labels in Inter after a fix found here | Verified |
+| Platform console pages in Chrome (catalogue search, CSV import, review decision form) | **Not verified** (no platform admin sign-in in this session); covered by component tests, typecheck and build |
+| Location confirmation dialog on the emulator | **Not verified** (no location fix from the emulator this run); covered by widget tests |
+| API e2e | Not re-run (no API change) |
 
 ### PLT-002 (2026-11-04)
 
@@ -299,10 +319,11 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 
 ## 7. Next actions
 
-1. **Product owner checks:** try the platform **Reviews** decision form in Chrome as the platform admin; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
-2. **Next phase (to plan with the product owner):** Shop App catalogue screens, or the Customer App foundation (customer sign-up and shop discovery of Live shops). Questions 49 and 51 are hardening before any hosted environment.
-3. **Product owner:** Google Maps keys (`docs/guides/GOOGLE_MAPS_SETUP.md`); real brand catalogue data; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
-4. **Housekeeping.** Install Node 24 locally.
+1. **Next feature: SHP-005, the Shop App catalogue** (planned and approved: product list, availability, prices, pack sizes, archive, add from brand catalogue, product photo), built on the DS-002 components. Then the Customer App foundation (D-036 to D-038 are recorded with SHP-005).
+2. **Product owner checks:** try the platform **Reviews** decision form in Chrome as the platform admin; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
+3. **Hardening before any hosted environment:** questions 49 and 51.
+4. **Product owner:** Google Maps keys (`docs/guides/GOOGLE_MAPS_SETUP.md`); real brand catalogue data; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
+5. **Housekeeping.** Install Node 24 locally.
 
 ## 8. Feature progress
 
@@ -310,7 +331,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 |---|---|---|
 | Product requirements | Documented | Some business rules remain open |
 | Architecture | Foundation + auth implemented | Hosting still proposed |
-| Design system | Provisional tokens from one source (DS-001); first web and Flutter components | `packages/design_tokens` → web `tokens.css` + Flutter `flutter_shared` |
+| Design system | Provisional tokens from one source (DS-001); component tokens and the project's own components on web and Flutter, guarded in CI (DS-002) | `packages/design_tokens` → web `tokens.css` + Flutter `flutter_shared`; DESIGN_SYSTEM §8 |
 | Platform admin sign-in | **Complete (local)** | AUTH-001 |
 | Shop onboarding | **Complete locally:** registration (SHP-001), Shop App sign-in (SHP-002), profile + map location + checklist (SHP-003), photo (SHP-004), products (CAT-002), review and approval (PLT-002) | Decision notifications later (question 53) |
 | Customer authentication | Not started | Supabase phone OTP decided; SMS vendor open |
@@ -362,3 +383,4 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-04 | CAT-001 implemented: platform brand catalogue with CSV import and read API (ADR 0008). |
 | 2026-11-04 | CAT-002 implemented: shop catalogue with per-pack prices and availability, own products, favourite and own shades, products checklist item. |
 | 2026-11-04 | PLT-002 implemented: shop review (submit, withdraw, approve, request changes with reasons, resubmit) with the D-033 edit lock. |
+| 2026-11-04 | DS-002 implemented (D-039): component tokens, the project's own UI components on web and Flutter, `pnpm ui:check` in CI. |

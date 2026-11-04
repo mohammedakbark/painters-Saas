@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { ImportForm } from '@/components/catalogue/import-form';
 import { PageLoading } from '@/components/layout/page-loading';
+import { Card } from '@/components/ui/card';
 import { getBrand } from '@/lib/api/platform-catalogue';
 import { requirePlatformAdmin } from '@/lib/auth/platform-access';
 import { importCatalogueAction } from '../../../actions';
@@ -32,9 +33,9 @@ async function BrandImport({
     <div className="flex flex-col gap-6">
       <BrandHeader brand={brand} />
       <div className="grid gap-8 desktop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <section className="rounded-large border border-border-default bg-surface-default p-6">
+        <Card as="section" className="p-6">
           <ImportForm action={importCatalogueAction.bind(null, brand.id)} />
-        </section>
+        </Card>
         <aside className="flex flex-col gap-3 text-body text-text-secondary">
           <h2 className="text-heading3 font-semibold text-text-primary">
             How it works

@@ -6,6 +6,7 @@ import { ActionButtonForm } from '@/components/shop-catalogue/shop-catalogue-for
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ButtonLink } from '@/components/ui/button-link';
+import { Card } from '@/components/ui/card';
 import { Field } from '@/components/ui/field';
 import { PageHeader } from '@/components/ui/page-header';
 import { StateMessage } from '@/components/ui/state-message';
@@ -154,10 +155,7 @@ async function Catalogue({
       ) : (
         <ul className="flex flex-col gap-4">
           {page.items.map((product) => (
-            <li
-              key={product.id}
-              className="flex flex-col gap-4 rounded-large border border-border-default bg-surface-default p-5"
-            >
+            <Card as="li" key={product.id} className="flex flex-col gap-4 p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="flex min-w-0 flex-col gap-1">
                   <Link
@@ -215,7 +213,7 @@ async function Catalogue({
                   </li>
                 ))}
               </ul>
-            </li>
+            </Card>
           ))}
         </ul>
       )}

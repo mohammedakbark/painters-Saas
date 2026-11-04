@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { PageLoading } from '@/components/layout/page-loading';
 import { ButtonLink } from '@/components/ui/button-link';
+import { CardList } from '@/components/ui/card';
+import { SearchForm } from '@/components/ui/search-form';
 import { SelectField } from '@/components/ui/select-field';
 import { StateMessage } from '@/components/ui/state-message';
 import {
@@ -55,23 +57,11 @@ async function BrandProducts({
       <BrandHeader brand={brand} />
 
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <form
-          method="get"
-          role="search"
-          className="flex flex-wrap items-end gap-3"
+        <SearchForm
+          label="Search products"
+          defaultValue={q}
+          submitLabel="Filter"
         >
-          <div className="flex flex-col gap-2">
-            <label htmlFor="product-search" className="text-body font-medium">
-              Search products
-            </label>
-            <input
-              id="product-search"
-              name="q"
-              defaultValue={q}
-              maxLength={60}
-              className="min-h-12 rounded-medium border border-border-strong bg-surface-default px-4 text-body-large focus-visible:outline-2 focus-visible:outline-brand-primary"
-            />
-          </div>
           <SelectField
             label="Category"
             name="categoryId"
@@ -81,13 +71,7 @@ async function BrandProducts({
               ...categories.map((c) => ({ value: c.id, label: c.name })),
             ]}
           />
-          <button
-            type="submit"
-            className="min-h-12 rounded-medium border border-border-strong bg-surface-default px-5 text-body-large font-semibold hover:bg-surface-subtle"
-          >
-            Filter
-          </button>
-        </form>
+        </SearchForm>
         <ButtonLink href={`/platform/catalogue/brands/${brandId}/products/new`}>
           Add product
         </ButtonLink>
@@ -103,7 +87,7 @@ async function BrandProducts({
           }
         />
       ) : (
-        <ul className="flex flex-col divide-y divide-border-default rounded-large border border-border-default bg-surface-default">
+        <CardList>
           {page.items.map((product) => (
             <li key={product.id}>
               <Link
@@ -124,7 +108,7 @@ async function BrandProducts({
               </Link>
             </li>
           ))}
-        </ul>
+        </CardList>
       )}
       {page.nextCursor ? (
         <div>

@@ -1,4 +1,5 @@
 import { BrandSettingsForm } from '@/components/catalogue/brand-forms';
+import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import type { Brand } from '@/lib/api/platform-catalogue';
 import { countLabel } from '@/lib/format';
@@ -17,7 +18,7 @@ export function BrandHeader({ brand }: { brand: Brand }) {
         />
         <ActiveBadge active={brand.active} />
       </div>
-      <details className="rounded-large border border-border-default bg-surface-default p-4">
+      <Card as="details" className="p-4">
         <summary className="cursor-pointer text-body font-semibold">
           Brand settings
         </summary>
@@ -28,7 +29,7 @@ export function BrandHeader({ brand }: { brand: Brand }) {
             active={brand.active}
           />
         </div>
-      </details>
+      </Card>
       <BrandTabs brandId={brand.id} />
     </div>
   );

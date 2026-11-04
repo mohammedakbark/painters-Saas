@@ -1,3 +1,5 @@
+import 'package:flutter_shared/flutter_shared.dart';
+
 /// A shop the signed-in user belongs to (from `GET /v1/me`).
 class ShopMembership {
   const ShopMembership({
@@ -64,6 +66,14 @@ String shopStatusLabel(String status) => switch (status) {
   'CHANGES_REQUESTED' => 'Changes requested',
   'ACTIVE' => 'Live',
   _ => status,
+};
+
+/// Badge tone for a status, as on the web portal (`lib/shops/labels.ts`).
+AppTone shopStatusTone(String status) => switch (status) {
+  'PENDING_REVIEW' => AppTone.info,
+  'CHANGES_REQUESTED' => AppTone.warning,
+  'ACTIVE' => AppTone.success,
+  _ => AppTone.neutral,
 };
 
 String shopStatusDescription(String status) => switch (status) {

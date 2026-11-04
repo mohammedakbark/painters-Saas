@@ -4,7 +4,9 @@ import { Suspense } from 'react';
 import { BrandCreateForm } from '@/components/catalogue/brand-forms';
 import { PageLoading } from '@/components/layout/page-loading';
 import { ButtonLink } from '@/components/ui/button-link';
+import { Card, CardList } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
+import { SearchForm } from '@/components/ui/search-form';
 import { StateMessage } from '@/components/ui/state-message';
 import { listBrands } from '@/lib/api/platform-catalogue';
 import { requirePlatformAdmin } from '@/lib/auth/platform-access';
@@ -40,9 +42,9 @@ async function Brands({ searchParams }: PageProps<'/platform/catalogue'>) {
 
   return (
     <div className="flex flex-col gap-8">
-      <section className="flex flex-col gap-4 rounded-large border border-border-default bg-surface-default p-6">
+      <Card as="section" className="flex flex-col gap-4 p-6">
         <BrandCreateForm action={createBrandAction} />
-      </section>
+      </Card>
 
       <section aria-labelledby="brands-heading" className="flex flex-col gap-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
@@ -56,30 +58,7 @@ async function Brands({ searchParams }: PageProps<'/platform/catalogue'>) {
             Manage categories
           </Link>
         </div>
-        <form
-          method="get"
-          role="search"
-          className="flex flex-wrap items-end gap-3"
-        >
-          <div className="flex min-w-0 flex-1 flex-col gap-2">
-            <label htmlFor="brand-search" className="text-body font-medium">
-              Search brands
-            </label>
-            <input
-              id="brand-search"
-              name="q"
-              defaultValue={q}
-              maxLength={60}
-              className="min-h-12 rounded-medium border border-border-strong bg-surface-default px-4 text-body-large focus-visible:outline-2 focus-visible:outline-brand-primary"
-            />
-          </div>
-          <button
-            type="submit"
-            className="min-h-12 rounded-medium border border-border-strong bg-surface-default px-5 text-body-large font-semibold hover:bg-surface-subtle"
-          >
-            Search
-          </button>
-        </form>
+        <SearchForm label="Search brands" defaultValue={q} fill />
 
         {page.items.length === 0 ? (
           <StateMessage
@@ -91,7 +70,7 @@ async function Brands({ searchParams }: PageProps<'/platform/catalogue'>) {
             }
           />
         ) : (
-          <ul className="flex flex-col divide-y divide-border-default rounded-large border border-border-default bg-surface-default">
+          <CardList>
             {page.items.map((brand) => (
               <li key={brand.id}>
                 <Link
@@ -111,7 +90,7 @@ async function Brands({ searchParams }: PageProps<'/platform/catalogue'>) {
                 </Link>
               </li>
             ))}
-          </ul>
+          </CardList>
         )}
         {page.nextCursor ? (
           <div>

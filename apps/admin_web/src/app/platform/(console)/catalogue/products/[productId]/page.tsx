@@ -6,6 +6,7 @@ import { ActiveToggleForm } from '@/components/catalogue/shade-forms';
 import { PageLoading } from '@/components/layout/page-loading';
 import { ImageUploadForm } from '@/components/media/image-upload-form';
 import { Alert } from '@/components/ui/alert';
+import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { getProduct, listCategories } from '@/lib/api/platform-catalogue';
 import { requirePlatformAdmin } from '@/lib/auth/platform-access';
@@ -60,7 +61,7 @@ async function Product({
       </div>
 
       <div className="grid gap-8 desktop:grid-cols-2">
-        <section className="rounded-large border border-border-default bg-surface-default p-6">
+        <Card as="section" className="p-6">
           <ProductForm
             // Remount after a save so the form shows the stored values.
             key={JSON.stringify([
@@ -80,9 +81,9 @@ async function Product({
             submitLabel="Save product"
             cancelHref={`/platform/catalogue/brands/${product.brand.id}`}
           />
-        </section>
+        </Card>
         <div className="flex flex-col gap-6">
-          <section className="rounded-large border border-border-default bg-surface-default p-6">
+          <Card as="section" className="p-6">
             <ImageUploadForm
               key={product.image?.updatedAt ?? 'none'}
               action={uploadProductImageAction.bind(null, product.id)}
@@ -93,8 +94,8 @@ async function Product({
               noun="image"
               fieldName="image"
             />
-          </section>
-          <section className="flex flex-col gap-3 rounded-large border border-border-default bg-surface-default p-6">
+          </Card>
+          <Card as="section" className="flex flex-col gap-3 p-6">
             <h2 className="text-heading3 font-semibold">
               {product.active ? 'Archive' : 'Restore'}
             </h2>
@@ -112,7 +113,7 @@ async function Product({
               active={product.active}
               label={`product ${product.name}`}
             />
-          </section>
+          </Card>
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ import { PageLoading } from '@/components/layout/page-loading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ButtonLink } from '@/components/ui/button-link';
+import { Card } from '@/components/ui/card';
 import { Field } from '@/components/ui/field';
 import { PageHeader } from '@/components/ui/page-header';
 import { SelectField } from '@/components/ui/select-field';
@@ -127,10 +128,7 @@ async function AddFromCatalogue({
       ) : (
         <ul className="grid gap-4 desktop:grid-cols-2">
           {page.items.map(({ product, listedProductId }) => (
-            <li
-              key={product.id}
-              className="flex flex-col gap-3 rounded-large border border-border-default bg-surface-default p-5"
-            >
+            <Card as="li" key={product.id} className="flex flex-col gap-3 p-5">
               <div className="flex flex-col gap-1">
                 <h2 className="text-heading3 font-semibold">{product.name}</h2>
                 <p className="text-body text-text-secondary">
@@ -159,7 +157,7 @@ async function AddFromCatalogue({
                   </ButtonLink>
                 </div>
               )}
-            </li>
+            </Card>
           ))}
         </ul>
       )}

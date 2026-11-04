@@ -12,7 +12,7 @@ export function ShadeSwatch({
     <div className="flex items-center gap-3">
       <span
         aria-hidden="true"
-        className="size-8 shrink-0 rounded-small border border-border-strong"
+        className="size-8 shrink-0 rounded-swatch border border-swatch-border"
         // Catalogue data, not a design token (DESIGN_SYSTEM §2).
         style={
           shade.previewHex ? { backgroundColor: shade.previewHex } : undefined

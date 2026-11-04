@@ -87,29 +87,26 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   }
 
   List<Widget> _phoneStep(SignInState state) => [
-    TextField(
+    AppTextField(
       key: const Key('phone-field'),
+      label: 'Mobile number',
       controller: _phone,
       enabled: !state.busy,
       keyboardType: TextInputType.phone,
       autofillHints: const [AutofillHints.telephoneNumberNational],
       textInputAction: TextInputAction.done,
       onSubmitted: (_) => _controller.requestCode(_phone.text),
-      decoration: InputDecoration(
-        labelText: 'Mobile number',
-        hintText: '98765 43210',
-        prefixText: '+91 ',
-        helperText: 'We will send you a 6-digit code.',
-        helperMaxLines: 2,
-        errorText: state.error,
-        errorMaxLines: 3,
-      ),
+      hint: '98765 43210',
+      prefixText: '+91 ',
+      helper: 'We will send you a 6-digit code.',
+      error: state.error,
     ),
     const SizedBox(height: AppSpacing.s16),
-    _PrimaryButton(
+    AppButton(
       label: 'Send code',
-      busyLabel: 'Sending code…',
-      busy: state.busy,
+      loadingLabel: 'Sending code…',
+      loading: state.busy,
+      expand: true,
       onPressed: () => _controller.requestCode(_phone.text),
     ),
   ];
@@ -126,8 +123,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       ),
     ),
     const SizedBox(height: AppSpacing.s16),
-    TextField(
+    AppTextField(
       key: const Key('code-field'),
+      label: '6-digit code',
       controller: _code,
       enabled: !state.busy,
       keyboardType: TextInputType.number,
@@ -138,17 +136,14 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       ],
       textInputAction: TextInputAction.done,
       onSubmitted: (_) => _controller.verifyCode(_code.text),
-      decoration: InputDecoration(
-        labelText: '6-digit code',
-        errorText: state.error,
-        errorMaxLines: 3,
-      ),
+      error: state.error,
     ),
     const SizedBox(height: AppSpacing.s16),
-    _PrimaryButton(
+    AppButton(
       label: 'Sign in',
-      busyLabel: 'Checking…',
-      busy: state.busy,
+      loadingLabel: 'Checking…',
+      loading: state.busy,
+      expand: true,
       onPressed: () => _controller.verifyCode(_code.text),
     ),
     const SizedBox(height: AppSpacing.s8),
@@ -156,54 +151,22 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       alignment: WrapAlignment.center,
       spacing: AppSpacing.s8,
       children: [
-        TextButton(
+        AppButton(
+          label: 'Resend code',
+          variant: AppButtonVariant.tertiary,
           onPressed: state.busy ? null : _controller.resendCode,
-          child: const Text('Resend code'),
         ),
-        TextButton(
+        AppButton(
+          label: 'Use a different number',
+          variant: AppButtonVariant.tertiary,
           onPressed: state.busy
               ? null
               : () {
                   _code.clear();
                   _controller.changeNumber();
                 },
-          child: const Text('Use a different number'),
         ),
       ],
     ),
   ];
-}
-
-class _PrimaryButton extends StatelessWidget {
-  const _PrimaryButton({
-    required this.label,
-    required this.busyLabel,
-    required this.busy,
-    required this.onPressed,
-  });
-
-  final String label;
-  final String busyLabel;
-  final bool busy;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return FilledButton(
-      onPressed: busy ? null : onPressed,
-      child: busy
-          ? Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox.square(
-                  dimension: AppSpacing.s16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-                const SizedBox(width: AppSpacing.s8),
-                Text(busyLabel),
-              ],
-            )
-          : Text(label),
-    );
-  }
 }

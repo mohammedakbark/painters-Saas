@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import { PageLoading } from '@/components/layout/page-loading';
 import { CatalogueListingForm } from '@/components/shop-catalogue/shop-catalogue-forms';
 import { Alert } from '@/components/ui/alert';
+import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { orNotFound } from '@/lib/api/or-not-found';
 import {
@@ -58,7 +59,10 @@ async function PriceCatalogueProduct({
         description={`${product.brand.name} · ${product.category.name}`}
       />
       <div className="grid gap-6 desktop:grid-cols-3">
-        <section className="flex flex-col gap-4 rounded-large border border-border-default bg-surface-default p-6 desktop:col-span-2">
+        <Card
+          as="section"
+          className="flex flex-col gap-4 p-6 desktop:col-span-2"
+        >
           {listed ? (
             <Alert tone="info" title="Already in your catalogue">
               <Link
@@ -91,15 +95,15 @@ async function PriceCatalogueProduct({
           ) : (
             <Alert tone="info">Only the shop owner can add products.</Alert>
           )}
-        </section>
-        <aside className="flex flex-col gap-3 rounded-large border border-border-default bg-surface-default p-6">
+        </Card>
+        <Card as="aside" className="flex flex-col gap-3 p-6">
           {product.image ? (
             // Pre-sized WebP from object storage (see ImageUploadForm).
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={product.image.thumbUrl}
               alt={`${product.name} pack`}
-              className="aspect-square w-full rounded-medium object-cover"
+              className="aspect-square w-full rounded-image object-cover"
             />
           ) : null}
           <p className="text-body text-text-secondary">
@@ -110,7 +114,7 @@ async function PriceCatalogueProduct({
               Customers choose a shade for this product.
             </p>
           ) : null}
-        </aside>
+        </Card>
       </div>
     </div>
   );

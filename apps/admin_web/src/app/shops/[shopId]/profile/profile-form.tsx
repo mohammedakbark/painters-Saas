@@ -148,12 +148,8 @@ export function ShopProfileForm({
           Shop address
         </legend>
         {suggestion ? (
-          <div
-            role="status"
-            className="flex flex-col gap-3 rounded-medium border border-l-4 border-border-default border-l-status-info bg-surface-default px-4 py-3"
-          >
-            <p className="text-body text-text-primary">
-              <span className="font-semibold">Address from the map: </span>
+          <Alert tone="info" title="Address from the map">
+            <p>
               {[
                 suggestion.line1,
                 suggestion.line2,
@@ -164,10 +160,10 @@ export function ShopProfileForm({
                 .filter(Boolean)
                 .join(', ')}
             </p>
-            <p className="text-caption text-text-secondary">
+            <p className="mt-1 text-caption text-text-secondary">
               Map addresses can be incomplete. Check every field after using it.
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="mt-3 flex flex-wrap gap-3">
               <Button
                 variant="secondary"
                 onClick={() => applySuggestion(suggestion)}
@@ -178,7 +174,7 @@ export function ShopProfileForm({
                 Keep what I typed
               </Button>
             </div>
-          </div>
+          </Alert>
         ) : null}
         <Field
           label="Shop number, building and street"

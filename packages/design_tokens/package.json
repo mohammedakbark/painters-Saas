@@ -1,11 +1,12 @@
 {
   "name": "design-tokens",
   "private": true,
-  "description": "Single source of the design tokens and brand names; generates the web theme and the Flutter token classes (DS-001).",
+  "description": "Single source of the design tokens and brand names (DS-001) and the component guard (DS-002, D-039); generates the web theme and the Flutter token classes.",
   "type": "module",
   "scripts": {
     "generate": "node generate.mjs",
     "check": "node generate.mjs --check",
-    "test": "node --test"
+    "test": "node --test",
+    "check:components": "node check-components.mjs"
   }
 }

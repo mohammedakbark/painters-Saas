@@ -66,9 +66,10 @@ class ShopProfileScreen extends ConsumerWidget {
                   message:
                       "This shop doesn't exist, or your account doesn't have "
                       'access to it.',
-                  action: OutlinedButton(
+                  action: AppButton(
+                    label: 'Go to your shops',
+                    variant: AppButtonVariant.secondary,
                     onPressed: () => context.go('/shops'),
-                    child: const Text('Go to your shops'),
                   ),
                 )
               : ErrorView(
@@ -106,13 +107,13 @@ class _ProfileDetails extends StatelessWidget {
         const SizedBox(height: AppSpacing.s24),
         _PhotoSection(photo: profile.photo),
         const SizedBox(height: AppSpacing.s16),
-        _Section(
+        AppSection(
           title: 'Address',
           lines: address?.lines ?? const [ShopProfileMessages.notAdded],
           muted: address == null,
         ),
         const SizedBox(height: AppSpacing.s16),
-        _Section(
+        AppSection(
           title: 'Support mobile',
           lines: [
             if (phone == null)
@@ -139,83 +140,33 @@ class _PhotoSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final photo = this.photo;
     if (photo == null) {
-      return const _Section(
+      return const AppSection(
         title: 'Shop photo',
         lines: [ShopProfileMessages.notAdded],
         muted: true,
       );
     }
-    final textTheme = Theme.of(context).textTheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      clipBehavior: Clip.antiAlias,
+    return AppCard(
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           AspectRatio(
             aspectRatio: 4 / 3,
-            child: Image.network(
-              photo.url,
-              fit: BoxFit.cover,
+            child: AppNetworkImage(
+              url: photo.url,
               semanticLabel: 'Shop photo',
-              loadingBuilder: (context, child, progress) => progress == null
-                  ? child
-                  : const Center(child: CircularProgressIndicator()),
-              errorBuilder: (context, error, stackTrace) => ColoredBox(
-                color: AppColors.surfaceSubtle,
-                child: Center(
-                  child: Text(
-                    ShopProfileMessages.photoFailed,
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ),
-              ),
+              errorMessage: ShopProfileMessages.photoFailed,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(AppSpacing.s16),
-            child: Text('Shop photo', style: textTheme.titleMedium),
+            child: Text(
+              'Shop photo',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _Section extends StatelessWidget {
-  const _Section({
-    required this.title,
-    required this.lines,
-    this.muted = false,
-  });
-
-  final String title;
-  final List<String> lines;
-  final bool muted;
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.s16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: textTheme.titleMedium),
-            const SizedBox(height: AppSpacing.s8),
-            for (final line in lines)
-              Text(
-                line,
-                style: textTheme.bodyLarge?.copyWith(
-                  color: muted ? AppColors.textSecondary : null,
-                ),
-              ),
-          ],
-        ),
       ),
     );
   }
@@ -300,41 +251,42 @@ class _LocationSectionState extends ConsumerState<_LocationSection> {
 
   Future<bool?> _confirm(double latitude, double longitude, double accuracy) {
     final mapsEnabled = ref.read(mapsEnabledProvider);
-    return showDialog<bool>(
+    return showAppDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Save this as the shop location?'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ShopLocationMap(
-                latitude: latitude,
-                longitude: longitude,
-                mapsEnabled: mapsEnabled,
-                shopName: widget.profile.shopName,
-                height: 160,
-              ),
-              const SizedBox(height: AppSpacing.s12),
-              Text(
-                'Accurate to about ${accuracy.round().clamp(1, 100000)} m. '
-                'Make sure you are at the shop.',
-              ),
-            ],
+      title: 'Save this as the shop location?',
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ShopLocationMap(
+            latitude: latitude,
+            longitude: longitude,
+            mapsEnabled: mapsEnabled,
+            shopName: widget.profile.shopName,
+            height: 160,
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Save location'),
+          const SizedBox(height: AppSpacing.s12),
+          Text(
+            'Accurate to about ${accuracy.round().clamp(1, 100000)} m. '
+            'Make sure you are at the shop.',
           ),
         ],
       ),
+      actions: [
+        Builder(
+          builder: (context) => AppButton(
+            label: 'Cancel',
+            variant: AppButtonVariant.tertiary,
+            onPressed: () => Navigator.of(context).pop(false),
+          ),
+        ),
+        Builder(
+          builder: (context) => AppButton(
+            label: 'Save location',
+            onPressed: () => Navigator.of(context).pop(true),
+          ),
+        ),
+      ],
     );
   }
 
@@ -373,95 +325,89 @@ class _LocationSectionState extends ConsumerState<_LocationSection> {
     final textTheme = Theme.of(context).textTheme;
     final location = widget.profile.location;
     final locationService = ref.read(locationServiceProvider);
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.s16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text('Map location', style: textTheme.titleMedium),
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Map location', style: textTheme.titleMedium),
+          const SizedBox(height: AppSpacing.s8),
+          if (location == null)
+            Text(
+              ShopProfileMessages.noLocation,
+              style: textTheme.bodyLarge?.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            )
+          else ...[
+            ShopLocationMap(
+              latitude: location.latitude,
+              longitude: location.longitude,
+              mapsEnabled: ref.watch(mapsEnabledProvider),
+              shopName: widget.profile.shopName,
+            ),
             const SizedBox(height: AppSpacing.s8),
-            if (location == null)
-              Text(
-                ShopProfileMessages.noLocation,
-                style: textTheme.bodyLarge?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              )
-            else ...[
-              ShopLocationMap(
-                latitude: location.latitude,
-                longitude: location.longitude,
-                mapsEnabled: ref.watch(mapsEnabledProvider),
-                shopName: widget.profile.shopName,
+            Text(
+              location.source == ShopLocationSource.deviceGps
+                  ? 'Set from a phone or browser location.'
+                  : 'Placed on the map.',
+              style: textTheme.bodyMedium?.copyWith(
+                color: AppColors.textSecondary,
               ),
-              const SizedBox(height: AppSpacing.s8),
-              Text(
-                location.source == ShopLocationSource.deviceGps
-                    ? 'Set from a phone or browser location.'
-                    : 'Placed on the map.',
-                style: textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
+            ),
+          ],
+          if (widget.isOwner) ...[
+            const SizedBox(height: AppSpacing.s16),
+            AppButton(
+              label: 'Use my current location',
+              loadingLabel: 'Finding your location…',
+              variant: AppButtonVariant.secondary,
+              icon: Icons.my_location,
+              loading: _busy,
+              onPressed: _useCurrentLocation,
+            ),
+          ],
+          if (_message != null) ...[
+            const SizedBox(height: AppSpacing.s12),
+            AppInlineMessage(
+              message: _message!,
+              tone: _isError ? AppTone.error : AppTone.success,
+              action: switch (_fix) {
+                _Fix.none => null,
+                _Fix.retry => _FixButton(
+                  label: 'Try again',
+                  onPressed: _busy ? null : _useCurrentLocation,
                 ),
-              ),
-            ],
-            if (widget.isOwner) ...[
-              const SizedBox(height: AppSpacing.s16),
-              OutlinedButton.icon(
-                onPressed: _busy ? null : _useCurrentLocation,
-                icon: _busy
-                    ? const SizedBox.square(
-                        dimension: AppSpacing.s16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.my_location),
-                label: Text(
-                  _busy ? 'Finding your location…' : 'Use my current location',
+                _Fix.appSettings => _FixButton(
+                  label: 'Open settings',
+                  onPressed: locationService.openAppSettings,
                 ),
-              ),
-            ],
-            if (_message != null) ...[
-              const SizedBox(height: AppSpacing.s12),
-              Semantics(
-                liveRegion: true,
-                child: Text(
-                  _message!,
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: _isError
-                        ? AppColors.statusError
-                        : AppColors.statusSuccess,
-                  ),
-                ),
-              ),
-              switch (_fix) {
-                _Fix.none => const SizedBox.shrink(),
-                _Fix.retry => Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton(
-                    onPressed: _busy ? null : _useCurrentLocation,
-                    child: const Text('Try again'),
-                  ),
-                ),
-                _Fix.appSettings => Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton(
-                    onPressed: locationService.openAppSettings,
-                    child: const Text('Open settings'),
-                  ),
-                ),
-                _Fix.locationSettings => Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton(
-                    onPressed: locationService.openLocationSettings,
-                    child: const Text('Turn on location'),
-                  ),
+                _Fix.locationSettings => _FixButton(
+                  label: 'Turn on location',
+                  onPressed: locationService.openLocationSettings,
                 ),
               },
-            ],
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
+}
+
+/// The action that fixes a location problem, inside the message.
+class _FixButton extends StatelessWidget {
+  const _FixButton({required this.label, required this.onPressed});
+
+  final String label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) => Align(
+    alignment: Alignment.centerLeft,
+    child: AppButton(
+      label: label,
+      variant: AppButtonVariant.tertiary,
+      onPressed: onPressed,
+    ),
+  );
 }

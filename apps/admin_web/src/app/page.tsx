@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import { BrandMark } from '@/components/brand/brand-mark';
+import { CardLink } from '@/components/ui/card';
 
 // Portal entry point. Each area authorizes on the server, so this page is
 // static and only routes people to the right sign-in.
@@ -14,22 +14,19 @@ export default function Home() {
       </div>
       <ul className="flex flex-col gap-3">
         <li>
-          <Link
-            href="/sign-in"
-            className="flex flex-col gap-1 rounded-large border border-border-default bg-surface-default px-5 py-4 hover:border-border-strong focus-visible:outline-2 focus-visible:outline-brand-primary"
-          >
+          <CardLink href="/sign-in" className="flex flex-col gap-1 px-5 py-4">
             <span className="text-title font-semibold text-brand-primary">
               Shop owners and staff
             </span>
             <span className="text-body text-text-secondary">
               Sign in or register your shop with your mobile number.
             </span>
-          </Link>
+          </CardLink>
         </li>
         <li>
-          <Link
+          <CardLink
             href="/platform/sign-in"
-            className="flex flex-col gap-1 rounded-large border border-border-default bg-surface-default px-5 py-4 hover:border-border-strong focus-visible:outline-2 focus-visible:outline-brand-primary"
+            className="flex flex-col gap-1 px-5 py-4"
           >
             <span className="text-title font-semibold text-brand-primary">
               Platform admin
@@ -37,7 +34,7 @@ export default function Home() {
             <span className="text-body text-text-secondary">
               Manage shops on the platform. Email and password.
             </span>
-          </Link>
+          </CardLink>
         </li>
       </ul>
     </main>

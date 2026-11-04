@@ -9,6 +9,8 @@ import {
   useState,
 } from 'react';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { FileField } from '@/components/ui/file-field';
 import {
   checkImageFile,
   IMAGE_ACCEPT,
@@ -50,8 +52,7 @@ export function ImageUploadForm({
   const [preview, setPreview] = useState<string | null>(null);
   const [checkError, setCheckError] = useState<string | null>(null);
   const error = checkError ?? state.error;
-  const inputId = `field-${fieldName}`;
-  const errorId = `${fieldName}-error`;
+  const errorId = `field-${fieldName}-error`;
 
   // Release the preview's object URL when it changes or the form unmounts.
   useEffect(
@@ -92,7 +93,10 @@ export function ImageUploadForm({
       <fieldset disabled={!canEdit} className="flex flex-col gap-4">
         <legend className="mb-2 text-heading3 font-semibold">{title}</legend>
         <p className="text-body text-text-secondary">{description}</p>
-        <div className="flex aspect-4/3 w-full max-w-form items-center justify-center overflow-hidden rounded-large border border-border-default bg-surface-subtle">
+        <Card
+          tone="subtle"
+          className="flex aspect-4/3 w-full max-w-form items-center justify-center overflow-hidden"
+        >
           {shown ? (
             // eslint-disable-next-line @next/next/no-img-element -- see the component comment
             <img
@@ -109,33 +113,19 @@ export function ImageUploadForm({
               No {noun} yet.
             </p>
           )}
-        </div>
+        </Card>
         {canEdit ? (
-          <div className="flex flex-col gap-2">
-            <label
-              htmlFor={inputId}
-              className="text-body font-medium text-text-primary"
-            >
-              {currentUrl
+          <FileField
+            label={
+              currentUrl
                 ? `Choose a new ${noun}`
-                : `Choose ${withArticle(noun)}`}
-            </label>
-            <input
-              id={inputId}
-              name={fieldName}
-              type="file"
-              accept={IMAGE_ACCEPT}
-              onChange={choose}
-              aria-invalid={error ? true : undefined}
-              aria-describedby={error ? errorId : undefined}
-              className="text-body text-text-primary file:mr-4 file:min-h-12 file:rounded-medium file:border file:border-border-strong file:bg-surface-default file:px-5 file:text-body-large file:font-semibold"
-            />
-          </div>
-        ) : null}
-        {error ? (
-          <p id={errorId} role="alert" className="text-body text-status-error">
-            {error}
-          </p>
+                : `Choose ${withArticle(noun)}`
+            }
+            name={fieldName}
+            accept={IMAGE_ACCEPT}
+            onChange={choose}
+            error={error ?? undefined}
+          />
         ) : null}
         {canEdit ? (
           <div>

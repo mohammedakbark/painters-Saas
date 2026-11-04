@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 import type { ShopOnboarding } from '@/lib/api/shop-profile';
 
 /** What each checklist item means and where it is fixed. */
@@ -45,9 +46,10 @@ export function OnboardingChecklist({
   const done = onboarding.items.filter((item) => item.done).length;
 
   return (
-    <section
+    <Card
+      as="section"
       aria-labelledby="onboarding-heading"
-      className="flex flex-col gap-4 rounded-large border border-border-default bg-surface-default p-6"
+      className="flex flex-col gap-4 p-6"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="onboarding-heading" className="text-heading3 font-semibold">
@@ -102,6 +104,6 @@ export function OnboardingChecklist({
           );
         })}
       </ul>
-    </section>
+    </Card>
   );
 }

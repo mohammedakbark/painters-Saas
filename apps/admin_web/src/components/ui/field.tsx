@@ -45,10 +45,10 @@ export function Field({
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
         className={cn(
-          'min-h-12 rounded-medium border bg-surface-default px-4 text-body-large text-text-primary',
+          'min-h-control rounded-control border bg-control-background px-4 text-body-large text-text-primary',
           'placeholder:text-text-disabled disabled:bg-surface-subtle disabled:text-text-disabled',
           'focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-brand-primary',
-          error ? 'border-status-error' : 'border-border-strong',
+          error ? 'border-control-border-error' : 'border-control-border',
           className,
         )}
         {...input}

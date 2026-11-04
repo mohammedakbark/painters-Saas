@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { PageLoading } from '@/components/layout/page-loading';
 import { OwnProductForm } from '@/components/shop-catalogue/shop-catalogue-forms';
 import { Alert } from '@/components/ui/alert';
+import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import {
   listCatalogueBrands,
@@ -42,7 +43,7 @@ async function NewOwnProduct({
         title="Add your own product"
         description="For products that are not in the brand catalogue, such as local brands, tools or accessories."
       />
-      <section className="max-w-content rounded-large border border-border-default bg-surface-default p-6">
+      <Card as="section" className="max-w-content p-6">
         {shop.myRole !== 'MASTER' ? (
           <Alert tone="info">Only the shop owner can add products.</Alert>
         ) : categories.length === 0 ? (
@@ -68,7 +69,7 @@ async function NewOwnProduct({
             cancelHref={catalogueBase(shopId)}
           />
         )}
-      </section>
+      </Card>
     </div>
   );
 }

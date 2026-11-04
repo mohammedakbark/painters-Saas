@@ -5,6 +5,7 @@ import {
   CategoryRowForm,
 } from '@/components/catalogue/brand-forms';
 import { PageLoading } from '@/components/layout/page-loading';
+import { Card, CardList } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StateMessage } from '@/components/ui/state-message';
 import { listCategories } from '@/lib/api/platform-catalogue';
@@ -36,16 +37,16 @@ async function Categories() {
 
   return (
     <div className="flex max-w-content flex-col gap-8">
-      <section className="rounded-large border border-border-default bg-surface-default p-6">
+      <Card as="section" className="p-6">
         <CategoryCreateForm action={createCategoryAction} />
-      </section>
+      </Card>
       {categories.length === 0 ? (
         <StateMessage
           title="No categories yet"
           description="Add the first category above."
         />
       ) : (
-        <ul className="flex flex-col divide-y divide-border-default rounded-large border border-border-default bg-surface-default px-5">
+        <CardList className="px-5">
           {categories.map((category) => (
             <li key={category.id} className="flex flex-col">
               <div className="flex items-center gap-3 pt-4">
@@ -63,7 +64,7 @@ async function Categories() {
               />
             </li>
           ))}
-        </ul>
+        </CardList>
       )}
     </div>
   );

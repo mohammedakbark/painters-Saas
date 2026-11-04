@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_shared/flutter_shared.dart';
 
 import '../../providers.dart';
 
@@ -13,8 +14,10 @@ class SignOutButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     void signOut() => ref.read(authRepositoryProvider).signOut();
-    return filled
-        ? FilledButton(onPressed: signOut, child: const Text('Sign out'))
-        : TextButton(onPressed: signOut, child: const Text('Sign out'));
+    return AppButton(
+      label: 'Sign out',
+      variant: filled ? AppButtonVariant.primary : AppButtonVariant.tertiary,
+      onPressed: signOut,
+    );
   }
 }

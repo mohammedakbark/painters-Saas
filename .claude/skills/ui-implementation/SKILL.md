@@ -25,6 +25,8 @@ Use for Customer App, Shop App and admin web UI work.
 - Include loading, empty, error, disabled and success states.
 
 ## Component rules
+- Screens use only the shared components (D-039, DESIGN_SYSTEM §8): web `components/ui`, Flutter `flutter_shared` components. Never style raw controls, base radii or literal colours in a screen.
+- A control that has no component yet is added as a component first (styled from the component tokens in `tokens.json`), then used. Run `pnpm ui:check`.
 - Prefer small, composable, reusable components.
 - Extract components when behavior is repeated or the visual contract is stable.
 - Avoid giant widgets, unrelated boolean flags and premature abstraction.

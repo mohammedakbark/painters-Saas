@@ -97,6 +97,7 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 | SaaS subscription billing | Later | Explicitly deferred. |
 | Dedicated search engine | Later | Start with PostgreSQL search and measure. |
 | Single-source design tokens and brand names | **Implemented (DS-001)** | `packages/design_tokens` generates the web theme and Flutter tokens; rebrand in one place (D-034). Spec: `docs/features/DS-001-design-tokens.md`. |
+| The project's own UI components | **Implemented (DS-002)** | Every control in a screen is a project component styled from component tokens, on the web (`components/ui`) and in Flutter (`flutter_shared`); `pnpm ui:check` in CI (D-039). Spec: `docs/features/DS-002-components.md`. |
 
 ## Suggested implementation phases
 

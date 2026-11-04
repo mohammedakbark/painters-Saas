@@ -6,6 +6,8 @@ import {
 } from '@/components/catalogue/shade-forms';
 import { PageLoading } from '@/components/layout/page-loading';
 import { ButtonLink } from '@/components/ui/button-link';
+import { Card } from '@/components/ui/card';
+import { SearchForm } from '@/components/ui/search-form';
 import { StateMessage } from '@/components/ui/state-message';
 import { getBrand, listShades } from '@/lib/api/platform-catalogue';
 import { requirePlatformAdmin } from '@/lib/auth/platform-access';
@@ -41,34 +43,11 @@ async function BrandShades({
   return (
     <div className="flex flex-col gap-6">
       <BrandHeader brand={brand} />
-      <section className="rounded-large border border-border-default bg-surface-default p-6">
+      <Card as="section" className="p-6">
         <ShadeCreateForm action={createShadeAction.bind(null, brand.id)} />
-      </section>
+      </Card>
 
-      <form
-        method="get"
-        role="search"
-        className="flex flex-wrap items-end gap-3"
-      >
-        <div className="flex flex-col gap-2">
-          <label htmlFor="shade-search" className="text-body font-medium">
-            Search by code or name
-          </label>
-          <input
-            id="shade-search"
-            name="q"
-            defaultValue={q}
-            maxLength={60}
-            className="min-h-12 rounded-medium border border-border-strong bg-surface-default px-4 text-body-large focus-visible:outline-2 focus-visible:outline-brand-primary"
-          />
-        </div>
-        <button
-          type="submit"
-          className="min-h-12 rounded-medium border border-border-strong bg-surface-default px-5 text-body-large font-semibold hover:bg-surface-subtle"
-        >
-          Search
-        </button>
-      </form>
+      <SearchForm label="Search by code or name" defaultValue={q} />
 
       <p className="text-caption text-text-secondary">
         Colours on screen are indicative only. Customers and shops should always
@@ -87,9 +66,10 @@ async function BrandShades({
       ) : (
         <ul className="grid gap-3 medium:grid-cols-2 desktop:grid-cols-3">
           {page.items.map((shade) => (
-            <li
+            <Card
+              as="li"
               key={shade.id}
-              className="flex items-center justify-between gap-3 rounded-large border border-border-default bg-surface-default p-4"
+              className="flex items-center justify-between gap-3 p-4"
             >
               <div className="flex flex-col gap-2">
                 <ShadeSwatch shade={shade} />
@@ -104,7 +84,7 @@ async function BrandShades({
                 active={shade.active}
                 label={`shade ${shade.code} ${shade.name}`}
               />
-            </li>
+            </Card>
           ))}
         </ul>
       )}

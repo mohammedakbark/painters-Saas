@@ -41,6 +41,7 @@ This document prevents assumptions from silently becoming requirements.
 | D-033 | While a shop is waiting for review, its profile, photo and location are locked; the owner can withdraw the submission to edit. After approval the owner edits freely, every change is audited, and no new review is needed. Products can always be edited. | Confirmed (product owner, 2026-11-04); implemented in PLT-002 |
 | D-034 | Colours, fonts, radii, spacing and the product/app names are defined in one place and used everywhere, so a rebrand or a new logo is a single change. | Confirmed (product owner, 2026-11-04); implemented by DS-001 |
 | D-035 | Git workflow until go-live: when a feature is complete (every check green, verified, docs updated) it is fast-forward merged into `dev` and pushed, and its feature branch is deleted. No pull requests until go-live; then work moves to pull requests into `dev`. `main` holds released code. CI runs on pushes to `main` and `dev` and on pull requests. | Confirmed (product owner, 2026-11-04) |
+| D-039 | Every UI control is the project's own component, on the web and in Flutter (buttons, text fields, dropdowns, bottom sheets, snack bars, dialogs and so on), styled from tokens, so that radius, colour and similar design changes are made in one place after development. | Confirmed (product owner, 2026-11-04); implemented by DS-002 |
 
 ## 2. Proposed technical decisions — require approval
 
@@ -85,6 +86,7 @@ Do not treat proposals as approved until the product owner confirms them.
 | T-018 | Catalogue: a global brand catalogue (categories, brands, products with pack sizes, shades; no prices) maintained by platform admins, and tenant-owned shop listings with per-pack prices and availability (CAT-002). Names unique regardless of case via `name_key`; archive instead of delete; all-or-nothing CSV import. | ADR 0008 (D-030) |
 | T-019 | Shop catalogue (CAT-002): tenant-owned listings of brand-catalogue products or own products; packs reference their product through a composite FK `(shop_id, shop_product_id)`; prices are integer paise; pack changes lock the product row; products are archived, never deleted. | ADR 0008 |
 | T-020 | Shop review (PLT-002): `shop_reviews` rows record each submission and its outcome; one open review per shop through a nullable unique `open_shop_id`; status changes and profile/location/photo writes lock the shop row; withdrawals are kept as WITHDRAWN rows; viewing a shop's review page is audited. | `docs/features/PLT-002-shop-review.md` |
+| T-021 | Component tokens (`tokens.json` → `component`) reference base tokens only and generate web utilities (`rounded-control`, `bg-button-primary-background`, …) and `AppComponentTokens`; screens use `components/ui` (web) and `flutter_shared` components (Flutter); `pnpm ui:check` fails CI on raw controls in screens. | DS-002 (D-039) |
 | T-015 | Shop App stack: Riverpod 3 (P-007 adopted for the Shop App), go_router, Dio, supabase_flutter (sign-in only) and flutter_secure_storage for the session. Shared Flutter widgets and the mobile parser live in `flutter_shared`. | SHP-002 |
 
 ## 3. Open product questions

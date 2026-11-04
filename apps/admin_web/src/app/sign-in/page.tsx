@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Card } from '@/components/ui/card';
 import { otpSignIn } from './actions';
 import { OtpSignInForm } from './otp-sign-in-form';
 
@@ -18,9 +19,9 @@ export default function ShopSignInPage() {
           can register your shop.
         </p>
       </div>
-      <div className="rounded-large border border-border-default bg-surface-default p-6">
+      <Card className="p-6">
         <OtpSignInForm action={otpSignIn} />
-      </div>
+      </Card>
       <Link
         href="/"
         className="text-body font-medium text-brand-primary hover:underline"

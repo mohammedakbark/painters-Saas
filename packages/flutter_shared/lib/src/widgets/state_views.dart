@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../components/app_button.dart';
+import '../components/app_spinner.dart';
 import '../tokens/app_colors.dart';
 import '../tokens/app_spacing.dart';
 
@@ -19,7 +21,7 @@ class LoadingView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const CircularProgressIndicator(),
+              const AppSpinner(),
               const SizedBox(height: AppSpacing.s16),
               Text(
                 message,
@@ -113,9 +115,10 @@ class ErrorView extends StatelessWidget {
       icon: Icons.error_outline,
       title: title,
       message: message,
-      action: OutlinedButton(
+      action: AppButton(
+        label: 'Try again',
+        variant: AppButtonVariant.secondary,
         onPressed: onRetry,
-        child: const Text('Try again'),
       ),
     );
   }

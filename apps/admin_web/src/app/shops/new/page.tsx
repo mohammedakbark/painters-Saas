@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { registerShopAction } from './actions';
 import { RegisterShopForm } from './register-shop-form';
@@ -14,9 +15,9 @@ export default function RegisterShopPage() {
         title="Register a shop"
         description="Your shop starts as a private draft. Customers and painters see it only after you complete its profile and the platform team approves it."
       />
-      <div className="rounded-large border border-border-default bg-surface-default p-6">
+      <Card className="p-6">
         <RegisterShopForm action={registerShopAction} />
-      </div>
+      </Card>
     </main>
   );
 }

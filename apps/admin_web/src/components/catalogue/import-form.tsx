@@ -8,6 +8,8 @@ import {
 } from 'react';
 import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { CardList } from '@/components/ui/card';
+import { FileField } from '@/components/ui/file-field';
 import { SelectField } from '@/components/ui/select-field';
 import type { ImportResult } from '@/lib/api/platform-catalogue';
 import type { ImportFormState } from '@/lib/catalogue/form-state';
@@ -54,29 +56,12 @@ export function ImportForm({ action }: { action: ImportAction }) {
   return (
     <form action={formAction} onSubmit={submit} className="flex flex-col gap-5">
       <SelectField label="What the file contains" name="kind" options={KINDS} />
-      <div className="flex flex-col gap-2">
-        <label
-          htmlFor="field-file"
-          className="text-body font-medium text-text-primary"
-        >
-          CSV file
-        </label>
-        <p
-          id="field-file-description"
-          className="text-caption text-text-secondary"
-        >
-          Comma-separated, first line is the header, up to 5,000 rows and 2 MB.
-          Download a template below.
-        </p>
-        <input
-          id="field-file"
-          name="file"
-          type="file"
-          accept=".csv,text/csv"
-          aria-describedby="field-file-description"
-          className="text-body text-text-primary file:mr-4 file:min-h-12 file:rounded-medium file:border file:border-border-strong file:bg-surface-default file:px-5 file:text-body-large file:font-semibold"
-        />
-      </div>
+      <FileField
+        label="CSV file"
+        name="file"
+        accept=".csv,text/csv"
+        description="Comma-separated, first line is the header, up to 5,000 rows and 2 MB. Download a template below."
+      />
       <div className="flex flex-wrap gap-3">
         <Button
           type="submit"
@@ -122,7 +107,7 @@ function ImportSummary({ result }: { result: ImportResult }) {
         >
           Fix the rows below in the file, then check it again.
         </Alert>
-        <ul className="flex flex-col divide-y divide-border-default rounded-large border border-border-default bg-surface-default">
+        <CardList>
           {result.errors.map((error) => (
             <li
               key={`${error.row}-${error.message}`}
@@ -134,7 +119,7 @@ function ImportSummary({ result }: { result: ImportResult }) {
               {error.message}
             </li>
           ))}
-        </ul>
+        </CardList>
         {result.errorCount > result.errors.length ? (
           <p className="text-body text-text-secondary">
             Showing the first {result.errors.length} of {result.errorCount}{' '}

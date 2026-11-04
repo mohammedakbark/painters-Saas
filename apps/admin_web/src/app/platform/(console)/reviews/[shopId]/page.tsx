@@ -5,6 +5,7 @@ import { PageLoading } from '@/components/layout/page-loading';
 import { ReviewDecisionForm } from '@/components/platform/review-decision-form';
 import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { cardClasses } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { orNotFound } from '@/lib/api/or-not-found';
 import {
@@ -18,6 +19,7 @@ import { formatIndianMobile } from '@/lib/phone';
 import { shopStatusLabel } from '@/lib/shops/labels';
 import { checklistItemName, reviewReasonLabel } from '@/lib/shops/review';
 import { decideReviewAction } from '../actions';
+import { Panel } from '@/components/ui/card';
 
 export const metadata: Metadata = { title: 'Review a shop' };
 
@@ -31,8 +33,7 @@ export default function ShopReviewPage(
   );
 }
 
-const card =
-  'flex flex-col gap-4 rounded-large border border-border-default bg-surface-default p-6';
+const card = cardClasses('flex flex-col gap-4 p-6');
 
 async function ShopReview({ params }: PageProps<'/platform/reviews/[shopId]'>) {
   const { token } = await requirePlatformAdmin();
@@ -111,7 +112,7 @@ function ProfileSection({ review }: { review: ShopReviewSnapshot }) {
         <img
           src={profile.photo.url}
           alt={`Photo of ${shop.name}`}
-          className="aspect-video w-full rounded-medium object-cover"
+          className="aspect-video w-full rounded-image object-cover"
         />
       ) : (
         <p className="text-body text-status-error">No shop photo.</p>
@@ -281,10 +282,7 @@ function ProductsSection({ review }: { review: ShopReviewSnapshot }) {
       ) : (
         <ul className="grid gap-3 desktop:grid-cols-2">
           {items.map((product) => (
-            <li
-              key={product.id}
-              className="flex flex-col gap-2 rounded-medium border border-border-default p-4"
-            >
+            <Panel as="li" key={product.id} className="flex flex-col gap-2 p-4">
               <span className="flex flex-wrap items-center gap-2">
                 <span className="text-body-large font-semibold">
                   {product.name}
@@ -309,7 +307,7 @@ function ProductsSection({ review }: { review: ShopReviewSnapshot }) {
                   </li>
                 ))}
               </ul>
-            </li>
+            </Panel>
           ))}
         </ul>
       )}

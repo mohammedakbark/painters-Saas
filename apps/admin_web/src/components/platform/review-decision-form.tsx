@@ -3,6 +3,10 @@
 import { type FormEvent, startTransition, useActionState } from 'react';
 import { FormStatus } from '@/components/catalogue/form-status';
 import { Button } from '@/components/ui/button';
+import {
+  CheckboxGroupField,
+  RadioGroupField,
+} from '@/components/ui/choice-group-fields';
 import { TextareaField } from '@/components/ui/textarea-field';
 import type { CatalogueFormState } from '@/lib/catalogue/form-state';
 import {
@@ -57,80 +61,24 @@ export function ReviewDecisionForm({ action }: { action: DecisionAction }) {
       className="flex flex-col gap-5"
     >
       <FormStatus state={state} />
-      <fieldset
-        className="flex flex-col gap-3"
-        aria-describedby={errors.decision ? 'decision-error' : undefined}
-      >
-        <legend className="text-body-large font-semibold">Decision</legend>
-        {DECISIONS.map((option) => {
-          const id = `decision-${option.value}`;
-          return (
-            <div key={option.value} className="flex items-start gap-3">
-              <input
-                id={id}
-                type="radio"
-                name="decision"
-                value={option.value}
-                defaultChecked={values?.decision === option.value}
-                className="mt-1 size-5 accent-brand-primary"
-                aria-describedby={`${id}-description`}
-              />
-              <div className="flex flex-col gap-1">
-                <label htmlFor={id} className="text-body font-medium">
-                  {option.label}
-                </label>
-                <p
-                  id={`${id}-description`}
-                  className="text-caption text-text-secondary"
-                >
-                  {option.description}
-                </p>
-              </div>
-            </div>
-          );
-        })}
-        {errors.decision ? (
-          <p id="decision-error" className="text-body text-status-error">
-            {errors.decision}
-          </p>
-        ) : null}
-      </fieldset>
-
-      <fieldset
-        className="flex flex-col gap-3"
-        aria-describedby={errors.reasons ? 'reasons-error' : 'reasons-hint'}
-      >
-        <legend className="text-body-large font-semibold">
-          Reasons (for a change request)
-        </legend>
-        <p id="reasons-hint" className="text-caption text-text-secondary">
-          The owner sees these reasons. Choose at least one when requesting
-          changes.
-        </p>
-        {REVIEW_REASONS.map((reason) => {
-          const id = `reason-${reason}`;
-          return (
-            <div key={reason} className="flex items-start gap-3">
-              <input
-                id={id}
-                type="checkbox"
-                name="reasons"
-                value={reason}
-                defaultChecked={chosenReasons.has(reason)}
-                className="mt-1 size-5 accent-brand-primary"
-              />
-              <label htmlFor={id} className="text-body font-medium">
-                {reviewReasonLabel(reason)}
-              </label>
-            </div>
-          );
-        })}
-        {errors.reasons ? (
-          <p id="reasons-error" className="text-body text-status-error">
-            {errors.reasons}
-          </p>
-        ) : null}
-      </fieldset>
+      <RadioGroupField
+        legend="Decision"
+        name="decision"
+        options={DECISIONS}
+        defaultValue={values?.decision}
+        error={errors.decision}
+      />
+      <CheckboxGroupField
+        legend="Reasons (for a change request)"
+        name="reasons"
+        hint="The owner sees these reasons. Choose at least one when requesting changes."
+        options={REVIEW_REASONS.map((reason) => ({
+          value: reason,
+          label: reviewReasonLabel(reason),
+        }))}
+        defaultValues={[...chosenReasons]}
+        error={errors.reasons}
+      />
 
       <TextareaField
         label="Note to the owner (optional; needed for Other)"

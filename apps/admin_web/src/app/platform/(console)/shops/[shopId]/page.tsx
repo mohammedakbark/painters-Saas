@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import { PageLoading } from '@/components/layout/page-loading';
 import { Badge } from '@/components/ui/badge';
 import { ButtonLink } from '@/components/ui/button-link';
+import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import {
   getRegisteredShop,
@@ -50,7 +51,7 @@ async function PlatformShop({ params }: PageProps<'/platform/shops/[shopId]'>) {
           </>
         }
       />
-      <section className="rounded-large border border-border-default bg-surface-default p-6">
+      <Card as="section" className="p-6">
         <h2 className="sr-only">Registration details</h2>
         <dl className="grid gap-x-8 gap-y-4 medium:grid-cols-2">
           <Fact label="Status">
@@ -68,7 +69,7 @@ async function PlatformShop({ params }: PageProps<'/platform/shops/[shopId]'>) {
             <span className="font-mono text-caption break-all">{shop.id}</span>
           </Fact>
         </dl>
-      </section>
+      </Card>
     </>
   );
 }

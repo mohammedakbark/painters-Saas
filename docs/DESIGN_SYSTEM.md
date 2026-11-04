@@ -100,13 +100,61 @@ Proposed breakpoints: compact below 600 px; medium 600–899 px; desktop 900–1
 - Forms should not stretch across an entire wide monitor.
 - Keep content widths readable.
 
-## 8. Reusable component foundations
+## 8. Components (D-039, DS-002)
 
-Flutter: app theme, semantic colors, typography, spacing/radius constants, buttons, text fields, loading/empty/error/confirmation components, and stable repeated domain components such as product/shop cards.
+**Rule:** screens use only the project's own components:
+- web: `apps/admin_web/src/components/ui`;
+- Flutter: `packages/flutter_shared/lib/src/components`.
 
-Web: Tailwind theme/CSS variables, buttons, inputs, dialogs, tables, badges, form primitives, page header, sidebar and responsive containers.
+Screens never style raw controls (buttons, inputs, dropdowns, switches, cards, dialogs, sheets, snack bars, spinners, network images) or use base radii and literal colours. To change how every button, field, sheet or dialog looks, change its **component token** in `packages/design_tokens/tokens.json` and run `pnpm tokens:generate`; nothing in the screens changes.
 
-Prefer small composable components. Avoid universal components with dozens of unrelated flags. Extract domain components when their behavior is stable and reused.
+A new kind of control is added as a component first (here and in the code), then used. Components are built when a screen needs them, not in advance. `pnpm ui:check` (CI) lists any raw control in a screen with the component to use instead.
+
+### Component tokens (`tokens.json` → `component`)
+
+Each property names a base token: `radius` a radius token, `minHeight` a layout token, every other property a colour token. Raw values are rejected, and foreground/background pairs must meet WCAG AA.
+
+| Component token | Used by | Today |
+|---|---|---|
+| `control` | buttons, text fields, dropdowns, search | radius `medium`, minimum height `minTouchTarget`, border `border.strong`, error border `status.error` |
+| `card` | cards, list panels, sections, empty states | radius `large`, border `border.default` |
+| `panel` | boxes inside a card (pack, shade, review rows) | radius `medium`, border `border.default` |
+| `inlineMessage` | web `Alert`, Flutter `AppInlineMessage` | radius `medium` |
+| `sheet`, `dialog`, `snackbar` | overlays | radius `xlarge`, `large`, `medium`; the snack bar is dark (`text.primary`) |
+| `badge` | status badges | radius `pill` |
+| `image`, `swatch`, `navItem` | photos, shade swatches, sidebar links | radius `medium`, `small`, `small` |
+| `buttonPrimary`, `buttonSecondary`, `buttonTertiary`, `buttonDestructive` | button variants | background, hover, foreground (and border) |
+
+Web utilities: `rounded-control`, `min-h-control`, `rounded-card`, `border-card-border`, `bg-button-primary-background` and so on. Flutter: `AppComponentTokens.controlRadius`, `cardBorder`, `buttonPrimaryBackground` and so on.
+
+### Web components (`components/ui`)
+
+| Component | Use |
+|---|---|
+| `Button`, `SubmitButton`, `ButtonLink` | actions (primary, secondary); pending state |
+| `Field`, `SelectField`, `TextareaField`, `FileField` | labelled inputs with helper text and errors linked through `aria-describedby`; file errors are announced |
+| `CheckboxField`, `CheckboxGroupField`, `RadioGroupField` | single checkbox; groups with a legend, hint and error |
+| `SearchForm` | GET search with a labelled field, optional filters and hidden values |
+| `Card`, `CardList`, `CardLink`, `Panel` (`cardClasses` where an element can't be a component) | surfaces |
+| `Alert`, `Badge`, `StateMessage`, `Spinner`, `PageHeader` | messages, status, empty states, loading, page titles |
+
+No dialog or toast exists on the web yet; the first screen that needs one adds `Dialog`/`Toast` here first.
+
+### Flutter components (`flutter_shared`)
+
+| Component | Replaces |
+|---|---|
+| `AppButton` (`primary`, `secondary`, `tertiary`, `destructive`; `icon`, `loading`, `expand`) | `FilledButton`, `OutlinedButton`, `TextButton` |
+| `AppTextField`, `AppSearchField`, `AppDropdown<T>` (with `AppOption<T>`) | `TextField`, dropdowns |
+| `AppSwitchRow`, `AppCheckboxRow`, `AppRadioGroup<T>`, `AppSegmentedControl<T>` | switches, checkboxes, radios, segmented buttons |
+| `AppCard` (`tone`, `onTap`), `AppSection`, `AppNavRow` | `Card`, `ListTile` |
+| `AppBadge`, `AppInlineMessage` (`AppTone`), `showAppSnackBar` | chips, hand-styled status text, snack bars |
+| `showAppBottomSheet`, `showAppDialog`, `showAppConfirmDialog` | `showModalBottomSheet`, `showDialog`/`AlertDialog` |
+| `AppSpinner`, `AppNetworkImage` | `CircularProgressIndicator`, `Image.network` |
+
+`LoadingView`, `MessageView`, `ErrorView`, `BrandMark` and `ShopLocationMap` are built from these. `AppTheme.light()` reads the same component tokens, so Material widgets used inside the components match.
+
+Prefer small composable components. Avoid universal components with dozens of unrelated flags. Extract domain components (product or shop cards) when their behaviour is stable and reused.
 
 ## 9. Paint-specific UI
 
@@ -120,7 +168,7 @@ Prefer small composable components. Avoid universal components with dozens of un
 
 ## 10. Accessibility and change control
 
-Use semantic labels, keyboard navigation on web, readable contrast and scalable text. Do not communicate status by color alone. If a token changes, change `packages/design_tokens/tokens.json`, run `pnpm tokens:generate`, update this document, check affected components/screens and update `docs/PROJECT_STATE.md`. CI fails when the generated files are out of date.
+Use semantic labels, keyboard navigation on web, readable contrast and scalable text. Do not communicate status by color alone. If a token changes, change `packages/design_tokens/tokens.json`, run `pnpm tokens:generate`, update this document, check affected components/screens and update `docs/PROJECT_STATE.md`. CI fails when the generated files are out of date (`pnpm tokens:check`) or when a screen uses a raw control (`pnpm ui:check`, §8).
 
 Token implementations (generated since DS-001, 2026-11-04):
 - Source: `packages/design_tokens/tokens.json` and `brand.json`; generator `generate.mjs` (`pnpm tokens:generate`, `pnpm tokens:check`).
@@ -134,4 +182,5 @@ Token implementations (generated since DS-001, 2026-11-04):
 - Web components added in CAT-001: `TextareaField`, `CheckboxField` (48 px target), `FormStatus`, catalogue forms (brand, category, product, shade, import), `ActiveToggleForm`, `ShadeSwatch` (indicative colour swatch with the code and name always in text) and `ImageUploadForm` (the SHP-004 photo form, generalised). `NavLinks` takes a `label` for secondary navigation. Counts use `countLabel` ("1 product", "12 products").
 - Web component added in SHP-004: `ShopPhotoForm` (4:3 frame with the current photo, a local preview or "No photo yet", labelled file input, errors announced). Shop App: a 4:3 photo card with loading and error states.
 - Flutter shared widget added in SHP-003: `ShopLocationMap` (a static lite-mode Google map with a marker, or a bordered panel with the coordinates when the build has no Maps key); the only place the apps use a map provider.
-- Flutter shared widgets (since SHP-002, `packages/flutter_shared`): `LoadingView` (spinner with a visible message), `MessageView` (title, explanation and action for empty, access and not-found states) and `ErrorView` (with "Try again"). The Shop App shows status as text (a chip), uses 48 px minimum touch targets, and lets error text wrap instead of truncating.
+- Flutter shared widgets (since SHP-002, `packages/flutter_shared`): `LoadingView` (spinner with a visible message), `MessageView` (title, explanation and action for empty, access and not-found states) and `ErrorView` (with "Try again"). The Shop App shows status as text (a badge since DS-002), uses 48 px minimum touch targets, and lets error text wrap instead of truncating.
+- DS-002 (D-039): component tokens and the component library in §8. The web and Flutter now share one definition per component: the Flutter secondary button uses dark text like the web (it was brand blue), buttons use the body-large semibold label on both, the shop status is a pill badge (was a chip), and location messages in the Shop App sit in an inline message box (were coloured text).

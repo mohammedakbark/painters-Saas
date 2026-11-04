@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../components/app_card.dart';
 import '../tokens/app_colors.dart';
-import '../tokens/app_radius.dart';
 import '../tokens/app_spacing.dart';
 
 /// "9.965812, 76.289877" (6 decimals, about 0.1 m), as stored by the API.
@@ -40,8 +40,8 @@ class ShopLocationMap extends StatelessWidget {
     final position = LatLng(latitude, longitude);
     return Semantics(
       label: 'Map showing the shop location, $coordinates',
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppRadius.large),
+      child: AppCard(
+        padding: EdgeInsets.zero,
         child: SizedBox(
           height: height,
           child: GoogleMap(
@@ -74,37 +74,34 @@ class _MapUnavailable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    return Container(
+    return ConstrainedBox(
       constraints: BoxConstraints(minHeight: height / 2),
-      padding: const EdgeInsets.all(AppSpacing.s16),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceSubtle,
-        borderRadius: BorderRadius.circular(AppRadius.large),
-        border: Border.all(color: AppColors.borderDefault),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.map_outlined, color: AppColors.textSecondary),
-          const SizedBox(width: AppSpacing.s12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Map not available in this build',
-                  style: textTheme.titleSmall,
-                ),
-                const SizedBox(height: AppSpacing.s4),
-                Text(
-                  'Pin: $coordinates',
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
+      child: AppCard(
+        tone: AppCardTone.subtle,
+        child: Row(
+          children: [
+            const Icon(Icons.map_outlined, color: AppColors.textSecondary),
+            const SizedBox(width: AppSpacing.s12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Map not available in this build',
+                    style: textTheme.titleSmall,
                   ),
-                ),
-              ],
+                  const SizedBox(height: AppSpacing.s4),
+                  Text(
+                    'Pin: $coordinates',
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

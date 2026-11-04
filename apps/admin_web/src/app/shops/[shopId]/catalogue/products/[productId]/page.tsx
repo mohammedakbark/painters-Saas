@@ -10,6 +10,7 @@ import {
 } from '@/components/shop-catalogue/shop-catalogue-forms';
 import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { orNotFound } from '@/lib/api/or-not-found';
 import {
@@ -89,9 +90,10 @@ async function ShopProductView({
       )}
 
       <div className="grid gap-8 desktop:grid-cols-2">
-        <section
+        <Card
+          as="section"
           aria-labelledby="packs-heading"
-          className="flex flex-col gap-5 rounded-large border border-border-default bg-surface-default p-6"
+          className="flex flex-col gap-5 p-6"
         >
           <h2 id="packs-heading" className="text-heading3 font-semibold">
             Pack sizes and prices
@@ -166,12 +168,13 @@ async function ShopProductView({
               />
             </div>
           ) : null}
-        </section>
+        </Card>
 
         <div className="flex flex-col gap-6">
-          <section
+          <Card
+            as="section"
             aria-labelledby="details-heading"
-            className="flex flex-col gap-4 rounded-large border border-border-default bg-surface-default p-6"
+            className="flex flex-col gap-4 p-6"
           >
             <h2 id="details-heading" className="text-heading3 font-semibold">
               Details
@@ -213,9 +216,9 @@ async function ShopProductView({
                 ) : null}
               </>
             )}
-          </section>
+          </Card>
 
-          <section className="rounded-large border border-border-default bg-surface-default p-6">
+          <Card as="section" className="p-6">
             <ImageUploadForm
               key={product.image?.updatedAt ?? 'none'}
               action={uploadShopProductImageAction.bind(
@@ -236,10 +239,10 @@ async function ShopProductView({
               noun="image"
               fieldName="image"
             />
-          </section>
+          </Card>
 
           {canEdit ? (
-            <section className="flex flex-col gap-3 rounded-large border border-border-default bg-surface-default p-6">
+            <Card as="section" className="flex flex-col gap-3 p-6">
               <h2 className="text-heading3 font-semibold">
                 {active ? 'Archive' : 'Restore'}
               </h2>
@@ -258,7 +261,7 @@ async function ShopProductView({
                 label={active ? 'Archive product' : 'Restore product'}
                 pendingLabel={active ? 'Archiving…' : 'Restoring…'}
               />
-            </section>
+            </Card>
           ) : null}
         </div>
       </div>

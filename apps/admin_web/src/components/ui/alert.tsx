@@ -27,7 +27,7 @@ export function Alert({
     <div
       role={tone === 'error' ? 'alert' : 'status'}
       className={cn(
-        'rounded-medium border border-l-4 border-border-default bg-surface-default px-4 py-3 text-body text-text-primary',
+        'rounded-inline-message border border-l-4 border-inline-message-border bg-inline-message-background px-4 py-3 text-body text-text-primary',
         border,
       )}
     >

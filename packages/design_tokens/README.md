@@ -32,7 +32,7 @@ Hand-written code that maps tokens onto widgets stays outside the generated file
 ## Rebranding
 
 ### Colours, sizes, radii, spacing, widths
-1. Edit `tokens.json`.
+1. Edit `tokens.json`. To restyle one kind of component everywhere (for example rounder buttons and fields, or another primary button colour), change its entry under `component` (for example `control.radius` or `buttonPrimary.background`); each entry names a base token.
 2. Run `pnpm tokens:generate`. Fix any contrast failure it reports.
 3. Run the checks (`pnpm test`, `fvm flutter test` in `packages/flutter_shared`) and look at the main screens.
 
@@ -52,3 +52,7 @@ Edit `brand.json` and run `pnpm tokens:generate`. Two native labels are separate
 - App launcher icons (Flutter defaults today) and a web favicon (none yet; Next.js uses `apps/admin_web/src/app/icon.png` or `favicon.ico` when added) come with the logo, for example generated with the `flutter_launcher_icons` tool. This is not set up yet.
 
 Paint shade colours are catalogue data and never belong in these files.
+
+## Component guard (DS-002, D-039)
+
+`pnpm ui:check` (`check-components.mjs`) lists raw controls in screens: on the web, `<input>` (except hidden), `<select>`, `<textarea>`, `<button>`, `<dialog>`, base `rounded-*` radii and hex colours outside `components/ui`; in Flutter, raw Material controls, overlays, `Image.network`, literal colours and `BorderRadius.circular` outside `flutter_shared`'s components, theme and tokens. Each finding names the component to use. A genuine exception goes in `EXCEPTIONS` with a reason.

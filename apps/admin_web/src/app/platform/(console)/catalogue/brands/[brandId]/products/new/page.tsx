@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { ProductForm } from '@/components/catalogue/product-form';
 import { PageLoading } from '@/components/layout/page-loading';
+import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { getBrand, listCategories } from '@/lib/api/platform-catalogue';
 import { requirePlatformAdmin } from '@/lib/auth/platform-access';
@@ -33,7 +34,7 @@ async function NewProduct({
   return (
     <>
       <PageHeader title="New product" description={`For ${brand.name}.`} />
-      <div className="max-w-content rounded-large border border-border-default bg-surface-default p-6">
+      <Card className="max-w-content p-6">
         <ProductForm
           action={createProductAction.bind(null, brand.id)}
           categories={categories}
@@ -47,7 +48,7 @@ async function NewProduct({
           submitLabel="Add product"
           cancelHref={`/platform/catalogue/brands/${brand.id}`}
         />
-      </div>
+      </Card>
     </>
   );
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Card } from '@/components/ui/card';
 import { signInToPlatform } from './actions';
 import { SignInForm } from './sign-in-form';
 
@@ -17,9 +18,9 @@ export default function PlatformSignInPage() {
           For platform administrators.
         </p>
       </div>
-      <div className="rounded-large border border-border-default bg-surface-default p-6">
+      <Card className="p-6">
         <SignInForm action={signInToPlatform} />
-      </div>
+      </Card>
       <Link
         href="/"
         className="text-body font-medium text-brand-primary hover:underline"

@@ -13,15 +13,15 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const BASE =
-  'inline-flex min-h-12 items-center justify-center gap-2 rounded-medium px-5 text-body-large font-semibold transition-colors ' +
+  'inline-flex min-h-control items-center justify-center gap-2 rounded-control px-5 text-body-large font-semibold transition-colors ' +
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary ' +
   'disabled:cursor-not-allowed disabled:opacity-70';
 
 const VARIANTS: Record<ButtonVariant, string> = {
   primary:
-    'bg-brand-primary text-surface-default hover:bg-brand-primary-strong',
+    'bg-button-primary-background text-button-primary-foreground hover:bg-button-primary-background-hover',
   secondary:
-    'border border-border-strong bg-surface-default text-text-primary hover:bg-surface-subtle',
+    'border border-button-secondary-border bg-button-secondary-background text-button-secondary-foreground hover:bg-button-secondary-background-hover',
 };
 
 /** Button styles, shared with ButtonLink so links that act as actions look the same. */

@@ -23,21 +23,21 @@ void main() {
         MessageView(
           title: 'No shops yet',
           message: 'Register on the web portal.',
-          action: TextButton(onPressed: () {}, child: const Text('Sign out')),
+          action: AppButton(label: 'Sign out', onPressed: () {}),
         ),
       ),
     );
 
     expect(find.text('No shops yet'), findsOneWidget);
     expect(find.text('Register on the web portal.'), findsOneWidget);
-    expect(find.widgetWithText(TextButton, 'Sign out'), findsOneWidget);
+    expect(find.widgetWithText(AppButton, 'Sign out'), findsOneWidget);
   });
 
   testWidgets('ErrorView calls onRetry', (tester) async {
     var retries = 0;
     await tester.pumpWidget(_host(ErrorView(onRetry: () => retries++)));
 
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Try again'));
+    await tester.tap(find.widgetWithText(AppButton, 'Try again'));
 
     expect(retries, 1);
     expect(find.text('Something went wrong'), findsOneWidget);

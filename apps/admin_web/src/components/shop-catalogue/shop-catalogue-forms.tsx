@@ -5,6 +5,7 @@ import { FormStatus } from '@/components/catalogue/form-status';
 import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { ButtonLink } from '@/components/ui/button-link';
+import { Panel } from '@/components/ui/card';
 import { CheckboxField } from '@/components/ui/checkbox-field';
 import { Field } from '@/components/ui/field';
 import { SelectField } from '@/components/ui/select-field';
@@ -65,10 +66,7 @@ export function CatalogueListingForm({
         {packs.map((pack) => {
           const fields = packFields(pack.id);
           return (
-            <li
-              key={pack.id}
-              className="flex flex-col gap-3 rounded-medium border border-border-default p-4"
-            >
+            <Panel as="li" key={pack.id} className="flex flex-col gap-3 p-4">
               <CheckboxField
                 label={`Sell ${pack.label}`}
                 name={fields.sell}
@@ -82,7 +80,7 @@ export function CatalogueListingForm({
                   errors={errors}
                 />
               </div>
-            </li>
+            </Panel>
           );
         })}
       </ul>
@@ -218,9 +216,9 @@ export function OwnProductForm({
             const key = String(row);
             const fields = packFields(key);
             return (
-              <div
+              <Panel
                 key={key}
-                className="grid gap-3 rounded-medium border border-border-default p-4 medium:grid-cols-2 medium:items-start"
+                className="grid gap-3 p-4 medium:grid-cols-2 medium:items-start"
               >
                 <Field
                   label={`Pack size ${row + 1}`}
@@ -236,7 +234,7 @@ export function OwnProductForm({
                   values={values}
                   errors={errors}
                 />
-              </div>
+              </Panel>
             );
           })}
         </fieldset>

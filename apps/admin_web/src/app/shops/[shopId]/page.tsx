@@ -3,6 +3,7 @@ import { PageLoading } from '@/components/layout/page-loading';
 import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { OnboardingChecklist } from '@/components/shops/onboarding-checklist';
+import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { ReviewPanel } from '@/components/shops/review-panel';
 import { getShopOnboarding } from '@/lib/api/shop-profile';
@@ -46,7 +47,7 @@ async function ShopOverview({
         </Alert>
       ) : null}
       <PageHeader title={shop.name} description={shopRoleLabel(shop.myRole)} />
-      <section className="flex flex-col gap-3 rounded-large border border-border-default bg-surface-default p-6">
+      <Card as="section" className="flex flex-col gap-3 p-6">
         <div className="flex flex-wrap items-center gap-3">
           <h2 className="text-heading3 font-semibold">Status</h2>
           <Badge tone={status.tone}>{status.label}</Badge>
@@ -63,7 +64,7 @@ async function ShopOverview({
           submitAction={submitForReviewAction.bind(null, shop.id)}
           withdrawAction={withdrawReviewAction.bind(null, shop.id)}
         />
-      </section>
+      </Card>
       <OnboardingChecklist shopId={shop.id} onboarding={onboarding} />
     </>
   );

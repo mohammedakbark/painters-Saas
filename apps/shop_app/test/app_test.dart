@@ -35,7 +35,7 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byKey(const Key('phone-field')), '12345');
-      await tester.tap(find.widgetWithText(FilledButton, 'Send code'));
+      await tester.tap(find.widgetWithText(AppButton, 'Send code'));
       await tester.pumpAndSettle();
 
       expect(find.text(SignInMessages.invalidPhone), findsOneWidget);
@@ -56,7 +56,7 @@ void main() {
         find.byKey(const Key('phone-field')),
         '99999 00009',
       );
-      await tester.tap(find.widgetWithText(FilledButton, 'Send code'));
+      await tester.tap(find.widgetWithText(AppButton, 'Send code'));
       await tester.pumpAndSettle();
 
       expect(find.text(SignInMessages.notRegistered), findsOneWidget);
@@ -79,7 +79,7 @@ void main() {
         find.byKey(const Key('phone-field')),
         '99999 00001',
       );
-      await tester.tap(find.widgetWithText(FilledButton, 'Send code'));
+      await tester.tap(find.widgetWithText(AppButton, 'Send code'));
       await tester.pumpAndSettle();
       expect(
         find.text('We sent a 6-digit code to +91 99999 00001.'),
@@ -87,7 +87,7 @@ void main() {
       );
 
       await tester.enterText(find.byKey(const Key('code-field')), '000000');
-      await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
+      await tester.tap(find.widgetWithText(AppButton, 'Sign in'));
       await tester.pumpAndSettle();
       expect(find.text(SignInMessages.wrongCode), findsOneWidget);
       expect(
@@ -96,7 +96,7 @@ void main() {
       );
 
       await tester.enterText(find.byKey(const Key('code-field')), '123456');
-      await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
+      await tester.tap(find.widgetWithText(AppButton, 'Sign in'));
       await tester.pumpAndSettle();
 
       expect(find.text('Your shops'), findsOneWidget);
@@ -113,7 +113,7 @@ void main() {
         find.byKey(const Key('phone-field')),
         '99999 00001',
       );
-      await tester.tap(find.widgetWithText(FilledButton, 'Send code'));
+      await tester.tap(find.widgetWithText(AppButton, 'Send code'));
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('Use a different number'));
@@ -137,7 +137,12 @@ void main() {
         expect(find.text('No shop is linked to this number'), findsOneWidget);
         expect(find.textContaining('+91 99999 00001'), findsOneWidget);
 
-        await tester.tap(find.widgetWithText(FilledButton, 'Sign out'));
+        await tester.tap(
+          find.descendant(
+            of: find.byType(MessageView),
+            matching: find.widgetWithText(AppButton, 'Sign out'),
+          ),
+        );
         await tester.pumpAndSettle();
 
         expect(auth.isSignedIn, isFalse);
@@ -155,7 +160,7 @@ void main() {
 
       expect(find.text("We couldn't load your shops"), findsOneWidget);
 
-      await tester.tap(find.widgetWithText(OutlinedButton, 'Try again'));
+      await tester.tap(find.widgetWithText(AppButton, 'Try again'));
       await tester.pumpAndSettle();
 
       expect(find.text('Lakshmi Paints'), findsOneWidget);
@@ -302,7 +307,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Shop not found'), findsOneWidget);
-      await tester.tap(find.widgetWithText(OutlinedButton, 'Go to your shops'));
+      await tester.tap(find.widgetWithText(AppButton, 'Go to your shops'));
       await tester.pumpAndSettle();
       expect(find.text('Your shops'), findsOneWidget);
     });

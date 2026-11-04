@@ -45,7 +45,7 @@ export default function GoogleLocationMap({
     <APIProvider apiKey={apiKey} region="IN" language="en">
       {/* The pin it sets is reverse-geocoded below, like any other pin. */}
       <PlaceSearch onPlace={onPick} />
-      <div className="h-80 overflow-hidden rounded-large border border-border-default">
+      <div className="h-80 overflow-hidden rounded-card border border-card-border">
         <Map
           mapId={mapId ?? 'DEMO_MAP_ID'}
           defaultCenter={position ?? DEFAULT_MAP_CENTER}

@@ -68,18 +68,12 @@ class _ShopList extends StatelessWidget {
       separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.s12),
       itemBuilder: (context, index) {
         final membership = memberships[index];
-        return Card(
-          margin: EdgeInsets.zero,
-          child: ListTile(
-            minTileHeight: AppSpacing.minTouchTarget + AppSpacing.s16,
-            title: Text(membership.shopName),
-            subtitle: Text(
+        return AppNavRow(
+          title: membership.shopName,
+          subtitle:
               '${shopRoleLabel(membership.role)} · '
               '${shopStatusLabel(membership.shopStatus)}',
-            ),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.go('/shops/${membership.shopId}'),
-          ),
+          onTap: () => context.go('/shops/${membership.shopId}'),
         );
       },
     );

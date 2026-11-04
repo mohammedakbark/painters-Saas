@@ -43,7 +43,7 @@ export function NavLinks({
                 href={item.href}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'flex min-h-11 items-center rounded-small px-3 text-body font-medium',
+                  'flex min-h-11 items-center rounded-nav-item px-3 text-body font-medium',
                   'focus-visible:outline-2 focus-visible:outline-brand-primary',
                   active
                     ? 'bg-brand-primary-soft text-brand-primary'

@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Panel } from '@/components/ui/card';
 import { cn } from '@/lib/cn';
 import {
   GEOLOCATION_MESSAGES,
@@ -145,10 +146,10 @@ export function LocationPicker({
           onSuggestAddress={onSuggestAddress}
         />
       ) : (
-        <div className="rounded-medium border border-border-default bg-surface-subtle px-4 py-3 text-body text-text-secondary">
+        <Panel className="bg-surface-subtle px-4 py-3 text-body text-text-secondary">
           The map isn&apos;t set up yet. You can still save the location with
           &ldquo;Use my current location&rdquo;.
-        </div>
+        </Panel>
       )}
 
       <div className="flex flex-wrap items-center gap-3">

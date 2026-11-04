@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
 import '../tokens/app_colors.dart';
-import '../tokens/app_radius.dart';
+import '../tokens/app_component_tokens.dart';
 import '../tokens/app_typography.dart';
 
 /// Material 3 theme built only from design-system tokens.
 ///
-/// Light theme only for now (see `docs/DESIGN_SYSTEM.md`). Component themes
-/// set shape and colour defaults; they do not define product components.
+/// Light theme only for now (see `docs/DESIGN_SYSTEM.md`). Screens use the
+/// shared components (`AppButton`, `AppTextField`, …); these component themes
+/// only make the Material widgets *inside* them, such as menus, dialogs and
+/// sheets, follow the same component tokens.
 abstract final class AppTheme {
   static const ColorScheme lightColorScheme = ColorScheme(
     brightness: Brightness.light,
@@ -55,7 +57,7 @@ abstract final class AppTheme {
 
   static ThemeData light() {
     final controlShape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(AppRadius.medium),
+      borderRadius: BorderRadius.circular(AppComponentTokens.controlRadius),
     );
 
     return ThemeData(
@@ -72,17 +74,41 @@ abstract final class AppTheme {
         thickness: 1,
       ),
       cardTheme: CardThemeData(
-        color: AppColors.surfaceRaised,
+        color: AppComponentTokens.cardBackground,
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.large),
-          side: const BorderSide(color: AppColors.borderDefault),
+          borderRadius: BorderRadius.circular(AppComponentTokens.cardRadius),
+          side: const BorderSide(color: AppComponentTokens.cardBorder),
         ),
       ),
       inputDecorationTheme: InputDecorationThemeData(
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.medium),
+          borderRadius: BorderRadius.circular(AppComponentTokens.controlRadius),
+        ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: AppComponentTokens.dialogBackground,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppComponentTokens.dialogRadius),
+        ),
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: AppComponentTokens.sheetBackground,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppComponentTokens.sheetRadius),
+          ),
+        ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: AppComponentTokens.snackbarBackground,
+        actionTextColor: AppComponentTokens.snackbarAction,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(
+            AppComponentTokens.snackbarRadius,
+          ),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(

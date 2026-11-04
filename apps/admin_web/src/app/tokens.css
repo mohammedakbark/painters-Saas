@@ -6,6 +6,10 @@
  * breakpoints are reset so that only project tokens exist as utilities, e.g.
  * `bg-brand-primary`, `text-text-secondary`, `text-heading1`, `rounded-medium`,
  * `max-w-form`, `desktop:grid-cols-2`. Spacing keeps the 4 px multiplier.
+ *
+ * Component tokens (D-039) point at those values, e.g. `rounded-control`,
+ * `min-h-control`, `bg-button-primary-background`. The shared components use
+ * them, so one change in tokens.json restyles every screen.
  */
 @theme {
   --color-*: initial;
@@ -25,6 +29,35 @@
   --color-status-warning: #b45309;
   --color-status-error: #b42318;
   --color-status-info: #2563eb;
+
+  /* Component colours (tokens.json "component"). */
+  --color-control-background: var(--color-surface-default);
+  --color-control-border: var(--color-border-strong);
+  --color-control-border-error: var(--color-status-error);
+  --color-card-background: var(--color-surface-raised);
+  --color-card-border: var(--color-border-default);
+  --color-panel-border: var(--color-border-default);
+  --color-swatch-border: var(--color-border-strong);
+  --color-inline-message-background: var(--color-surface-default);
+  --color-inline-message-border: var(--color-border-default);
+  --color-sheet-background: var(--color-surface-raised);
+  --color-dialog-background: var(--color-surface-raised);
+  --color-snackbar-background: var(--color-text-primary);
+  --color-snackbar-foreground: var(--color-surface-default);
+  --color-snackbar-action: var(--color-brand-primary-soft);
+  --color-badge-background: var(--color-surface-default);
+  --color-button-primary-background: var(--color-brand-primary);
+  --color-button-primary-background-hover: var(--color-brand-primary-strong);
+  --color-button-primary-foreground: var(--color-surface-default);
+  --color-button-secondary-background: var(--color-surface-default);
+  --color-button-secondary-background-hover: var(--color-surface-subtle);
+  --color-button-secondary-foreground: var(--color-text-primary);
+  --color-button-secondary-border: var(--color-border-strong);
+  --color-button-tertiary-background-hover: var(--color-brand-primary-soft);
+  --color-button-tertiary-foreground: var(--color-brand-primary);
+  --color-button-destructive-background: var(--color-status-error);
+  --color-button-destructive-background-hover: var(--color-status-error);
+  --color-button-destructive-foreground: var(--color-surface-default);
 
   --font-*: initial;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
@@ -46,6 +79,22 @@
   --radius-large: 1rem;
   --radius-xlarge: 1.25rem;
   --radius-pill: 999px;
+
+  /* Component radii, e.g. rounded-control. */
+  --radius-control: var(--radius-medium);
+  --radius-card: var(--radius-large);
+  --radius-panel: var(--radius-medium);
+  --radius-image: var(--radius-medium);
+  --radius-swatch: var(--radius-small);
+  --radius-nav-item: var(--radius-small);
+  --radius-inline-message: var(--radius-medium);
+  --radius-sheet: var(--radius-xlarge);
+  --radius-dialog: var(--radius-large);
+  --radius-snackbar: var(--radius-medium);
+  --radius-badge: var(--radius-pill);
+
+  /* Component minimum heights, e.g. min-h-control. */
+  --spacing-control: 3rem;
 
   --container-*: initial;
   --container-form: 28rem;

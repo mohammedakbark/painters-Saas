@@ -2,7 +2,11 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { Alert } from './alert';
 import { Button } from './button';
+import { Card, CardList, Panel } from './card';
+import { CheckboxGroupField, RadioGroupField } from './choice-group-fields';
 import { Field } from './field';
+import { FileField } from './file-field';
+import { SearchForm } from './search-form';
 
 describe('Field', () => {
   it('associates the label, description and error with the input', () => {
@@ -71,5 +75,140 @@ describe('Alert', () => {
     );
 
     expect(screen.getByRole('status').textContent).toContain('Saved');
+  });
+});
+
+describe('Card, CardList and Panel', () => {
+  it('render the requested element with the component surface classes', () => {
+    render(
+      <>
+        <Card as="section" aria-label="Details" className="p-6">
+          Body
+        </Card>
+        <CardList aria-label="Brands">
+          <li>One</li>
+        </CardList>
+        <Panel as="li">Row</Panel>
+      </>,
+    );
+
+    const section = screen.getByRole('region', { name: 'Details' });
+    expect(section.className).toContain('rounded-card');
+    expect(section.className).toContain('p-6');
+    const list = screen.getByRole('list', { name: 'Brands' });
+    expect(list.className).toContain('divide-y');
+    expect(screen.getByText('Row').className).toContain('rounded-panel');
+  });
+
+  it('uses the subtle tone instead of the card background when asked', () => {
+    render(<Card tone="subtle">Empty</Card>);
+
+    const card = screen.getByText('Empty');
+    expect(card.className).toContain('bg-surface-subtle');
+    expect(card.className).not.toContain('bg-card-background');
+  });
+});
+
+describe('SearchForm', () => {
+  it('is a labelled GET search that keeps hidden values and filters', () => {
+    render(
+      <SearchForm
+        action="/catalogue"
+        label="Search products"
+        defaultValue="emulsion"
+        hidden={{ status: 'ARCHIVED' }}
+        submitLabel="Filter"
+      >
+        <span>Extra filter</span>
+      </SearchForm>,
+    );
+
+    const form = screen.getByRole('search');
+    expect(form.getAttribute('method')).toBe('get');
+    expect(form.getAttribute('action')).toBe('/catalogue');
+    const field = screen.getByLabelText('Search products') as HTMLInputElement;
+    expect(field.name).toBe('q');
+    expect(field.value).toBe('emulsion');
+    expect(field.maxLength).toBe(60);
+    expect(
+      (form.querySelector('input[name="status"]') as HTMLInputElement).value,
+    ).toBe('ARCHIVED');
+    expect(screen.getByText('Extra filter')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Filter' })).toBeTruthy();
+  });
+});
+
+describe('FileField', () => {
+  it('links the description and announces the error', () => {
+    render(
+      <FileField
+        label="CSV file"
+        name="file"
+        accept=".csv"
+        description="Up to 2 MB."
+        error="Choose a CSV file."
+      />,
+    );
+
+    const input = screen.getByLabelText('CSV file');
+    expect(input.getAttribute('type')).toBe('file');
+    expect(input.getAttribute('aria-invalid')).toBe('true');
+    expect(input.getAttribute('aria-describedby')).toBe(
+      'field-file-description field-file-error',
+    );
+    expect(screen.getByRole('alert').textContent).toBe('Choose a CSV file.');
+  });
+});
+
+describe('RadioGroupField and CheckboxGroupField', () => {
+  const options = [
+    { value: 'A', label: 'Alpha', description: 'First.' },
+    { value: 'B', label: 'Beta' },
+  ];
+
+  it('checks the default radio and links its description', () => {
+    render(
+      <RadioGroupField
+        legend="Pick one"
+        name="pick"
+        options={options}
+        defaultValue="A"
+        error="Choose one."
+      />,
+    );
+
+    const alpha = screen.getByLabelText('Alpha') as HTMLInputElement;
+    expect(alpha.type).toBe('radio');
+    expect(alpha.checked).toBe(true);
+    expect(alpha.getAttribute('aria-describedby')).toBe('pick-A-description');
+    expect(
+      screen
+        .getByRole('group', { name: 'Pick one' })
+        .getAttribute('aria-describedby'),
+    ).toBe('pick-error');
+  });
+
+  it('checks every default checkbox and links the hint', () => {
+    render(
+      <CheckboxGroupField
+        legend="Reasons"
+        name="reasons"
+        hint="Choose any."
+        options={options}
+        defaultValues={['A', 'B']}
+      />,
+    );
+
+    expect((screen.getByLabelText('Alpha') as HTMLInputElement).checked).toBe(
+      true,
+    );
+    expect((screen.getByLabelText('Beta') as HTMLInputElement).checked).toBe(
+      true,
+    );
+    expect(
+      screen
+        .getByRole('group', { name: 'Reasons' })
+        .getAttribute('aria-describedby'),
+    ).toBe('reasons-hint');
   });
 });

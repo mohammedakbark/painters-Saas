@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { ButtonLink } from '@/components/ui/button-link';
+import { Card } from '@/components/ui/card';
 import { StateMessage } from '@/components/ui/state-message';
 import type { ShopRegistryPage } from '@/lib/api/platform-shops';
 import { formatDate } from '@/lib/format';
@@ -36,9 +37,10 @@ export function ShopRegistryList({
         {page.items.map((shop) => {
           const status = shopStatusLabel(shop.status);
           return (
-            <li
+            <Card
+              as="li"
               key={shop.id}
-              className="flex flex-col gap-2 rounded-large border border-border-default bg-surface-default px-5 py-4"
+              className="flex flex-col gap-2 px-5 py-4"
             >
               <div className="flex items-start justify-between gap-3">
                 <Link
@@ -53,12 +55,12 @@ export function ShopRegistryList({
                 {ownerText(shop.master)} · Registered{' '}
                 {formatDate(shop.createdAt)}
               </p>
-            </li>
+            </Card>
           );
         })}
       </ul>
 
-      <div className="hidden overflow-x-auto rounded-large border border-border-default bg-surface-default medium:block">
+      <Card className="hidden overflow-x-auto medium:block">
         <table className="w-full text-left text-body">
           <caption className="sr-only">Registered shops, newest first</caption>
           <thead className="border-b border-border-default text-caption tracking-wide text-text-secondary uppercase">
@@ -112,7 +114,7 @@ export function ShopRegistryList({
             })}
           </tbody>
         </table>
-      </div>
+      </Card>
 
       {page.items.length === 0 ? (
         <p className="text-body-large text-text-secondary">No more shops.</p>

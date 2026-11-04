@@ -13,6 +13,7 @@ import {
   renderAll,
   renderCss,
   renderDartColors,
+  renderDartComponents,
   validate,
 } from '../lib.mjs';
 
@@ -115,6 +116,91 @@ describe('validate', () => {
       validate(tokens, { ...brand, shopAppName: ' ' }).join('\n'),
       /brand "shopAppName"/,
     );
+  });
+});
+
+describe('component tokens (D-039)', () => {
+  it('rejects a component property that names an unknown token', () => {
+    const bad = tokensWith((t) => {
+      t.component.control.radius = 'huge';
+      t.component.card.border = 'border.missing';
+      t.component.control.minHeight = 'screenWidth';
+    });
+    const problems = validate(bad, brand).join('\n');
+    assert.match(
+      problems,
+      /component "control\.radius": "huge" is not a radius token/,
+    );
+    assert.match(
+      problems,
+      /component "card\.border": "border\.missing" is not a color token/,
+    );
+    assert.match(
+      problems,
+      /component "control\.minHeight": "screenWidth" is not a layout token/,
+    );
+  });
+
+  it('rejects raw values instead of token names', () => {
+    const bad = tokensWith((t) => {
+      t.component.control.radius = 12;
+      t.component.buttonPrimary.background = '#FF0000';
+    });
+    const problems = validate(bad, brand).join('\n');
+    assert.match(problems, /component "control\.radius": 12 is not a radius/);
+    assert.match(
+      problems,
+      /component "buttonPrimary\.background": "#FF0000" is not a color token/,
+    );
+  });
+
+  it('rejects a component whose text fails WCAG AA on its background', () => {
+    const bad = tokensWith((t) => {
+      t.component.buttonPrimary.foreground = 'text.secondary';
+    });
+    assert.match(
+      validate(bad, brand).join('\n'),
+      /component "buttonPrimary": foreground on background is .* below WCAG AA/,
+    );
+  });
+
+  it('requires the section and a use for each component', () => {
+    const noSection = tokensWith((t) => {
+      delete t.component;
+    });
+    assert.match(
+      validate(noSection, brand).join('\n'),
+      /component: the section is required/,
+    );
+    const noUse = tokensWith((t) => {
+      delete t.component.sheet.use;
+    });
+    assert.match(
+      validate(noUse, brand).join('\n'),
+      /component "sheet": "use" is required/,
+    );
+  });
+
+  it('emits web utilities that point at the base tokens', () => {
+    const css = renderCss(tokens);
+    assert.ok(css.includes('--radius-control: var(--radius-medium);'));
+    assert.ok(css.includes('--spacing-control: 3rem;'));
+    assert.ok(
+      css.includes(
+        '--color-button-primary-background: var(--color-brand-primary);',
+      ),
+    );
+  });
+
+  it('emits Dart component tokens that reference the base classes', () => {
+    const dart = renderDartComponents(tokens);
+    for (const line of [
+      'static const double controlRadius = AppRadius.medium;',
+      'static const double controlMinHeight = AppSpacing.minTouchTarget;',
+      'static const Color cardBorder = AppColors.borderDefault;',
+    ]) {
+      assert.ok(dart.includes(line), line);
+    }
   });
 });
 

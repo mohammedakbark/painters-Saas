@@ -31,9 +31,10 @@ class ShopHomeScreen extends ConsumerWidget {
                   icon: Icons.search_off,
                   title: 'Shop not found',
                   message: "This shop doesn't exist, or your account doesn't have access to it.",
-                  action: OutlinedButton(
+                  action: AppButton(
+                    label: 'Go to your shops',
+                    variant: AppButtonVariant.secondary,
                     onPressed: () => context.go('/shops'),
-                    child: const Text('Go to your shops'),
                   ),
                 )
               : ErrorView(
@@ -70,42 +71,36 @@ class _ShopOverview extends ConsumerWidget {
           style: textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
         ),
         const SizedBox(height: AppSpacing.s24),
-        Card(
-          margin: EdgeInsets.zero,
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.s16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text('Status', style: textTheme.titleMedium),
-                    const SizedBox(width: AppSpacing.s12),
-                    Chip(label: Text(shopStatusLabel(status))),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.s8),
-                Text(
-                  '${shopStatusDescription(status)} Orders and products '
-                  'will appear here as those features are released.',
-                  style: textTheme.bodyLarge,
-                ),
-                if (review != null) ..._reviewDetails(review, textTheme),
-              ],
-            ),
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text('Status', style: textTheme.titleMedium),
+                  const SizedBox(width: AppSpacing.s12),
+                  AppBadge(
+                    label: shopStatusLabel(status),
+                    tone: shopStatusTone(status),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.s8),
+              Text(
+                '${shopStatusDescription(status)} Orders and products '
+                'will appear here as those features are released.',
+                style: textTheme.bodyLarge,
+              ),
+              if (review != null) ..._reviewDetails(review, textTheme),
+            ],
           ),
         ),
         const SizedBox(height: AppSpacing.s16),
-        Card(
-          margin: EdgeInsets.zero,
-          child: ListTile(
-            minTileHeight: AppSpacing.minTouchTarget,
-            leading: const Icon(Icons.storefront_outlined),
-            title: const Text('Shop profile'),
-            subtitle: const Text('Address, support mobile and map location'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.go('/shops/${shop.id}/profile'),
-          ),
+        AppNavRow(
+          icon: Icons.storefront_outlined,
+          title: 'Shop profile',
+          subtitle: 'Address, support mobile and map location',
+          onTap: () => context.go('/shops/${shop.id}/profile'),
         ),
       ],
     );

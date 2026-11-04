@@ -23,6 +23,8 @@ export const OUTPUT_PATHS = {
   dartRadius: 'packages/flutter_shared/lib/src/tokens/app_radius.dart',
   dartSpacing: 'packages/flutter_shared/lib/src/tokens/app_spacing.dart',
   dartLayout: 'packages/flutter_shared/lib/src/tokens/app_layout.dart',
+  dartComponents:
+    'packages/flutter_shared/lib/src/tokens/app_component_tokens.dart',
   dartBrand: 'packages/flutter_shared/lib/src/brand/app_brand.dart',
 };
 
@@ -85,6 +87,24 @@ export function contrastRatio(a, b) {
   return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
 }
 
+/**
+ * Component properties (D-039) name a base token: `radius` a radius token,
+ * `minHeight` a layout token and every other property a colour token.
+ */
+export const COMPONENT_PROPERTY_GROUPS = {
+  radius: 'radius',
+  minHeight: 'layout',
+};
+
+export function componentPropertyGroup(property) {
+  return COMPONENT_PROPERTY_GROUPS[property] ?? 'color';
+}
+
+/** A component's properties without `use`, as `[property, tokenName]`. */
+export function componentProperties(component) {
+  return Object.entries(component).filter(([property]) => property !== 'use');
+}
+
 function positiveNumber(value) {
   return typeof value === 'number' && Number.isFinite(value) && value > 0;
 }
@@ -145,6 +165,8 @@ export function validate(tokens, brand, files = {}) {
     }
   }
 
+  problems.push(...validateComponents(tokens));
+
   for (const [name, value] of entries(tokens.breakpoint)) {
     if (!IDENTIFIER.test(name) || !positiveNumber(value)) {
       problems.push(`breakpoint "${name}": invalid`);
@@ -198,6 +220,49 @@ export function validate(tokens, brand, files = {}) {
   return problems;
 }
 
+/** Every component property must name an existing base token (D-039). */
+function validateComponents(tokens) {
+  if (tokens.component === undefined) {
+    return ['component: the section is required (D-039)'];
+  }
+  const problems = [];
+  for (const [name, component] of entries(tokens.component)) {
+    if (!IDENTIFIER.test(name)) {
+      problems.push(`component "${name}": invalid name`);
+    }
+    if (typeof component.use !== 'string' || component.use.trim() === '') {
+      problems.push(`component "${name}": "use" is required`);
+    }
+    for (const [property, reference] of componentProperties(component)) {
+      if (!IDENTIFIER.test(property)) {
+        problems.push(`component "${name}.${property}": invalid name`);
+        continue;
+      }
+      const group = componentPropertyGroup(property);
+      const known =
+        typeof reference === 'string' &&
+        !reference.startsWith('$') &&
+        Object.hasOwn(tokens[group] ?? {}, reference);
+      if (!known) {
+        problems.push(
+          `component "${name}.${property}": ${JSON.stringify(reference)} is not a ${group} token`,
+        );
+      }
+    }
+    const fg = tokens.color[component.foreground]?.value;
+    const bg = tokens.color[component.background]?.value;
+    if (fg && bg && HEX.test(fg) && HEX.test(bg)) {
+      const ratio = contrastRatio(fg, bg);
+      if (ratio < WCAG_AA_NORMAL_TEXT) {
+        problems.push(
+          `component "${name}": foreground on background is ${ratio.toFixed(2)}:1, below WCAG AA (${WCAG_AA_NORMAL_TEXT}:1)`,
+        );
+      }
+    }
+  }
+  return problems;
+}
+
 function escapeRegExp(text) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -216,12 +281,25 @@ export function renderCss(tokens) {
     ' * breakpoints are reset so that only project tokens exist as utilities, e.g.',
     ' * `bg-brand-primary`, `text-text-secondary`, `text-heading1`, `rounded-medium`,',
     ' * `max-w-form`, `desktop:grid-cols-2`. Spacing keeps the 4 px multiplier.',
+    ' *',
+    ' * Component tokens (D-039) point at those values, e.g. `rounded-control`,',
+    ' * `min-h-control`, `bg-button-primary-background`. The shared components use',
+    ' * them, so one change in tokens.json restyles every screen.',
     ' */',
     '@theme {',
     '  --color-*: initial;',
   ];
   for (const [name, token] of entries(tokens.color)) {
     lines.push(`  --color-${kebabName(name)}: ${token.value.toLowerCase()};`);
+  }
+  lines.push('', '  /* Component colours (tokens.json "component"). */');
+  for (const [name, component] of entries(tokens.component)) {
+    for (const [property, reference] of componentProperties(component)) {
+      if (componentPropertyGroup(property) !== 'color') continue;
+      lines.push(
+        `  --color-${kebabName(name)}-${kebabName(property)}: var(--color-${kebabName(reference)});`,
+      );
+    }
   }
   lines.push(
     '',
@@ -239,6 +317,22 @@ export function renderCss(tokens) {
     lines.push(
       `  --radius-${kebabName(name)}: ${token.value >= 999 ? `${token.value}px` : rem(token.value)};`,
     );
+  }
+  lines.push('', '  /* Component radii, e.g. rounded-control. */');
+  for (const [name, component] of entries(tokens.component)) {
+    if (component.radius !== undefined) {
+      lines.push(
+        `  --radius-${kebabName(name)}: var(--radius-${kebabName(component.radius)});`,
+      );
+    }
+  }
+  lines.push('', '  /* Component minimum heights, e.g. min-h-control. */');
+  for (const [name, component] of entries(tokens.component)) {
+    if (component.minHeight !== undefined) {
+      lines.push(
+        `  --spacing-${kebabName(name)}: ${rem(tokens.layout[component.minHeight].value)};`,
+      );
+    }
   }
   lines.push('', '  --container-*: initial;');
   for (const [name, token] of entries(tokens.container)) {
@@ -423,6 +517,42 @@ export function renderDartLayout(tokens) {
   return lines.join('\n');
 }
 
+const DART_COMPONENT_SOURCE = {
+  radius: (name) => `AppRadius.${name}`,
+  layout: (name) => `AppSpacing.${name}`,
+  color: (name) => `AppColors.${camelName(name)}`,
+};
+
+export function renderDartComponents(tokens) {
+  const lines = [
+    ...dartHeader(),
+    '',
+    "import 'package:flutter/painting.dart';",
+    '',
+    "import 'app_colors.dart';",
+    "import 'app_radius.dart';",
+    "import 'app_spacing.dart';",
+    '',
+    '/// What each shared component uses (D-039). The components read these, so',
+    '/// one change in tokens.json restyles every screen.',
+    'abstract final class AppComponentTokens {',
+  ];
+  entries(tokens.component).forEach(([name, component], index) => {
+    if (index > 0) lines.push('');
+    lines.push(dartDoc(component.use));
+    for (const [property, reference] of componentProperties(component)) {
+      const group = componentPropertyGroup(property);
+      const type = group === 'color' ? 'Color' : 'double';
+      const field = name + property[0].toUpperCase() + property.slice(1);
+      lines.push(
+        ...dartConst(type, field, DART_COMPONENT_SOURCE[group](reference)),
+      );
+    }
+  });
+  lines.push('}', '');
+  return lines.join('\n');
+}
+
 export function renderDartBrand(brand) {
   const lines = [
     `// ${GENERATED_NOTE}`,
@@ -453,6 +583,10 @@ export function renderAll(tokens, brand) {
     { path: OUTPUT_PATHS.dartRadius, content: renderDartRadius(tokens) },
     { path: OUTPUT_PATHS.dartSpacing, content: renderDartSpacing(tokens) },
     { path: OUTPUT_PATHS.dartLayout, content: renderDartLayout(tokens) },
+    {
+      path: OUTPUT_PATHS.dartComponents,
+      content: renderDartComponents(tokens),
+    },
     { path: OUTPUT_PATHS.dartBrand, content: renderDartBrand(brand) },
   ];
 }

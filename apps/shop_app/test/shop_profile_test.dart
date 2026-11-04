@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_shared/flutter_shared.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shop_app/src/api/api_client.dart';
 import 'package:shop_app/src/features/shops/shop_profile_screen.dart';
@@ -41,7 +42,7 @@ void main() {
   }
 
   Finder useCurrentLocation() =>
-      find.widgetWithText(OutlinedButton, 'Use my current location');
+      find.widgetWithText(AppButton, 'Use my current location');
 
   /// Taps "Use my current location" (the screen is tall enough to show it).
   Future<void> tapUseCurrentLocation(WidgetTester tester) =>
@@ -117,7 +118,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Save this as the shop location?'), findsOneWidget);
       expect(find.textContaining('Accurate to about 8 m'), findsOneWidget);
-      await tester.tap(find.widgetWithText(FilledButton, 'Save location'));
+      await tester.tap(find.widgetWithText(AppButton, 'Save location'));
       await tester.pumpAndSettle();
 
       expect(profiles.savedLocations, [('shop-a', 10.0261, 76.3125)]);
@@ -142,7 +143,7 @@ void main() {
 
     await tapUseCurrentLocation(tester);
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
+    await tester.tap(find.widgetWithText(AppButton, 'Cancel'));
     await tester.pumpAndSettle();
 
     expect(profiles.savedLocations, isEmpty);
@@ -194,7 +195,7 @@ void main() {
     await tapUseCurrentLocation(tester);
     await tester.pumpAndSettle();
     expect(find.text(ShopProfileMessages.serviceDisabled), findsOneWidget);
-    final fix = find.widgetWithText(TextButton, 'Turn on location');
+    final fix = find.widgetWithText(AppButton, 'Turn on location');
     await tester.ensureVisible(fix);
     await tester.pumpAndSettle();
     await tester.tap(fix);
@@ -215,7 +216,7 @@ void main() {
       find.text(ShopProfileMessages.permissionDeniedForever),
       findsOneWidget,
     );
-    final fix = find.widgetWithText(TextButton, 'Open settings');
+    final fix = find.widgetWithText(AppButton, 'Open settings');
     await tester.ensureVisible(fix);
     await tester.pumpAndSettle();
     await tester.tap(fix);
@@ -231,7 +232,7 @@ void main() {
     await tapUseCurrentLocation(tester);
     await tester.pumpAndSettle();
     expect(find.text(ShopProfileMessages.permissionDenied), findsOneWidget);
-    expect(find.widgetWithText(TextButton, 'Try again'), findsOneWidget);
+    expect(find.widgetWithText(AppButton, 'Try again'), findsOneWidget);
   });
 
   testWidgets('a refused or failed save explains why', (tester) async {
@@ -245,14 +246,14 @@ void main() {
 
     await tapUseCurrentLocation(tester);
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilledButton, 'Save location'));
+    await tester.tap(find.widgetWithText(AppButton, 'Save location'));
     await tester.pumpAndSettle();
     expect(find.text(ShopProfileMessages.forbidden), findsOneWidget);
 
     profiles.saveError = const ApiException();
     await tapUseCurrentLocation(tester);
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilledButton, 'Save location'));
+    await tester.tap(find.widgetWithText(AppButton, 'Save location'));
     await tester.pumpAndSettle();
     expect(find.text(ShopProfileMessages.saveFailed), findsOneWidget);
   });

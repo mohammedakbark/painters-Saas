@@ -7,6 +7,7 @@ import {
   OwnShadeForm,
 } from '@/components/shop-catalogue/shop-catalogue-forms';
 import { Button } from '@/components/ui/button';
+import { cardClasses } from '@/components/ui/card';
 import { Field } from '@/components/ui/field';
 import { PageHeader } from '@/components/ui/page-header';
 import { SelectField } from '@/components/ui/select-field';
@@ -24,6 +25,7 @@ import {
   setFavouriteShadeAction,
 } from '../actions';
 import { CatalogueTabs, catalogueBase } from '../catalogue-parts';
+import { Panel } from '@/components/ui/card';
 
 export const metadata: Metadata = { title: 'Shades · Catalogue' };
 
@@ -40,8 +42,7 @@ export default function ShadesPage(
 const text = (value: string | string[] | undefined) =>
   typeof value === 'string' && value.trim() !== '' ? value.trim() : undefined;
 
-const card =
-  'flex flex-col gap-4 rounded-large border border-border-default bg-surface-default p-6';
+const card = cardClasses('flex flex-col gap-4 p-6');
 
 async function Shades({
   params,
@@ -90,9 +91,10 @@ async function Shades({
         ) : (
           <ul className="grid gap-3 medium:grid-cols-2">
             {favourites.items.map((favourite) => (
-              <li
+              <Panel
+                as="li"
                 key={favourite.shade.id}
-                className="flex items-center justify-between gap-3 rounded-medium border border-border-default p-3"
+                className="flex items-center justify-between gap-3 p-3"
               >
                 <div className="flex flex-col gap-1">
                   <ShadeSwatch shade={favourite.shade} />
@@ -113,7 +115,7 @@ async function Shades({
                     accessibleLabel={`Remove ${favourite.shade.code} from favourites`}
                   />
                 ) : null}
-              </li>
+              </Panel>
             ))}
           </ul>
         )}
@@ -159,9 +161,10 @@ async function Shades({
             ) : (
               <ul className="grid gap-3 medium:grid-cols-2">
                 {results.items.map(({ shade, favourite }) => (
-                  <li
+                  <Panel
+                    as="li"
                     key={shade.id}
-                    className="flex items-center justify-between gap-3 rounded-medium border border-border-default p-3"
+                    className="flex items-center justify-between gap-3 p-3"
                   >
                     <ShadeSwatch shade={shade} />
                     {canEdit ? (
@@ -187,7 +190,7 @@ async function Shades({
                         Favourite
                       </span>
                     ) : null}
-                  </li>
+                  </Panel>
                 ))}
               </ul>
             )}
@@ -226,9 +229,10 @@ async function Shades({
         ) : (
           <ul className="grid gap-3 medium:grid-cols-2">
             {own.items.map((shade) => (
-              <li
+              <Panel
+                as="li"
                 key={shade.id}
-                className="flex items-center justify-between gap-3 rounded-medium border border-border-default p-3"
+                className="flex items-center justify-between gap-3 p-3"
               >
                 <div className="flex flex-col gap-1">
                   <ShadeSwatch shade={shade} />
@@ -246,7 +250,7 @@ async function Shades({
                     accessibleLabel={`Remove shade ${shade.code}`}
                   />
                 ) : null}
-              </li>
+              </Panel>
             ))}
           </ul>
         )}
