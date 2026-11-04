@@ -2,6 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/catalogue/add_from_catalogue_screen.dart';
+import '../features/catalogue/catalogue_listing_screen.dart';
+import '../features/catalogue/product_list_screen.dart';
+import '../features/catalogue/product_screen.dart';
 import '../features/shops/shop_home_screen.dart';
 import '../features/shops/shop_picker_screen.dart';
 import '../features/shops/shop_profile_screen.dart';
@@ -49,6 +53,36 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: 'profile',
                 builder: (context, state) =>
                     ShopProfileScreen(shopId: state.pathParameters['shopId']!),
+              ),
+              GoRoute(
+                path: 'catalogue',
+                builder: (context, state) =>
+                    ProductListScreen(shopId: state.pathParameters['shopId']!),
+                routes: [
+                  GoRoute(
+                    path: 'products/:productId',
+                    builder: (context, state) => ProductScreen(
+                      shopId: state.pathParameters['shopId']!,
+                      productId: state.pathParameters['productId']!,
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'add',
+                    builder: (context, state) => AddFromCatalogueScreen(
+                      shopId: state.pathParameters['shopId']!,
+                    ),
+                    routes: [
+                      GoRoute(
+                        path: ':catalogueProductId',
+                        builder: (context, state) => CatalogueListingScreen(
+                          shopId: state.pathParameters['shopId']!,
+                          catalogueProductId:
+                              state.pathParameters['catalogueProductId']!,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),

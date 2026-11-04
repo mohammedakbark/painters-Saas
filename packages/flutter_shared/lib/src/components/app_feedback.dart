@@ -178,6 +178,7 @@ class AppNetworkImage extends StatelessWidget {
     required this.semanticLabel,
     this.errorMessage = "The image couldn't be loaded.",
     this.fit = BoxFit.cover,
+    this.rounded = false,
   });
 
   final String url;
@@ -185,9 +186,12 @@ class AppNetworkImage extends StatelessWidget {
   final String errorMessage;
   final BoxFit fit;
 
+  /// Round the corners with the image radius (for thumbnails outside a card).
+  final bool rounded;
+
   @override
   Widget build(BuildContext context) {
-    return Image.network(
+    final image = Image.network(
       url,
       fit: fit,
       semanticLabel: semanticLabel,
@@ -209,5 +213,11 @@ class AppNetworkImage extends StatelessWidget {
         ),
       ),
     );
+    return rounded
+        ? ClipRRect(
+            borderRadius: BorderRadius.circular(AppComponentTokens.imageRadius),
+            child: image,
+          )
+        : image;
   }
 }

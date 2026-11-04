@@ -41,6 +41,9 @@ This document prevents assumptions from silently becoming requirements.
 | D-033 | While a shop is waiting for review, its profile, photo and location are locked; the owner can withdraw the submission to edit. After approval the owner edits freely, every change is audited, and no new review is needed. Products can always be edited. | Confirmed (product owner, 2026-11-04); implemented in PLT-002 |
 | D-034 | Colours, fonts, radii, spacing and the product/app names are defined in one place and used everywhere, so a rebrand or a new logo is a single change. | Confirmed (product owner, 2026-11-04); implemented by DS-001 |
 | D-035 | Git workflow until go-live: when a feature is complete (every check green, verified, docs updated) it is fast-forward merged into `dev` and pushed, and its feature branch is deleted. No pull requests until go-live; then work moves to pull requests into `dev`. `main` holds released code. CI runs on pushes to `main` and `dev` and on pull requests. | Confirmed (product owner, 2026-11-04) |
+| D-036 | Customers choose Painter/Contractor or Normal Customer themselves at sign-up and can change it later. Painter features that hold no shop's private data (such as sites) follow that choice. A shop's painter-only information (painter discounts, commission, painter offers) is shown only after **that shop** confirms the person as its painter; each shop confirms independently, as each shop approves credit (D-010). The confirmation step is built with the painter features. | Confirmed (product owner, 2026-11-04) |
+| D-037 | Any Live shop can be opened and browsed without adding it. Adding a shop to My Shops is instant and needs no approval. Painter confirmation and credit stay separate per-shop steps. | Confirmed (product owner, 2026-11-04) |
+| D-038 | Finding shops lists every Live shop, nearest first by the phone's location. When location is off or refused, the customer picks a district and its shops are listed first. There is no distance cut-off while there are few shops. | Confirmed (product owner, 2026-11-04) |
 | D-039 | Every UI control is the project's own component, on the web and in Flutter (buttons, text fields, dropdowns, bottom sheets, snack bars, dialogs and so on), styled from tokens, so that radius, colour and similar design changes are made in one place after development. | Confirmed (product owner, 2026-11-04); implemented by DS-002 |
 
 ## 2. Proposed technical decisions — require approval
@@ -93,14 +96,14 @@ Do not treat proposals as approved until the product owner confirms them.
 
 ### Shop onboarding and relationship
 1. ~~Can a shop register itself, or can only Platform Super Admin create shops?~~ **Resolved (D-024, D-025):** shops self-register on the web; a platform admin approves them after the onboarding checklist.
-2. Can a customer browse any shop without adding it to `My Shops`?
-3. Does adding a shop happen immediately, by request/approval or invitation?
+2. ~~Can a customer browse any shop without adding it to `My Shops`?~~ **Resolved (D-037):** yes, any Live shop.
+3. ~~Does adding a shop happen immediately, by request/approval or invitation?~~ **Resolved (D-037):** immediately, without approval.
 4. ~~Can a shop edit its profile after activation, or are some changes platform-approved?~~ **Resolved (D-033):** locked only while in review; free, audited edits after approval.
 5. What is the master-account recovery and ownership-transfer process?
 
 ### Cross-shop search
 6. Should other-shop results show selling price and stock, or only product/shop information?
-7. Should results be limited by distance, customer-selected area or all registered shops?
+7. ~~Should results be limited by distance, customer-selected area or all registered shops?~~ **Resolved (D-038)** for finding shops: all Live shops, nearest first (or by a chosen district). Cross-shop product search follows when it is planned; question 6 (prices in other-shop results) stays open.
 8. Can customers save another shop's product before switching shops?
 
 ### Customer identity

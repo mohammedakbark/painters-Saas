@@ -6,6 +6,10 @@
 	<string>$(GOOGLE_MAPS_API_KEY)</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Your location is used only when you tap "Use my current location" to set your shop's map location.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Take photos of the products your shop sells.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Choose product photos from your photo library.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>

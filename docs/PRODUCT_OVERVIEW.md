@@ -111,13 +111,15 @@ Painters frequently buy products for active work sites and may have ongoing rela
 
 Painters may choose a product/shop partly based on the incentive/commission offered by that shop. This information is painter-only and must not be shown to normal customers.
 
+Customers choose the Painter/Contractor type themselves and can change it later. A shop shows its painter-only information only after that shop confirms the person as its painter; each shop decides for itself (D-036).
+
 ### Normal Customer
 
 A normal customer may be painting their own home or buying paint for a one-time requirement. They need a simple product-shopping flow and choose mainly based on budget, product quality, brand, pack size and suitability. They do not need multiple sites.
 
 ## 5. Shop discovery and cross-shop search
 
-Customers can discover registered shops and keep multiple shops in `My Shops`. One shop is active at a time for the storefront and cart. The exact rules for adding a shop — instant addition, request/approval or invitation — are not finalized.
+Customers can discover registered shops and keep multiple shops in `My Shops`. One shop is active at a time for the storefront and cart. Any Live shop can be browsed, and adding it to My Shops is instant (D-037). Finding shops lists every Live shop, nearest first, or by a district the customer picks when location is off (D-038).
 
 Intended search behavior:
 1. Show products from the currently selected shop first.

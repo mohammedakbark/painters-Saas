@@ -87,8 +87,8 @@ class _ShopOverview extends ConsumerWidget {
               ),
               const SizedBox(height: AppSpacing.s8),
               Text(
-                '${shopStatusDescription(status)} Orders and products '
-                'will appear here as those features are released.',
+                '${shopStatusDescription(status)} Orders will appear here '
+                'when that feature is released.',
                 style: textTheme.bodyLarge,
               ),
               if (review != null) ..._reviewDetails(review, textTheme),
@@ -96,6 +96,13 @@ class _ShopOverview extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.s16),
+        AppNavRow(
+          icon: Icons.inventory_2_outlined,
+          title: 'Products',
+          subtitle: 'Prices, pack sizes and availability',
+          onTap: () => context.go('/shops/${shop.id}/catalogue'),
+        ),
+        const SizedBox(height: AppSpacing.s12),
         AppNavRow(
           icon: Icons.storefront_outlined,
           title: 'Shop profile',

@@ -2,12 +2,18 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shop_app/app.dart';
 import 'package:shop_app/src/auth/auth_repository.dart';
+import 'package:shop_app/src/catalogue/product_photo_picker.dart';
+import 'package:shop_app/src/catalogue/shop_catalogue_repository.dart';
 import 'package:shop_app/src/location/location_service.dart';
 import 'package:shop_app/src/providers.dart';
 import 'package:shop_app/src/shops/shop_access_repository.dart';
 import 'package:shop_app/src/shops/shop_models.dart';
 import 'package:shop_app/src/shops/shop_profile.dart';
 import 'package:shop_app/src/shops/shop_review.dart';
+
+import 'catalogue_fakes.dart';
+
+export 'catalogue_fakes.dart';
 
 class FakeAuthRepository extends ChangeNotifier implements AuthRepository {
   FakeAuthRepository({this.signedIn = false});
@@ -200,6 +206,8 @@ Widget testApp({
   required ShopAccessRepository shops,
   ShopProfileRepository? profiles,
   LocationService? location,
+  ShopCatalogueRepository? catalogue,
+  ProductPhotoPicker? photos,
 }) => ProviderScope(
   overrides: [
     authRepositoryProvider.overrideWithValue(auth),
@@ -209,6 +217,12 @@ Widget testApp({
     ),
     locationServiceProvider.overrideWithValue(
       location ?? FakeLocationService(),
+    ),
+    shopCatalogueRepositoryProvider.overrideWithValue(
+      catalogue ?? FakeShopCatalogueRepository(),
+    ),
+    productPhotoPickerProvider.overrideWithValue(
+      photos ?? FakeProductPhotoPicker(),
     ),
   ],
   child: const ShopApp(),

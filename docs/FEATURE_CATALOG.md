@@ -7,10 +7,10 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 | Feature | Status | Notes |
 |---|---|---|
 | Mobile registration/login | Confirmed direction | Mobile OTP via Supabase Auth (D-021, D-022); SMS vendor open (question 46). |
-| Customer type | Confirmed | Painter/Contractor or Normal Customer. |
+| Customer type | Confirmed (D-036) | Painter/Contractor or Normal Customer, chosen by the customer and changeable. A shop's painter-only information appears only after that shop confirms the painter. |
 | Profile and address | Confirmed | Exact fields to finalize. |
 | Identity verification | Confirmed direction / Open details | Separate from shop credit approval; documents and timing open. |
-| Discover shops and My Shops | Confirmed direction / Open workflow | Multiple shops can be kept; connection rules open. |
+| Discover shops and My Shops | Confirmed (D-037, D-038) | Any Live shop can be browsed; adding it to My Shops is instant. Find shops lists all Live shops nearest first, or by a chosen district. |
 | Active shop selector | Confirmed | One active storefront at a time. |
 | Cross-shop product search | Confirmed | Active shop first, other shops separately. |
 | Other-shop product details | Confirmed | Can view details without switching. |
@@ -39,7 +39,7 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 
 | Feature | Status | Notes |
 |---|---|---|
-| One shared Shop App | Confirmed / sign-in implemented (SHP-002) | Not a separate binary per shop/staff member. Mobile OTP sign-in, shop list and shop home exist. Spec: `docs/features/SHP-002-shop-app-sign-in.md`. |
+| One shared Shop App | Confirmed / sign-in (SHP-002) and catalogue (SHP-005) implemented | Not a separate binary per shop/staff member. Mobile OTP sign-in, shop list, shop home, profile and the everyday catalogue (products, prices, pack sizes, availability, archive, add from the brand catalogue, product photos). Own products and shades stay on the web. Specs: `docs/features/SHP-002-shop-app-sign-in.md`, `docs/features/SHP-005-shop-app-catalogue.md`. |
 | Login-only access | Confirmed | Accounts are created on the web portal (shop self-registration, D-024); the Shop App never offers sign-up. |
 | Master account created with shop | **Implemented (SHP-001)** | The registering person becomes the MASTER; the database allows one master per shop. One person may master several shops (D-026). |
 | Role-based staff access | Confirmed direction | Additional staff seats may be paid later. |

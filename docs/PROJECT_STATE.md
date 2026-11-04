@@ -1,7 +1,7 @@
 # Project State — Living Document
 
 **Last updated:** 2026-11-04  
-**Current stage:** Phase 1: shop onboarding. Identity and shop accounts done (AUTH-001, SHP-001, PLT-001, SHP-002). The product owner answered the onboarding and catalogue questions on 2026-11-04 (D-027 to D-034). DS-001 (single-source theme), SHP-003 (shop profile and map location), SHP-004 (shop photo, portable storage), CAT-001 (platform brand catalogue), CAT-002 (shop catalogue) and PLT-002 (shop review) done: a shop can now go from registration to Live locally. DS-002 (the project's own UI components, D-039) done. Next: SHP-005 (Shop App catalogue), then the Customer App.  
+**Current stage:** Phase 1: shop onboarding. Identity and shop accounts done (AUTH-001, SHP-001, PLT-001, SHP-002). The product owner answered the onboarding and catalogue questions on 2026-11-04 (D-027 to D-034). DS-001 (single-source theme), SHP-003 (shop profile and map location), SHP-004 (shop photo, portable storage), CAT-001 (platform brand catalogue), CAT-002 (shop catalogue) and PLT-002 (shop review) done: a shop can now go from registration to Live locally. DS-002 (the project's own UI components, D-039) and SHP-005 (Shop App catalogue) done: Phase 1 is complete. Next: plan the Customer App foundation (D-036 to D-038 recorded).  
 **Overall status:** Foundation complete with CI green on GitHub. Implemented and verified locally: platform admin sign-in, shop self-registration with tenant-scoped access, the platform shop registry, and Shop App sign-in (Android emulator).  
 **Product name:** Not decided
 
@@ -24,6 +24,7 @@
 | CAT-002: Shop catalogue (D-029, D-030) | **Complete (local; Chrome)** | `docs/features/CAT-002-shop-catalogue.md` |
 | PLT-002: Review workflow: submit, approve or request changes, resubmit (D-032, D-033) | **Complete (local; Chrome owner side, platform side over HTTP, Android emulator)** | `docs/features/PLT-002-shop-review.md` |
 | DS-002: The project's own UI components with component tokens and a CI guard (D-039) | **Complete (local; Chrome shop pages, Android emulator)** | `docs/features/DS-002-components.md` |
+| SHP-005: Shop App catalogue: products, availability, prices, pack sizes, archive, add from brand catalogue, photos | **Complete (local; Android emulator against the real API, Chrome cross-check)** | `docs/features/SHP-005-shop-app-catalogue.md` |
 
 **Git (D-035):** every feature above is in `dev` (fast-forward merged and pushed on 2026-11-04; one commit per feature, `3697e4f` … `9c7885b`); the local per-feature branches were deleted. The first GitHub Actions run on `dev` (`8497b81`) passed all three jobs (TypeScript, Flutter, repository checks). The old remote branch `feat/shp-002-shop-app-sign-in` is still on GitHub (its commits are in `dev`); the product owner can delete it. From now on each finished feature is merged into `dev` and pushed the same way. `main` still holds only `c56f614` (project setup) until a release.
 
@@ -36,7 +37,7 @@
 apps/admin_web/                   Next.js 16 portal: platform sign-in + console shell; shop OTP sign-in, my shops, register a shop, shop console shell; UI components
 apps/api/                         NestJS 12 API: auth guard (JWKS), /v1/me, platform-admin guard + operator script, shops + shop-access guard, audit, problem errors
 apps/customer_app/                Flutter shell (android, ios): placeholder screen + widget test
-apps/shop_app/                    Flutter Shop App: OTP sign-in (Supabase), shop list, shop home, secure session storage (Riverpod, go_router, Dio)
+apps/shop_app/                    Flutter Shop App: OTP sign-in (Supabase), shop list, shop home, profile, catalogue (products, prices, pack sizes, availability, photos), secure session storage (Riverpod, go_router, Dio, image_picker)
 packages/design_tokens/           tokens.json + brand.json (single source, incl. component tokens), the generator for the web theme and Flutter tokens, and the component guard (pnpm ui:check)
 packages/flutter_shared/          Generated tokens + AppBrand, AppTheme.light(), UI components (AppButton, AppTextField, AppDropdown, sheets, dialogs, snack bars, …), BrandMark, Inter 4.1 fonts, IndianMobileNumber, Loading/Message/Error views
 packages/api_contracts/           Generated openapi.json (health, /v1/me, /v1/shops*, /v1/platform/shops*)
@@ -140,6 +141,12 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
   - web `Card`, `CardList`, `CardLink`, `Panel`, `SearchForm`, `FileField`, radio and checkbox groups; every screen moved onto the components;
   - Flutter `AppButton`, `AppTextField`, `AppSearchField`, `AppDropdown`, switch/checkbox/radio/segmented rows, `AppCard`, `AppSection`, `AppNavRow`, `AppBadge`, `AppInlineMessage`, `showAppSnackBar`, `showAppBottomSheet`, `showAppDialog`, `showAppConfirmDialog`, `AppSpinner`, `AppNetworkImage`; the Shop App uses only these;
   - `pnpm ui:check` in CI blocks raw controls in screens.
+- [x] Product owner answers for the Customer App on 2026-11-04: painter type chosen by the customer, painter-only information per shop confirmation (D-036); browse any Live shop, add to My Shops instantly (D-037); find shops nearest first or by district (D-038).
+- [x] SHP-005 (Shop App catalogue, "everyday tasks"):
+  - product list with Selling/Archived, search and Load more;
+  - product page: availability switch (saved state only), price and MRP sheet, add/remove pack sizes, archive/restore, photo from the camera or gallery (resized to 2400 px JPEG; `image_picker` 1.2.4);
+  - add from the brand catalogue (brand, search, packs pre-ticked with prices);
+  - rupee helpers in `flutter_shared` shared with the Customer App; API unchanged.
 
 ## 5. Not done
 
@@ -147,7 +154,6 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 - [ ] PLT-002 decision form submitted from a browser by a platform admin (verified over HTTP and the API; the session could not use the test admin password in Chrome).
 - [ ] Decision notifications to the owner (SMS/push; question 53).
 - [ ] Product owner to confirm two CAT-002 assumptions: the selling price may not exceed the MRP, and the 10-product rule counts active products with at least one pack size (DECISIONS §3a).
-- [ ] Shop App catalogue screens (the API is ready).
 - [ ] Real brand catalogue data (platform admins, from official shade cards and price lists; D-030).
 - [ ] Hosted storage provider and credentials (ADR 0007): chosen with the first hosted environment.
 - [ ] Product answers: questions 49 (registration limit), 51 (email sign-up mitigation), 52 (tinting workflow) and 53 (notification channel).
@@ -159,6 +165,21 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 - [ ] iOS build verification (requires macOS).
 
 ## 6. Checks run (local, Windows 11, Node 22.21.0)
+
+### SHP-005 (2026-11-04)
+
+| Check | Result |
+|---|---|
+| `fvm flutter analyze`, `dart format` (lib, test) | No issues / clean |
+| `fvm flutter test`: shop_app 70 (36 new: 23 widget, 13 unit), flutter_shared 64 (3 new), customer_app 1 | Passed |
+| `pnpm ui:check` (102 files), `pnpm tokens:check` | Passed |
+| `fvm flutter build apk --debug`; APK checked for the local secret values (551 files) | Passed; none found |
+| **Android emulator** (`emulator-5554`, real local API): list and thumbnails, availability off/on, price above MRP refused, price and MRP saved, own pack 5 kg added and removed (confirm dialog), last pack refused, archive (confirm) and restore, photo from the gallery and from the emulator camera, add from the brand catalogue (2 of 3 packs) and add the third pack from the catalogue | Verified |
+| **Chrome** (this computer): the web catalogue shows the app's changes (new product with 3 prices, MRP ₹120, availability, the camera photo) | Verified |
+| API log: no tokens, phone numbers or image data | Verified |
+| No-connection state on the emulator | **Not verified** (the open connection survived removing the port forward); covered by widget tests |
+| API e2e, web | Not re-run (no API or web change) |
+| iOS | **Not run** (requires macOS) |
 
 ### DS-002 (2026-11-04)
 
@@ -319,7 +340,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 
 ## 7. Next actions
 
-1. **Next feature: SHP-005, the Shop App catalogue** (planned and approved: product list, availability, prices, pack sizes, archive, add from brand catalogue, product photo), built on the DS-002 components. Then the Customer App foundation (D-036 to D-038 are recorded with SHP-005).
+1. **Next phase: plan the Customer App foundation** with the product owner: CUS-001 sign-up and profile (customer type, D-036), CUS-002 Find shops and My Shops (D-037, D-038), CUS-003 shop storefront. Open before ordering: questions 30–32 (order approval, pickup/delivery, fulfilment).
 2. **Product owner checks:** try the platform **Reviews** decision form in Chrome as the platform admin; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
 3. **Hardening before any hosted environment:** questions 49 and 51.
 4. **Product owner:** Google Maps keys (`docs/guides/GOOGLE_MAPS_SETUP.md`); real brand catalogue data; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
@@ -335,7 +356,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | Platform admin sign-in | **Complete (local)** | AUTH-001 |
 | Shop onboarding | **Complete locally:** registration (SHP-001), Shop App sign-in (SHP-002), profile + map location + checklist (SHP-003), photo (SHP-004), products (CAT-002), review and approval (PLT-002) | Decision notifications later (question 53) |
 | Customer authentication | Not started | Supabase phone OTP decided; SMS vendor open |
-| Catalogue | Brand catalogue (CAT-001) and shop catalogue (CAT-002) done on the web; Shop App screens later | Customer requests for unavailable items with the Customer App (D-029); tinting open (question 52) |
+| Catalogue | Brand catalogue (CAT-001) and shop catalogue (CAT-002) on the web; everyday catalogue in the Shop App (SHP-005) | Customer requests for unavailable items with the Customer App (D-029); tinting open (question 52) |
 | Cross-shop search | Not started | Price visibility open |
 | Orders | Not started | Fulfilment lifecycle open |
 | Painter sites | Not started | Core workflow |
@@ -384,3 +405,4 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-04 | CAT-002 implemented: shop catalogue with per-pack prices and availability, own products, favourite and own shades, products checklist item. |
 | 2026-11-04 | PLT-002 implemented: shop review (submit, withdraw, approve, request changes with reasons, resubmit) with the D-033 edit lock. |
 | 2026-11-04 | DS-002 implemented (D-039): component tokens, the project's own UI components on web and Flutter, `pnpm ui:check` in CI. |
+| 2026-11-04 | Product owner answered the Customer App questions (D-036–D-038). SHP-005 implemented: the everyday catalogue in the Shop App. Phase 1 complete. |
