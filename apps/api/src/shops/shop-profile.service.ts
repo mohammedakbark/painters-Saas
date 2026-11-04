@@ -4,7 +4,6 @@ import type { CurrentUserContext } from '../auth/current-user.js';
 import { parseIndianMobile } from '../common/phone/indian-mobile.js';
 import { Prisma } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { ObjectStorage } from '../storage/object-storage.js';
 import {
   type ShopContext,
   shopNotFound,
@@ -14,7 +13,7 @@ import {
   requireShopRole,
 } from '../shop-access/shop-roles.js';
 import { indianStateName } from './indian-states.js';
-import { photoUrls } from './shop-photo.js';
+import { ImageStore } from '../media/image-store.js';
 import type {
   ShopLocationInput,
   ShopOnboardingResponse,
@@ -52,7 +51,7 @@ type ProfileField = 'supportPhone' | 'address' | 'location';
 export class ShopProfileService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly storage: ObjectStorage,
+    private readonly images: ImageStore,
   ) {}
 
   async get(shop: ShopContext): Promise<ShopProfileResponse> {
@@ -166,7 +165,7 @@ export class ShopProfileService {
       supportPhone: row.supportPhone,
       address: toAddress(row),
       location: toLocation(row),
-      photo: photoUrls(this.storage, row.photoKey, row.photoUpdatedAt),
+      photo: this.images.urls(row.photoKey, row.photoUpdatedAt),
       updatedAt: row.profileUpdatedAt?.toISOString() ?? null,
     };
   }

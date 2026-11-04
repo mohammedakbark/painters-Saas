@@ -10,34 +10,48 @@ import {
 } from 'react';
 import { Button } from '@/components/ui/button';
 import {
-  checkPhotoFile,
-  PHOTO_ACCEPT,
-  type PhotoFormState,
-} from '@/lib/shops/photo';
+  checkImageFile,
+  IMAGE_ACCEPT,
+  type ImageFormState,
+  type ImageNoun,
+  withArticle,
+} from '@/lib/media/image-file';
 
-export type UploadPhotoAction = (
-  previous: PhotoFormState,
+export type UploadImageAction = (
+  previous: ImageFormState,
   formData: FormData,
-) => Promise<PhotoFormState>;
+) => Promise<ImageFormState>;
 
 /**
- * The shop photo (SHP-004): the current photo, a local preview of the chosen
- * file and the upload. Images are pre-sized WebP from object storage, so a
- * plain <img> is used (next/image would need the storage host at build time).
+ * One public image (shop photo, product image): the current image, a local
+ * preview of the chosen file and the upload. Images are pre-sized WebP from
+ * object storage, so a plain <img> is used (next/image would need the storage
+ * host at build time).
  */
-export function ShopPhotoForm({
+export function ImageUploadForm({
   action,
   currentUrl,
   canEdit,
+  title,
+  description,
+  noun,
+  fieldName,
 }: {
-  action: UploadPhotoAction;
+  action: UploadImageAction;
   currentUrl: string | null;
   canEdit: boolean;
+  title: string;
+  description: string;
+  noun: ImageNoun;
+  /** Form field the action reads, for example "photo". */
+  fieldName: string;
 }) {
   const [state, formAction, pending] = useActionState(action, {});
   const [preview, setPreview] = useState<string | null>(null);
   const [checkError, setCheckError] = useState<string | null>(null);
   const error = checkError ?? state.error;
+  const inputId = `field-${fieldName}`;
+  const errorId = `${fieldName}-error`;
 
   // Release the preview's object URL when it changes or the form unmounts.
   useEffect(
@@ -51,7 +65,7 @@ export function ShopPhotoForm({
 
   function choose(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0] ?? null;
-    const problem = checkPhotoFile(file);
+    const problem = checkImageFile(file, noun);
     setCheckError(problem);
     setPreview(file && !problem ? URL.createObjectURL(file) : null);
   }
@@ -59,7 +73,7 @@ export function ShopPhotoForm({
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const problem = checkPhotoFile(data.get('photo') as File | null);
+    const problem = checkImageFile(data.get(fieldName) as File | null, noun);
     setCheckError(problem);
     if (!problem) {
       startTransition(() => formAction(data));
@@ -72,65 +86,61 @@ export function ShopPhotoForm({
     <form
       action={formAction}
       onSubmit={submit}
-      encType="multipart/form-data"
       className="flex flex-col gap-4"
-      aria-describedby={error ? 'photo-error' : undefined}
+      aria-describedby={error ? errorId : undefined}
     >
       <fieldset disabled={!canEdit} className="flex flex-col gap-4">
-        <legend className="mb-2 text-heading3 font-semibold">Shop photo</legend>
-        <p className="text-body text-text-secondary">
-          A clear photo of the shop front. JPEG, PNG or WebP, up to 5 MB. Photo
-          details such as the camera and location are removed.
-        </p>
+        <legend className="mb-2 text-heading3 font-semibold">{title}</legend>
+        <p className="text-body text-text-secondary">{description}</p>
         <div className="flex aspect-4/3 w-full max-w-form items-center justify-center overflow-hidden rounded-large border border-border-default bg-surface-subtle">
           {shown ? (
             // eslint-disable-next-line @next/next/no-img-element -- see the component comment
             <img
               src={shown}
               alt={
-                preview ? 'Preview of the chosen photo' : 'Current shop photo'
+                preview
+                  ? `Preview of the chosen ${noun}`
+                  : `Current ${title.toLowerCase()}`
               }
               className="size-full object-cover"
             />
           ) : (
             <p className="px-4 text-center text-body text-text-secondary">
-              No photo yet.
+              No {noun} yet.
             </p>
           )}
         </div>
         {canEdit ? (
           <div className="flex flex-col gap-2">
             <label
-              htmlFor="field-photo"
+              htmlFor={inputId}
               className="text-body font-medium text-text-primary"
             >
-              {currentUrl ? 'Choose a new photo' : 'Choose a photo'}
+              {currentUrl
+                ? `Choose a new ${noun}`
+                : `Choose ${withArticle(noun)}`}
             </label>
             <input
-              id="field-photo"
-              name="photo"
+              id={inputId}
+              name={fieldName}
               type="file"
-              accept={PHOTO_ACCEPT}
+              accept={IMAGE_ACCEPT}
               onChange={choose}
               aria-invalid={error ? true : undefined}
-              aria-describedby={error ? 'photo-error' : undefined}
+              aria-describedby={error ? errorId : undefined}
               className="text-body text-text-primary file:mr-4 file:min-h-12 file:rounded-medium file:border file:border-border-strong file:bg-surface-default file:px-5 file:text-body-large file:font-semibold"
             />
           </div>
         ) : null}
         {error ? (
-          <p
-            id="photo-error"
-            role="alert"
-            className="text-body text-status-error"
-          >
+          <p id={errorId} role="alert" className="text-body text-status-error">
             {error}
           </p>
         ) : null}
         {canEdit ? (
           <div>
             <Button type="submit" pending={pending} pendingLabel="Uploading…">
-              Upload photo
+              Upload {noun}
             </Button>
           </div>
         ) : null}

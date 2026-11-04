@@ -19,6 +19,7 @@ export const metadata: Metadata = {
 const PLATFORM_NAV: readonly NavItem[] = [
   { href: '/platform', label: 'Overview', exact: true },
   { href: '/platform/shops', label: 'Shops' },
+  { href: '/platform/catalogue', label: 'Catalogue' },
 ];
 
 /**

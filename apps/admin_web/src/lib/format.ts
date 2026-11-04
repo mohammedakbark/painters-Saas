@@ -19,3 +19,12 @@ export function formatDateTime(iso: string): string {
 export function formatDate(iso: string): string {
   return DATE.format(new Date(iso));
 }
+
+/** "1 product", "12 products". */
+export function countLabel(
+  count: number,
+  singular: string,
+  plural = `${singular}s`,
+): string {
+  return `${count} ${count === 1 ? singular : plural}`;
+}

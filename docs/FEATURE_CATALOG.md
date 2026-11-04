@@ -53,7 +53,7 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 |---|---|---|
 | Shop self-registration (web) | **Implemented (SHP-001)** | Mobile OTP sign-in/up, register shop name + owner name; the shop starts as a private Draft. Spec: `docs/features/SHP-001-shop-registration-and-sign-in.md`. |
 | Shop profile/onboarding checklist | Confirmed / **profile + checklist implemented (SHP-003)** | Address, map location (Google map picker or current location, D-027), support mobile and the shop photo (SHP-004) are done; 10 products (CAT-002) follow, then the owner submits for review (D-025). Spec: `docs/features/SHP-003-shop-profile-and-location.md`. |
-| Product/category/brand/pack management | Confirmed | Catalogue requirements in Product Overview. |
+| Product/category/brand/pack management | Confirmed / **brand catalogue implemented (CAT-001)** | Platform admins maintain categories, brands, products with pack sizes and shades, by hand or CSV import (D-030, ADR 0008). Shop listings come with CAT-002. Spec: `docs/features/CAT-001-platform-brand-catalogue.md`. |
 | Product images and shade codes | Confirmed | Storage decided and implemented for shop photos (ADR 0007, SHP-004): product images reuse the same pipeline in CAT-001/CAT-002. |
 | Shop prices and offers | Confirmed | Customer-specific pricing rules need detail. |
 | Manual product promotion/order | Confirmed | Shop can promote selected products. |
@@ -77,6 +77,7 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 | Shop onboarding review | Confirmed (D-025) | Approve after the owner completes the checklist and submits; only approved shops are visible to customers and painters (PLT-002). Rejection rules: question 50. |
 | Suspend/reactivate shops | Proposed | Needs policy and audit trail. |
 | Platform-level overview/configuration | Confirmed direction | Separate platform permissions. |
+| Brand catalogue management | **Implemented (CAT-001)** | Categories, brands, products, pack sizes, shades, product images, CSV import with dry run; audited. |
 | Future plans/seat entitlements | Later | Architecture-ready only; no billing now. |
 
 ## 6. Backend/platform capabilities

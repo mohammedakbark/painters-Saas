@@ -15,13 +15,16 @@ export interface NavItem {
 export function NavLinks({
   items,
   orientation,
+  label = 'Main',
 }: {
   items: readonly NavItem[];
   orientation: 'vertical' | 'horizontal';
+  /** Accessible name of the navigation landmark. */
+  label?: string;
 }) {
   const pathname = usePathname();
   return (
-    <nav aria-label="Main">
+    <nav aria-label={label}>
       <ul
         className={cn(
           'flex gap-1',

@@ -228,7 +228,7 @@ Shop App (SHP-002): supabase_flutter ^2.18.3, flutter_riverpod ^3.4.3, go_router
 │   │   ├── prisma/                 # schema.prisma + migrations/
 │   │   ├── src/
 │   │   │   ├── app.setup.ts        # /v1 prefix, validation pipe, problem filter
-│   │   │   ├── auth/  users/  platform-admin/  platform-shops/  identity/  audit/  shops/  shop-access/  storage/  media/
+│   │   │   ├── auth/  users/  platform-admin/  platform-shops/  identity/  audit/  shops/  shop-access/  storage/  media/  catalogue/
 │   │   │   ├── common/http  common/validation  config/  health/  openapi/  prisma/
 │   │   │   └── scripts/            # export-openapi, create-platform-admin
 │   │   └── test/                   # e2e suites + support (test tokens, fake identity, DB reset)
@@ -251,7 +251,8 @@ The two toolchains are independent. pnpm manages `apps/api`, `apps/admin_web` an
 
 - **API:**
   - Routes: `GET /health` and `GET /health/ready` (public, unversioned); `GET /v1/me`, `POST /v1/shops` and `GET /v1/shops/:shopId` (authenticated); `GET/PUT /v1/shops/:shopId/profile`, `PUT /v1/shops/:shopId/location`, `PUT /v1/shops/:shopId/photo` (multipart) and `GET /v1/shops/:shopId/onboarding` (shop-scoped; writes need MASTER, SHP-003/SHP-004);
-  - Files: `src/storage/` (`ObjectStorage` port, `S3ObjectStorage`) and `src/media/` (sharp image pipeline), ADR 0007; `GET /v1/platform/shops` and `GET /v1/platform/shops/:shopId` (platform admins; read-only registry with cursor pagination). Shop routes are tenant-scoped by `ShopAccessGuard` (membership of the shop in the URL; 404 otherwise).
+  - Files: `src/storage/` (`ObjectStorage` port, `S3ObjectStorage`) and `src/media/` (sharp image pipeline, `ImageStore`), ADR 0007;
+  - Catalogue (CAT-001, ADR 0008): `/v1/platform/catalogue/**` (platform admins: categories, brands, products with packs and image, shades, CSV imports) and `/v1/catalogue/**` (any signed-in user, active entries only); keyset cursors by name/code (`src/common/pagination/keyset-cursor.ts`); `GET /v1/platform/shops` and `GET /v1/platform/shops/:shopId` (platform admins; read-only registry with cursor pagination). Shop routes are tenant-scoped by `ShopAccessGuard` (membership of the shop in the URL; 404 otherwise).
   - Every other route needs a valid Supabase access token (global `AuthGuard`, ADR 0005).
   - Errors are RFC 9457 problem details; request validation uses Zod (ADR 0006).
   - Tables: `users`, `platform_admins`, `audit_events` (append-only), `shops` (status `DRAFT` only so far), `shop_memberships` (role `MASTER` only so far; one master per shop).
@@ -261,7 +262,7 @@ The two toolchains are independent. pnpm manages `apps/api`, `apps/admin_web` an
 - **Web:**
   - `/`: portal home.
   - `/platform/sign-in`: email + password.
-  - `/platform`: platform console (overview), plus `/platform/shops` (registry list) and `/platform/shops/[shopId]` (detail). Every page is gated by `requirePlatformAdmin()`.
+  - `/platform`: platform console (overview), plus `/platform/shops` (registry list), `/platform/shops/[shopId]` (detail) and `/platform/catalogue/**` (brand catalogue, CAT-001). Every page is gated by `requirePlatformAdmin()` and reads its data inside its own `<Suspense>`.
   - `/platform/no-access`.
   - `/sign-in` (shop users, mobile OTP), `/shops` (my shops), `/shops/new` (register), `/shops/[shopId]` (shop console with the onboarding checklist, gated by `requireShopAccess()` in layout and pages) and `/shops/[shopId]/profile` (support mobile, address, map location; SHP-003).
   - Console pages read request data inside their own `<Suspense>` so client navigation between them is instant (shop console since SHP-003).
@@ -313,6 +314,7 @@ cd apps/shop_app && fvm flutter run --dart-define-from-file=config/local.json
 | Prisma | `pnpm --filter api prisma:validate`, `db:migrate:dev`, `db:migrate:deploy`, `db:check-drift` (migrated DB vs `schema.prisma`) |
 | Local auth | `pnpm supabase:keys`, `supabase:start`, `supabase:stop`, `supabase:status` |
 | Platform admin | `pnpm --filter api platform-admin:create --email <email>` |
+| Sample catalogue | `pnpm --filter api catalogue:seed-sample` (local only; fictional brand) |
 | Flutter format | `fvm dart format --set-exit-if-changed apps/customer_app apps/shop_app packages/flutter_shared` |
 | Flutter analyze | `fvm flutter analyze` (repo root) |
 | Flutter tests | `fvm flutter test` in each Flutter package |

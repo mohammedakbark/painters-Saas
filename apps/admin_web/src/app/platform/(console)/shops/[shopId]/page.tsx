@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
+import { PageLoading } from '@/components/layout/page-loading';
 import { Badge } from '@/components/ui/badge';
 import { ButtonLink } from '@/components/ui/button-link';
 import { PageHeader } from '@/components/ui/page-header';
@@ -15,9 +17,18 @@ import { shopStatusLabel } from '@/lib/shops/labels';
 
 export const metadata: Metadata = { title: 'Shop' };
 
-export default async function PlatformShopPage({
-  params,
-}: PageProps<'/platform/shops/[shopId]'>) {
+/** Request data is read inside Suspense so console navigation is instant. */
+export default function PlatformShopPage(
+  props: PageProps<'/platform/shops/[shopId]'>,
+) {
+  return (
+    <Suspense fallback={<PageLoading label="Loading the shop…" />}>
+      <PlatformShop {...props} />
+    </Suspense>
+  );
+}
+
+async function PlatformShop({ params }: PageProps<'/platform/shops/[shopId]'>) {
   const { token } = await requirePlatformAdmin();
   const { shopId } = await params;
   const shop = await findShop(token, shopId);

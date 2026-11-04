@@ -12,7 +12,7 @@ import { formatIndianMobile } from '@/lib/phone';
 import { saveShopProfileAction } from './actions';
 import type { MapsConfig } from './location-picker';
 import { uploadShopPhotoAction } from './photo-actions';
-import { ShopPhotoForm } from './photo-form';
+import { ImageUploadForm } from '@/components/media/image-upload-form';
 import { ShopProfileForm } from './profile-form';
 
 export const metadata: Metadata = { title: 'Shop profile' };
@@ -58,7 +58,11 @@ async function ShopProfileContent({
         description="Photo, support mobile, address and map location. Customers see these once your shop is live."
       />
       <div className="flex max-w-content flex-col gap-10">
-        <ShopPhotoForm
+        <ImageUploadForm
+          title="Shop photo"
+          description="A clear photo of the shop front. JPEG, PNG or WebP, up to 5 MB. Photo details such as the camera and location are removed."
+          noun="photo"
+          fieldName="photo"
           // Remount after an upload so the preview is cleared.
           key={profile.photo?.updatedAt ?? 'none'}
           action={uploadShopPhotoAction.bind(null, shop.id)}

@@ -8,6 +8,16 @@ export const AuditAction = {
   ShopProfileUpdated: 'shop.profile_updated',
   ShopLocationUpdated: 'shop.location_updated',
   ShopPhotoUpdated: 'shop.photo_updated',
+  CatalogueCategoryCreated: 'catalogue.category_created',
+  CatalogueCategoryUpdated: 'catalogue.category_updated',
+  BrandCreated: 'catalogue.brand_created',
+  BrandUpdated: 'catalogue.brand_updated',
+  CatalogueProductCreated: 'catalogue.product_created',
+  CatalogueProductUpdated: 'catalogue.product_updated',
+  CatalogueProductImageUpdated: 'catalogue.product_image_updated',
+  ShadeCreated: 'catalogue.shade_created',
+  ShadeUpdated: 'catalogue.shade_updated',
+  CatalogueImported: 'catalogue.imported',
 } as const;
 
 export type AuditAction = (typeof AuditAction)[keyof typeof AuditAction];

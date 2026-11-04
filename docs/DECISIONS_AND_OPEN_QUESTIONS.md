@@ -81,6 +81,7 @@ Do not treat proposals as approved until the product owner confirms them.
 | T-014 | UUIDv7 primary keys, `timestamptz(3)`, cursor pagination (`limit` ≤ 50, `nextCursor`), RLS enabled on every table, append-only audit events. | ADR 0005, ADR 0006 |
 | T-016 | Design tokens and working brand names live only in `packages/design_tokens` (`tokens.json`, `brand.json`); the web `@theme` file and the Flutter token/brand classes are generated and checked in CI (`pnpm tokens:check`). The generator enforces WCAG AA for the listed text pairs. | DS-001 |
 | T-017 | Files: an `ObjectStorage` port with an S3-protocol adapter; local Supabase Storage now, Supabase Storage or Cloudflare R2 hosted, by configuration. The DB stores object keys only. Public images are re-encoded by the API (sharp) with metadata removed. Standard PostgreSQL only; maps confined to one component per platform. | ADR 0007 (D-028) |
+| T-018 | Catalogue: a global brand catalogue (categories, brands, products with pack sizes, shades; no prices) maintained by platform admins, and tenant-owned shop listings with per-pack prices and availability (CAT-002). Names unique regardless of case via `name_key`; archive instead of delete; all-or-nothing CSV import. | ADR 0008 (D-030) |
 | T-015 | Shop App stack: Riverpod 3 (P-007 adopted for the Shop App), go_router, Dio, supabase_flutter (sign-in only) and flutter_secure_storage for the session. Shared Flutter widgets and the mobile parser live in `flutter_shared`. | SHP-002 |
 
 ## 3. Open product questions
@@ -170,6 +171,7 @@ Do not treat proposals as approved until the product owner confirms them.
 - The shop address is structured (shop number and street, optional area and landmark, city or town, district, state, PIN code) and all-or-nothing; state codes are ISO 3166-2:IN subdivision codes (SHP-003).
 - On Android the Shop App reads the location from the system provider, not Google Play services, so no extra Google consent prompt is shown (SHP-003).
 - Shop photos: JPEG, PNG or WebP, up to 5 MB, shorter side at least 300 px; HEIC is not accepted (SHP-004).
+- Catalogue: pack units L, ml, kg, g, pc; at most 12 pack sizes per product; shade codes upper case with letters, digits, space, `. / -` (at most 20); categories are platform-managed (CAT-001).
 
 ## 4. Rules while questions are open
 

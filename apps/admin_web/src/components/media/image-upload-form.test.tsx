@@ -1,15 +1,35 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  checkPhotoFile,
-  PHOTO_MAX_BYTES,
-  PHOTO_MESSAGES,
-  type PhotoFormState,
-} from '@/lib/shops/photo';
-import { ShopPhotoForm } from './photo-form';
+  checkImageFile,
+  IMAGE_MAX_BYTES as PHOTO_MAX_BYTES,
+  type ImageFormState,
+  imageMessages,
+} from '@/lib/media/image-file';
+import { ImageUploadForm, type UploadImageAction } from './image-upload-form';
+
+const PHOTO_MESSAGES = imageMessages('photo');
+const checkPhotoFile = (file: { size: number; type: string } | null) =>
+  checkImageFile(file, 'photo');
+
+function ShopPhotoForm(props: {
+  action: UploadImageAction;
+  currentUrl: string | null;
+  canEdit: boolean;
+}) {
+  return (
+    <ImageUploadForm
+      {...props}
+      title="Shop photo"
+      description="A clear photo of the shop front."
+      noun="photo"
+      fieldName="photo"
+    />
+  );
+}
 
 const noopAction = vi.fn(
-  async (previous: PhotoFormState): Promise<PhotoFormState> => previous,
+  async (previous: ImageFormState): Promise<ImageFormState> => previous,
 );
 
 function file(name: string, type: string, bytes = 1024): File {

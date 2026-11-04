@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatDate, formatDateTime } from './format';
+import { countLabel, formatDate, formatDateTime } from './format';
 
 describe('date formatting (Indian Standard Time)', () => {
   it('formats a date in IST', () => {
@@ -11,5 +11,13 @@ describe('date formatting (Indian Standard Time)', () => {
     expect(formatDateTime('2026-11-03T10:35:00.000Z')).toMatch(
       /^3 Nov 2026, 4:05\s?pm$/i,
     );
+  });
+});
+
+describe('countLabel', () => {
+  it('uses the singular only for exactly one', () => {
+    expect(countLabel(0, 'product')).toBe('0 products');
+    expect(countLabel(1, 'active shade')).toBe('1 active shade');
+    expect(countLabel(12, 'product')).toBe('12 products');
   });
 });

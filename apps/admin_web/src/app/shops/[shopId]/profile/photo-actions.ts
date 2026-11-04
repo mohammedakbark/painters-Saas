@@ -6,10 +6,13 @@ import { uploadShopPhoto } from '@/lib/api/shop-profile';
 import { SHOP_SIGN_IN_PATH } from '@/lib/auth/shop-access';
 import { getAccessToken } from '@/lib/auth/session';
 import {
-  checkPhotoFile,
-  PHOTO_MESSAGES,
-  type PhotoFormState,
-} from '@/lib/shops/photo';
+  checkImageFile,
+  type ImageFormState,
+  imageMessages,
+  imageUploadError,
+} from '@/lib/media/image-file';
+
+const MESSAGES = imageMessages('photo');
 
 /**
  * Forwards the chosen photo to the API, which validates and re-encodes it.
@@ -18,14 +21,14 @@ import {
  */
 export async function uploadShopPhotoAction(
   shopId: string,
-  _previous: PhotoFormState,
+  _previous: ImageFormState,
   formData: FormData,
-): Promise<PhotoFormState> {
+): Promise<ImageFormState> {
   const value = formData.get('photo');
   const file = value instanceof File ? value : null;
-  const problem = checkPhotoFile(file);
+  const problem = checkImageFile(file, 'photo');
   if (problem || !file) {
-    return { error: problem ?? PHOTO_MESSAGES.required };
+    return { error: problem ?? MESSAGES.required };
   }
 
   const token = await getAccessToken();
@@ -44,17 +47,11 @@ export async function uploadShopPhotoAction(
         notFound();
       }
       if (error.code === 'shop_permission_denied') {
-        return { error: PHOTO_MESSAGES.notAllowed };
+        return { error: 'Only the shop owner can change the photo.' };
       }
-      if (error.status === 413) {
-        return { error: PHOTO_MESSAGES.size };
-      }
-      // Photo rejections carry a client-safe detail (photo_* codes).
-      if (error.code?.startsWith('photo_') && error.problem?.detail) {
-        return { error: error.problem.detail };
-      }
+      return { error: imageUploadError(error, 'photo') };
     }
-    return { error: PHOTO_MESSAGES.unavailable };
+    return { error: MESSAGES.unavailable };
   }
 
   redirect(`/shops/${encodeURIComponent(shopId)}/profile?photo=1`);
