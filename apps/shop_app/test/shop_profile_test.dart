@@ -18,6 +18,10 @@ void main() {
 
   /// Signs in, opens Lakshmi Paints, then its profile.
   Future<void> openProfile(WidgetTester tester) async {
+    // A phone-sized screen, so the whole profile fits without scrolling.
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.5;
+    addTearDown(tester.view.reset);
     await tester.pumpWidget(
       testApp(
         auth: FakeAuthRepository(signedIn: true),
@@ -39,6 +43,10 @@ void main() {
   Finder useCurrentLocation() =>
       find.widgetWithText(OutlinedButton, 'Use my current location');
 
+  /// Taps "Use my current location" (the screen is tall enough to show it).
+  Future<void> tapUseCurrentLocation(WidgetTester tester) =>
+      tester.tap(useCurrentLocation());
+
   testWidgets('shows the address and support mobile from the web portal', (
     tester,
   ) async {
@@ -52,6 +60,35 @@ void main() {
     expect(useCurrentLocation(), findsOneWidget);
   });
 
+  testWidgets('shows the shop photo, with a message when it cannot load', (
+    tester,
+  ) async {
+    profiles.profiles['shop-a'] = const ShopProfile(
+      shopId: 'shop-a',
+      shopName: 'Lakshmi Paints',
+      supportPhone: null,
+      address: null,
+      location: null,
+      photo: ShopPhoto(
+        url: 'https://media.test.invalid/photo-1600.webp',
+        thumbUrl: 'https://media.test.invalid/photo-480.webp',
+      ),
+    );
+    await openProfile(tester);
+
+    final image = tester.widget<Image>(
+      find.byWidgetPredicate(
+        (widget) => widget is Image && widget.semanticLabel == 'Shop photo',
+      ),
+    );
+    expect(
+      (image.image as NetworkImage).url,
+      'https://media.test.invalid/photo-1600.webp',
+    );
+    // Widget tests answer every HTTP request with an error.
+    expect(find.text(ShopProfileMessages.photoFailed), findsOneWidget);
+  });
+
   testWidgets('explains what is missing on an empty profile', (tester) async {
     profiles.profiles['shop-a'] = const ShopProfile(
       shopId: 'shop-a',
@@ -62,7 +99,8 @@ void main() {
     );
     await openProfile(tester);
 
-    expect(find.text(ShopProfileMessages.notAdded), findsNWidgets(2));
+    // Photo, address and support mobile.
+    expect(find.text(ShopProfileMessages.notAdded), findsNWidgets(3));
   });
 
   testWidgets(
@@ -75,7 +113,7 @@ void main() {
       );
       await openProfile(tester);
 
-      await tester.tap(useCurrentLocation());
+      await tapUseCurrentLocation(tester);
       await tester.pumpAndSettle();
       expect(find.text('Save this as the shop location?'), findsOneWidget);
       expect(find.textContaining('Accurate to about 8 m'), findsOneWidget);
@@ -102,7 +140,7 @@ void main() {
     );
     await openProfile(tester);
 
-    await tester.tap(useCurrentLocation());
+    await tapUseCurrentLocation(tester);
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
     await tester.pumpAndSettle();
@@ -119,7 +157,7 @@ void main() {
     );
     await openProfile(tester);
 
-    await tester.tap(useCurrentLocation());
+    await tapUseCurrentLocation(tester);
     await tester.pumpAndSettle();
 
     expect(find.text(ShopProfileMessages.inaccurate(1800)), findsOneWidget);
@@ -138,7 +176,7 @@ void main() {
     );
     await openProfile(tester);
 
-    await tester.tap(useCurrentLocation());
+    await tapUseCurrentLocation(tester);
     await tester.pumpAndSettle();
 
     expect(find.text(ShopProfileMessages.outsideIndia), findsOneWidget);
@@ -153,7 +191,7 @@ void main() {
     );
     await openProfile(tester);
 
-    await tester.tap(useCurrentLocation());
+    await tapUseCurrentLocation(tester);
     await tester.pumpAndSettle();
     expect(find.text(ShopProfileMessages.serviceDisabled), findsOneWidget);
     final fix = find.widgetWithText(TextButton, 'Turn on location');
@@ -171,7 +209,7 @@ void main() {
     );
     await openProfile(tester);
 
-    await tester.tap(useCurrentLocation());
+    await tapUseCurrentLocation(tester);
     await tester.pumpAndSettle();
     expect(
       find.text(ShopProfileMessages.permissionDeniedForever),
@@ -190,7 +228,7 @@ void main() {
     );
     await openProfile(tester);
 
-    await tester.tap(useCurrentLocation());
+    await tapUseCurrentLocation(tester);
     await tester.pumpAndSettle();
     expect(find.text(ShopProfileMessages.permissionDenied), findsOneWidget);
     expect(find.widgetWithText(TextButton, 'Try again'), findsOneWidget);
@@ -205,14 +243,14 @@ void main() {
     profiles.saveError = const ShopProfileForbidden();
     await openProfile(tester);
 
-    await tester.tap(useCurrentLocation());
+    await tapUseCurrentLocation(tester);
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Save location'));
     await tester.pumpAndSettle();
     expect(find.text(ShopProfileMessages.forbidden), findsOneWidget);
 
     profiles.saveError = const ApiException();
-    await tester.tap(useCurrentLocation());
+    await tapUseCurrentLocation(tester);
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Save location'));
     await tester.pumpAndSettle();
@@ -241,9 +279,15 @@ void main() {
         'source': 'DEVICE_GPS',
         'updatedAt': '2026-11-04T10:00:00.000Z',
       },
+      'photo': {
+        'url': 'https://media.test.invalid/p-1600.webp',
+        'thumbUrl': 'https://media.test.invalid/p-480.webp',
+        'updatedAt': '2026-11-04T10:00:00.000Z',
+      },
       'updatedAt': '2026-11-04T10:00:00.000Z',
     });
 
+    expect(profile.photo?.thumbUrl, 'https://media.test.invalid/p-480.webp');
     expect(profile.address?.lines, [
       'Door 12',
       'Landmark: Near the temple',

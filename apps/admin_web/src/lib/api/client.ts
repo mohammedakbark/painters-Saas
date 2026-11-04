@@ -9,6 +9,7 @@ export interface ApiRequest<T> {
   /** Validates and types the response body. */
   schema: z.ZodType<T>;
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+  /** JSON body, or `FormData` for a multipart upload. */
   body?: unknown;
 }
 
@@ -27,12 +28,17 @@ export async function apiRequest<T>(
       headers: {
         Accept: 'application/json',
         Authorization: `Bearer ${request.token}`,
-        ...(request.body === undefined
+        // FormData sets its own multipart content type with the boundary.
+        ...(request.body === undefined || request.body instanceof FormData
           ? {}
           : { 'Content-Type': 'application/json' }),
       },
       body:
-        request.body === undefined ? undefined : JSON.stringify(request.body),
+        request.body === undefined
+          ? undefined
+          : request.body instanceof FormData
+            ? request.body
+            : JSON.stringify(request.body),
       cache: 'no-store',
     });
   } catch (error) {

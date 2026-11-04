@@ -6,6 +6,7 @@ import { HealthModule } from './health/health.module.js';
 import { PlatformAdminModule } from './platform-admin/platform-admin.module.js';
 import { PlatformShopsModule } from './platform-shops/platform-shops.module.js';
 import { ShopsModule } from './shops/shops.module.js';
+import { StorageModule } from './storage/storage.module.js';
 import { UsersModule } from './users/users.module.js';
 
 @Module({
@@ -24,6 +25,7 @@ import { UsersModule } from './users/users.module.js';
     PlatformAdminModule,
     PlatformShopsModule,
     ShopsModule,
+    StorageModule,
   ],
 })
 export class AppModule {}

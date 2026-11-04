@@ -7,6 +7,7 @@ export const AuditAction = {
   ShopMasterAssigned: 'shop_membership.master_assigned',
   ShopProfileUpdated: 'shop.profile_updated',
   ShopLocationUpdated: 'shop.location_updated',
+  ShopPhotoUpdated: 'shop.photo_updated',
 } as const;
 
 export type AuditAction = (typeof AuditAction)[keyof typeof AuditAction];

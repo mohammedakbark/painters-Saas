@@ -564,6 +564,121 @@
         ]
       }
     },
+    "/v1/shops/{shopId}/photo": {
+      "put": {
+        "operationId": "ShopProfileController_replacePhoto",
+        "parameters": [
+          {
+            "name": "shopId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "photo"
+                ],
+                "properties": {
+                  "photo": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopProfile"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller is a member but not allowed to change the profile.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown shop, or the caller is not a member.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Replace the shop photo (JPEG, PNG or WebP, at most 5 MB; re-encoded to WebP, metadata removed).",
+        "tags": [
+          "shops"
+        ]
+      }
+    },
     "/v1/shops/{shopId}/onboarding": {
       "get": {
         "operationId": "ShopProfileController_onboarding",
@@ -1068,6 +1183,33 @@
             ],
             "additionalProperties": false
           },
+          "photo": {
+            "nullable": true,
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "format": "uri",
+                "description": "WebP, at most 1600 px."
+              },
+              "thumbUrl": {
+                "type": "string",
+                "format": "uri",
+                "description": "WebP, at most 480 px."
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              }
+            },
+            "required": [
+              "url",
+              "thumbUrl",
+              "updatedAt"
+            ],
+            "additionalProperties": false
+          },
           "updatedAt": {
             "nullable": true,
             "description": "When the profile was last changed.",
@@ -1083,6 +1225,7 @@
           "supportPhone",
           "address",
           "location",
+          "photo",
           "updatedAt"
         ],
         "additionalProperties": false
@@ -1240,7 +1383,8 @@
                   "enum": [
                     "address",
                     "location",
-                    "support_phone"
+                    "support_phone",
+                    "photo"
                   ]
                 },
                 "done": {

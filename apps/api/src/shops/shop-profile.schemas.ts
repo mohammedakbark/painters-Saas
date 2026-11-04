@@ -115,6 +115,13 @@ export const ShopProfileResponseSchema = z
         updatedAt: z.iso.datetime(),
       })
       .nullable(),
+    photo: z
+      .object({
+        url: z.url().meta({ description: 'WebP, at most 1600 px.' }),
+        thumbUrl: z.url().meta({ description: 'WebP, at most 480 px.' }),
+        updatedAt: z.iso.datetime(),
+      })
+      .nullable(),
     updatedAt: z.iso
       .datetime()
       .nullable()
@@ -124,11 +131,12 @@ export const ShopProfileResponseSchema = z
 
 export type ShopProfileResponse = z.infer<typeof ShopProfileResponseSchema>;
 
-/** Checklist items available so far; SHP-004 adds `photo`, CAT-002 `products`. */
+/** Checklist items available so far; CAT-002 adds `products`. */
 export const OnboardingItemKey = z.enum([
   'address',
   'location',
   'support_phone',
+  'photo',
 ]);
 
 export const ShopOnboardingResponseSchema = z

@@ -29,6 +29,9 @@ const shopProfileSchema = z.object({
       updatedAt: z.string(),
     })
     .nullable(),
+  photo: z
+    .object({ url: z.string(), thumbUrl: z.string(), updatedAt: z.string() })
+    .nullable(),
   updatedAt: z.string().nullable(),
 });
 
@@ -60,6 +63,22 @@ export function updateShopProfile(
   body: ProfileRequestBody,
 ): Promise<ShopProfile> {
   return apiRequest(path(shopId, 'profile'), {
+    token,
+    schema: shopProfileSchema,
+    method: 'PUT',
+    body,
+  });
+}
+
+/** Replaces the shop photo; the API re-encodes it and strips metadata. */
+export function uploadShopPhoto(
+  token: string,
+  shopId: string,
+  photo: File,
+): Promise<ShopProfile> {
+  const body = new FormData();
+  body.append('photo', photo, photo.name || 'photo');
+  return apiRequest(path(shopId, 'photo'), {
     token,
     schema: shopProfileSchema,
     method: 'PUT',

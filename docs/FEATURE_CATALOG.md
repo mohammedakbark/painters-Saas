@@ -52,9 +52,9 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 | Feature | Status | Notes |
 |---|---|---|
 | Shop self-registration (web) | **Implemented (SHP-001)** | Mobile OTP sign-in/up, register shop name + owner name; the shop starts as a private Draft. Spec: `docs/features/SHP-001-shop-registration-and-sign-in.md`. |
-| Shop profile/onboarding checklist | Confirmed / **profile + checklist implemented (SHP-003)** | Address, map location (Google map picker or current location, D-027) and support mobile are done; photo (SHP-004) and 10 products (CAT-002) follow, then the owner submits for review (D-025). Spec: `docs/features/SHP-003-shop-profile-and-location.md`. |
+| Shop profile/onboarding checklist | Confirmed / **profile + checklist implemented (SHP-003)** | Address, map location (Google map picker or current location, D-027), support mobile and the shop photo (SHP-004) are done; 10 products (CAT-002) follow, then the owner submits for review (D-025). Spec: `docs/features/SHP-003-shop-profile-and-location.md`. |
 | Product/category/brand/pack management | Confirmed | Catalogue requirements in Product Overview. |
-| Product images and shade codes | Confirmed | Storage and catalogue integration to decide. |
+| Product images and shade codes | Confirmed | Storage decided and implemented for shop photos (ADR 0007, SHP-004): product images reuse the same pipeline in CAT-001/CAT-002. |
 | Shop prices and offers | Confirmed | Customer-specific pricing rules need detail. |
 | Manual product promotion/order | Confirmed | Shop can promote selected products. |
 | Painter commission configuration | Confirmed direction / Open rules | Calculation and settlement not finalized. |

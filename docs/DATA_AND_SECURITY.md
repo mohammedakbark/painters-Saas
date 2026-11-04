@@ -78,6 +78,8 @@ Only a verified shop relationship or qualifying transaction can create a painter
 - Consider image resizing and metadata stripping.
 - Never expose private buckets through public URLs.
 
+Implemented for public images (SHP-004, ADR 0007): uploads go through the API only, which checks the real format from the bytes, limits size (5 MB) and pixels, applies orientation, removes all metadata (EXIF incl. GPS) and stores WebP under generated keys (`shops/<shopId>/photo/<uuid>`, tied to the shop by a CHECK constraint) in the public `shop-media` bucket. Storage credentials are server-only. Private documents will need a separate private bucket with signed URLs.
+
 ## 9. Audit events
 
 At minimum, audit shop creation/approval/suspension/ownership changes; account and role changes; credit approvals/limit changes; bill finalization/adjustments; payment creation/allocation/reversal/refund; reward/commission adjustments; rating creation/moderation; identity-document access and verification decisions; and platform-admin access to tenant data.
@@ -114,6 +116,7 @@ Keep this list accurate. It records what the code does today, not what is planne
 | Shop profile writes need the MASTER role (`requireShopRole`); every profile route is shop-scoped (404 for non-members); audit records changed field names or the location source only, never phone numbers, addresses or coordinates | `apps/api/src/shops/shop-profile.service.ts`, `apps/api/src/shop-access/shop-roles.ts` | SHP-003 |
 | The owner's device location is read only on "Use my current location" and saved only after confirmation; imprecise (> 500 m) and out-of-India positions are refused; the Shop App logs only the error type in debug builds | web `location-picker.tsx`, Shop App `location_service.dart` | SHP-003 |
 | Google Maps keys are public by design and must be restricted (websites / Android package + SHA-1, specific APIs); the web key is server-side env passed only when configured; native keys live in gitignored files | `docs/guides/GOOGLE_MAPS_SETUP.md` | SHP-003 |
+| Shop photos are uploaded only through the API (MASTER, shop-scoped), re-encoded with metadata removed, stored under generated keys in a public bucket; storage SDK errors never reach clients; audit records size and replacement only | `apps/api/src/media/`, `apps/api/src/storage/`, `shop-photo.service.ts` | SHP-004 |
 | The platform shop registry is platform-admin only, read-only, and exposes registration facts only (name, status, dates, master name and mobile). Reads are not audited: it is onboarding data, not private tenant business data | `apps/api/src/platform-shops/` | PLT-001 |
 
 Known gaps (tracked in `DECISIONS_AND_OPEN_QUESTIONS.md` questions 46–51):

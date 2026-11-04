@@ -14,7 +14,12 @@ const HTTPS_IN_PRODUCTION = [
   'AUTH_ISSUER',
   'AUTH_JWKS_URL',
   'SUPABASE_URL',
+  'STORAGE_S3_ENDPOINT',
+  'STORAGE_PUBLIC_BASE_URL',
 ] as const;
+
+/** S3 bucket naming rules (lower case, 3–63 characters). */
+const BUCKET_NAME = /^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$/;
 
 // Every message is static: validation errors name the variable but never echo
 // its value, because values such as DATABASE_URL and SUPABASE_SECRET_KEY are
@@ -55,6 +60,28 @@ const envSchema = z
     SUPABASE_URL: httpUrl('SUPABASE_URL'),
     /** Server-only Supabase secret key. Never send it to any client. */
     SUPABASE_SECRET_KEY: z.string(required('SUPABASE_SECRET_KEY')),
+
+    // Object storage for public images through the S3 protocol (ADR 0007):
+    // local Supabase Storage, hosted Supabase Storage or Cloudflare R2 by
+    // configuration only. The credentials are server-only.
+    STORAGE_S3_ENDPOINT: httpUrl('STORAGE_S3_ENDPOINT'),
+    STORAGE_S3_REGION: z.string(required('STORAGE_S3_REGION')),
+    STORAGE_S3_ACCESS_KEY_ID: z.string(required('STORAGE_S3_ACCESS_KEY_ID')),
+    STORAGE_S3_SECRET_ACCESS_KEY: z.string(
+      required('STORAGE_S3_SECRET_ACCESS_KEY'),
+    ),
+    /** Path-style URLs (`endpoint/bucket/key`); Supabase Storage needs them. */
+    STORAGE_S3_FORCE_PATH_STYLE: z
+      .enum(['true', 'false'], {
+        error: 'STORAGE_S3_FORCE_PATH_STYLE must be true or false.',
+      })
+      .default('true')
+      .transform((value) => value === 'true'),
+    STORAGE_BUCKET: z.string(required('STORAGE_BUCKET')).regex(BUCKET_NAME, {
+      error: 'STORAGE_BUCKET must be a valid bucket name.',
+    }),
+    /** Public URL prefix of the bucket; image URLs are this plus the object key. */
+    STORAGE_PUBLIC_BASE_URL: httpUrl('STORAGE_PUBLIC_BASE_URL'),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV !== 'production') {

@@ -49,6 +49,7 @@ The **project foundation (M0)** is in place: a monorepo with Flutter app shells,
 - **PLT-001:** platform shop registry (read-only).
 - **SHP-002:** Shop App sign-in, shop list and shop home (Flutter).
 - **DS-001:** one source for colours, fonts, sizes and app names (`packages/design_tokens`; see its README to rebrand).
+- **SHP-004:** shop photo upload; files go through a replaceable S3-protocol storage port (ADR 0007).
 - **SHP-003:** shop profile with address, map location ("Use my current location"; Google map once keys exist, see `docs/guides/GOOGLE_MAPS_SETUP.md`) and the onboarding checklist.
 
 Catalogue, customer and order features are not built yet, and **no cloud infrastructure exists**. See `docs/PROJECT_STATE.md` for the live status.

@@ -11,6 +11,8 @@ import type { ProfileFormValues } from '@/lib/shops/profile';
 import { formatIndianMobile } from '@/lib/phone';
 import { saveShopProfileAction } from './actions';
 import type { MapsConfig } from './location-picker';
+import { uploadShopPhotoAction } from './photo-actions';
+import { ShopPhotoForm } from './photo-form';
 import { ShopProfileForm } from './profile-form';
 
 export const metadata: Metadata = { title: 'Shop profile' };
@@ -34,7 +36,10 @@ async function ShopProfileContent({
   const shop = await requireShopAccess(shopId);
   const token = await requireShopSession();
   const profile = await getShopProfile(token, shopId);
-  const saved = (await searchParams).saved === '1';
+  const query = await searchParams;
+  const saved = query.saved === '1';
+  const photoSaved = query.photo === '1';
+  const canEdit = shop.myRole === 'MASTER';
 
   return (
     <>
@@ -43,18 +48,30 @@ async function ShopProfileContent({
           Your shop profile is up to date.
         </Alert>
       ) : null}
+      {photoSaved ? (
+        <Alert tone="success" title="Photo saved">
+          Your shop photo is updated.
+        </Alert>
+      ) : null}
       <PageHeader
         title="Shop profile"
-        description="Support mobile, address and map location. Customers see these once your shop is live."
+        description="Photo, support mobile, address and map location. Customers see these once your shop is live."
       />
-      <div className="max-w-content">
+      <div className="flex max-w-content flex-col gap-10">
+        <ShopPhotoForm
+          // Remount after an upload so the preview is cleared.
+          key={profile.photo?.updatedAt ?? 'none'}
+          action={uploadShopPhotoAction.bind(null, shop.id)}
+          currentUrl={profile.photo?.url ?? null}
+          canEdit={canEdit}
+        />
         <ShopProfileForm
           // Remount after a save so the form shows the stored values.
           key={profile.updatedAt ?? 'new'}
           action={saveShopProfileAction.bind(null, shop.id)}
           initialValues={toFormValues(profile)}
           maps={mapsConfig()}
-          canEdit={shop.myRole === 'MASTER'}
+          canEdit={canEdit}
           cancelHref={`/shops/${shop.id}`}
         />
       </div>

@@ -64,7 +64,23 @@ class ShopLocation {
   final ShopLocationSource source;
 }
 
-/// Support mobile, address and map location of one shop (SHP-003).
+/// The shop photo: pre-sized WebP images in public storage (SHP-004).
+class ShopPhoto {
+  const ShopPhoto({required this.url, required this.thumbUrl});
+
+  factory ShopPhoto.fromJson(Map<String, Object?> json) => ShopPhoto(
+    url: json['url']! as String,
+    thumbUrl: json['thumbUrl']! as String,
+  );
+
+  /// At most 1600 px.
+  final String url;
+
+  /// At most 480 px, for lists.
+  final String thumbUrl;
+}
+
+/// Photo, support mobile, address and map location of one shop (SHP-003, SHP-004).
 class ShopProfile {
   const ShopProfile({
     required this.shopId,
@@ -72,11 +88,13 @@ class ShopProfile {
     required this.supportPhone,
     required this.address,
     required this.location,
+    this.photo,
   });
 
   factory ShopProfile.fromJson(Map<String, Object?> json) {
     final address = json['address'];
     final location = json['location'];
+    final photo = json['photo'];
     return ShopProfile(
       shopId: json['shopId']! as String,
       shopName: json['shopName']! as String,
@@ -87,6 +105,7 @@ class ShopProfile {
       location: location is Map<String, Object?>
           ? ShopLocation.fromJson(location)
           : null,
+      photo: photo is Map<String, Object?> ? ShopPhoto.fromJson(photo) : null,
     );
   }
 
@@ -97,6 +116,7 @@ class ShopProfile {
   final String? supportPhone;
   final ShopAddress? address;
   final ShopLocation? location;
+  final ShopPhoto? photo;
 }
 
 /// The caller is a member but not allowed to change the profile.

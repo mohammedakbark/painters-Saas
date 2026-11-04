@@ -130,6 +130,7 @@ class FakeShopProfileRepository implements ShopProfileRepository {
       shopName: current.shopName,
       supportPhone: current.supportPhone,
       address: current.address,
+      photo: current.photo,
       location: ShopLocation(
         latitude: latitude,
         longitude: longitude,

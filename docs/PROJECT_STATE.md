@@ -1,7 +1,7 @@
 # Project State — Living Document
 
 **Last updated:** 2026-11-04  
-**Current stage:** Phase 1: shop onboarding. Identity and shop accounts done (AUTH-001, SHP-001, PLT-001, SHP-002). The product owner answered the onboarding and catalogue questions on 2026-11-04 (D-027 to D-034). DS-001 (single-source theme) and SHP-003 (shop profile and map location) done; SHP-004 (shop photo and storage) next.  
+**Current stage:** Phase 1: shop onboarding. Identity and shop accounts done (AUTH-001, SHP-001, PLT-001, SHP-002). The product owner answered the onboarding and catalogue questions on 2026-11-04 (D-027 to D-034). DS-001 (single-source theme), SHP-003 (shop profile and map location) and SHP-004 (shop photo, portable storage) done; CAT-001 (platform brand catalogue) next.  
 **Overall status:** Foundation complete with CI green on GitHub. Implemented and verified locally: platform admin sign-in, shop self-registration with tenant-scoped access, the platform shop registry, and Shop App sign-in (Android emulator).  
 **Product name:** Not decided
 
@@ -19,8 +19,8 @@
 | SHP-002: Shop App sign-in (Flutter, login-only) | **Complete (local, Android emulator)**; branch `feat/shp-002-shop-app-sign-in` (stacked on PLT-001) | `docs/features/SHP-002-shop-app-sign-in.md` |
 | DS-001: Single-source design tokens and brand names (D-034) | **Complete (local)**; branch `feat/ds-001-design-tokens` (stacked on SHP-002) | `docs/features/DS-001-design-tokens.md` |
 | SHP-003: Shop profile, address and map location (D-027) | **Complete (local; Chrome + Android emulator)**; branch `feat/shp-003-shop-profile-location` (stacked on DS-001). Google map rendering not verified (no keys yet) | `docs/features/SHP-003-shop-profile-and-location.md` |
-| SHP-004: Shop photo and portable media storage (D-028) | Next | to be written |
-| CAT-001: Platform brand catalogue (D-030) | Planned | to be written |
+| SHP-004: Shop photo and portable media storage (D-028) | **Complete (local; Chrome + Android emulator + local Supabase Storage)**; branch `feat/shp-004-shop-photo` (stacked on SHP-003) | `docs/features/SHP-004-shop-photo.md`, ADR 0007 |
+| CAT-001: Platform brand catalogue (D-030) | Next | to be written |
 | CAT-002: Shop catalogue (D-029, D-030) | Planned | to be written |
 | PLT-002: Review workflow: submit, approve or request changes, resubmit (D-032, D-033) | Planned | to be written |
 
@@ -38,7 +38,7 @@ packages/design_tokens/           tokens.json + brand.json (single source) and t
 packages/flutter_shared/          Generated tokens + AppBrand, AppTheme.light(), BrandMark, Inter 4.1 fonts, IndianMobileNumber, Loading/Message/Error views
 packages/api_contracts/           Generated openapi.json (health, /v1/me, /v1/shops*, /v1/platform/shops*)
 infra/local/                      Docker Compose Postgres 17 for app data (dev + separate test DB)
-infra/supabase/                   Supabase CLI config: Auth only, test OTPs, local ES256 signing key (gitignored)
+infra/supabase/                   Supabase CLI config: Auth + Storage (S3 protocol, public `shop-media` bucket), test OTPs, local ES256 signing key (gitignored)
 docs/  prompts/  .claude/skills/  CLAUDE.md  README.md
 ```
 
@@ -108,13 +108,20 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
   - web profile page with a Google map picker (no-key fallback) and "Use my current location"; onboarding checklist on the overview;
   - Shop App profile screen with `ShopLocationMap` and "Use my current location" (system location provider on Android);
   - verified in Chrome and on the Android emulator; four issues found there and fixed (see the spec, §13).
+- [x] SHP-004 and ADR 0007 (provider portability, free tiers):
+  - `ObjectStorage` port with an S3-protocol adapter (local Supabase Storage now; Supabase Storage or Cloudflare R2 by configuration);
+  - image pipeline (sharp): real-format check, orientation, all metadata incl. GPS removed, WebP 1600 px + 480 px;
+  - `PUT /v1/shops/:shopId/photo` (MASTER, audited), photo in the profile and the checklist;
+  - web photo upload with preview; Shop App shows the photo;
+  - `pnpm supabase:start` also seeds the storage bucket.
 
 ## 5. Not done
 
 - [ ] SHP-003, SHP-004, CAT-001, CAT-002 and PLT-002 (see §1).
 - [ ] Google Cloud project and Maps keys (product owner; D-027; steps in `docs/guides/GOOGLE_MAPS_SETUP.md`). Until then the map screens use the no-map fallback, and the Google map, place search and address suggestions are unverified.
 - [ ] Platform console pages read request data outside a page-level `<Suspense>` like the shop pages did before SHP-003 (navigation not instant, dev warning). To fix and verify in Chrome with PLT-002.
-- [ ] Push and CI run for the AUTH-001, SHP-001, PLT-001, SHP-002, DS-001 and SHP-003 branches (not pushed; product owner decides).
+- [ ] Push and CI run for the AUTH-001, SHP-001, PLT-001, SHP-002, DS-001, SHP-003 and SHP-004 branches (not pushed; product owner decides).
+- [ ] Hosted storage provider and credentials (ADR 0007): chosen with the first hosted environment.
 - [ ] Product answers: questions 49 (registration limit), 51 (email sign-up mitigation), 52 (tinting workflow) and 53 (notification channel).
 - [ ] Production SMS vendor + DLT registration (question 46). Platform admin MFA and password reset (question 47). Session policy after sign-out (question 48).
 - [ ] Hosting approved or any cloud resource created: none exists, including no Supabase project.
@@ -124,6 +131,21 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 - [ ] iOS build verification (requires macOS).
 
 ## 6. Checks run (local, Windows 11, Node 22.21.0)
+
+### SHP-004 (2026-11-04)
+
+| Check | Result |
+|---|---|
+| `pnpm format:check`, `pnpm tokens:check`, `pnpm lint`, `pnpm typecheck`, `pnpm build` | Passed |
+| `pnpm test`: api 89 (14 new: image pipeline, storage env), admin_web 108 (7 new), design_tokens 15 | Passed |
+| `pnpm --filter api test:e2e`: 83 (11 new: upload, metadata stripped, replacement, rejections, 413, 503, cross-tenant, 401, CHECK) | Passed |
+| `db:check-drift`; OpenAPI export (`PUT …/photo`, `ShopProfile.photo`) | No difference / updated |
+| `fvm flutter analyze`, `dart format`, `flutter test` (shop_app 32, flutter_shared 42, customer_app 1), `flutter build apk --debug` | Passed |
+| actionlint 1.7.12 on `ci.yml` (storage placeholders) | 0 errors |
+| **Chrome** (this computer): upload with preview, "Photo saved", checklist 4/4, replacement upload | Verified |
+| Local Supabase Storage over HTTP: WebP, 1600×1200 and 480×360, immutable cache header, no EXIF/GPS, old objects gone after replacement | Verified |
+| **Android emulator**: photo shown on the shop profile (`adb reverse tcp:54321 tcp:54321`) | Verified |
+| No Supabase or storage secret in the APK, web bundle or API log | Verified |
 
 ### SHP-003 (2026-11-04)
 
@@ -217,11 +239,10 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 
 ## 7. Next actions
 
-1. ~~SHP-003~~ done.
-2. **SHP-004: shop photo** with an S3-protocol storage port (local Supabase Storage) and ADR 0007 on free tiers and portability (D-028).
-3. **CAT-001: platform brand catalogue** with CSV import (D-030).
-4. **CAT-002: shop catalogue**: products from the brand catalogue or custom, pack prices and availability, favourite and custom shades (D-029).
-5. **PLT-002: review workflow** (D-032, D-033). Questions 49 and 51 are hardening.
+1. **CAT-001: platform brand catalogue** with CSV import (D-030).
+2. **CAT-002: shop catalogue**: products from the brand catalogue or custom, pack prices and availability per pack, favourite and custom shades (D-029); adds the products checklist item.
+3. **PLT-002: review workflow** (D-032, D-033); also fixes the platform console's page-level Suspense. Questions 49 and 51 are hardening.
+4. **Product owner:** Google Maps keys (`docs/guides/GOOGLE_MAPS_SETUP.md`).
 5. **Housekeeping.** Install Node 24 locally. Push the branches when the product owner wants CI runs.
 
 ## 8. Feature progress
@@ -232,7 +253,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | Architecture | Foundation + auth implemented | Hosting still proposed |
 | Design system | Provisional tokens from one source (DS-001); first web and Flutter components | `packages/design_tokens` → web `tokens.css` + Flutter `flutter_shared` |
 | Platform admin sign-in | **Complete (local)** | AUTH-001 |
-| Shop onboarding | Registration (SHP-001), Shop App sign-in (SHP-002), profile + map location + checklist (SHP-003) | Photo, products, submit and approval still to come |
+| Shop onboarding | Registration (SHP-001), Shop App sign-in (SHP-002), profile + map location + checklist (SHP-003), photo (SHP-004) | Products, submit and approval still to come |
 | Customer authentication | Not started | Supabase phone OTP decided; SMS vendor open |
 | Catalogue | Not started | Decided: brand catalogues + shop products, availability per pack (D-029, D-030). Tinting open (question 52) |
 | Cross-shop search | Not started | Price visibility open |
@@ -278,3 +299,4 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-03 | SHP-002 implemented: Shop App sign-in, shop list and home (Flutter), verified on the Android emulator. |
 | 2026-11-04 | Product owner answered the onboarding, catalogue, pricing and review questions (D-027–D-034). DS-001 implemented: single-source design tokens and brand names. |
 | 2026-11-04 | SHP-003 implemented: shop profile, address, map location and onboarding checklist (web + Shop App), verified in Chrome and on the Android emulator. |
+| 2026-11-04 | SHP-004 implemented: shop photo with a portable S3-protocol storage port and metadata-stripping image pipeline (ADR 0007). |

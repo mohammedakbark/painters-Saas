@@ -13,6 +13,7 @@ import 'sign_out_button.dart';
 /// User-facing messages of the profile screen (also used by tests).
 abstract final class ShopProfileMessages {
   static const notAdded = 'Not added yet. Add it on the web portal.';
+  static const photoFailed = "The photo couldn't be loaded.";
   static const noLocation = 'No location yet.';
   static const serviceDisabled =
       'Location is turned off on this phone. Turn it on, then try again.';
@@ -100,6 +101,8 @@ class _ProfileDetails extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.s24),
+        _PhotoSection(photo: profile.photo),
+        const SizedBox(height: AppSpacing.s16),
         _Section(
           title: 'Address',
           lines: address?.lines ?? const [ShopProfileMessages.notAdded],
@@ -119,6 +122,61 @@ class _ProfileDetails extends StatelessWidget {
         const SizedBox(height: AppSpacing.s16),
         _LocationSection(profile: profile, isOwner: isOwner),
       ],
+    );
+  }
+}
+
+/// The shop photo, uploaded on the web portal (SHP-004).
+class _PhotoSection extends StatelessWidget {
+  const _PhotoSection({required this.photo});
+
+  final ShopPhoto? photo;
+
+  @override
+  Widget build(BuildContext context) {
+    final photo = this.photo;
+    if (photo == null) {
+      return const _Section(
+        title: 'Shop photo',
+        lines: [ShopProfileMessages.notAdded],
+        muted: true,
+      );
+    }
+    final textTheme = Theme.of(context).textTheme;
+    return Card(
+      margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AspectRatio(
+            aspectRatio: 4 / 3,
+            child: Image.network(
+              photo.url,
+              fit: BoxFit.cover,
+              semanticLabel: 'Shop photo',
+              loadingBuilder: (context, child, progress) => progress == null
+                  ? child
+                  : const Center(child: CircularProgressIndicator()),
+              errorBuilder: (context, error, stackTrace) => ColoredBox(
+                color: AppColors.surfaceSubtle,
+                child: Center(
+                  child: Text(
+                    ShopProfileMessages.photoFailed,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.s16),
+            child: Text('Shop photo', style: textTheme.titleMedium),
+          ),
+        ],
+      ),
     );
   }
 }

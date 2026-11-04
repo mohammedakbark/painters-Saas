@@ -12,7 +12,7 @@ Shop area (SHP-001):
 - `/shops/new`: register a shop.
 - `/shops/[shopId]`: shop console.
 
-- `/shops/[shopId]/profile`: support mobile, address and map location (SHP-003).
+- `/shops/[shopId]/profile`: shop photo upload (SHP-004), support mobile, address and map location (SHP-003). Server Actions accept up to 6 MB (`next.config.ts`) for photos; the API enforces 5 MB.
 
 The layout and every page call `requireShopAccess(shopId)`. The API answers 404 for shops the user is not a member of. Each page reads its data inside its own `<Suspense>` so navigation between console pages is instant.
 

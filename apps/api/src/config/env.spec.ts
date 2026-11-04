@@ -10,12 +10,22 @@ const VALID = {
   AUTH_JWKS_URL: 'http://127.0.0.1:54321/auth/v1/.well-known/jwks.json',
   SUPABASE_URL: 'http://127.0.0.1:54321',
   SUPABASE_SECRET_KEY: 'sb_secret_placeholder',
+  STORAGE_S3_ENDPOINT: 'http://127.0.0.1:54321/storage/v1/s3',
+  STORAGE_S3_REGION: 'local',
+  STORAGE_S3_ACCESS_KEY_ID: 'access-key-placeholder',
+  STORAGE_S3_SECRET_ACCESS_KEY: 'secret-placeholder',
+  STORAGE_BUCKET: 'shop-media',
+  STORAGE_PUBLIC_BASE_URL:
+    'http://127.0.0.1:54321/storage/v1/object/public/shop-media',
 } as const;
 
 const PRODUCTION_URLS = {
   AUTH_ISSUER: 'https://example.supabase.co/auth/v1',
   AUTH_JWKS_URL: 'https://example.supabase.co/auth/v1/.well-known/jwks.json',
   SUPABASE_URL: 'https://example.supabase.co',
+  STORAGE_S3_ENDPOINT: 'https://example.supabase.co/storage/v1/s3',
+  STORAGE_PUBLIC_BASE_URL:
+    'https://example.supabase.co/storage/v1/object/public/shop-media',
 } as const;
 
 function problemsOf(raw: Record<string, unknown>): readonly string[] {
@@ -44,6 +54,7 @@ describe('validateEnv', () => {
       NODE_ENV: 'production',
       PORT: 8080,
       AUTH_AUDIENCE: 'authenticated',
+      STORAGE_S3_FORCE_PATH_STYLE: true,
     });
   });
 
@@ -85,25 +96,43 @@ describe('validateEnv', () => {
     ).toMatch(/DATABASE_URL must be a postgres/);
   });
 
-  it.each(['AUTH_ISSUER', 'AUTH_JWKS_URL', 'SUPABASE_URL'])(
-    'rejects a non-http %s',
-    (name) => {
-      expect(problemsOf({ ...VALID, [name]: 'ftp://example.com' })).toEqual([
-        `${name} must be an http(s) URL.`,
-      ]);
-    },
-  );
+  it.each([
+    'AUTH_ISSUER',
+    'AUTH_JWKS_URL',
+    'SUPABASE_URL',
+    'STORAGE_S3_ENDPOINT',
+    'STORAGE_PUBLIC_BASE_URL',
+  ])('rejects a non-http %s', (name) => {
+    expect(problemsOf({ ...VALID, [name]: 'ftp://example.com' })).toEqual([
+      `${name} must be an http(s) URL.`,
+    ]);
+  });
 
-  it('requires https for auth and Supabase URLs in production', () => {
+  it('requires https for auth, Supabase and storage URLs in production', () => {
     expect(problemsOf({ ...VALID, NODE_ENV: 'production' })).toEqual([
       'AUTH_ISSUER must use https:// in production.',
       'AUTH_JWKS_URL must use https:// in production.',
       'SUPABASE_URL must use https:// in production.',
+      'STORAGE_S3_ENDPOINT must use https:// in production.',
+      'STORAGE_PUBLIC_BASE_URL must use https:// in production.',
+    ]);
+  });
+
+  it('reads the path-style flag and validates the bucket name', () => {
+    expect(
+      validateEnv({ ...VALID, STORAGE_S3_FORCE_PATH_STYLE: 'false' })
+        .STORAGE_S3_FORCE_PATH_STYLE,
+    ).toBe(false);
+    expect(
+      problemsOf({ ...VALID, STORAGE_S3_FORCE_PATH_STYLE: 'yes' }),
+    ).toEqual(['STORAGE_S3_FORCE_PATH_STYLE must be true or false.']);
+    expect(problemsOf({ ...VALID, STORAGE_BUCKET: 'Shop_Media' })).toEqual([
+      'STORAGE_BUCKET must be a valid bucket name.',
     ]);
   });
 
   it('reports every problem at once', () => {
-    expect(problemsOf({ NODE_ENV: 'staging', PORT: 'abc' })).toHaveLength(7);
+    expect(problemsOf({ NODE_ENV: 'staging', PORT: 'abc' })).toHaveLength(13);
   });
 
   it('never includes secret values in the error message', () => {

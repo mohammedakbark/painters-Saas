@@ -145,6 +145,11 @@ model Shop {
   locationUpdatedAt DateTime?           @map("location_updated_at") @db.Timestamptz(3)
   profileUpdatedAt  DateTime?           @map("profile_updated_at") @db.Timestamptz(3)
 
+  // Photo (SHP-004). Object key prefix in the public bucket; the API stores
+  // "<key>-1600.webp" and "<key>-480.webp". Never a URL (ADR 0007).
+  photoKey          String?             @map("photo_key")
+  photoUpdatedAt    DateTime?           @map("photo_updated_at") @db.Timestamptz(3)
+
   memberships ShopMembership[]
   auditEvents AuditEvent[]
 

@@ -82,6 +82,7 @@ describe('Shop profile, location and onboarding checklist (e2e, real Postgres)',
         supportPhone: null,
         address: null,
         location: null,
+        photo: null,
         updatedAt: null,
       });
 
@@ -94,6 +95,7 @@ describe('Shop profile, location and onboarding checklist (e2e, real Postgres)',
           { key: 'address', done: false },
           { key: 'location', done: false },
           { key: 'support_phone', done: false },
+          { key: 'photo', done: false },
         ],
       });
     });
@@ -135,6 +137,7 @@ describe('Shop profile, location and onboarding checklist (e2e, real Postgres)',
           source: 'MAP_PIN',
           updatedAt: expect.any(String),
         },
+        photo: null,
         updatedAt: expect.any(String),
       });
 
@@ -148,9 +151,12 @@ describe('Shop profile, location and onboarding checklist (e2e, real Postgres)',
         .get(`/v1/shops/${shopId}/onboarding`)
         .set('Authorization', authorization)
         .expect(200);
-      expect(
-        onboarding.body.items.every((item: { done: boolean }) => item.done),
-      ).toBe(true);
+      expect(onboarding.body.items).toEqual([
+        { key: 'address', done: true },
+        { key: 'location', done: true },
+        { key: 'support_phone', done: true },
+        { key: 'photo', done: false },
+      ]);
 
       const event = await testApp.prisma.auditEvent.findFirstOrThrow({
         where: { action: 'shop.profile_updated' },

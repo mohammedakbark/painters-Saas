@@ -16,7 +16,7 @@
     "db:up": "docker compose -f infra/local/compose.yaml --env-file infra/local/.env up -d --wait",
     "db:down": "docker compose -f infra/local/compose.yaml --env-file infra/local/.env down",
     "supabase:keys": "node infra/supabase/ensure-signing-key.mjs",
-    "supabase:start": "supabase start --workdir infra",
+    "supabase:start": "supabase start --workdir infra && supabase seed buckets --workdir infra --local",
     "supabase:stop": "supabase stop --workdir infra",
     "supabase:status": "supabase status --workdir infra",
     "tokens:generate": "pnpm --filter design-tokens run generate",

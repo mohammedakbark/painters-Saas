@@ -112,6 +112,10 @@ function clientSafeDetail(
   if (exception instanceof HttpException && status === 403) {
     return { detail: 'You do not have permission to perform this action.' };
   }
+  // Multipart limits (multer) answer 413 with a framework message.
+  if (exception instanceof HttpException && status === 413) {
+    return { detail: 'The upload is too large.' };
+  }
   return {};
 }
 

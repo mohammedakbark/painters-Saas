@@ -73,7 +73,7 @@ Official references:
 
 ### Storage
 
-Use Supabase Storage initially. Separate public/cacheable shop and product images from private identity documents and private exports. Never make identity documents public. If media storage/egress becomes material, evaluate Cloudflare R2; its published pricing currently includes 10 GB-month free storage and no internet egress charges, with standard storage listed at $0.015/GB-month. Recheck pricing before making a provider decision.
+**Decided in ADR 0007 (SHP-004):** files go through an `ObjectStorage` port using the S3 protocol, so local Supabase Storage, hosted Supabase Storage and Cloudflare R2 are interchangeable by configuration; the database stores object keys only. Use Supabase Storage initially. Separate public/cacheable shop and product images from private identity documents and private exports. Never make identity documents public. If media storage/egress becomes material, evaluate Cloudflare R2; its published pricing currently includes 10 GB-month free storage and no internet egress charges, with standard storage listed at $0.015/GB-month. Recheck pricing before making a provider decision.
 
 ## 4. System shape
 
@@ -228,7 +228,7 @@ Shop App (SHP-002): supabase_flutter ^2.18.3, flutter_riverpod ^3.4.3, go_router
 │   │   ├── prisma/                 # schema.prisma + migrations/
 │   │   ├── src/
 │   │   │   ├── app.setup.ts        # /v1 prefix, validation pipe, problem filter
-│   │   │   ├── auth/  users/  platform-admin/  platform-shops/  identity/  audit/  shops/  shop-access/
+│   │   │   ├── auth/  users/  platform-admin/  platform-shops/  identity/  audit/  shops/  shop-access/  storage/  media/
 │   │   │   ├── common/http  common/validation  config/  health/  openapi/  prisma/
 │   │   │   └── scripts/            # export-openapi, create-platform-admin
 │   │   └── test/                   # e2e suites + support (test tokens, fake identity, DB reset)
@@ -239,7 +239,7 @@ Shop App (SHP-002): supabase_flutter ^2.18.3, flutter_riverpod ^3.4.3, go_router
 │   ├── design_tokens/              # tokens.json + brand.json → generated web theme and Flutter tokens (DS-001)
 │   └── flutter_shared/             # generated tokens + AppBrand, AppTheme, BrandMark, Inter fonts, IndianMobileNumber, state views
 ├── infra/local/                    # Docker Compose Postgres for app data (local only)
-├── infra/supabase/                 # Supabase CLI config: Auth only (local only)
+├── infra/supabase/                 # Supabase CLI config: Auth + Storage with S3 protocol (local only)
 ├── docs/  prompts/  .claude/skills/  CLAUDE.md  README.md
 ├── package.json  pnpm-workspace.yaml  pnpm-lock.yaml  .node-version   # TS workspace
 └── pubspec.yaml  pubspec.lock  analysis_options.yaml  .fvmrc          # Dart pub workspace
@@ -250,7 +250,8 @@ The two toolchains are independent. pnpm manages `apps/api`, `apps/admin_web` an
 ### 14.3 What exists
 
 - **API:**
-  - Routes: `GET /health` and `GET /health/ready` (public, unversioned); `GET /v1/me`, `POST /v1/shops` and `GET /v1/shops/:shopId` (authenticated); `GET/PUT /v1/shops/:shopId/profile`, `PUT /v1/shops/:shopId/location` and `GET /v1/shops/:shopId/onboarding` (shop-scoped; writes need MASTER, SHP-003); `GET /v1/platform/shops` and `GET /v1/platform/shops/:shopId` (platform admins; read-only registry with cursor pagination). Shop routes are tenant-scoped by `ShopAccessGuard` (membership of the shop in the URL; 404 otherwise).
+  - Routes: `GET /health` and `GET /health/ready` (public, unversioned); `GET /v1/me`, `POST /v1/shops` and `GET /v1/shops/:shopId` (authenticated); `GET/PUT /v1/shops/:shopId/profile`, `PUT /v1/shops/:shopId/location`, `PUT /v1/shops/:shopId/photo` (multipart) and `GET /v1/shops/:shopId/onboarding` (shop-scoped; writes need MASTER, SHP-003/SHP-004);
+  - Files: `src/storage/` (`ObjectStorage` port, `S3ObjectStorage`) and `src/media/` (sharp image pipeline), ADR 0007; `GET /v1/platform/shops` and `GET /v1/platform/shops/:shopId` (platform admins; read-only registry with cursor pagination). Shop routes are tenant-scoped by `ShopAccessGuard` (membership of the shop in the URL; 404 otherwise).
   - Every other route needs a valid Supabase access token (global `AuthGuard`, ADR 0005).
   - Errors are RFC 9457 problem details; request validation uses Zod (ADR 0006).
   - Tables: `users`, `platform_admins`, `audit_events` (append-only), `shops` (status `DRAFT` only so far), `shop_memberships` (role `MASTER` only so far; one master per shop).
@@ -283,8 +284,8 @@ cp apps/api/.env.example apps/api/.env         # then paste the local Supabase s
 cp apps/api/.env.test.example apps/api/.env.test
 cp apps/admin_web/.env.example apps/admin_web/.env.local   # then paste the publishable key
 pnpm db:up                                     # app Postgres 17 on 127.0.0.1:${POSTGRES_PORT:-5432}
-pnpm supabase:keys && pnpm supabase:start      # local Supabase Auth on http://127.0.0.1:54321
-pnpm supabase:status                           # prints the publishable and secret keys
+pnpm supabase:keys && pnpm supabase:start      # local Supabase Auth + Storage on http://127.0.0.1:54321 (also seeds the shop-media bucket)
+pnpm supabase:status                           # prints the publishable and secret keys and the S3 keys (for apps/api/.env)
 pnpm --filter api db:migrate:deploy            # apply migrations to the dev database
 pnpm --filter api platform-admin:create --email admin@example.com   # hidden password prompt
 pnpm --filter api start:dev                    # API on :3000, docs at /docs
@@ -295,6 +296,7 @@ cd apps/shop_app && fvm flutter run --dart-define-from-file=config/local.json
 - **Postgres port taken:** if 5432 is already used (for example by another project's Postgres), set `POSTGRES_PORT` in `infra/local/.env` and use the same port in `apps/api/.env` and `.env.test`.
 - **API port taken:** if 3000 is used, set `PORT` in `apps/api/.env` and `API_BASE_URL` in `apps/admin_web/.env.local` to match.
 - **Hidden password prompt:** run `platform-admin:create` from a real terminal (PowerShell or Windows Terminal). In Git Bash/mintty Node cannot hide input, so the script warns and reads the line as typed.
+- **Images on the Android emulator:** image URLs use the host's `127.0.0.1:54321`; run `adb reverse tcp:54321 tcp:54321` so the emulator reaches local Storage.
 - **Test OTPs:** the local Auth stack has fixed test OTPs for `+91 99999 00001`–`00003` (code `123456`); no SMS is sent. Sign-up is enabled (shop self-registration); the first OTP sign-in with a new number creates the account.
 - **Port exposure:** the Supabase CLI publishes its ports on all interfaces. Keep the firewall on for untrusted networks (ADR 0005).
 
@@ -321,12 +323,12 @@ cd apps/shop_app && fvm flutter run --dart-define-from-file=config/local.json
 | File | Variables | Notes |
 |---|---|---|
 | `infra/local/.env` | `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_TEST_DB`, `POSTGRES_PORT` | Local container only |
-| `apps/api/.env` | `NODE_ENV`, `PORT`, `DATABASE_URL`, `AUTH_ISSUER`, `AUTH_JWKS_URL`, `AUTH_AUDIENCE`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY` | Validated at startup; https required in production; `SUPABASE_SECRET_KEY` is server-only |
+| `apps/api/.env` | `NODE_ENV`, `PORT`, `DATABASE_URL`, `AUTH_ISSUER`, `AUTH_JWKS_URL`, `AUTH_AUDIENCE`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `STORAGE_S3_ENDPOINT`, `STORAGE_S3_REGION`, `STORAGE_S3_ACCESS_KEY_ID`, `STORAGE_S3_SECRET_ACCESS_KEY`, `STORAGE_S3_FORCE_PATH_STYLE`, `STORAGE_BUCKET`, `STORAGE_PUBLIC_BASE_URL` | Validated at startup; https required in production (auth, Supabase and storage URLs); the Supabase secret key and the S3 keys are server-only |
 | `apps/api/.env.test` | `NODE_ENV`, `DATABASE_URL`, `AUTH_ISSUER`, `AUTH_JWKS_URL`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY` | e2e only; test DB; auth values are placeholders (tests sign their own tokens) |
 | `apps/admin_web/.env.local` | `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `API_BASE_URL`; optional `GOOGLE_MAPS_BROWSER_KEY`, `GOOGLE_MAPS_MAP_ID` | All server-only (no `NEXT_PUBLIC_*`); read at request time. The Maps browser key is public by design and is passed to the profile page only when set (restrict it; `docs/guides/GOOGLE_MAPS_SETUP.md`) |
 | `apps/shop_app/config/local.json` | `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `API_BASE_URL`, `GOOGLE_MAPS_ENABLED` (default false) | Passed with `--dart-define-from-file`; non-secret values only; gitignored (example: `config/local.example.json`). The Android emulator reaches the host at `10.0.2.2`. |
 
-Storage and SMS variables are defined when those features and providers arrive. Secret keys must exist only on the server.
+SMS variables are defined when that provider arrives. Secret keys must exist only on the server.
 
 ### 14.7 CI (`.github/workflows/ci.yml`)
 
@@ -339,6 +341,6 @@ Runs on pull requests, pushes to `main` and manual dispatch, with `permissions: 
 ### 14.8 Supply-chain controls
 
 - pnpm `minimumReleaseAge` 24 h (default) with `minimumReleaseAgeStrict: true`. Too-new versions are replaced by older releases, never excluded. For example, Supabase CLI 3.0.0 and 2.122.1 were too new on 2026-11-03, so 2.122.0 is pinned.
-- `allowBuilds` permits only the `prisma` and `@prisma/engines` build scripts. It denies `@scarf/scarf` (install telemetry), `sharp` and `unrs-resolver`. The Supabase CLI ships its binary as an optional platform package and needs no build script.
+- `allowBuilds` permits only the `prisma` and `@prisma/engines` build scripts. It denies `@scarf/scarf` (install telemetry), `sharp` and `unrs-resolver`. The API uses sharp 0.35.5 through its prebuilt platform packages (`@img/sharp-*`), so the denied install script is not needed (SHP-004). The Supabase CLI ships its binary as an optional platform package and needs no build script.
 - Third-party actions and the actionlint image are pinned by commit SHA / digest.
 - `.gitattributes` forces LF line endings. Signing files, `.env` files, FVM caches, generated Prisma output and the local Supabase signing key are gitignored.

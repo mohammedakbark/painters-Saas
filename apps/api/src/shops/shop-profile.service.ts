@@ -4,6 +4,7 @@ import type { CurrentUserContext } from '../auth/current-user.js';
 import { parseIndianMobile } from '../common/phone/indian-mobile.js';
 import { Prisma } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { ObjectStorage } from '../storage/object-storage.js';
 import {
   type ShopContext,
   shopNotFound,
@@ -13,6 +14,7 @@ import {
   requireShopRole,
 } from '../shop-access/shop-roles.js';
 import { indianStateName } from './indian-states.js';
+import { photoUrls } from './shop-photo.js';
 import type {
   ShopLocationInput,
   ShopOnboardingResponse,
@@ -37,6 +39,8 @@ const PROFILE_SELECT = {
   locationSource: true,
   locationUpdatedAt: true,
   profileUpdatedAt: true,
+  photoKey: true,
+  photoUpdatedAt: true,
 } as const satisfies Prisma.ShopSelect;
 
 type ProfileRow = Prisma.ShopGetPayload<{ select: typeof PROFILE_SELECT }>;
@@ -46,10 +50,13 @@ type ProfileField = 'supportPhone' | 'address' | 'location';
 
 @Injectable()
 export class ShopProfileService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storage: ObjectStorage,
+  ) {}
 
   async get(shop: ShopContext): Promise<ShopProfileResponse> {
-    return toProfile(await this.load(shop.shopId));
+    return this.toProfile(await this.load(shop.shopId));
   }
 
   /**
@@ -102,7 +109,7 @@ export class ShopProfileService {
       return after;
     });
 
-    return toProfile(updated);
+    return this.toProfile(updated);
   }
 
   /** Sets only the map location (the Shop App's "Use my current location"). */
@@ -132,12 +139,12 @@ export class ShopProfileService {
       return after;
     });
 
-    return toProfile(updated);
+    return this.toProfile(updated);
   }
 
   /**
    * The onboarding checklist (D-012). Computed here so every client shows the
-   * same rule. SHP-004 adds the photo and CAT-002 the products.
+   * same rule. CAT-002 adds the products.
    */
   async onboarding(shop: ShopContext): Promise<ShopOnboardingResponse> {
     const row = await this.load(shop.shopId);
@@ -146,7 +153,21 @@ export class ShopProfileService {
         { key: 'address', done: row.addressLine1 !== null },
         { key: 'location', done: row.latitude !== null },
         { key: 'support_phone', done: row.supportPhone !== null },
+        { key: 'photo', done: row.photoKey !== null },
       ],
+    };
+  }
+
+  private toProfile(row: ProfileRow): ShopProfileResponse {
+    return {
+      shopId: row.id,
+      shopName: row.name,
+      status: row.status,
+      supportPhone: row.supportPhone,
+      address: toAddress(row),
+      location: toLocation(row),
+      photo: photoUrls(this.storage, row.photoKey, row.photoUpdatedAt),
+      updatedAt: row.profileUpdatedAt?.toISOString() ?? null,
     };
   }
 
@@ -227,18 +248,6 @@ function changedFields(before: ProfileRow, after: ProfileRow): ProfileField[] {
     changed.push('location');
   }
   return changed;
-}
-
-function toProfile(row: ProfileRow): ShopProfileResponse {
-  return {
-    shopId: row.id,
-    shopName: row.name,
-    status: row.status,
-    supportPhone: row.supportPhone,
-    address: toAddress(row),
-    location: toLocation(row),
-    updatedAt: row.profileUpdatedAt?.toISOString() ?? null,
-  };
 }
 
 function toAddress(row: ProfileRow): ShopProfileResponse['address'] {

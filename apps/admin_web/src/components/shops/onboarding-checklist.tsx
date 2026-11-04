@@ -19,6 +19,11 @@ const ITEMS: Record<string, { label: string; hint: string; path: string }> = {
     hint: 'The number customers contact.',
     path: 'profile',
   },
+  photo: {
+    label: 'Shop photo',
+    hint: 'A clear photo of the shop front.',
+    path: 'profile',
+  },
 };
 
 /**

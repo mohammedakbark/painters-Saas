@@ -1,7 +1,19 @@
-import { Body, Controller, Get, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Put,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiPayloadTooLargeResponse,
+  ApiServiceUnavailableResponse,
   ApiForbiddenResponse,
   ApiOkResponse,
   ApiOperation,
@@ -10,6 +22,7 @@ import {
 } from '@nestjs/swagger';
 import { CurrentUser, type CurrentUserContext } from '../auth/current-user.js';
 import { ProblemDetailsSchema } from '../common/http/problem-details.js';
+import { IMAGE_LIMITS } from '../media/image-processor.js';
 import {
   CurrentShop,
   type ShopContext,
@@ -25,6 +38,7 @@ import {
   type UpdateShopProfileRequest,
   UpdateShopProfileRequestSchema,
 } from './shop-profile.schemas.js';
+import { ShopPhotoService, type UploadedImage } from './shop-photo.service.js';
 import { ShopProfileService } from './shop-profile.service.js';
 
 const OWNER_ONLY = {
@@ -38,7 +52,10 @@ const OWNER_ONLY = {
 @ApiUnauthorizedResponse({ standardSchema: ProblemDetailsSchema })
 @Controller('shops/:shopId')
 export class ShopProfileController {
-  constructor(private readonly profiles: ShopProfileService) {}
+  constructor(
+    private readonly profiles: ShopProfileService,
+    private readonly photos: ShopPhotoService,
+  ) {}
 
   @Get('profile')
   @ShopScoped()
@@ -80,6 +97,39 @@ export class ShopProfileController {
     @Body({ schema: ShopLocationInputSchema }) body: ShopLocationInput,
   ): Promise<ShopProfileResponse> {
     return this.profiles.updateLocation(user, shop, body);
+  }
+
+  @Put('photo')
+  @ShopScoped()
+  @UseInterceptors(
+    FileInterceptor('photo', {
+      // In memory: the image is re-encoded before anything is stored.
+      limits: { fileSize: IMAGE_LIMITS.maxBytes, files: 1, fields: 0 },
+    }),
+  )
+  @ApiOperation({
+    summary:
+      'Replace the shop photo (JPEG, PNG or WebP, at most 5 MB; re-encoded to WebP, metadata removed).',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['photo'],
+      properties: { photo: { type: 'string', format: 'binary' } },
+    },
+  })
+  @ApiOkResponse({ standardSchema: ShopProfileResponseSchema })
+  @ApiBadRequestResponse({ standardSchema: ProblemDetailsSchema })
+  @ApiForbiddenResponse(OWNER_ONLY)
+  @ApiPayloadTooLargeResponse({ standardSchema: ProblemDetailsSchema })
+  @ApiServiceUnavailableResponse({ standardSchema: ProblemDetailsSchema })
+  replacePhoto(
+    @CurrentUser() user: CurrentUserContext,
+    @CurrentShop() shop: ShopContext,
+    @UploadedFile() file: UploadedImage | undefined,
+  ): Promise<ShopProfileResponse> {
+    return this.photos.replace(user, shop, file);
   }
 
   @Get('onboarding')

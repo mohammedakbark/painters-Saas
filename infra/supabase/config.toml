@@ -1,9 +1,10 @@
-# Local Supabase stack — AUTH ONLY (ADR 0005).
+# Local Supabase stack — Auth and Storage (ADR 0005, ADR 0007).
 #
 # Run from the repo root: `pnpm supabase:start` / `pnpm supabase:stop` / `pnpm supabase:status`.
 # The application database is NOT this one: app data lives in the Docker Compose Postgres in
 # infra/local (Prisma migrations). This stack provides Supabase Auth (GoTrue) behind the local
-# API gateway on http://127.0.0.1:54321. Every other Supabase service is disabled.
+# API gateway on http://127.0.0.1:54321, plus Storage for public shop images through its
+# S3-compatible endpoint (SHP-004). Every other Supabase service is disabled.
 #
 # Reference: https://supabase.com/docs/guides/local-development/cli/config
 #
@@ -41,7 +42,23 @@ enabled = false
 enabled = false
 
 [storage]
+# Public shop and product images (SHP-004). The API is the only writer: it re-encodes uploads
+# and talks to Storage through the S3 protocol (ADR 0007), so any S3-compatible provider can
+# replace it. Identity documents must never go into a public bucket.
+enabled = true
+file_size_limit = "5MiB"
+
+[storage.image_transformation]
+# Image transformations are a paid feature on hosted Supabase; the API resizes images itself.
 enabled = false
+
+[storage.s3_protocol]
+enabled = true
+
+[storage.buckets.shop-media]
+public = true
+file_size_limit = "5MiB"
+allowed_mime_types = ["image/webp"]
 
 [edge_runtime]
 enabled = false
