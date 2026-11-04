@@ -6,6 +6,9 @@ import type { ShopContext } from './shop-access.guard.js';
 /** Roles that may change the shop's profile, photo and location. */
 export const PROFILE_MANAGER_ROLES: readonly ShopRole[] = ['MASTER'];
 
+/** Roles that may change the shop's products, prices and shades (CAT-002). */
+export const CATALOGUE_MANAGER_ROLES: readonly ShopRole[] = ['MASTER'];
+
 /**
  * Throws 403 `shop_permission_denied` unless the caller's role in this shop is
  * one of `roles`. Membership itself is already checked by `ShopAccessGuard`;

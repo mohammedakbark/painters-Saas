@@ -24,6 +24,11 @@ const ITEMS: Record<string, { label: string; hint: string; path: string }> = {
     hint: 'A clear photo of the shop front.',
     path: 'profile',
   },
+  products: {
+    label: 'Products',
+    hint: 'At least 10 products on sale, each with a price.',
+    path: 'catalogue',
+  },
 };
 
 /**
@@ -71,6 +76,11 @@ export function OnboardingChecklist({
                 {meta.hint ? (
                   <span className="text-body text-text-secondary">
                     {meta.hint}
+                  </span>
+                ) : null}
+                {item.progress ? (
+                  <span className="text-body text-text-secondary">
+                    {item.progress.current} of {item.progress.required} added
                   </span>
                 ) : null}
               </div>

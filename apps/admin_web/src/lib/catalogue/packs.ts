@@ -58,22 +58,32 @@ export function parsePackList(
   const packs: PackSize[] = [];
   const seen = new Set<string>();
   for (const part of parts) {
-    const match = /^(\d+(?:\.\d{1,3})?)\s*([a-zA-Z]+)$/.exec(part);
-    const unit = match ? ALIASES[match[2].toLowerCase()] : undefined;
-    const quantity = match ? Number(match[1]) : 0;
-    if (!unit || !(quantity > 0) || quantity > 1_000_000) {
-      return {
-        ok: false,
-        message: `"${part.slice(0, 20)}" is not a pack size. Use a number and a unit: L, ml, kg, g or pc.`,
-      };
+    const pack = parsePackSize(part);
+    if (!pack) {
+      return { ok: false, message: notAPackSize(part) };
     }
-    const key = `${unit}:${quantity.toFixed(3)}`;
+    const key = `${pack.unit}:${pack.quantity.toFixed(3)}`;
     if (!seen.has(key)) {
       seen.add(key);
-      packs.push({ quantity, unit });
+      packs.push(pack);
     }
   }
   return { ok: true, packs };
+}
+
+/** "4 L", "500ml", "20 Kg" → a pack size; null when unreadable. */
+export function parsePackSize(text: string): PackSize | null {
+  const match = /^(\d+(?:\.\d{1,3})?)\s*([a-zA-Z]+)$/.exec(text.trim());
+  const unit = match ? ALIASES[match[2].toLowerCase()] : undefined;
+  const quantity = match ? Number(match[1]) : 0;
+  if (!unit || !(quantity > 0) || quantity > 1_000_000) {
+    return null;
+  }
+  return { quantity, unit };
+}
+
+export function notAPackSize(text: string): string {
+  return `"${text.trim().slice(0, 20)}" is not a pack size. Use a number and a unit: L, ml, kg, g or pc.`;
 }
 
 /** [{4, LITRE}, {10, LITRE}] → "4 L; 10 L". */

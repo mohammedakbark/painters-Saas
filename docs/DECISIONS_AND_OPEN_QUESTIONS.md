@@ -82,6 +82,7 @@ Do not treat proposals as approved until the product owner confirms them.
 | T-016 | Design tokens and working brand names live only in `packages/design_tokens` (`tokens.json`, `brand.json`); the web `@theme` file and the Flutter token/brand classes are generated and checked in CI (`pnpm tokens:check`). The generator enforces WCAG AA for the listed text pairs. | DS-001 |
 | T-017 | Files: an `ObjectStorage` port with an S3-protocol adapter; local Supabase Storage now, Supabase Storage or Cloudflare R2 hosted, by configuration. The DB stores object keys only. Public images are re-encoded by the API (sharp) with metadata removed. Standard PostgreSQL only; maps confined to one component per platform. | ADR 0007 (D-028) |
 | T-018 | Catalogue: a global brand catalogue (categories, brands, products with pack sizes, shades; no prices) maintained by platform admins, and tenant-owned shop listings with per-pack prices and availability (CAT-002). Names unique regardless of case via `name_key`; archive instead of delete; all-or-nothing CSV import. | ADR 0008 (D-030) |
+| T-019 | Shop catalogue (CAT-002): tenant-owned listings of brand-catalogue products or own products; packs reference their product through a composite FK `(shop_id, shop_product_id)`; prices are integer paise; pack changes lock the product row; products are archived, never deleted. | ADR 0008 |
 | T-015 | Shop App stack: Riverpod 3 (P-007 adopted for the Shop App), go_router, Dio, supabase_flutter (sign-in only) and flutter_secure_storage for the session. Shared Flutter widgets and the mobile parser live in `flutter_shared`. | SHP-002 |
 
 ## 3. Open product questions
@@ -172,6 +173,10 @@ Do not treat proposals as approved until the product owner confirms them.
 - On Android the Shop App reads the location from the system provider, not Google Play services, so no extra Google consent prompt is shown (SHP-003).
 - Shop photos: JPEG, PNG or WebP, up to 5 MB, shorter side at least 300 px; HEIC is not accepted (SHP-004).
 - Catalogue: pack units L, ml, kg, g, pc; at most 12 pack sizes per product; shade codes upper case with letters, digits, space, `. / -` (at most 20); categories are platform-managed (CAT-001).
+- Shop catalogue (CAT-002), **to confirm with the product owner**:
+  - the selling price may not be more than the MRP (selling packaged goods above MRP is not allowed in India); the MRP itself is optional;
+  - the onboarding **Products** item needs 10 active products, each with at least one pack size; archived products don't count.
+- Shop catalogue limits (CAT-002): prices up to ₹1 crore; a product keeps at least one pack size; up to 500 favourite shades and 1,000 own shades per shop; own products use the platform's categories; only the master account edits the catalogue until staff roles are decided (question 37).
 
 ## 4. Rules while questions are open
 

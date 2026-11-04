@@ -1,6 +1,10 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { z } from 'zod';
-import { AuditAction, recordAuditEvent } from '../audit/audit.js';
+import {
+  AuditAction,
+  changedFields as changed,
+  recordAuditEvent,
+} from '../audit/audit.js';
 import type { CurrentUserContext } from '../auth/current-user.js';
 import { ProblemException } from '../common/http/problem-details.js';
 import { decodeCursor, pageOf } from '../common/pagination/keyset-cursor.js';
@@ -42,6 +46,7 @@ import type {
   UpdateShadeRequest,
 } from './catalogue.schemas.js';
 import {
+  blankToNull,
   nameKey,
   normaliseHex,
   normaliseShadeCode,
@@ -612,22 +617,25 @@ export async function listShadePage(
     where: {
       brandId,
       ...(activeOnly ? { active: true } : {}),
-      ...(query.q
-        ? {
-            OR: [
-              { code: { contains: query.q, mode: 'insensitive' } },
-              { name: { contains: query.q, mode: 'insensitive' } },
-            ],
-          }
-        : {}),
-      ...(after
-        ? {
-            OR: [
-              { code: { gt: after.sortValue } },
-              { code: after.sortValue, id: { gt: after.id } },
-            ],
-          }
-        : {}),
+      // AND: the search and the cursor are both OR conditions.
+      AND: [
+        query.q
+          ? {
+              OR: [
+                { code: { contains: query.q, mode: 'insensitive' } },
+                { name: { contains: query.q, mode: 'insensitive' } },
+              ],
+            }
+          : {},
+        after
+          ? {
+              OR: [
+                { code: { gt: after.sortValue } },
+                { code: after.sortValue, id: { gt: after.id } },
+              ],
+            }
+          : {},
+      ],
     },
     orderBy: [{ code: 'asc' }, { id: 'asc' }],
     take: query.limit + 1,
@@ -651,19 +659,5 @@ function packData(pack: PackInput) {
   return {
     quantity: new Prisma.Decimal(pack.quantity.toFixed(3)),
     unit: pack.unit,
-  };
-}
-
-function blankToNull(value: string | null | undefined): string | null {
-  const text = value?.trim();
-  return text ? text : null;
-}
-
-/** The names of the fields a PATCH changed (audit metadata never holds values). */
-function changed(input: Record<string, unknown>): Prisma.InputJsonObject {
-  return {
-    fields: Object.entries(input)
-      .filter(([, value]) => value !== undefined)
-      .map(([key]) => key),
   };
 }

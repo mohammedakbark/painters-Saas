@@ -13,26 +13,26 @@ export const PACK_UNITS = [
 ] as const;
 export type PackUnit = (typeof PACK_UNITS)[number];
 
-const categorySchema = z.object({
+export const categorySchema = z.object({
   id: z.string(),
   name: z.string(),
   sortOrder: z.number(),
   active: z.boolean(),
 });
-const brandSchema = z.object({
+export const brandSchema = z.object({
   id: z.string(),
   name: z.string(),
   active: z.boolean(),
   productCount: z.number(),
   shadeCount: z.number(),
 });
-const packSchema = z.object({
+export const packSchema = z.object({
   id: z.string(),
   quantity: z.number(),
   unit: z.enum(PACK_UNITS),
   label: z.string(),
 });
-const productSchema = z.object({
+export const productSchema = z.object({
   id: z.string(),
   brand: z.object({ id: z.string(), name: z.string() }),
   category: z.object({ id: z.string(), name: z.string() }),
@@ -45,7 +45,7 @@ const productSchema = z.object({
     .nullable(),
   packs: z.array(packSchema),
 });
-const shadeSchema = z.object({
+export const shadeSchema = z.object({
   id: z.string(),
   brandId: z.string(),
   code: z.string(),
@@ -53,7 +53,7 @@ const shadeSchema = z.object({
   previewHex: z.string().nullable(),
   active: z.boolean(),
 });
-const page = <T extends z.ZodType>(item: T) =>
+export const page = <T extends z.ZodType>(item: T) =>
   z.object({ items: z.array(item), nextCursor: z.string().nullable() });
 const importResultSchema = z.object({
   kind: z.enum(['shades', 'products']),

@@ -131,12 +131,13 @@ export const ShopProfileResponseSchema = z
 
 export type ShopProfileResponse = z.infer<typeof ShopProfileResponseSchema>;
 
-/** Checklist items available so far; CAT-002 adds `products`. */
+/** Checklist items (D-012). */
 export const OnboardingItemKey = z.enum([
   'address',
   'location',
   'support_phone',
   'photo',
+  'products',
 ]);
 
 export const ShopOnboardingResponseSchema = z
@@ -145,6 +146,13 @@ export const ShopOnboardingResponseSchema = z
       z.object({
         key: OnboardingItemKey,
         done: z.boolean(),
+        progress: z
+          .object({ current: z.int(), required: z.int() })
+          .optional()
+          .meta({
+            description:
+              'Counted items, for example active products with a pack size.',
+          }),
       }),
     ),
   })

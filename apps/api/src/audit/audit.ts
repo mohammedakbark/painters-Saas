@@ -18,6 +18,17 @@ export const AuditAction = {
   ShadeCreated: 'catalogue.shade_created',
   ShadeUpdated: 'catalogue.shade_updated',
   CatalogueImported: 'catalogue.imported',
+  ShopProductAdded: 'shop_catalogue.product_added',
+  ShopProductUpdated: 'shop_catalogue.product_updated',
+  ShopProductImageUpdated: 'shop_catalogue.product_image_updated',
+  ShopPackAdded: 'shop_catalogue.pack_added',
+  ShopPackUpdated: 'shop_catalogue.pack_updated',
+  ShopPackRemoved: 'shop_catalogue.pack_removed',
+  ShopFavouriteShadeAdded: 'shop_catalogue.favourite_shade_added',
+  ShopFavouriteShadeRemoved: 'shop_catalogue.favourite_shade_removed',
+  ShopShadeAdded: 'shop_catalogue.shade_added',
+  ShopShadeUpdated: 'shop_catalogue.shade_updated',
+  ShopShadeRemoved: 'shop_catalogue.shade_removed',
 } as const;
 
 export type AuditAction = (typeof AuditAction)[keyof typeof AuditAction];
@@ -63,4 +74,15 @@ export async function recordAuditEvent(
       ...(event.metadata === undefined ? {} : { metadata: event.metadata }),
     },
   });
+}
+
+/** The names of the fields a PATCH changed (audit metadata never holds values). */
+export function changedFields(
+  input: Record<string, unknown>,
+): Prisma.InputJsonObject {
+  return {
+    fields: Object.entries(input)
+      .filter(([, value]) => value !== undefined)
+      .map(([key]) => key),
+  };
 }

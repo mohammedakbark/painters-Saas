@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AuditAction, recordAuditEvent } from '../audit/audit.js';
+import { ONBOARDING_MIN_PRODUCTS } from '../shop-catalogue/shop-catalogue-rules.js';
 import type { CurrentUserContext } from '../auth/current-user.js';
 import { parseIndianMobile } from '../common/phone/indian-mobile.js';
 import { Prisma } from '../generated/prisma/client.js';
@@ -143,16 +144,24 @@ export class ShopProfileService {
 
   /**
    * The onboarding checklist (D-012). Computed here so every client shows the
-   * same rule. CAT-002 adds the products.
+   * same rule. Products count when active with at least one pack size.
    */
   async onboarding(shop: ShopContext): Promise<ShopOnboardingResponse> {
     const row = await this.load(shop.shopId);
+    const products = await this.prisma.shopProduct.count({
+      where: { shopId: shop.shopId, status: 'ACTIVE', packs: { some: {} } },
+    });
     return {
       items: [
         { key: 'address', done: row.addressLine1 !== null },
         { key: 'location', done: row.latitude !== null },
         { key: 'support_phone', done: row.supportPhone !== null },
         { key: 'photo', done: row.photoKey !== null },
+        {
+          key: 'products',
+          done: products >= ONBOARDING_MIN_PRODUCTS,
+          progress: { current: products, required: ONBOARDING_MIN_PRODUCTS },
+        },
       ],
     };
   }

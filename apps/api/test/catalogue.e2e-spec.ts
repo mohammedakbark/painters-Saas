@@ -309,6 +309,33 @@ describe('Brand catalogue (e2e, real Postgres)', () => {
       ]);
     });
 
+    it('keeps the search on later pages of shades', async () => {
+      const brandId = await brand();
+      for (const [code, name] of [
+        ['G-1', 'Grey Mist'],
+        ['B-1', 'Blue Sky'],
+        ['G-2', 'Grey Stone'],
+        ['B-2', 'Blue Lagoon'],
+        ['G-3', 'Grey Slate'],
+      ]) {
+        await post(`/brands/${brandId}/shades`, { code, name }).expect(201);
+      }
+      const first = await get(
+        `/catalogue/brands/${brandId}/shades?q=grey&limit=2`,
+      ).expect(200);
+      expect(first.body.items.map((s: { code: string }) => s.code)).toEqual([
+        'G-1',
+        'G-2',
+      ]);
+      const second = await get(
+        `/catalogue/brands/${brandId}/shades?q=grey&limit=2&cursor=${first.body.nextCursor}`,
+      ).expect(200);
+      expect(second.body.items.map((s: { code: string }) => s.code)).toEqual([
+        'G-3',
+      ]);
+      expect(second.body.nextCursor).toBeNull();
+    });
+
     it('stores a product image through the photo pipeline', async () => {
       const categoryId = await category();
       const brandId = await brand();

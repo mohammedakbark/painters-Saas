@@ -51,5 +51,9 @@ export async function apiRequest<T>(
     const body: unknown = await response.json().catch(() => null);
     throw new ApiError(response.status, parseProblem(body));
   }
+  if (response.status === 204) {
+    // No content: the schema decides whether that is expected (z.undefined()).
+    return request.schema.parse(undefined);
+  }
   return request.schema.parse(await response.json());
 }

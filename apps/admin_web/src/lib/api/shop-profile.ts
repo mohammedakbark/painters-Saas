@@ -39,7 +39,15 @@ export type ShopProfile = z.infer<typeof shopProfileSchema>;
 
 const onboardingSchema = z.object({
   // Keys are open-ended: later features add checklist items.
-  items: z.array(z.object({ key: z.string(), done: z.boolean() })),
+  items: z.array(
+    z.object({
+      key: z.string(),
+      done: z.boolean(),
+      progress: z
+        .object({ current: z.number(), required: z.number() })
+        .optional(),
+    }),
+  ),
 });
 
 export type ShopOnboarding = z.infer<typeof onboardingSchema>;

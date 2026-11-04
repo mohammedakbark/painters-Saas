@@ -52,10 +52,12 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 | Feature | Status | Notes |
 |---|---|---|
 | Shop self-registration (web) | **Implemented (SHP-001)** | Mobile OTP sign-in/up, register shop name + owner name; the shop starts as a private Draft. Spec: `docs/features/SHP-001-shop-registration-and-sign-in.md`. |
-| Shop profile/onboarding checklist | Confirmed / **profile + checklist implemented (SHP-003)** | Address, map location (Google map picker or current location, D-027), support mobile and the shop photo (SHP-004) are done; 10 products (CAT-002) follow, then the owner submits for review (D-025). Spec: `docs/features/SHP-003-shop-profile-and-location.md`. |
-| Product/category/brand/pack management | Confirmed / **brand catalogue implemented (CAT-001)** | Platform admins maintain categories, brands, products with pack sizes and shades, by hand or CSV import (D-030, ADR 0008). Shop listings come with CAT-002. Spec: `docs/features/CAT-001-platform-brand-catalogue.md`. |
+| Shop profile/onboarding checklist | Confirmed / **profile + checklist implemented (SHP-003)** | Address, map location (Google map picker or current location, D-027), support mobile, the shop photo (SHP-004) and 10 products (CAT-002) are on the checklist; the owner then submits for review (D-025, PLT-002). Spec: `docs/features/SHP-003-shop-profile-and-location.md`. |
+| Product/category/brand/pack management | Confirmed / **brand catalogue implemented (CAT-001)** | Platform admins maintain categories, brands, products with pack sizes and shades, by hand or CSV import (D-030, ADR 0008). Shop listings implemented in CAT-002 (products from the brand catalogue or own, pack sizes, archive). Specs: `docs/features/CAT-001-platform-brand-catalogue.md`, `docs/features/CAT-002-shop-catalogue.md`. |
 | Product images and shade codes | Confirmed | Storage decided and implemented for shop photos (ADR 0007, SHP-004): product images reuse the same pipeline in CAT-001/CAT-002. |
-| Shop prices and offers | Confirmed | Customer-specific pricing rules need detail. |
+| Shop prices and offers | Confirmed / **pack prices implemented (CAT-002)** | Each shop sets a price (and optional MRP; price ≤ MRP, assumption) per pack size, in paise. No per-customer prices (D-031); painter discounts and commission come later. |
+| Product availability | **Implemented (CAT-002)** | Available/unavailable switch per pack size (D-029). Customer requests for unavailable items come with the Customer App. |
+| Favourite and own shades | **Implemented (CAT-002)** | Shops mark favourite brand shades and add their own shade codes (D-030). |
 | Manual product promotion/order | Confirmed | Shop can promote selected products. |
 | Painter commission configuration | Confirmed direction / Open rules | Calculation and settlement not finalized. |
 | Customer/painter management | Confirmed | Shop sees only its own relationships. |

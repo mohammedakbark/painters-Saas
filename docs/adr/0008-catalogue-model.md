@@ -1,6 +1,6 @@
 # ADR 0008: Catalogue Model, Shared Brand Catalogue and Shop Listings
 
-- **Status:** Accepted (product owner decision D-030, 2026-11-04). The brand catalogue is implemented in CAT-001; shop listings come with CAT-002.
+- **Status:** Accepted (product owner decision D-030, 2026-11-04). Implemented: the brand catalogue in CAT-001, shop listings in CAT-002.
 - **Date:** 2026-11-04
 - **Decision owners:** Product owner (catalogue sourcing), Engineering (data model)
 

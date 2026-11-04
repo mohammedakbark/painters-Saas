@@ -21,6 +21,12 @@ export function normaliseText(value: string): string {
   return value.trim().replace(/\s+/g, ' ');
 }
 
+/** Optional text: trimmed, and null when blank. */
+export function blankToNull(value: string | null | undefined): string | null {
+  const text = value?.trim();
+  return text ? text : null;
+}
+
 /** The case-insensitive uniqueness key stored as `name_key`. */
 export function nameKey(name: string): string {
   return normaliseText(name).toLowerCase();

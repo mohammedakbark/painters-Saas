@@ -96,6 +96,11 @@ describe('Shop profile, location and onboarding checklist (e2e, real Postgres)',
           { key: 'location', done: false },
           { key: 'support_phone', done: false },
           { key: 'photo', done: false },
+          {
+            key: 'products',
+            done: false,
+            progress: { current: 0, required: 10 },
+          },
         ],
       });
     });
@@ -156,6 +161,11 @@ describe('Shop profile, location and onboarding checklist (e2e, real Postgres)',
         { key: 'location', done: true },
         { key: 'support_phone', done: true },
         { key: 'photo', done: false },
+        {
+          key: 'products',
+          done: false,
+          progress: { current: 0, required: 10 },
+        },
       ]);
 
       const event = await testApp.prisma.auditEvent.findFirstOrThrow({

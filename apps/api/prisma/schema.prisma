@@ -147,11 +147,14 @@ model Shop {
 
   // Photo (SHP-004). Object key prefix in the public bucket; the API stores
   // "<key>-1600.webp" and "<key>-480.webp". Never a URL (ADR 0007).
-  photoKey          String?             @map("photo_key")
-  photoUpdatedAt    DateTime?           @map("photo_updated_at") @db.Timestamptz(3)
+  photoKey       String?   @map("photo_key")
+  photoUpdatedAt DateTime? @map("photo_updated_at") @db.Timestamptz(3)
 
-  memberships ShopMembership[]
-  auditEvents AuditEvent[]
+  memberships     ShopMembership[]
+  auditEvents     AuditEvent[]
+  products        ShopProduct[]
+  shades          ShopShade[]
+  favouriteShades ShopFavouriteShade[]
 
   @@map("shops")
 }
@@ -208,7 +211,8 @@ model CatalogueCategory {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  products CatalogueProduct[]
+  products     CatalogueProduct[]
+  shopProducts ShopProduct[]
 
   @@map("catalogue_categories")
 }
@@ -223,8 +227,10 @@ model Brand {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  products CatalogueProduct[]
-  shades   Shade[]
+  products     CatalogueProduct[]
+  shades       Shade[]
+  shopProducts ShopProduct[]
+  shopShades   ShopShade[]
 
   @@map("brands")
 }
@@ -251,6 +257,7 @@ model CatalogueProduct {
   brand    Brand             @relation(fields: [brandId], references: [id], onDelete: Restrict)
   category CatalogueCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   packs    CataloguePack[]
+  listings ShopProduct[]
 
   @@unique([brandId, nameKey])
   @@index([categoryId])
@@ -266,7 +273,8 @@ model CataloguePack {
   unit      PackUnit
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
-  product CatalogueProduct @relation(fields: [productId], references: [id], onDelete: Restrict)
+  product   CatalogueProduct  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  shopPacks ShopProductPack[]
 
   @@unique([productId, quantity, unit])
   @@map("catalogue_packs")
@@ -285,9 +293,121 @@ model Shade {
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  brand Brand @relation(fields: [brandId], references: [id], onDelete: Restrict)
+  brand      Brand                @relation(fields: [brandId], references: [id], onDelete: Restrict)
+  favourites ShopFavouriteShade[]
 
   @@unique([brandId, code])
   @@index([brandId, name])
   @@map("shades")
+}
+
+// ---------------------------------------------------------------------------
+// Shop catalogue (CAT-002). Tenant-owned: every row carries shop_id, and packs
+// reference their product through (shop_id, shop_product_id), so a pack can
+// never point at another shop's product (ADR 0008). CHECKs in the migration.
+// ---------------------------------------------------------------------------
+
+enum ShopProductStatus {
+  ACTIVE
+  ARCHIVED
+
+  @@map("shop_product_status")
+}
+
+/// A product a shop sells: either a brand-catalogue product (catalogueProductId)
+/// or the shop's own product (the custom* fields and categoryId).
+model ShopProduct {
+  id                 String            @id @default(uuid(7)) @db.Uuid
+  shopId             String            @map("shop_id") @db.Uuid
+  /// Set for products from the brand catalogue; null for the shop's own.
+  catalogueProductId String?           @map("catalogue_product_id") @db.Uuid
+  /// Own products only. Trimmed, 2–120 characters.
+  customName         String?           @map("custom_name")
+  /// lower(custom_name): own product names are unique per shop.
+  customNameKey      String?           @map("custom_name_key")
+  /// Own products: a catalogue brand, or a free-text brand, or neither.
+  brandId            String?           @map("brand_id") @db.Uuid
+  customBrandName    String?           @map("custom_brand_name")
+  /// Own products only (catalogue products use their catalogue category).
+  categoryId         String?           @map("category_id") @db.Uuid
+  description        String?
+  supportsShades     Boolean?          @map("supports_shades")
+  status             ShopProductStatus @default(ACTIVE)
+  /// The shop's own photo (optional); otherwise the catalogue image is shown.
+  imageKey           String?           @map("image_key")
+  imageUpdatedAt     DateTime?         @map("image_updated_at") @db.Timestamptz(3)
+  createdAt          DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  shop             Shop               @relation(fields: [shopId], references: [id], onDelete: Restrict)
+  catalogueProduct CatalogueProduct?  @relation(fields: [catalogueProductId], references: [id], onDelete: Restrict)
+  brand            Brand?             @relation(fields: [brandId], references: [id], onDelete: Restrict)
+  category         CatalogueCategory? @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  packs            ShopProductPack[]
+
+  @@unique([shopId, id])
+  @@unique([shopId, catalogueProductId])
+  @@unique([shopId, customNameKey])
+  @@index([shopId, status])
+  @@map("shop_products")
+}
+
+/// A pack size a shop sells, with its price and availability (D-029).
+/// Catalogue products use cataloguePackId; own products quantity + unit.
+model ShopProductPack {
+  id              String    @id @default(uuid(7)) @db.Uuid
+  shopId          String    @map("shop_id") @db.Uuid
+  shopProductId   String    @map("shop_product_id") @db.Uuid
+  cataloguePackId String?   @map("catalogue_pack_id") @db.Uuid
+  quantity        Decimal?  @db.Decimal(10, 3)
+  unit            PackUnit?
+  /// Maximum retail price in paise (optional). Integer money, never floats.
+  mrpPaise        Int?      @map("mrp_paise")
+  /// Selling price in paise.
+  pricePaise      Int       @map("price_paise")
+  /// Unavailable packs cannot be bought or added to a cart (D-029).
+  available       Boolean   @default(true)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  product       ShopProduct    @relation(fields: [shopId, shopProductId], references: [shopId, id], onDelete: Restrict)
+  cataloguePack CataloguePack? @relation(fields: [cataloguePackId], references: [id], onDelete: Restrict)
+
+  @@unique([shopProductId, cataloguePackId])
+  @@unique([shopProductId, quantity, unit])
+  @@index([shopId])
+  @@map("shop_product_packs")
+}
+
+/// A shade code of the shop's own (not on a brand shade card).
+model ShopShade {
+  id         String   @id @default(uuid(7)) @db.Uuid
+  shopId     String   @map("shop_id") @db.Uuid
+  brandId    String?  @map("brand_id") @db.Uuid
+  /// Upper case; unique per shop.
+  code       String
+  name       String
+  previewHex String?  @map("preview_hex")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  shop  Shop   @relation(fields: [shopId], references: [id], onDelete: Restrict)
+  brand Brand? @relation(fields: [brandId], references: [id], onDelete: Restrict)
+
+  @@unique([shopId, code])
+  @@map("shop_shades")
+}
+
+/// A brand shade the shop commonly uses (shown first to its customers).
+model ShopFavouriteShade {
+  shopId    String   @map("shop_id") @db.Uuid
+  shadeId   String   @map("shade_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  shop  Shop  @relation(fields: [shopId], references: [id], onDelete: Restrict)
+  shade Shade @relation(fields: [shadeId], references: [id], onDelete: Restrict)
+
+  @@id([shopId, shadeId])
+  @@index([shadeId])
+  @@map("shop_favourite_shades")
 }

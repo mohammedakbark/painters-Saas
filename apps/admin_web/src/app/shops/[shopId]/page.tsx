@@ -50,8 +50,7 @@ async function ShopOverview({
         <p className="text-body-large text-text-secondary">
           {status.description} Before your shop can go live you will complete
           its profile (photo, address and support mobile), add at least 10
-          products and submit it for review by the platform team. The products
-          step will appear here when the catalogue is available.
+          products and submit it for review by the platform team.
         </p>
       </section>
       <OnboardingChecklist shopId={shop.id} onboarding={onboarding} />

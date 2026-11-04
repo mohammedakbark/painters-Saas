@@ -62,7 +62,7 @@ Failure paths:
    - 1–12 per product; positive, at most 3 decimals;
    - units L, ml, kg, g, pc;
    - duplicates are ignored.
-   - Removing a pack size that shops have listed is refused (409 `pack_in_use`; enforced once CAT-002 adds listings).
+   - Removing a pack size that shops have listed is refused (409 `pack_in_use`, enforced by the foreign key from shop packs since CAT-002).
 3. **No prices:** the brand catalogue holds none; MRP and selling price belong to each shop's listing (ADR 0008).
 4. **Archiving, not deleting:** archived entries are hidden from the read API; a product in an archived category is hidden too.
 5. **Shade colours** are indicative screen colours (`#RRGGBB`). The code and name are always shown as text.
@@ -215,3 +215,4 @@ The full check list is in `docs/PROJECT_STATE.md` §6.
 | Date | Change |
 |---|---|
 | 2026-11-04 | Specification and implementation (D-030, ADR 0008) |
+| 2026-11-04 | Fix (found in CAT-002): a shade search kept its filter only on the first page; the search and the cursor are now combined with AND (test added). `pack_in_use` now enforced by shop listings. |
