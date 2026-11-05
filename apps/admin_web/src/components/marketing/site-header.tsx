@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { BrandMark } from '@/components/brand/brand-mark';
 import { ButtonLink } from '@/components/ui/button-link';
+import { Icon } from '@/components/ui/icon';
 import { NAV_LINKS } from './home-content';
 
 /** Public site header: brand, section links (desktop) and Login / Register. */
@@ -30,6 +31,7 @@ export function SiteHeader() {
         </nav>
         <div className="flex items-center gap-2">
           <ButtonLink href="/sign-in" variant="secondary" className="px-4">
+            <Icon name="logIn" className="hidden medium:block" />
             Login
           </ButtonLink>
           <ButtonLink href="/sign-in" className="px-4">

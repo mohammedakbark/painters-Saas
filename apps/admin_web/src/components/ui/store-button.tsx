@@ -1,5 +1,6 @@
 import { cn } from '@/lib/cn';
 import { buttonClasses } from './button';
+import { Icon } from './icon';
 
 export type AppStore = 'app-store' | 'google-play';
 
@@ -27,15 +28,21 @@ export function StoreButton({
   const label = STORE_LABELS[store];
   const classes = buttonClasses(
     'secondary',
-    cn('min-w-44 justify-start py-2 text-left', className),
+    cn('min-w-44 justify-start gap-3 py-2 text-left', className),
   );
   const text = (
-    <span className="flex flex-col leading-tight">
-      <span className="text-caption font-medium text-text-secondary">
-        {href ? label.line1 : 'Coming soon to'}
+    <>
+      <Icon
+        name={store === 'app-store' ? 'apple' : 'googlePlay'}
+        className="size-6"
+      />
+      <span className="flex flex-col leading-tight">
+        <span className="text-caption font-medium text-text-secondary">
+          {href ? label.line1 : 'Coming soon to'}
+        </span>
+        <span className="text-body-large font-semibold">{label.line2}</span>
       </span>
-      <span className="text-body-large font-semibold">{label.line2}</span>
-    </span>
+    </>
   );
 
   if (href) {

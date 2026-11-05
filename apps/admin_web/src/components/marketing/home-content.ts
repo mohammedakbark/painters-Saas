@@ -4,6 +4,7 @@
 // (docs/features/WEB-001-public-home-page.md).
 
 import type { BadgeTone } from '@/components/ui/badge';
+import type { IconName } from '@/components/ui/icon';
 
 export const NAV_LINKS = [
   { href: '#products', label: 'What we provide' },
@@ -14,16 +15,19 @@ export const NAV_LINKS = [
 
 export const PROBLEMS = [
   {
+    icon: 'message',
     today: 'Enquiries by phone calls and WhatsApp messages',
     instead:
       'One online catalogue with your prices, pack sizes, shades and what is in stock.',
   },
   {
+    icon: 'notebook',
     today: 'Painter purchases and pending payments in notebooks',
     instead:
       'Orders, bills and payments recorded per shop, and per work site for painters.',
   },
   {
+    icon: 'tag',
     today: 'Offers and painter incentives explained one by one',
     instead:
       'Offers set once by the shop and shown to the right customers in the app.',
@@ -39,6 +43,7 @@ export const MISSION =
 export interface ProductOffer {
   id: string;
   name: string;
+  icon: IconName;
   audience: string;
   status: { label: string; tone: BadgeTone };
   points: readonly string[];
@@ -48,6 +53,7 @@ export const PRODUCTS: readonly ProductOffer[] = [
   {
     id: 'customer-app',
     name: 'Customer App',
+    icon: 'smartphone',
     audience: 'For painters, contractors and home owners',
     status: { label: 'Coming soon', tone: 'neutral' },
     points: [
@@ -60,6 +66,7 @@ export const PRODUCTS: readonly ProductOffer[] = [
   {
     id: 'shop-app',
     name: 'Shop App',
+    icon: 'store',
     audience: 'For shop owners, on the counter or on the move',
     status: { label: 'Coming soon to stores', tone: 'info' },
     points: [
@@ -72,6 +79,7 @@ export const PRODUCTS: readonly ProductOffer[] = [
   {
     id: 'shop-portal',
     name: 'Shop Admin portal',
+    icon: 'monitor',
     audience: 'For running your shop from a computer',
     status: { label: 'Available now', tone: 'success' },
     points: [
@@ -85,18 +93,22 @@ export const PRODUCTS: readonly ProductOffer[] = [
 
 export const PAINTER_POINTS = [
   {
+    icon: 'mapPin',
     title: 'All your work sites',
     text: 'Keep each painting job as its own site and link your orders to it.',
   },
   {
+    icon: 'chart',
     title: 'Spending per site',
     text: 'See what a site has cost in total, even when you buy from several shops.',
   },
   {
+    icon: 'receipt',
     title: 'Separate bills from each shop',
     text: 'Every shop’s orders, bills and payments stay separate and clear.',
   },
   {
+    icon: 'wallet',
     title: 'Credit from your shops',
     text: 'Each shop decides its own credit for you. Nothing is decided automatically.',
   },
@@ -122,9 +134,18 @@ export const SHOP_STEPS = [
 ] as const;
 
 export const PRIVACY_POINTS = [
-  'Your customers, prices, orders, credit and bills are visible only to your shop.',
-  'Other shops on the platform never see your business data.',
-  'Painter-only offers are shown only to the painters your shop confirms.',
+  {
+    icon: 'lock',
+    text: 'Your customers, prices, orders, credit and bills are visible only to your shop.',
+  },
+  {
+    icon: 'eyeOff',
+    text: 'Other shops on the platform never see your business data.',
+  },
+  {
+    icon: 'shield',
+    text: 'Painter-only offers are shown only to the painters your shop confirms.',
+  },
 ] as const;
 
 export const FAQS = [

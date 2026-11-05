@@ -1,5 +1,6 @@
 import { BRAND } from '@/lib/brand';
 import { ButtonLink } from '@/components/ui/button-link';
+import { Icon } from '@/components/ui/icon';
 import { HeroIllustration } from './illustrations';
 
 export function Hero() {
@@ -26,8 +27,12 @@ export function Hero() {
             order.
           </p>
           <div className="flex flex-wrap gap-3">
-            <ButtonLink href="/sign-in">Register your shop</ButtonLink>
+            <ButtonLink href="/sign-in">
+              Register your shop
+              <Icon name="arrowRight" />
+            </ButtonLink>
             <ButtonLink href="/sign-in" variant="secondary">
+              <Icon name="logIn" />
               Login
             </ButtonLink>
           </div>

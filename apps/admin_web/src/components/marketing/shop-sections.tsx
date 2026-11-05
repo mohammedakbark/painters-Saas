@@ -1,4 +1,5 @@
 import { Card } from '@/components/ui/card';
+import { IconTile } from '@/components/ui/icon';
 import {
   MISSION,
   PRIVACY_POINTS,
@@ -20,6 +21,7 @@ export function ProblemsSection() {
       <ul className="grid gap-4 desktop:grid-cols-3">
         {PROBLEMS.map((item) => (
           <Card as="li" key={item.today} className="flex flex-col gap-4 p-6">
+            <IconTile name={item.icon} />
             <p className="text-body font-medium text-text-secondary">
               <span className="sr-only">Today: </span>
               {item.today}
@@ -48,12 +50,14 @@ export function VisionSection() {
     >
       <div className="grid gap-4 desktop:grid-cols-2">
         <Card className="flex flex-col gap-3 p-6 desktop:p-8">
+          <IconTile name="eye" />
           <h3 className="text-heading3 font-semibold text-brand-primary">
             Our vision
           </h3>
           <p className="text-body-large text-text-primary">{VISION}</p>
         </Card>
         <Card className="flex flex-col gap-3 p-6 desktop:p-8">
+          <IconTile name="target" />
           <h3 className="text-heading3 font-semibold text-brand-primary">
             Our mission
           </h3>
@@ -104,9 +108,11 @@ export function PrivacySection() {
     >
       <ul className="grid gap-4 desktop:grid-cols-3">
         {PRIVACY_POINTS.map((point) => (
-          <Card as="li" key={point} className="flex gap-3 p-6">
-            <TickIcon className="mt-0.5" />
-            <span className="text-body-large text-text-primary">{point}</span>
+          <Card as="li" key={point.text} className="flex flex-col gap-4 p-6">
+            <IconTile name={point.icon} />
+            <span className="text-body-large text-text-primary">
+              {point.text}
+            </span>
           </Card>
         ))}
       </ul>

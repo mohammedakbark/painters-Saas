@@ -1,6 +1,7 @@
 import { BrandMark } from '@/components/brand/brand-mark';
 import { ButtonLink } from '@/components/ui/button-link';
 import { Card } from '@/components/ui/card';
+import { Icon } from '@/components/ui/icon';
 import { FAQS, NAV_LINKS } from './home-content';
 import { MarketingSection } from './section';
 
@@ -17,12 +18,10 @@ export function FaqSection() {
           <Card as="details" key={faq.question} className="group p-5">
             <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-title font-semibold text-text-primary">
               {faq.question}
-              <span
-                aria-hidden="true"
-                className="text-heading3 text-brand-primary group-open:rotate-45"
-              >
-                +
-              </span>
+              <Icon
+                name="chevronDown"
+                className="text-brand-primary transition-transform group-open:rotate-180"
+              />
             </summary>
             <p className="mt-3 text-body-large text-text-secondary">
               {faq.answer}
@@ -56,8 +55,10 @@ export function FinalCta() {
         <div className="flex flex-wrap gap-3">
           <ButtonLink href="/sign-in" variant="secondary">
             Register your shop
+            <Icon name="arrowRight" />
           </ButtonLink>
           <ButtonLink href="/sign-in" className="border border-surface-default">
+            <Icon name="logIn" />
             Login
           </ButtonLink>
         </div>

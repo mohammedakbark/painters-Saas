@@ -1,6 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { ButtonLink } from '@/components/ui/button-link';
 import { Card } from '@/components/ui/card';
+import { Icon, IconTile } from '@/components/ui/icon';
 import { StoreButton } from '@/components/ui/store-button';
 import { APP_STORE_LINKS, type AppStoreLinks } from '@/lib/app-stores';
 import { BRAND } from '@/lib/brand';
@@ -25,7 +26,10 @@ export function ProductsSection() {
             className="flex flex-col gap-5 p-6"
           >
             <div className="flex flex-col items-start gap-2">
-              <Badge tone={product.status.tone}>{product.status.label}</Badge>
+              <div className="flex w-full items-start justify-between gap-3">
+                <IconTile name={product.icon} />
+                <Badge tone={product.status.tone}>{product.status.label}</Badge>
+              </div>
               <h3
                 id={`${product.id}-name`}
                 className="text-heading3 font-semibold text-text-primary"
@@ -50,13 +54,15 @@ export function ProductsSection() {
             {product.id === 'shop-portal' ? (
               <ButtonLink href="/sign-in" className="mt-auto">
                 Register your shop
+                <Icon name="arrowRight" />
               </ButtonLink>
             ) : (
               <a
                 href="#apps"
-                className="mt-auto text-body font-semibold text-brand-primary hover:underline"
+                className="mt-auto inline-flex items-center gap-2 text-body font-semibold text-brand-primary hover:underline"
               >
                 Get the app
+                <Icon name="arrowRight" className="size-4" />
               </a>
             )}
           </Card>
@@ -79,6 +85,7 @@ export function PaintersSection() {
       <ul className="grid gap-4 medium:grid-cols-2 desktop:grid-cols-4">
         {PAINTER_POINTS.map((point) => (
           <Card as="li" key={point.title} className="flex flex-col gap-2 p-6">
+            <IconTile name={point.icon} />
             <h3 className="text-title font-semibold text-text-primary">
               {point.title}
             </h3>
