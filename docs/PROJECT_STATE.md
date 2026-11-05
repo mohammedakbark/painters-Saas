@@ -345,7 +345,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 3. **Hardening before any hosted environment:** questions 49 and 51.
 4. **Product owner:** Google Maps keys (`docs/guides/GOOGLE_MAPS_SETUP.md`); real brand catalogue data; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
 5. **Housekeeping.** Install Node 24 locally.
-6. **Marketing (not a product feature):** daily "coming soon" Instagram content for the **@zero.byt** page. Run `/instagram post <day>` or `/instagram reel <day>` (skill `.claude/skills/instagram/`), following the 30-day calendar `marketing/instagram/CONTENT_PLAN_30_DAYS.md` (12 reel days, 18 post days with 2 posters each). No product name is shown; every post says "Powered by zero.byt". Day 1 is generated and `ready`. Malayalam lines need native review before posting.
+6. **Marketing (not a product feature):** daily "coming soon" Instagram content for the **@zero.byt** page. Run `/instagram post <day>` or `/instagram reel <day>` (skill `.claude/skills/instagram/`), following the 30-day calendar `marketing/instagram/CONTENT_PLAN_30_DAYS.md` (12 reel days, 18 post days with 2 posters each). No product name is shown; every post says "Powered by zero.byt" with the transparent zero.byt logo. English only. Three approved ad styles (A app showcase = main, D bold typography, C problem → solution; chosen by the product owner on 2026-11-05). Day 1 (A + D) is `ready`.
 
 ## 8. Feature progress
 
@@ -408,3 +408,4 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-04 | DS-002 implemented (D-039): component tokens, the project's own UI components on web and Flutter, `pnpm ui:check` in CI. |
 | 2026-11-04 | Product owner answered the Customer App questions (D-036–D-038). SHP-005 implemented: the everyday catalogue in the Shop App. Phase 1 complete. |
 | 2026-11-05 | Marketing tooling: `/instagram reel` / `/instagram post` skill (poster/reel-cover templates rendered to PNG with headless Chrome, hook, caption-lint and hashtag references) and a 30-day "coming soon" plan for the @zero.byt page under `marketing/instagram/`. No app code changed. |
+| 2026-11-05 | Instagram redesign: the product owner rejected the first posters, reviewed 4 designed concepts and chose styles A, D and C (B rejected). English only, transparent zero.byt logo, tagline "Your shop, your painters, your customers. Connected." Templates, skill, 30-day plan (a style per day) and Day 1 updated. |

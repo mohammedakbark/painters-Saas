@@ -15,7 +15,6 @@ These hooks are adapted from public Instagram skills (instagram-agent-skill's sc
 | 8 | Hidden cost | "How much did that site *really* cost?" |
 | 9 | First look / sneak peek | "First look at what we're building 👀" |
 | 10 | Countdown / coming soon | "Coming soon to your paint shop." |
-| 11 | Malayalam opener | "ഇനി ബില്ല് തിരഞ്ഞ് നടക്കണ്ട." (follow with an English line) |
-| 12 | Question to shops | "What if your customers could order from your shop on their phone?" |
+| 11 | Question to shops | "What if your customers could order from your shop on their phone?" |
 
 Rules: keep it to 7 words or fewer on screen, use no clickbait the product can't back up, and never use a fake urgency date.

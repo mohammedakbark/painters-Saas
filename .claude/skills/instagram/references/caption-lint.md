@@ -5,7 +5,7 @@ Run every check before marking a day `ready`. Fix the caption, then re-check. Re
 ## Structure
 - [ ] Line 1 is the hook and stands alone (≤ 125 characters, since that's what shows before "more").
 - [ ] 3–5 short body lines; one idea per line; blank lines between blocks.
-- [ ] Exactly one Malayalam line (natural, not machine-literal), marked for native review.
+- [ ] English only (no Malayalam on posters or in captions — product owner, 2026-11-05).
 - [ ] One clear CTA from `brand.json` → `cta`.
 - [ ] Ends with `Powered by @zero.byt`.
 - [ ] Hashtags: 10–15, on their own block at the end, from `hashtags.md`. No banned or irrelevant tags.
@@ -14,6 +14,8 @@ Run every check before marking a day `ready`. Fix the caption, then re-check. Re
 
 ## Truth gate (must all pass)
 - [ ] No product/app name. Use "a new app" or "the app", never an invented name.
+- [ ] No unverified claims about zero.byt itself (e.g. where it is based) — say "Made for Kerala", not "Built in Kerala".
+- [ ] No "stock" or inventory wording — say "availability" (inventory is an open question).
 - [ ] Every feature claim maps to a Confirmed, Confirmed direction or Implemented row in `docs/FEATURE_CATALOG.md`.
 - [ ] Everything is framed as coming soon (no "available now", "download now" or store links).
 - [ ] No prices, subscription plans, "free", discounts, launch dates, user/shop counts, or ratings.
