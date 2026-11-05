@@ -86,7 +86,8 @@ This is the first of a UI/UX pass before Phase 2. Next: WEB-002 (sign-in and reg
 | Scroll check in headless Chrome over CDP (1280×900, scrolled to 3400 px): header shadow on, progress bar 61 %, "How it works" highlighted, all on-screen cards opacity 1; with reduced motion: no shadow/progress animation, content visible | Verified |
 | Phone header at 518 px: Register + menu (Login moved into the menu) | Verified |
 | Interactive check in the product owner's Chrome | **Not run** (Claude in Chrome was not connected) |
-| Flutter format, analyze, `flutter_shared` tests (new `AppTypography.hero` generated) | See PROJECT_STATE |
+| Flutter (3.47.9 via FVM): `dart format` (no changes), `flutter analyze` (no issues), tests flutter_shared 64, shop_app 70, customer_app 1 | Passed |
+| Final review over CDP after the rebase: poster palette, pill buttons, "Sign in", footer logo; scroll shadow and progress bar (empty at top, full at bottom) | Verified |
 
 ## 8. Limitations and next
 
