@@ -10,12 +10,15 @@ export function BrandMark({
   as: Tag = 'p',
   size = 'title',
   name = 'portal',
+  tone = 'default',
   className,
 }: {
   as?: 'p' | 'h1' | 'span';
   size?: 'title' | 'heading1';
   /** `product` on the public home page, `portal` inside the portal. */
   name?: 'product' | 'portal';
+  /** `inverse` on dark brand surfaces. */
+  tone?: 'default' | 'inverse';
   className?: string;
 }) {
   return (
@@ -24,7 +27,7 @@ export function BrandMark({
         size === 'heading1'
           ? 'text-heading1 font-bold'
           : 'text-title font-semibold',
-        'text-text-primary',
+        tone === 'inverse' ? 'text-surface-default' : 'text-text-primary',
         className,
       )}
     >

@@ -14,4 +14,8 @@ abstract final class AppBrand {
   static const String shopAppName = 'Shop App';
 
   static const String customerAppName = 'Customer App';
+
+  static const String companyName = 'zero.byt';
+
+  static const String companyHandle = '@zero.byt';
 }

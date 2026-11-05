@@ -57,6 +57,12 @@ This is the first of a UI/UX pass before Phase 2. Next: WEB-002 (sign-in and reg
 - **Icons:** `components/ui/icon.tsx` (`Icon`, `IconTile`): own line icons; App Store and Google Play glyphs from Font Awesome Free (CC BY 4.0, credited in the file). Switch to the stores' official badges at publication.
 - **Safety:** all motion is CSS (`globals.css`: `.reveal`, `.scroll-progress`, `.header-elevate`, `.float-slow`) inside `prefers-reduced-motion: no-preference` and `@supports (animation-timeline: view())`, so content is never hidden in browsers without scroll-driven animations or without JavaScript, and nothing moves for people who ask for reduced motion.
 
+## 5b. Footer and company (product owner, 2026-11-05)
+
+- The platform is a product of **zero.byt** (`BRAND.companyName`, `BRAND.companyHandle` "@zero.byt" in `brand.json`). The footer shows a "Powered by zero.byt · @zero.byt" strip, as on the brand poster, and "A product of zero.byt."
+- Dark teal footer with columns Product (page sections), Company (About us, Contact us), Legal (Privacy policy, Terms of use) and round WhatsApp, Instagram and LinkedIn buttons.
+- **Placeholders:** none of these pages or accounts exist yet; they are added after the product name is confirmed. Each shows as a disabled link (`aria-disabled`, "coming soon" for screen readers). URLs live in `src/lib/site-links.ts`; setting one switches that link on.
+
 ## 6. Tests
 
 - `src/app/page.test.tsx`: one `h1`; the three products; vision and mission; header Login/Register go to `/sign-in`; no link to `/platform/*` and no "platform admin" text; four store buttons disabled with "coming soon".

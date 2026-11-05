@@ -4,5 +4,7 @@
   "adminPortalName": "Admin portal",
   "adminPortalDescription": "Shop Admin and Platform Super Admin portal.",
   "shopAppName": "Shop App",
-  "customerAppName": "Customer App"
+  "customerAppName": "Customer App",
+  "companyName": "zero.byt",
+  "companyHandle": "@zero.byt"
 }

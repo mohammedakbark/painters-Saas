@@ -65,11 +65,39 @@ describe('Home page', () => {
   it('shows the unpublished store buttons as coming soon', () => {
     render(<Home />);
 
-    const storeButtons = screen.getAllByRole('link', { name: /coming soon/ });
+    const storeButtons = screen.getAllByRole('link', {
+      name: /(App Store|Google Play): coming soon/,
+    });
     expect(storeButtons).toHaveLength(4);
     for (const button of storeButtons) {
       expect(button.getAttribute('aria-disabled')).toBe('true');
       expect(button.getAttribute('href')).toBeNull();
     }
+  });
+
+  it('shows footer links as placeholders and credits zero.byt', () => {
+    render(<Home />);
+    const footer = screen.getByRole('contentinfo');
+
+    for (const name of [
+      /^Privacy policy/,
+      /^Terms of use/,
+      /^About us/,
+      /^Contact us/,
+      /^WhatsApp/,
+      /^Instagram/,
+      /^LinkedIn/,
+    ]) {
+      const link = within(footer).getByRole('link', { name });
+      expect(link.getAttribute('aria-disabled')).toBe('true');
+      expect(link.getAttribute('href')).toBeNull();
+    }
+    expect(
+      within(footer).getByText('Powered by', { exact: false }),
+    ).toBeDefined();
+    expect(
+      within(footer).getAllByText(BRAND.companyName).length,
+    ).toBeGreaterThan(0);
+    expect(within(footer).getByText(BRAND.companyHandle)).toBeDefined();
   });
 });

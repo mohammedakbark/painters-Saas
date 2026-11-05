@@ -158,7 +158,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 - [ ] Decision notifications to the owner (SMS/push; question 53).
 - [ ] Product owner to confirm two CAT-002 assumptions: the selling price may not exceed the MRP, and the 10-product rule counts active products with at least one pack size (DECISIONS §3a).
 - [ ] Real brand catalogue data (platform admins, from official shade cards and price lists; D-030).
-- [ ] Product owner to review the WEB-001 copy (vision, mission, hero). Replace the home-page illustrations with real app screenshots and add more content (product owner request, 2026-11-05). Fill `src/lib/app-stores.ts` when the apps are published.
+- [ ] Product owner to review the WEB-001 copy (vision, mission, hero). Replace the home-page illustrations with real app screenshots and add more content (product owner request, 2026-11-05). Fill `src/lib/app-stores.ts` when the apps are published. After the name is confirmed: real footer pages and accounts (privacy policy, terms, about, contact, WhatsApp, Instagram, LinkedIn) in `src/lib/site-links.ts`.
 - [ ] Hosted storage provider and credentials (ADR 0007): chosen with the first hosted environment.
 - [ ] Product answers: questions 49 (registration limit), 51 (email sign-up mitigation), 52 (tinting workflow) and 53 (notification channel).
 - [ ] Production SMS vendor + DLT registration (question 46). Platform admin MFA and password reset (question 47). Session policy after sign-out (question 48).
@@ -418,3 +418,4 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-05 | Instagram: format library (F1–F10) so the 30 days vary; calendar rewritten (10 reels, 20 post days, engagement CTAs, "Coming soon" only on 5 days); Day 1 is poster A alone; Days 3, 5, 6 and 7 generated. |
 | 2026-11-05 | WEB-001 implemented: public home page with Login/Register; platform admin entry removed from it. |
 | 2026-11-05 | Trial palette from the product owner's brand poster (deep teal, sunflower, coral, cream) applied to all tokens (web + Flutter) and the home-page hero; one commit so it can be reverted. |
+| 2026-11-05 | Pill-shaped buttons everywhere (`component.button`). Home footer: company, legal and social placeholders and "Powered by zero.byt" (the platform is a product of zero.byt; `BRAND.companyName`). |

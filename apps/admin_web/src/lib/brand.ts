@@ -8,4 +8,6 @@ export const BRAND = {
   adminPortalDescription: 'Shop Admin and Platform Super Admin portal.',
   shopAppName: 'Shop App',
   customerAppName: 'Customer App',
+  companyName: 'zero.byt',
+  companyHandle: '@zero.byt',
 } as const;
