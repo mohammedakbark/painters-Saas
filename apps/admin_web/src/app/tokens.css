@@ -13,18 +13,19 @@
  */
 @theme {
   --color-*: initial;
-  --color-brand-primary: #1f4b7a;
-  --color-brand-primary-strong: #163a5f;
-  --color-brand-primary-soft: #eaf1f8;
-  --color-brand-accent: #f5b544;
+  --color-brand-primary: #0f6b66;
+  --color-brand-primary-strong: #0b4f4b;
+  --color-brand-primary-soft: #e3f2ef;
+  --color-brand-accent: #f7c344;
+  --color-brand-highlight: #f25c3b;
   --color-surface-default: #ffffff;
-  --color-surface-subtle: #f7f9fc;
+  --color-surface-subtle: #faf6ee;
   --color-surface-raised: #ffffff;
-  --color-text-primary: #17212f;
-  --color-text-secondary: #667085;
-  --color-text-disabled: #98a2b3;
-  --color-border-default: #e4e7ec;
-  --color-border-strong: #cbd5e1;
+  --color-text-primary: #132a29;
+  --color-text-secondary: #566a68;
+  --color-text-disabled: #9aa8a6;
+  --color-border-default: #ece5d8;
+  --color-border-strong: #d3cbbb;
   --color-status-success: #15803d;
   --color-status-warning: #b45309;
   --color-status-error: #b42318;

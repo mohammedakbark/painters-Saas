@@ -193,7 +193,7 @@ export function HeroIllustration({ className }: { className?: string }) {
         'fill-brand-primary-strong',
         'fill-border-strong',
         'fill-brand-primary-soft',
-        'fill-text-secondary',
+        'fill-brand-highlight',
       ].map((fill, index) => (
         <rect
           key={fill}
@@ -282,7 +282,7 @@ export function HeroIllustration({ className }: { className?: string }) {
         className="fill-border-strong"
       />
       <ProductRow y={164} swatch="fill-brand-accent" />
-      <ProductRow y={224} swatch="fill-brand-primary" />
+      <ProductRow y={224} swatch="fill-brand-highlight" />
       <ProductRow y={284} swatch="fill-brand-primary-strong" />
       {/* Cart bar */}
       <rect

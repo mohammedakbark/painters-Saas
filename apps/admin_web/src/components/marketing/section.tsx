@@ -33,7 +33,11 @@ export function MarketingSection({
       <div className="mx-auto flex w-full max-w-page flex-col gap-12">
         <div className="reveal flex max-w-content flex-col gap-3">
           {eyebrow ? (
-            <p className="text-caption font-semibold tracking-wide text-brand-primary uppercase">
+            <p className="inline-flex items-center gap-2 text-caption font-semibold tracking-wide text-brand-primary uppercase">
+              <span
+                aria-hidden="true"
+                className="size-2 rounded-badge bg-brand-highlight"
+              />
               {eyebrow}
             </p>
           ) : null}

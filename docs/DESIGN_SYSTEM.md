@@ -8,8 +8,8 @@ The product should feel clear, dependable and practical for local paint shops, p
 ## 1. Visual direction
 
 - Light theme first; white and very light neutral surfaces.
-- Navy/blue as the primary brand family.
-- Warm yellow/amber as a limited accent.
+- Deep teal as the primary brand family (poster palette, 2026-11-05).
+- Sunflower yellow as a limited accent; coral for small decorative marks; warm cream backgrounds.
 - Clear typography and controlled spacing.
 - Rounded cards and inputs, but avoid excessive pills and decorative containers.
 - Use color to communicate meaning, not decoration.
@@ -19,20 +19,23 @@ Values below are initial tokens, not final brand approval. **Source of truth:** 
 
 ## 2. Colour tokens
 
+Palette from the product owner's brand poster (2026-11-05, trial: kept or reverted after review): deep teal, sunflower yellow, coral and warm cream. Was navy `#1F4B7A` and amber `#F5B544`.
+
 | Token | Hex | Use |
 |---|---|---|
-| `brand.primary` | `#1F4B7A` | Main actions, selected navigation, links |
-| `brand.primaryStrong` | `#163A5F` | Pressed/strong primary states |
-| `brand.primarySoft` | `#EAF1F8` | Selected backgrounds/highlights |
-| `brand.accent` | `#F5B544` | Limited highlights and offers |
+| `brand.primary` | `#0F6B66` (deep teal) | Main actions, selected navigation, links |
+| `brand.primaryStrong` | `#0B4F4B` | Pressed/strong primary states |
+| `brand.primarySoft` | `#E3F2EF` | Selected backgrounds/highlights |
+| `brand.accent` | `#F7C344` (sunflower) | Limited highlights and offers; also headline text on `brand.primaryStrong` |
+| `brand.highlight` | `#F25C3B` (coral) | Decorative marks only (underlines, dots, small shapes); never text |
 | `surface.default` | `#FFFFFF` | Main surfaces |
-| `surface.subtle` | `#F7F9FC` | Page backgrounds/secondary sections |
+| `surface.subtle` | `#FAF6EE` (warm cream) | Page backgrounds/secondary sections |
 | `surface.raised` | `#FFFFFF` | Cards/dialogs |
-| `text.primary` | `#17212F` | Main text |
-| `text.secondary` | `#667085` | Supporting text |
-| `text.disabled` | `#98A2B3` | Disabled text |
-| `border.default` | `#E4E7EC` | Borders/dividers |
-| `border.strong` | `#CBD5E1` | Emphasized borders |
+| `text.primary` | `#132A29` | Main text |
+| `text.secondary` | `#566A68` | Supporting text |
+| `text.disabled` | `#9AA8A6` | Disabled text |
+| `border.default` | `#ECE5D8` | Borders/dividers |
+| `border.strong` | `#D3CBBB` | Emphasized borders |
 | `status.success` | `#15803D` | Success |
 | `status.warning` | `#B45309` | Warning |
 | `status.error` | `#B42318` | Error/destructive |

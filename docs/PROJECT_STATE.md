@@ -417,3 +417,4 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-05 | Instagram redesign: the product owner rejected the first posters, reviewed 4 designed concepts and chose styles A, D and C (B rejected). English only, transparent zero.byt logo, tagline "Your shop, your painters, your customers. Connected." Templates, skill, 30-day plan (a style per day) and Day 1 updated. |
 | 2026-11-05 | Instagram: format library (F1–F10) so the 30 days vary; calendar rewritten (10 reels, 20 post days, engagement CTAs, "Coming soon" only on 5 days); Day 1 is poster A alone; Days 3, 5, 6 and 7 generated. |
 | 2026-11-05 | WEB-001 implemented: public home page with Login/Register; platform admin entry removed from it. |
+| 2026-11-05 | Trial palette from the product owner's brand poster (deep teal, sunflower, coral, cream) applied to all tokens (web + Flutter) and the home-page hero; one commit so it can be reverted. |

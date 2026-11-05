@@ -102,7 +102,7 @@ export function StepsSection() {
           >
             <span
               aria-hidden="true"
-              className="flex size-10 items-center justify-center rounded-badge bg-brand-primary text-title font-semibold text-surface-default"
+              className="flex size-10 items-center justify-center rounded-badge bg-brand-accent text-title font-bold text-text-primary"
             >
               {index + 1}
             </span>

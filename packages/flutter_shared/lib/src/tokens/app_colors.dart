@@ -7,40 +7,43 @@ import 'package:flutter/painting.dart';
 /// here.
 abstract final class AppColors {
   /// Main actions, selected navigation, links.
-  static const Color brandPrimary = Color(0xFF1F4B7A);
+  static const Color brandPrimary = Color(0xFF0F6B66);
 
   /// Pressed/strong primary states.
-  static const Color brandPrimaryStrong = Color(0xFF163A5F);
+  static const Color brandPrimaryStrong = Color(0xFF0B4F4B);
 
   /// Selected backgrounds/highlights.
-  static const Color brandPrimarySoft = Color(0xFFEAF1F8);
+  static const Color brandPrimarySoft = Color(0xFFE3F2EF);
 
   /// Limited highlights and offers only; always use dark text on it.
-  static const Color brandAccent = Color(0xFFF5B544);
+  static const Color brandAccent = Color(0xFFF7C344);
+
+  /// Coral from the brand poster: decorative marks only (underlines, dots, small shapes). Never text, never the only signal.
+  static const Color brandHighlight = Color(0xFFF25C3B);
 
   /// Main surfaces.
   static const Color surfaceDefault = Color(0xFFFFFFFF);
 
   /// Page backgrounds/secondary sections.
-  static const Color surfaceSubtle = Color(0xFFF7F9FC);
+  static const Color surfaceSubtle = Color(0xFFFAF6EE);
 
   /// Cards/dialogs.
   static const Color surfaceRaised = Color(0xFFFFFFFF);
 
   /// Main text.
-  static const Color textPrimary = Color(0xFF17212F);
+  static const Color textPrimary = Color(0xFF132A29);
 
   /// Supporting text.
-  static const Color textSecondary = Color(0xFF667085);
+  static const Color textSecondary = Color(0xFF566A68);
 
   /// Disabled text.
-  static const Color textDisabled = Color(0xFF98A2B3);
+  static const Color textDisabled = Color(0xFF9AA8A6);
 
   /// Borders/dividers.
-  static const Color borderDefault = Color(0xFFE4E7EC);
+  static const Color borderDefault = Color(0xFFECE5D8);
 
   /// Emphasized borders.
-  static const Color borderStrong = Color(0xFFCBD5E1);
+  static const Color borderStrong = Color(0xFFD3CBBB);
 
   /// Success; always paired with text or an icon.
   static const Color statusSuccess = Color(0xFF15803D);
