@@ -2,7 +2,7 @@
 <!--
   Instagram poster style D — Bold typography (teasers, trust, countdown). Near-black #09090C, off-white #F5F4EF, lime #D4FF3A, paint gradient teal #14B8A6→lime→saffron #FFB627→rose #FF3D81. Anton + Inter. Change: the 4-line headline (one word outlined, last word paint-gradient with drips), side line, tagline, the peeking phone screen. Keep palette, drips, footer.
   1080x1350. Copy to marketing/instagram/output/day-XX-post/poster-<a|b>.html, rewrite the copy and phone screen, render with scripts/render.mjs, then LOOK at the PNG.
-  Rules: English only; keep the .zb lockup exactly as is (logo 56px, 'Powered by' 21px on the logo baseline, 64px left margin, descender 56px from the bottom); no product name; logo = ../../assets/zerobyt-logo-light.png placed directly (never a white box); fictional data only; no 'stock'.
+  Rules: English only; keep the .zb lockup exactly as is (logo 36px, 'Powered by' 18px on the logo baseline, 64px left margin, descender 56px from the bottom); no product name; logo = ../../assets/zerobyt-logo-light.png placed directly (never a white box); fictional data only; no 'stock'.
 -->
 <html>
 <head>
@@ -59,15 +59,15 @@
   .tag .c{margin-top:6px;font-family:Anton;font-size:74px;line-height:1;text-transform:uppercase;color:var(--lime);letter-spacing:.01em}
 
   /* footer */
-  .foot{position:absolute;left:64px;bottom:68px}
+  .foot{position:absolute;left:64px;bottom:64px}
 
   /* zero.byt lockup — identical on every poster. Logo 936x233, 'zero' baseline at 183/233,
-     so the descender is 21.46% of the height (12px at 56px). Flex aligns text baselines to the img bottom, so the img is shifted down 12px to put "zero" on the text baseline. */
-  .zb{display:flex;align-items:baseline;gap:16px;font-family:'Inter',sans-serif;line-height:1;z-index:20}
-  .zb-label{font-size:21px;font-weight:500;letter-spacing:.01em;color:rgba(255,255,255,.72)}
-  .zb-logo{height:56px;width:auto;display:block;flex:none;transform:translateY(12px)}
-  .zb-sep{width:1.5px;height:44px;background:rgba(255,255,255,.28);margin:0 6px;flex:none}
-  .zb-cta{font-size:21px;font-weight:700;color:#fff}
+     so the descender is 21.46% of the height (7.7px at 36px). Flex aligns text baselines to the img bottom, so the img is shifted down 7.7px to put "zero" on the text baseline. */
+  .zb{display:flex;align-items:baseline;gap:12px;font-family:'Inter',sans-serif;line-height:1;z-index:20}
+  .zb-label{font-size:18px;font-weight:500;letter-spacing:.01em;color:rgba(255,255,255,.72)}
+  .zb-logo{height:36px;width:auto;display:block;flex:none;transform:translateY(7.7px)}
+  .zb-sep{width:1.5px;height:28px;background:rgba(255,255,255,.28);margin:0 6px;flex:none}
+  .zb-cta{font-size:18px;font-weight:700;color:#fff}
 
   /* phone */
   .phoneWrap{position:absolute;left:742px;top:560px;z-index:3;transform:rotate(-13deg);transform-origin:top left}
