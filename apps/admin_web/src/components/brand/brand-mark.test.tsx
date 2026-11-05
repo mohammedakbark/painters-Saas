@@ -17,4 +17,9 @@ describe('BrandMark', () => {
     });
     expect(heading.className).toContain('text-heading1');
   });
+
+  it('can show the product name', () => {
+    render(<BrandMark name="product" />);
+    expect(screen.getByText(BRAND.productName)).toBeDefined();
+  });
 });

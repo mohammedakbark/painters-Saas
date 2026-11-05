@@ -1,7 +1,7 @@
 # Project State — Living Document
 
-**Last updated:** 2026-11-04  
-**Current stage:** Phase 1: shop onboarding. Identity and shop accounts done (AUTH-001, SHP-001, PLT-001, SHP-002). The product owner answered the onboarding and catalogue questions on 2026-11-04 (D-027 to D-034). DS-001 (single-source theme), SHP-003 (shop profile and map location), SHP-004 (shop photo, portable storage), CAT-001 (platform brand catalogue), CAT-002 (shop catalogue) and PLT-002 (shop review) done: a shop can now go from registration to Live locally. DS-002 (the project's own UI components, D-039) and SHP-005 (Shop App catalogue) done: Phase 1 is complete. Next: plan the Customer App foundation (D-036 to D-038 recorded).  
+**Last updated:** 2026-11-05  
+**Current stage:** Phase 1: shop onboarding. Identity and shop accounts done (AUTH-001, SHP-001, PLT-001, SHP-002). The product owner answered the onboarding and catalogue questions on 2026-11-04 (D-027 to D-034). DS-001 (single-source theme), SHP-003 (shop profile and map location), SHP-004 (shop photo, portable storage), CAT-001 (platform brand catalogue), CAT-002 (shop catalogue) and PLT-002 (shop review) done: a shop can now go from registration to Live locally. DS-002 (the project's own UI components, D-039) and SHP-005 (Shop App catalogue) done: Phase 1 is complete. Before Phase 2 the product owner asked for a UI/UX pass on the web: WEB-001 (public home page) done; next WEB-002 (sign-in and registration UX), then plan the Customer App foundation (D-036 to D-038 recorded).  
 **Overall status:** Foundation complete with CI green on GitHub. Implemented and verified locally: platform admin sign-in, shop self-registration with tenant-scoped access, the platform shop registry, and Shop App sign-in (Android emulator).  
 **Product name:** Not decided
 
@@ -25,6 +25,7 @@
 | PLT-002: Review workflow: submit, approve or request changes, resubmit (D-032, D-033) | **Complete (local; Chrome owner side, platform side over HTTP, Android emulator)** | `docs/features/PLT-002-shop-review.md` |
 | DS-002: The project's own UI components with component tokens and a CI guard (D-039) | **Complete (local; Chrome shop pages, Android emulator)** | `docs/features/DS-002-components.md` |
 | SHP-005: Shop App catalogue: products, availability, prices, pack sizes, archive, add from brand catalogue, photos | **Complete (local; Android emulator against the real API, Chrome cross-check)** | `docs/features/SHP-005-shop-app-catalogue.md` |
+| WEB-001: Public home page (product site with Login/Register; no platform admin entry) | **Complete (local; headless Chrome screenshots)**; copy drafts awaiting product-owner review | `docs/features/WEB-001-public-home-page.md` |
 
 **Git (D-035):** every feature above is in `dev` (fast-forward merged and pushed on 2026-11-04; one commit per feature, `3697e4f` … `9c7885b`); the local per-feature branches were deleted. The first GitHub Actions run on `dev` (`8497b81`) passed all three jobs (TypeScript, Flutter, repository checks). The old remote branch `feat/shp-002-shop-app-sign-in` is still on GitHub (its commits are in `dev`); the product owner can delete it. From now on each finished feature is merged into `dev` and pushed the same way. `main` still holds only `c56f614` (project setup) until a release.
 
@@ -148,6 +149,8 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
   - add from the brand catalogue (brand, search, packs pre-ticked with prices);
   - rupee helpers in `flutter_shared` shared with the Customer App; API unchanged.
 
+- [x] WEB-001 (public home page, 2026-11-05): product site at `/` (what the platform provides, vision and mission, painters, how a shop goes live, privacy, store buttons "Coming soon", FAQ); Login/Register to `/sign-in`; platform admin link removed (`/platform/sign-in` by URL); new `StoreButton`.
+
 ## 5. Not done
 
 - [ ] Google Cloud project and Maps keys (product owner; D-027; steps in `docs/guides/GOOGLE_MAPS_SETUP.md`). Until then the map screens use the no-map fallback, and the Google map, place search and address suggestions are unverified.
@@ -155,6 +158,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 - [ ] Decision notifications to the owner (SMS/push; question 53).
 - [ ] Product owner to confirm two CAT-002 assumptions: the selling price may not exceed the MRP, and the 10-product rule counts active products with at least one pack size (DECISIONS §3a).
 - [ ] Real brand catalogue data (platform admins, from official shade cards and price lists; D-030).
+- [ ] Product owner to review the WEB-001 copy (vision, mission, hero). Replace the home-page illustrations with real app screenshots and add more content (product owner request, 2026-11-05). Fill `src/lib/app-stores.ts` when the apps are published.
 - [ ] Hosted storage provider and credentials (ADR 0007): chosen with the first hosted environment.
 - [ ] Product answers: questions 49 (registration limit), 51 (email sign-up mitigation), 52 (tinting workflow) and 53 (notification channel).
 - [ ] Production SMS vendor + DLT registration (question 46). Platform admin MFA and password reset (question 47). Session policy after sign-out (question 48).
@@ -340,12 +344,14 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 
 ## 7. Next actions
 
-1. **Next phase: plan the Customer App foundation** with the product owner: CUS-001 sign-up and profile (customer type, D-036), CUS-002 Find shops and My Shops (D-037, D-038), CUS-003 shop storefront. Open before ordering: questions 30–32 (order approval, pickup/delivery, fulfilment).
-2. **Product owner checks:** try the platform **Reviews** decision form in Chrome as the platform admin; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
-3. **Hardening before any hosted environment:** questions 49 and 51.
-4. **Product owner:** Google Maps keys (`docs/guides/GOOGLE_MAPS_SETUP.md`); real brand catalogue data; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
-5. **Housekeeping.** Install Node 24 locally.
-6. **Marketing (not a product feature):** daily Instagram content for **@zero.byt** via `/instagram post <day>` / `/instagram reel <day>` (skill `.claude/skills/instagram/`) and the 30-day calendar `marketing/instagram/CONTENT_PLAN_30_DAYS.md`. A format library of 10 poster formats (showcase, feature spotlight, how it works, poll, this or that, myth vs fact, tip, sneak peek, before/after, big-type teaser) in the approved families A (main), D and C. No format repeats on consecutive post days, and "Coming soon" appears only on Days 1, 7, 22, 28 and 30. English only, no product name, "Powered by zero.byt" lockup (36px logo). Days 1 (single poster), 3, 5, 6 and 7 are `ready`.
+1. **UI/UX pass (product owner, 2026-11-05):** WEB-002 sign-in and registration UX (separate Login and Register, better OTP screens), then the register-shop and My shops screens.
+2. **Next phase: plan the Customer App foundation** with the product owner: CUS-001 sign-up and profile (customer type, D-036), CUS-002 Find shops and My Shops (D-037, D-038), CUS-003 shop storefront. Open before ordering: questions 30–32 (order approval, pickup/delivery, fulfilment).
+3. **Product owner checks:** try the platform **Reviews** decision form in Chrome as the platform admin; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
+4. **Hardening before any hosted environment:** questions 49 and 51.
+5. **Product owner:** Google Maps keys (`docs/guides/GOOGLE_MAPS_SETUP.md`); real brand catalogue data; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
+6. **Housekeeping.** Install Node 24 locally.
+7. **Marketing (not a product feature):** daily "coming soon" Instagram content for the **@zero.byt** page. Run `/instagram post <day>` or `/instagram reel <day>` (skill `.claude/skills/instagram/`), following the 30-day calendar `marketing/instagram/CONTENT_PLAN_30_DAYS.md` (12 reel days, 18 post days with 2 posters each). No product name is shown; every post says "Powered by zero.byt" with the transparent zero.byt logo. English only. Three approved ad styles (A app showcase = main, D bold typography, C problem → solution; chosen by the product owner on 2026-11-05). Day 1 (A + D) is `ready`.
+8. **Marketing (not a product feature):** daily Instagram content for **@zero.byt** via `/instagram post <day>` / `/instagram reel <day>` (skill `.claude/skills/instagram/`) and the 30-day calendar `marketing/instagram/CONTENT_PLAN_30_DAYS.md`. A format library of 10 poster formats (showcase, feature spotlight, how it works, poll, this or that, myth vs fact, tip, sneak peek, before/after, big-type teaser) in the approved families A (main), D and C. No format repeats on consecutive post days, and "Coming soon" appears only on Days 1, 7, 22, 28 and 30. English only, no product name, "Powered by zero.byt" lockup (36px logo). Days 1 (single poster), 3, 5, 6 and 7 are `ready`.
 
 ## 8. Feature progress
 
@@ -410,3 +416,4 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-05 | Marketing tooling: `/instagram reel` / `/instagram post` skill (poster/reel-cover templates rendered to PNG with headless Chrome, hook, caption-lint and hashtag references) and a 30-day "coming soon" plan for the @zero.byt page under `marketing/instagram/`. No app code changed. |
 | 2026-11-05 | Instagram redesign: the product owner rejected the first posters, reviewed 4 designed concepts and chose styles A, D and C (B rejected). English only, transparent zero.byt logo, tagline "Your shop, your painters, your customers. Connected." Templates, skill, 30-day plan (a style per day) and Day 1 updated. |
 | 2026-11-05 | Instagram: format library (F1–F10) so the 30 days vary; calendar rewritten (10 reels, 20 post days, engagement CTAs, "Coming soon" only on 5 days); Day 1 is poster A alone; Days 3, 5, 6 and 7 generated. |
+| 2026-11-05 | WEB-001 implemented: public home page with Login/Register; platform admin entry removed from it. |

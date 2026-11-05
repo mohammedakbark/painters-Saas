@@ -7,6 +7,7 @@ import { CheckboxGroupField, RadioGroupField } from './choice-group-fields';
 import { Field } from './field';
 import { FileField } from './file-field';
 import { SearchForm } from './search-form';
+import { StoreButton } from './store-button';
 
 describe('Field', () => {
   it('associates the label, description and error with the input', () => {
@@ -210,5 +211,34 @@ describe('RadioGroupField and CheckboxGroupField', () => {
         .getByRole('group', { name: 'Reasons' })
         .getAttribute('aria-describedby'),
     ).toBe('reasons-hint');
+  });
+});
+
+describe('StoreButton', () => {
+  it('links to the store page when the app is published', () => {
+    render(
+      <StoreButton
+        store="google-play"
+        appName="Shop App"
+        href="https://play.google.com/store/apps/details?id=example"
+      />,
+    );
+
+    const link = screen.getByRole('link', {
+      name: 'Shop App: Get it on Google Play',
+    });
+    expect(link.getAttribute('href')).toContain('play.google.com');
+    expect(link.getAttribute('rel')).toBe('noopener noreferrer');
+  });
+
+  it('is disabled and says coming soon without a store page', () => {
+    render(<StoreButton store="app-store" appName="Shop App" href={null} />);
+
+    const placeholder = screen.getByRole('link', {
+      name: 'Shop App on App Store: coming soon',
+    });
+    expect(placeholder.getAttribute('aria-disabled')).toBe('true');
+    expect(placeholder.getAttribute('href')).toBeNull();
+    expect(placeholder.textContent).toContain('Coming soon to');
   });
 });

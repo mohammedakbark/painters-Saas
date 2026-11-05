@@ -9,10 +9,13 @@ import { cn } from '@/lib/cn';
 export function BrandMark({
   as: Tag = 'p',
   size = 'title',
+  name = 'portal',
   className,
 }: {
   as?: 'p' | 'h1' | 'span';
   size?: 'title' | 'heading1';
+  /** `product` on the public home page, `portal` inside the portal. */
+  name?: 'product' | 'portal';
   className?: string;
 }) {
   return (
@@ -25,7 +28,7 @@ export function BrandMark({
         className,
       )}
     >
-      {BRAND.adminPortalName}
+      {name === 'product' ? BRAND.productName : BRAND.adminPortalName}
     </Tag>
   );
 }

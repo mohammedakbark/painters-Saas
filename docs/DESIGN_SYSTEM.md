@@ -137,8 +137,9 @@ Web utilities: `rounded-control`, `min-h-control`, `rounded-card`, `border-card-
 | `SearchForm` | GET search with a labelled field, optional filters and hidden values |
 | `Card`, `CardList`, `CardLink`, `Panel` (`cardClasses` where an element can't be a component) | surfaces |
 | `Alert`, `Badge`, `StateMessage`, `Spinner`, `PageHeader` | messages, status, empty states, loading, page titles |
+| `StoreButton` | App Store / Google Play button; a link when the store URL exists, otherwise a disabled "Coming soon" (WEB-001) |
 
-No dialog or toast exists on the web yet; the first screen that needs one adds `Dialog`/`Toast` here first.
+The public home page builds its sections from these components in `components/marketing` (illustrations are inline SVG with token classes only). No dialog or toast exists on the web yet; the first screen that needs one adds `Dialog`/`Toast` here first.
 
 ### Flutter components (`flutter_shared`)
 
