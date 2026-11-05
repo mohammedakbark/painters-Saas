@@ -2,7 +2,7 @@
 <!--
   Instagram poster style A — App showcase (main style: feature days). Teal #07696A→#03373B, sun #FFC83D, coral #FF5E3A, mint #3DDBC4, cream #FFF7EC. Poppins + Inter. Change: badge, headline (2 lines, line 2 in sun with coral underline), tagline block, the 3 floating cards, and the phone screen content to fit the day's feature. Keep layout, palette, footer.
   1080x1350. Copy to marketing/instagram/output/day-XX-post/poster-<a|b>.html, rewrite the copy and phone screen, render with scripts/render.mjs, then LOOK at the PNG.
-  Rules: English only; no product name; logo = ../../assets/zerobyt-logo-light.png placed directly (never a white box); fictional data only; no 'stock'.
+  Rules: English only; keep the .zb lockup exactly as is (logo 56px, 'Powered by' 21px on the logo baseline, 64px left margin, descender 56px from the bottom); no product name; logo = ../../assets/zerobyt-logo-light.png placed directly (never a white box); fictional data only; no 'stock'.
 -->
 <html>
 <head>
@@ -53,6 +53,7 @@
   h1 .u svg{position:absolute;left:-4px;bottom:-22px;width:calc(100% + 8px);height:30px}
   .tag{margin-top:48px;font-size:34px;font-weight:600;line-height:1.28;color:#E6FFFB;max-width:470px}
   .tag b{color:#fff;font-weight:800}
+  .ml-unused{margin-top:14px;font-family:'Noto Sans Malayalam';font-weight:600;font-size:22px;color:var(--sun);white-space:nowrap;line-height:1.5}
 
   /* --- phone --- */
   .phone-wrap{position:absolute;left:540px;top:396px;width:440px;height:900px;transform:rotate(7deg);transform-origin:50% 50%}
@@ -133,13 +134,15 @@
   .fc3 .sub{font-size:13px;font-weight:600;color:#4b4320;margin-top:6px}
 
   /* --- bottom --- */
-  .bottom{position:absolute;left:64px;bottom:44px;display:flex;align-items:center;gap:14px;
-    background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.22);backdrop-filter:blur(6px);
-    padding:10px 22px 10px 20px;border-radius:999px}
-  .bottom .pb{font-size:17px;font-weight:600;color:#DDF6F2}
-  .logo{height:46px;width:auto;display:block}
-  .sep{width:1.5px;height:30px;background:rgba(255,255,255,.3)}
-  .bottom .h{font-size:19px;font-weight:800;color:#fff}
+  .bottom{position:absolute;left:64px;bottom:68px}
+
+  /* zero.byt lockup — identical on every poster. Logo 936x233, 'zero' baseline at 183/233,
+     so the descender is 21.46% of the height (12px at 56px). Flex aligns text baselines to the img bottom, so the img is shifted down 12px to put "zero" on the text baseline. */
+  .zb{display:flex;align-items:baseline;gap:16px;font-family:'Inter',sans-serif;line-height:1;z-index:20}
+  .zb-label{font-size:21px;font-weight:500;letter-spacing:.01em;color:rgba(255,255,255,.72)}
+  .zb-logo{height:56px;width:auto;display:block;flex:none;transform:translateY(12px)}
+  .zb-sep{width:1.5px;height:44px;background:rgba(255,255,255,.28);margin:0 6px;flex:none}
+  .zb-cta{font-size:21px;font-weight:700;color:#fff}
 </style>
 </head>
 <body>
@@ -280,10 +283,9 @@
   </div>
 
   <!-- brand -->
-  <div class="bottom">
-    <span class="pb">Powered by</span>
-    <img class="logo" src="../../assets/zerobyt-logo-light.png" alt="zero.byt">
-    <span class="sep"></span><span class="h">@zero.byt</span>
+  <div class="bottom zb">
+    <span class="zb-label">Powered by</span>
+    <img class="zb-logo" src="../../assets/zerobyt-logo-light.png" alt="zero.byt">
   </div>
 </body>
 </html>
