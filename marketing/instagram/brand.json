@@ -17,34 +17,184 @@
   "language": "en",
   "status": "coming-soon",
   "cta": {
-    "default": "Follow @zero.byt for launch updates",
+    "follow": "Follow @zero.byt",
     "shops": "Shop owners: DM @zero.byt to join early",
-    "save": "Save this and share with a painter friend"
+    "save": "Save this for later",
+    "tagPainter": "Tag a painter friend",
+    "shareShop": "Share with a shop owner",
+    "comment123": "Comment 1, 2 or 3",
+    "guess": "Guess in the comments",
+    "thisOrThat": "Comment ✍️ or 📱"
   },
   "styles": {
     "A": {
       "name": "App showcase",
       "use": "Main style: feature days (shops, painters, customers)",
       "template": "templates/style-a-showcase.html",
-      "palette": { "tealTop": "#07696A", "tealMid": "#054C51", "tealDeep": "#03373B", "glow": "#10A39C", "sun": "#FFC83D", "coral": "#FF5E3A", "mint": "#3DDBC4", "cream": "#FFF7EC", "ink": "#10201F" },
-      "fonts": ["Poppins", "Inter"]
+      "palette": {
+        "tealTop": "#07696A",
+        "tealMid": "#054C51",
+        "tealDeep": "#03373B",
+        "glow": "#10A39C",
+        "sun": "#FFC83D",
+        "coral": "#FF5E3A",
+        "mint": "#3DDBC4",
+        "cream": "#FFF7EC",
+        "ink": "#10201F"
+      },
+      "fonts": [
+        "Poppins",
+        "Inter"
+      ]
     },
     "D": {
       "name": "Bold typography",
       "use": "Teasers, trust/myth posts, countdown",
       "template": "templates/style-d-typography.html",
-      "palette": { "ink": "#09090C", "offWhite": "#F5F4EF", "lime": "#D4FF3A", "paintTeal": "#14B8A6", "saffron": "#FFB627", "rose": "#FF3D81", "violetGlow": "#7C5CFF" },
-      "fonts": ["Anton", "Inter"]
+      "palette": {
+        "ink": "#09090C",
+        "offWhite": "#F5F4EF",
+        "lime": "#D4FF3A",
+        "paintTeal": "#14B8A6",
+        "saffron": "#FFB627",
+        "rose": "#FF3D81",
+        "violetGlow": "#7C5CFF"
+      },
+      "fonts": [
+        "Anton",
+        "Inter"
+      ]
     },
     "C": {
       "name": "Problem → solution",
       "use": "Problem / before-after / comparison days",
       "template": "templates/style-c-before-after.html",
-      "palette": { "violet": "#4B2BE0", "violetDeep": "#2E169E", "violetLight": "#7A5CFF", "lime": "#C8F53C", "footerInk": "#1A1530", "paper": "#FBF8EF", "concrete": "#BDB8AE", "graphite": "#3A3833" },
-      "fonts": ["Anton", "Caveat", "Inter"]
+      "palette": {
+        "violet": "#4B2BE0",
+        "violetDeep": "#2E169E",
+        "violetLight": "#7A5CFF",
+        "lime": "#C8F53C",
+        "footerInk": "#1A1530",
+        "paper": "#FBF8EF",
+        "concrete": "#BDB8AE",
+        "graphite": "#3A3833"
+      },
+      "fonts": [
+        "Anton",
+        "Caveat",
+        "Inter"
+      ]
     }
   },
   "reelCover": "templates/reel-cover.html (style A)",
-  "sizes": { "post": [1080, 1350], "reelCover": [1080, 1920] },
-  "defaultHashtags": ["#zerobyt", "#PaintShop", "#KeralaPainters", "#Kerala", "#ComingSoon"]
+  "sizes": {
+    "post": [
+      1080,
+      1350
+    ],
+    "reelCover": [
+      1080,
+      1920
+    ]
+  },
+  "defaultHashtags": [
+    "#zerobyt",
+    "#PaintShop",
+    "#KeralaPainters",
+    "#Kerala",
+    "#ComingSoon"
+  ],
+  "comingSoonDays": [
+    1,
+    7,
+    22,
+    28,
+    30
+  ],
+  "formats": {
+    "F1": {
+      "name": "Showcase",
+      "family": "A teal",
+      "template": "templates/style-a-showcase.html",
+      "badges": [
+        "NEW FOR SHOPS",
+        "COMING SOON"
+      ]
+    },
+    "F2": {
+      "name": "Feature spotlight",
+      "family": "A teal",
+      "template": "templates/format-f2-spotlight.html",
+      "badges": [
+        "FEATURE SPOTLIGHT"
+      ]
+    },
+    "F3": {
+      "name": "How it works",
+      "family": "A cream",
+      "template": "templates/format-f3-steps.html",
+      "badges": [
+        "HOW IT WORKS"
+      ]
+    },
+    "F4": {
+      "name": "Question / poll",
+      "family": "A warm",
+      "template": "templates/format-f4-poll.html",
+      "badges": [
+        "YOUR TURN"
+      ]
+    },
+    "F5": {
+      "name": "This or that",
+      "family": "C",
+      "template": "templates/format-f5-this-or-that.html",
+      "badges": [
+        "THIS OR THAT"
+      ]
+    },
+    "F6": {
+      "name": "Myth vs fact",
+      "family": "D",
+      "template": "templates/format-f6-myth-fact.html",
+      "badges": [
+        "MYTH VS FACT"
+      ]
+    },
+    "F7": {
+      "name": "Tip card",
+      "family": "A cream/sun",
+      "template": "templates/format-f7-tip.html",
+      "badges": [
+        "SHOP TIP #n",
+        "PAINTER TIP #n"
+      ]
+    },
+    "F8": {
+      "name": "Sneak peek",
+      "family": "D",
+      "template": "templates/format-f8-sneak-peek.html",
+      "badges": [
+        "SNEAK PEEK"
+      ]
+    },
+    "F9": {
+      "name": "Problem → solution",
+      "family": "C",
+      "template": "templates/style-c-before-after.html",
+      "badges": [
+        "BEFORE / AFTER"
+      ]
+    },
+    "F10": {
+      "name": "Big-type teaser",
+      "family": "D",
+      "template": "templates/style-d-typography.html",
+      "badges": [
+        "COMING SOON",
+        "ALMOST HERE"
+      ]
+    }
+  },
+  "lockup": "Powered by + logo 36px, label 18px on the 'zero' baseline (logo translateY 7.7px), left 64px, bottom 64px; identical on every poster"
 }

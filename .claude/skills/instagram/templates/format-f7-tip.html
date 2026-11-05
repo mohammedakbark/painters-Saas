@@ -1,0 +1,148 @@
+<!doctype html>
+<!--
+  Instagram poster format F7 Tip card (A sun, dark logo). "Shop tip #n" / "Painter tip #n": one genuine, practical tip (no invented numbers) + a "How the app helps" card. Change: badge number, tip, supporting line, app card.
+  1080x1350. Copy to marketing/instagram/output/day-XX-post/poster-<a|b>.html, rewrite the copy and screen, render with scripts/render.mjs, then LOOK at the PNG (full size + 2x zoom of footer and edges).
+  Rules: English only; no product name; keep the .zb lockup exactly (logo 36px, 'Powered by' 18px on the logo baseline, left 64px, bottom 64px); fictional data only; no 'stock'; no 'Coming soon' badge unless the day is in brand.json comingSoonDays.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=block" rel="stylesheet">
+<style>
+  :root{
+    --teal-900:#04363A; --teal-800:#065A5E; --teal-600:#0B8A86;
+    --mint:#3DDBC4; --coral:#FF5E3A; --sun:#FFC83D; --cream:#FFF7EC; --ink:#10201F; --muted:#5E716F; --line:#E7DED0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1080px;height:1350px;overflow:hidden}
+  body{
+    font-family:'Poppins',sans-serif;color:var(--ink);position:relative;
+    background:
+      radial-gradient(760px 640px at 92% 30%, rgba(255,247,236,.55) 0%, rgba(255,247,236,0) 65%),
+      radial-gradient(700px 600px at 0% 100%, rgba(255,94,58,.16) 0%, rgba(255,94,58,0) 70%),
+      var(--sun);
+  }
+  .rings{position:absolute;left:560px;top:-200px;width:900px;height:900px;pointer-events:none}
+
+  /* --- top --- */
+  .top{position:absolute;left:64px;top:62px}
+  .badge{display:inline-flex;align-items:center;gap:12px;background:var(--ink);color:var(--sun);
+    font-weight:800;font-size:22px;letter-spacing:.16em;text-transform:uppercase;
+    padding:12px 24px 12px 16px;border-radius:999px;box-shadow:0 10px 24px rgba(16,32,31,.22)}
+  .badge .ic{width:30px;height:30px;border-radius:50%;background:var(--sun);display:grid;place-items:center}
+  h1{margin-top:30px;font-family:'Poppins';font-weight:900;font-size:98px;line-height:1.0;letter-spacing:-.035em;color:var(--ink)}
+  h1 .hl{display:inline-block;background:var(--teal-800);color:var(--cream);padding:0 22px 6px 18px;border-radius:22px;transform:rotate(-1deg);transform-origin:0 50%;
+    box-shadow:0 12px 26px rgba(4,54,58,.25)}
+  .sub{margin-top:34px;font-family:'Poppins';font-size:34px;line-height:1.25;font-weight:600;color:#3B3415}
+  .sub b{font-weight:800;color:var(--ink)}
+
+  /* shade fan */
+  .fan{position:absolute;left:690px;top:300px;width:304px;height:360px}
+  .sc{position:absolute;left:92px;top:0;width:150px;height:300px;border-radius:20px;background:#fff;padding:10px;transform-origin:50% 92%;
+    box-shadow:0 18px 36px rgba(16,32,31,.18),0 3px 8px rgba(16,32,31,.08);font-family:'Inter'}
+  .sc .c{height:190px;border-radius:12px}
+  .sc .nm{font-family:'Poppins';font-weight:700;font-size:15px;line-height:1.15;margin-top:10px}
+  .sc .cd{display:inline-block;margin-top:6px;font-size:13px;font-weight:800;background:#F1ECE3;border-radius:6px;padding:3px 7px}
+  .sc.a{transform:rotate(-20deg) translateX(-34px)}
+  .sc.b{transform:rotate(-6deg)}
+  .sc.c3{transform:rotate(9deg) translateX(30px)}
+
+  /* how the app helps */
+  .help{position:absolute;left:64px;right:64px;top:752px;height:416px;background:var(--cream);border-radius:32px;padding:30px 34px;
+    box-shadow:0 26px 50px rgba(122,75,0,.20),0 4px 12px rgba(16,32,31,.06)}
+  .k{display:inline-flex;align-items:center;gap:10px;font-family:'Poppins';font-weight:800;font-size:16px;letter-spacing:.14em;text-transform:uppercase;color:var(--coral)}
+  .order{margin-top:18px;background:#fff;border-radius:22px;border:1.5px solid var(--line);padding:16px 20px;font-family:'Inter'}
+  .order .oh{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:700;color:var(--muted);padding-bottom:12px;border-bottom:1.5px dashed var(--line)}
+  .order .oh b{color:var(--ink);font-family:'Poppins';font-size:16px}
+  .order .oh .site{display:inline-flex;align-items:center;gap:6px;color:var(--teal-600)}
+  .line{display:flex;gap:16px;align-items:center;padding-top:14px}
+  .thumb{width:64px;height:64px;border-radius:14px;background:#FFF0D6;display:grid;place-items:center;flex:none}
+  .line .t{font-family:'Poppins';font-weight:700;font-size:19px;line-height:1.2}
+  .line .b{font-size:14px;color:var(--muted);font-weight:600;margin-top:2px}
+  .line .p{margin-left:auto;font-weight:800;font-size:19px;align-self:flex-start;padding-top:4px}
+  .shadeRow{display:flex;align-items:center;gap:14px;margin-top:12px;padding-left:80px}
+  .chipS{display:inline-flex;align-items:center;gap:10px;background:#E4F7F3;border:2px solid var(--teal-600);color:var(--teal-900);border-radius:999px;padding:7px 16px 7px 8px;font-size:16px;font-weight:800}
+  .chipS i{width:26px;height:26px;border-radius:50%;background:#0F7C80;display:block;box-shadow:inset 0 0 0 2px rgba(255,255,255,.6)}
+  .saved{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;color:#11875A}
+  .fav{display:flex;align-items:center;gap:14px;margin-top:26px;font-family:'Poppins'}
+  .fav .hrt{width:44px;height:44px;border-radius:14px;background:var(--coral);display:grid;place-items:center;flex:none}
+  .fav .tx{font-weight:700;font-size:22px;line-height:1.2;flex:1}
+  .fav .sw{display:flex;gap:8px}
+  .fav .sw span{display:flex;align-items:center;gap:6px;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:5px 10px 5px 5px;font-family:'Inter';font-size:12.5px;font-weight:800}
+  .fav .sw span i{width:20px;height:20px;border-radius:50%;display:block;box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.08)}
+
+  /* engagement, baseline-matched to the lockup */
+  .save{position:absolute;right:64px;bottom:64px;display:flex;align-items:baseline;gap:10px;font-family:'Inter',sans-serif;line-height:1;z-index:20;
+    font-size:20px;font-weight:700;color:var(--ink)}
+  .save svg{transform:translateY(3px);flex:none}
+
+  /* zero.byt lockup — identical on every poster (dark variant for light bg) */
+  .zb{position:absolute;left:64px;bottom:64px;display:flex;align-items:baseline;gap:12px;font-family:'Inter',sans-serif;line-height:1;z-index:20}
+  .zb-label{font-size:18px;font-weight:500;letter-spacing:.01em;color:rgba(16,32,31,.65)}
+  .zb-logo{height:36px;width:auto;display:block;flex:none;transform:translateY(7.7px)}
+</style>
+</head>
+<body>
+  <svg class="rings" viewBox="0 0 900 900" fill="none">
+    <g stroke="rgba(16,32,31,.07)" stroke-width="2">
+      <circle cx="450" cy="450" r="200"/><circle cx="450" cy="450" r="300"/><circle cx="450" cy="450" r="400"/>
+    </g>
+  </svg>
+
+  <div class="top">
+    <div class="badge"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10201F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z" fill="#10201F"/></svg></span>Shop tip #1</div>
+    <h1>Write the<br><span class="hl">shade code</span><br>on every<br>order.</h1>
+    <p class="sub">Same name, different shade?<br><b>The code never lies.</b></p>
+  </div>
+
+  <!-- shade fan -->
+  <div class="fan">
+    <div class="sc a"><div class="c" style="background:#F2E6D3;height:280px"></div></div>
+    <div class="sc b"><div class="c" style="background:#E5A83B;height:280px"></div></div>
+    <div class="sc c3"><div class="c" style="background:#0F7C80"></div><div class="nm">Kerala Teal</div><div class="cd">AP 4021</div></div>
+  </div>
+
+  <!-- how the app helps -->
+  <div class="help">
+    <div class="k"><svg width="16" height="20" viewBox="0 0 16 22" fill="#FF5E3A"><rect x="0" y="0" width="16" height="22" rx="4"/><rect x="5" y="17" width="6" height="2" rx="1" fill="#FFF7EC"/></svg>How the app helps</div>
+    <div class="order">
+      <div class="oh"><span><b>Order</b> · Sree Colours</span><span class="site"><svg width="14" height="14" viewBox="0 0 24 24" fill="#0B8A86"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>Green Villa</span></div>
+      <div class="line">
+        <div class="thumb">
+          <svg width="50" height="54" viewBox="0 0 92 100">
+            <path d="M22 18 Q46 -4 70 18" stroke="#6b7a79" stroke-width="4" fill="none"/>
+            <rect x="10" y="20" width="72" height="74" rx="8" fill="#D9DEDD"/>
+            <ellipse cx="46" cy="20" rx="36" ry="7" fill="#B9C2C1"/>
+            <rect x="10" y="36" width="72" height="44" fill="#0F7C80"/>
+            <path d="M10 64 Q30 54 46 64 T82 60 V80 H10z" fill="#0B5F62"/>
+            <rect x="10" y="20" width="12" height="74" fill="rgba(255,255,255,.25)"/>
+          </svg>
+        </div>
+        <div><div class="t">Silk Touch Interior</div><div class="b">Kayal Coatings · 4L × 2</div></div>
+        <div class="p">₹1,680</div>
+      </div>
+      <div class="shadeRow">
+        <span class="chipS"><i></i>Kerala Teal · AP 4021</span>
+        <span class="saved"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#11875A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg>Saved on this line</span>
+      </div>
+    </div>
+    <div class="fav">
+      <span class="hrt"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/></svg></span>
+      <span class="tx">Favourite shades,<br>one tap away.</span>
+      <span class="sw">
+        <span><i style="background:#0F7C80"></i>AP 4021</span>
+        <span><i style="background:#E5A83B"></i>AP 2210</span>
+        <span><i style="background:#F2E6D3"></i>AP 0108</span>
+      </span>
+    </div>
+  </div>
+
+  <div class="save">
+    <svg width="18" height="22" viewBox="0 0 18 22" fill="none"><path d="M2 2h14v18l-7-5-7 5z" fill="#10201F"/></svg>
+    <span>Save this tip</span>
+  </div>
+
+  <div class="zb"><span class="zb-label">Powered by</span><img class="zb-logo" src="../../assets/zerobyt-logo-dark.png" alt="zero.byt"></div>
+</body>
+</html>

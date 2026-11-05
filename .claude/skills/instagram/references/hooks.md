@@ -18,3 +18,17 @@ These hooks are adapted from public Instagram skills (instagram-agent-skill's sc
 | 11 | Question to shops | "What if your customers could order from your shop on their phone?" |
 
 Rules: keep it to 7 words or fewer on screen, use no clickbait the product can't back up, and never use a fake urgency date.
+
+## Engagement patterns (formats F4–F8 and quiz reels)
+
+| Pattern | Example |
+|---|---|
+| Numbered poll | "What slows your shop counter the most? Comment 1, 2 or 3." |
+| This or that | "Notebook dues or a clear running bill? ✍️ or 📱" |
+| Guess the screen | "What do you think this screen does? Guess below 👀" |
+| Myth → fact | "Myth: an app decides my credit. Fact: your shop decides." |
+| Numbered tip | "Shop tip #1: Write the shade code on every order." |
+| Role call-out | "Shop owner, painter or home customer? Which one are you?" |
+| Ask what's next | "What should we show you next? 1, 2 or 3." |
+
+Reply to comments within the first hour. Polls and guesses only work if someone answers back.

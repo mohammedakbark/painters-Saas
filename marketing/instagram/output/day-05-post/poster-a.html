@@ -1,0 +1,228 @@
+<!doctype html>
+<!--
+  Instagram poster format F3 How it works (A cream, dark logo). Exactly 3 steps in a staircase of cards with mini UIs and dotted arrows. Change: headline, step titles/lines, the 3 mini UIs, the corner illustration, engagement line.
+  1080x1350. Copy to marketing/instagram/output/day-XX-post/poster-<a|b>.html, rewrite the copy and screen, render with scripts/render.mjs, then LOOK at the PNG (full size + 2x zoom of footer and edges).
+  Rules: English only; no product name; keep the .zb lockup exactly (logo 36px, 'Powered by' 18px on the logo baseline, left 64px, bottom 64px); fictional data only; no 'stock'; no 'Coming soon' badge unless the day is in brand.json comingSoonDays.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=block" rel="stylesheet">
+<style>
+  :root{
+    --teal-900:#04363A; --teal-800:#065A5E; --teal-600:#0B8A86;
+    --mint:#3DDBC4; --coral:#FF5E3A; --sun:#FFC83D; --cream:#FFF7EC; --ink:#10201F; --muted:#5E716F; --line:#E7DED0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1080px;height:1350px;overflow:hidden}
+  body{
+    font-family:'Poppins',sans-serif;color:var(--ink);position:relative;
+    background:
+      radial-gradient(700px 600px at 100% 0%, rgba(255,200,61,.28) 0%, rgba(255,200,61,0) 70%),
+      radial-gradient(800px 700px at 0% 100%, rgba(61,219,196,.18) 0%, rgba(61,219,196,0) 70%),
+      var(--cream);
+  }
+  .dots{position:absolute;left:64px;top:1180px;width:0;height:0}
+  .grain{position:absolute;inset:0;pointer-events:none;
+    background-image:radial-gradient(rgba(16,32,31,.06) 1.6px,transparent 1.8px);background-size:26px 26px;
+    -webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,.0) 0%,rgba(0,0,0,.9) 100%);mask-image:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.9) 100%)}
+
+  /* --- top --- */
+  .top{position:absolute;left:64px;top:62px}
+  .badge{display:inline-flex;align-items:center;gap:12px;background:var(--teal-800);color:#fff;
+    font-weight:800;font-size:22px;letter-spacing:.16em;text-transform:uppercase;
+    padding:12px 24px 12px 16px;border-radius:999px;box-shadow:0 10px 26px rgba(6,90,94,.28)}
+  .badge .ic{width:30px;height:30px;border-radius:50%;background:var(--sun);display:grid;place-items:center}
+  h1{margin-top:28px;font-family:'Poppins';font-weight:900;font-size:94px;line-height:.98;letter-spacing:-.035em;color:var(--ink)}
+  h1 .t{color:var(--teal-600)}
+  h1 .u{position:relative;display:inline-block}
+  h1 .u svg{position:absolute;left:-4px;bottom:-26px;width:calc(100% + 8px);height:26px}
+
+  /* shopfront illustration, top right */
+  .front{position:absolute;right:64px;top:70px;width:300px;height:266px}
+
+  /* --- step cards --- */
+  .step{position:absolute;width:700px;height:236px;background:#fff;border-radius:30px;
+    box-shadow:0 24px 50px rgba(16,32,31,.12),0 4px 12px rgba(16,32,31,.06);
+    display:flex;gap:28px;padding:44px 32px 30px 36px}
+  .s1{left:64px;top:404px}
+  .s2{left:316px;top:694px}
+  .s3{left:64px;top:984px}
+  .n{position:absolute;top:-34px;width:72px;height:72px;border-radius:50%;display:grid;place-items:center;
+    font-family:'Poppins';font-weight:900;font-size:36px;line-height:1;box-shadow:0 10px 22px rgba(16,32,31,.18),0 0 0 7px var(--cream)}
+  .s1 .n,.s3 .n{left:36px}
+  .s2 .n{left:36px}
+  .n.a{background:var(--sun);color:var(--teal-900)}
+  .n.b{background:var(--coral);color:#fff}
+  .n.c{background:var(--teal-800);color:#fff}
+  .txt{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
+  .txt h2{font-family:'Poppins';font-weight:800;font-size:36px;line-height:1.06;letter-spacing:-.02em}
+  .txt p{font-family:'Inter';font-size:20px;line-height:1.38;color:var(--muted);margin-top:12px;font-weight:500}
+  .txt p b{color:var(--ink);font-weight:700}
+  .ui{width:270px;flex:none;align-self:center;font-family:'Inter';color:var(--ink)}
+
+  /* mini UI 1: web sign-up */
+  .win{border-radius:16px;background:#FBF7F0;border:1.5px solid var(--line);overflow:hidden;transform:rotate(2deg)}
+  .win .bar{height:28px;background:#F1ECE3;display:flex;align-items:center;gap:6px;padding:0 10px}
+  .win .bar i{width:8px;height:8px;border-radius:50%;display:block}
+  .win .bar span{flex:1;height:12px;border-radius:6px;background:#fff;margin-left:8px}
+  .win .body{padding:12px 14px 14px}
+  .win .h{font-family:'Poppins';font-weight:700;font-size:14px}
+  .fld{margin-top:8px;height:32px;border-radius:9px;background:#fff;border:1.5px solid var(--line);display:flex;align-items:center;padding:0 10px;font-size:12.5px;font-weight:600;gap:6px}
+  .fld em{font-style:normal;color:var(--muted)}
+  .otp{display:flex;gap:6px;margin-top:8px}
+  .otp span{flex:1;height:34px;border-radius:9px;background:#fff;border:1.5px solid var(--line);display:grid;place-items:center;font-family:'Poppins';font-weight:700;font-size:16px}
+  .otp span.on{border-color:var(--teal-600);box-shadow:0 0 0 3px rgba(11,138,134,.15)}
+  .cta{margin-top:10px;height:32px;border-radius:999px;background:var(--teal-600);color:#fff;font-size:12.5px;font-weight:700;display:grid;place-items:center}
+
+  /* mini UI 2: checklist */
+  .chk{border-radius:16px;background:#FBF7F0;border:1.5px solid var(--line);padding:12px 14px;transform:rotate(-2deg)}
+  .chk .r{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;padding:6px 0;border-top:1.5px dashed var(--line)}
+  .chk .r:first-child{border-top:none;padding-top:0}
+  .tick{width:20px;height:20px;border-radius:50%;background:var(--teal-600);display:grid;place-items:center;flex:none}
+  .chk .r .v{margin-left:auto;font-size:11.5px;font-weight:600;color:var(--muted)}
+  .ph{width:34px;height:22px;border-radius:5px;background:linear-gradient(135deg,#0B8A86 0 50%,#FFC83D 50% 100%);margin-left:auto}
+  .prog{height:7px;border-radius:4px;background:#E7DED0;margin-top:4px;overflow:hidden}
+  .prog i{display:block;height:100%;width:100%;background:var(--coral);border-radius:4px}
+
+  /* mini UI 3: live status */
+  .live{border-radius:16px;background:#FBF7F0;border:1.5px solid var(--line);padding:14px;transform:rotate(2deg)}
+  .live .hd{display:flex;align-items:center;gap:10px}
+  .av{width:40px;height:40px;border-radius:12px;background:var(--sun);color:var(--teal-900);display:grid;place-items:center;font-family:'Poppins';font-weight:800;font-size:15px;flex:none}
+  .live .nm{font-family:'Poppins';font-weight:700;font-size:15px;line-height:1.15}
+  .live .lc{font-size:11.5px;color:var(--muted);font-weight:600}
+  .trk{display:flex;align-items:center;gap:6px;margin-top:12px;font-size:11.5px;font-weight:700;color:var(--muted)}
+  .trk .d{width:14px;height:14px;border-radius:50%;background:var(--teal-600);display:grid;place-items:center;flex:none}
+  .trk .ln{flex:1;height:2px;background:var(--teal-600)}
+  .chipl{margin-top:12px;display:flex;justify-content:center;align-items:center;gap:8px;background:#DDF6EA;color:#0C6B45;font-family:'Poppins';font-weight:800;font-size:17px;padding:8px 16px 8px 12px;border-radius:999px;box-shadow:0 0 0 4px rgba(17,178,107,.12)}
+  .chipl i{width:12px;height:12px;border-radius:50%;background:#11B26B;box-shadow:0 0 0 4px rgba(17,178,107,.25);display:block}
+
+  #path{position:absolute;left:0;top:0;width:1080px;height:1350px;z-index:0;pointer-events:none}
+  .step{z-index:2}
+
+  /* engagement, baseline-matched to the lockup */
+  .dm{position:absolute;right:64px;bottom:64px;display:flex;align-items:baseline;gap:10px;font-family:'Inter',sans-serif;line-height:1;z-index:20;
+    font-size:20px;font-weight:600;color:var(--ink)}
+  .dm b{color:var(--teal-600);font-weight:800}
+  .dm svg{transform:translateY(3px);flex:none}
+
+  /* zero.byt lockup — identical on every poster (dark variant for light bg) */
+  .zb{position:absolute;left:64px;bottom:64px;display:flex;align-items:baseline;gap:12px;font-family:'Inter',sans-serif;line-height:1;z-index:20}
+  .zb-label{font-size:18px;font-weight:500;letter-spacing:.01em;color:rgba(16,32,31,.65)}
+  .zb-logo{height:36px;width:auto;display:block;flex:none;transform:translateY(7.7px)}
+</style>
+</head>
+<body>
+  <div class="grain"></div>
+
+  <!-- dashed route connecting the steps -->
+  <svg id="path" viewBox="0 0 1080 1350" fill="none">
+    <!-- 1 → 2 : leaves card 1 right edge, drops onto card 2 -->
+    <path d="M772 522 C 880 522, 900 572, 900 668" stroke="#0B8A86" stroke-width="4" stroke-dasharray="2 14" stroke-linecap="round"/>
+    <path d="M886 660 L900 680 L914 660" stroke="#0B8A86" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- 2 → 3 : leaves card 2 left edge, drops onto card 3 -->
+    <path d="M308 812 C 220 812, 206 862, 206 958" stroke="#FF5E3A" stroke-width="4" stroke-dasharray="2 14" stroke-linecap="round"/>
+    <path d="M192 950 L206 970 L220 950" stroke="#FF5E3A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+
+  <div class="top">
+    <div class="badge"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#04363A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>How it works</div>
+    <h1>How a shop<br><span class="t u">goes live.<svg viewBox="0 0 300 26" preserveAspectRatio="none"><path d="M4 18 C 70 6, 170 4, 296 13" stroke="#FFC83D" stroke-width="9" fill="none" stroke-linecap="round"/></svg></span></h1>
+  </div>
+
+  <!-- shopfront illustration -->
+  <svg class="front" viewBox="0 0 300 266">
+    <ellipse cx="150" cy="252" rx="140" ry="12" fill="rgba(16,32,31,.08)"/>
+    <rect x="30" y="92" width="240" height="160" rx="10" fill="#fff" stroke="#10201F" stroke-width="4"/>
+    <!-- awning -->
+    <path d="M18 60 H282 L290 104 H10z" fill="#0B8A86" stroke="#10201F" stroke-width="4" stroke-linejoin="round"/>
+    <g fill="#FFF7EC"><path d="M62 60 h30 l2 44 h-34z"/><path d="M135 60 h30 l1 44 h-32z"/><path d="M208 60 h30 l4 44 h-34z"/></g>
+    <path d="M10 104 Q28 124 46 104 Q64 124 82 104 Q100 124 118 104 Q136 124 154 104 Q172 124 190 104 Q208 124 226 104 Q244 124 262 104 Q280 124 290 104" fill="#0B8A86" stroke="#10201F" stroke-width="4" stroke-linejoin="round"/>
+    <!-- sign -->
+    <rect x="70" y="18" width="160" height="40" rx="10" fill="#FFC83D" stroke="#10201F" stroke-width="4"/>
+    <rect x="94" y="32" width="112" height="12" rx="6" fill="#10201F" opacity=".85"/>
+    <!-- door + window -->
+    <rect x="52" y="146" width="66" height="106" rx="6" fill="#E3F4F1" stroke="#10201F" stroke-width="4"/>
+    <circle cx="106" cy="202" r="4" fill="#10201F"/>
+    <rect x="138" y="146" width="112" height="70" rx="6" fill="#FFF0D6" stroke="#10201F" stroke-width="4"/>
+    <!-- tins in window -->
+    <rect x="152" y="176" width="24" height="32" rx="3" fill="#0F7C80"/>
+    <rect x="182" y="168" width="28" height="40" rx="3" fill="#FF5E3A"/>
+    <rect x="216" y="180" width="20" height="28" rx="3" fill="#E5A83B"/>
+    <!-- live chip -->
+    <g transform="translate(196 226) rotate(-6)">
+      <rect x="0" y="0" width="96" height="40" rx="20" fill="#DDF6EA" stroke="#10201F" stroke-width="4"/>
+      <circle cx="22" cy="20" r="7" fill="#11B26B"/>
+      <text x="38" y="28" font-family="Poppins" font-weight="800" font-size="21" fill="#0C6B45">Live</text>
+    </g>
+    <!-- sparkles -->
+    <path d="M22 22 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4z" fill="#FF5E3A"/>
+    <circle cx="266" cy="30" r="7" fill="#3DDBC4"/>
+  </svg>
+
+  <!-- step 1 -->
+  <div class="step s1">
+    <div class="n a">1</div>
+    <div class="txt">
+      <h2>Register<br>your shop</h2>
+      <p>Sign up on the web with your <b>mobile number + OTP.</b></p>
+    </div>
+    <div class="ui">
+      <div class="win">
+        <div class="bar"><i style="background:#FF5E3A"></i><i style="background:#FFC83D"></i><i style="background:#3DDBC4"></i><span></span></div>
+        <div class="body">
+          <div class="h">Register your shop</div>
+          <div class="fld"><em>+91</em> 98470 •• •••</div>
+          <div class="otp"><span>4</span><span>8</span><span>2</span><span class="on">9</span></div>
+          <div class="cta">Verify OTP</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- step 2 -->
+  <div class="step s2">
+    <div class="n b">2</div>
+    <div class="txt">
+      <h2>Add the<br>basics</h2>
+      <p>Shop photo, address, support number and <b>10 products.</b></p>
+    </div>
+    <div class="ui">
+      <div class="chk">
+        <div class="r"><span class="tick"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></span>Shop photo<span class="ph"></span></div>
+        <div class="r"><span class="tick"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></span>Address<span class="v">Thrissur</span></div>
+        <div class="r"><span class="tick"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></span>Support number<span class="v">Added</span></div>
+        <div class="r" style="flex-wrap:wrap"><span class="tick"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></span>Products<span class="v">10 / 10</span><div class="prog" style="flex-basis:100%"><i></i></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- step 3 -->
+  <div class="step s3">
+    <div class="n c">3</div>
+    <div class="txt">
+      <h2>Get reviewed,<br>go live</h2>
+      <p>Your details are checked, then <b>customers can find you.</b></p>
+    </div>
+    <div class="ui">
+      <div class="live">
+        <div class="hd"><div class="av">SC</div><div><div class="nm">Sree Colours</div><div class="lc">Thrissur</div></div></div>
+        <div class="trk">
+          <span class="d"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"><path d="m5 12 5 5 9-10"/></svg></span>Reviewed
+          <span class="ln"></span>
+          <span class="d" style="background:#11B26B"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"><path d="m5 12 5 5 9-10"/></svg></span>
+        </div>
+        <div class="chipl"><i></i>Live</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dm">
+    <svg width="22" height="20" viewBox="0 0 24 22" fill="none"><path d="M3 3h18v12H9l-6 5z" fill="#FF5E3A"/></svg>
+    <span>Shop owners: DM <b>@zero.byt</b> to join early</span>
+  </div>
+
+  <div class="zb"><span class="zb-label">Powered by</span><img class="zb-logo" src="../../assets/zerobyt-logo-dark.png" alt="zero.byt"></div>
+</body>
+</html>

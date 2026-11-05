@@ -1,10 +1,10 @@
 ---
 name: instagram
-description: Create the day's Instagram content for the zero.byt page from the 30-day "coming soon" plan, in the approved ad styles (A app showcase, D bold typography, C problem → solution). Use /instagram reel [day] for one reel (script, beat sheet, shot list, cover PNG, caption) or /instagram post [day] for two 1080x1350 poster PNGs plus caption. Only states features the project docs confirm; nothing is posted automatically.
+description: Create the day's Instagram content for the zero.byt page from the 30-day launch plan, using the format library (showcase, feature spotlight, how it works, poll, this or that, myth vs fact, tip, sneak peek, before/after, big-type teaser) in the approved A/D/C visual families. Use /instagram reel [day] for one reel (script, beat sheet, shot list, cover PNG, caption) or /instagram post [day] for two 1080x1350 poster PNGs plus caption. Only states features the project docs confirm; nothing is posted automatically.
 argument-hint: "<reel|post> [day 1-30]"
 ---
 
-# /instagram — daily "coming soon" content
+# /instagram: daily launch content for @zero.byt
 
 Arguments: `$ARGUMENTS`. The first word is the format, `reel` or `post`, and is required. If it's missing or anything else, ask which one. The second is an optional day number (1–30).
 
@@ -30,9 +30,9 @@ Paths are relative to the repository root:
 ## 3. Hard rules
 
 - **No product name.** It doesn't exist yet (`productName: null`). Use "a new app for paint shops" / "the app". Credit only as **Powered by zero.byt**. The templates already carry the logo and handle.
-- Everything is **coming soon**. There are no store links, "download now", dates, prices, "free", or user/shop counts.
+- The app isn't out yet, so never say "download now" or show store links, dates, prices, "free", user/shop counts, statistics or testimonials. Only use the **"Coming soon" badge on the days listed in `brand.json` → `comingSoonDays`**. Every other day uses its format's badge and an engagement CTA (`brand.json` → `cta`).
 - Credit = "approved by your shop". Shops never see each other's data. Painter incentives are never shown as a customer perk.
-- Look and colours come from the three style templates only (A main, then D, then C; B "paint splash" was rejected). Don't invent a new style or add colours outside the style's palette in `brand.json` → `styles`.
+- Look and colours come from the format templates only. They belong to families A (main), D and C; B "paint splash" was rejected. Don't invent a new format or add colours outside the family palette in `brand.json` → `styles`. A new format must be added to the library first, and the product owner sees it.
 - Logo: the transparent `../../assets/zerobyt-logo-light.png` (dark backgrounds) or `-dark.png` (light backgrounds), placed directly on the poster. **Never a white box**, never stretched or redrawn.
 - **Lockup spec (do not change per poster):** the `.zb` block in each template. The logo is **36px** tall (chosen by the product owner; 56px looked too big). "Powered by" is Inter 18px at 72% white, sitting on the **baseline of "zero"**: the logo is shifted down 7.7px, which is its descender (21.46% of its height) (936×233 image, baseline at 183px). The left edge is the poster margin (64px), and the bottom of the "y" sits 56px from the bottom. Style C uses the stacked variant, right-aligned. If you rebuild the logo with `scripts/logo-cut.mjs`, re-measure (it writes `logo-metrics.json`) and update the shift.
 - **Check details at 2× zoom** before calling a poster done: logo baseline, margins, equal spacing, nothing touching an edge. The footer is the first place a viewer notices sloppiness.
@@ -41,18 +41,20 @@ Paths are relative to the repository root:
 - Phone mockups show **fictional data** only (shop "Sree Colours, Thrissur", "Varma Paints, Kochi", site "Green Villa", painter "Rajesh", brands "Aurora Paints", "Kayal Coatings", shades "Kerala Teal AP 4021", "Sunset Ochre AP 2210"). Show only screens for confirmed features.
 - Never post or schedule anything. The output is for human review.
 
-## 4a. `post` → two posters + caption
+## 4a. `post` → posters + caption
 
-The calendar's Format column gives the style of each poster, e.g. `Post ×2 (A+D)`: poster A in style A, poster B in style D. The two may be a 2-slide carousel or two separate posts; note which in `caption.md`.
+The calendar's Format column names the format of each poster, e.g. `Post: F2 + F4` means poster A uses format F2 and poster B uses F4. Day 1 is a single poster. Formats and templates are listed in the calendar's **Format library** and in `brand.json` → `formats`. The two posters may be a 2-slide carousel or two separate posts; note which in `caption.md`.
 
-Act as a senior graphic designer. These are ads, not slides: one big hero visual (the phone), a short bold headline, a few scannable points, and the tagline.
+**Variety rule:** check the previous post day's formats. Never repeat a format on consecutive post days (the only exception is F10 on the finale days), and never fall back to the showcase layout because it's easier. Each format has its own badge.
+
+Act as a senior graphic designer. These are ads people should stop for and engage with, not slides. Give each poster one clear idea, a short bold headline, a strong visual (phone, steps, cards or type), and a CTA that invites a response (comment a number, guess, save, tag a painter).
 
 For each poster:
-1. Copy the style template (`templates/style-a-showcase.html`, `style-d-typography.html` or `style-c-before-after.html`) to `output/day-XX-post/poster-a.html` (`poster-b.html`). The header comment in each template says what to change and what to keep.
-2. Rewrite only the content for the day: badge, headline (≤ 7 words), short lines/cards, the **phone screen** (show the feature of the day: storefront, shades, site spend, bills, credit approved by your shop, rewards, find shops), and the tagline "Your shop, your painters, your customers. Connected." Keep layout, palette, fonts, decorations and footer (Powered by + logo + @zero.byt).
+1. Copy the format's template to `output/day-XX-post/poster-a.html` (`poster-b.html`). The header comment in each template says what to change and what to keep.
+2. Rewrite only the content for the day: badge, headline (≤ 8 words), cards, steps, options or tip, the **phone screen** (the feature of the day), and the CTA. Keep layout, palette, fonts, decorations and the `.zb` lockup.
 3. Render: `node .claude/skills/instagram/scripts/render.mjs output/.../poster-a.html output/.../poster-a.png 1080 1350` (fonts load from Google Fonts, so a network connection is needed).
-4. **Look at the PNG** with Read and critique it like an art director: is the hierarchy clear in 2 seconds, is it legible on a phone, is anything clipped or overlapping, is the logo crisp with no box? Fix and re-render, **at least twice**, until it's ad-quality.
-5. Reference: `output/day-01-post/` is the approved Day 1 (style A + D).
+4. **Look at the PNG** with Read and critique it like an art director: is the hierarchy clear in 2 seconds, is it legible on a phone, is anything clipped or overlapping? Then check the footer and edges at **2× zoom**. Fix and re-render, **at least twice**, until it's ad-quality.
+5. References: `output/day-01-post/` (F1) and the sample posts made with each format template.
 
 ## 4b. `reel` → script + cover + caption
 
@@ -68,7 +70,7 @@ Write `output/day-XX-reel/script.md` with:
 
 Write `output/day-XX-<format>/caption.md`:
 ```
-# Day XX — <theme> (<Reel | Post ×2>)
+# Day XX — <theme> (<Reel | Post: Fx + Fy>)
 ## Caption
 <hook line>
 

@@ -1,72 +1,98 @@
-# Instagram — 30-day "coming soon" plan
+# Instagram: 30-day launch plan for @zero.byt
 
-**Owner:** product owner · **Created:** 2026-11-05 · **Page:** [@zero.byt](https://www.instagram.com/zero.byt/) · settings in `brand.json`
+**Owner:** product owner · **Created:** 2026-11-05 · **Revised:** 2026-11-05 (format variety) · **Page:** [@zero.byt](https://www.instagram.com/zero.byt/) · settings in `brand.json`
 
-Rule per day: **Reel day = 1 reel. Post day = 2 posters** (two separate posts, or one 2-slide carousel).
+**Rhythm:** a reel day has 1 reel and a post day has 2 posters (two posts, or one 2-slide carousel). **Day 1 is a single poster.** There are 10 reel days and 20 post days.
 
-**Tagline (product owner):** "Your shop, your painters, your customers. Connected." It appears on every poster.
+**Tagline (product owner):** "Your shop, your painters, your customers. Connected."
 
-**Poster styles** (chosen by the product owner 2026-11-05, in this order; B "paint splash" rejected). Templates live in `.claude/skills/instagram/templates/`, and palettes are in `brand.json` → `styles`.
+**Goal (product owner, 2026-11-05):** don't repeat one pattern, and don't say "Coming soon" every day. Get people engaged by showing what the software actually does: features, how it works, questions, tips and sneak peeks.
 
-| Style | Look | Used for |
-|---|---|---|
-| **A, App showcase** (main) | Teal, sun yellow and coral; a tilted phone with the app and 3 floating feature cards | Feature days |
-| **D, Bold typography** | Near-black, lime and a paint gradient; huge condensed type with paint drips and a phone peeking in | Teasers, trust/myth, countdown |
-| **C, Problem → solution** | Violet and lime; a messy notebook and chats (before) against a clean phone (after) | Problem and comparison days |
+## Visual families
 
-The "Format" column shows the style of poster A + poster B. Reel covers use style A.
-Generate any day with `/instagram reel <day>` or `/instagram post <day>`. Output lands in `output/day-XX-<format>/`.
+Approved by the product owner on 2026-11-05: **A** first, then **D**, then **C**. B was rejected. Palettes are in `brand.json` → `styles`.
+
+- **A, teal / sun / coral:** the main family. It has a cream (light) variant and a warm coral/sun variant.
+- **D, near-black / lime / paint gradient:** teasers, myths and sneak peeks.
+- **C, violet / lime:** comparisons.
+
+## Format library
+
+Templates are in `.claude/skills/instagram/templates/`.
+
+| ID | Format | Family | Badge | Template |
+|---|---|---|---|---|
+| F1 | Showcase: tilted phone + 3 floating cards | A teal | NEW FOR SHOPS / COMING SOON | `style-a-showcase.html` |
+| F2 | Feature spotlight: phone with numbered callouts | A teal | FEATURE SPOTLIGHT | `format-f2-spotlight.html` |
+| F3 | How it works: 3 numbered steps | A cream | HOW IT WORKS | `format-f3-steps.html` |
+| F4 | Question / poll: "Comment 1, 2 or 3" | A warm | YOUR TURN | `format-f4-poll.html` |
+| F5 | This or that: old way vs app way | C | THIS OR THAT | `format-f5-this-or-that.html` |
+| F6 | Myth vs fact | D | MYTH VS FACT | `format-f6-myth-fact.html` |
+| F7 | Tip card: Shop tip / Painter tip #n | A cream/sun | SHOP TIP / PAINTER TIP | `format-f7-tip.html` |
+| F8 | Sneak peek: spotlit close-up of a screen | D | SNEAK PEEK | `format-f8-sneak-peek.html` |
+| F9 | Problem → solution: before mess vs clean phone | C | BEFORE / AFTER | `style-c-before-after.html` |
+| F10 | Big-type teaser | D | COMING SOON / ALMOST HERE | `style-d-typography.html` |
+
+**Reel types:** POV, before/after, 3-step demo, quiz, behind the build, recap. The cover always uses `reel-cover.html`.
 
 ## Content rules (apply to every day)
 
-- Say only what `docs/FEATURE_CATALOG.md` marks Confirmed, Confirmed direction or Implemented. Everything is phrased as **coming soon**.
-- The software has **no public name yet**: never invent one. Call it "a new app for paint shops" and credit it only as **Powered by zero.byt** (logo on every poster/cover, `Powered by @zero.byt` in every caption).
-- Never state prices, plans, launch dates, user/shop counts, GST/invoice rules, delivery, online payment, or "free".
-- Credit is always "approved by **your** shop" — never automatic, never a score.
-- Each shop's data is private to that shop — never imply shops see each other's customers, prices or credit.
-- **English only** (no Malayalam), as decided by the product owner on 2026-11-05.
-- The zero.byt logo is the transparent file (`assets/zerobyt-logo-light.png` on dark backgrounds), placed directly on the poster and never in a white box.
-- Never claim where zero.byt is based ("Made for Kerala", not "Built in Kerala"). Say "availability", never "stock".
-- Screens shown in reels must be real, implemented screens with fictional sample data (`catalogue:seed-sample`), never real customer data.
+**What we say**
+- Only features that `docs/FEATURE_CATALOG.md` marks Confirmed, Confirmed direction or Implemented. Future features are described as coming, never as available now.
+- **"Coming soon" appears as a badge only on Days 1, 7, 22, 28 and 30.** Other days use their format's badge and an engagement CTA.
+- **No product name.** Call it "the app" or "a new app for paint shops". Credit it only as **Powered by zero.byt**: the logo lockup goes on every poster and cover, and `Powered by @zero.byt` ends every caption.
+- **English only.**
+
+**What we never say**
+- Prices, plans, launch dates or countdown numbers, user or shop counts, statistics, testimonials, GST/invoice rules, delivery, online payment, or "free".
+- "Stock". Say "availability" instead.
+- "Built in Kerala". Say "Made for Kerala".
+
+**Credit and privacy**
+- Credit is always "approved by **your** shop". It is never automatic and never a score.
+- Each shop's data is private to that shop.
+
+**Formats and visuals**
+- Tips must be genuine, practical advice, with no invented numbers.
+- No format appears on two post days in a row. The only exception is F10 on the finale days.
+- Phone screens are designed mockups with fictional data: "Sree Colours, Thrissur", "Varma Paints, Kochi", "Green Villa", "Rajesh", "Aurora Paints", "Kerala Teal AP 4021".
 
 ## Calendar
 
-Pillars: **T** teaser/problem · **S** shops · **P** painters · **C** customers · **B** trust/brand
+Pillars: **T** teaser · **S** shops · **P** painters · **C** customers · **B** trust/brand. The Format column gives poster A + poster B.
 
-| Day | Format | Pillar | Theme | Hook / poster ideas | Key message | Source | Status |
+| Day | Format | Pillar | Topic | Headline / hook | Engagement CTA | Source | Status |
 |---:|---|---|---|---|---|---|---|
-| 1 | Post ×2 (A+D) | T | Teaser | A: "Your paint shop. Every phone." · B: "Paint shops, get ready." | A platform is coming; the tagline | PRODUCT_OVERVIEW §1 | ready |
-| 2 | Reel (cover A) | T | Counter chaos | "Still taking paint orders on WhatsApp?" | Orders, offers and bills in one place | PRODUCT_OVERVIEW §2 | todo |
-| 3 | Post ×2 (A+D) | T | Who it's for | A: "Two apps + one web portal" · B: "Shop owner? Painter? Painting your home?" | Customer App, Shop App, web portal | PRODUCT_OVERVIEW §3 | todo |
-| 4 | Reel (cover A) | T | Painter pain | "One site. Three shops. How much did it cost?" | Site-wise spend across shops | FEATURE_CATALOG §2 | todo |
-| 5 | Post ×2 (C+A) | T | The notebook | A: "Pending payments in a notebook?" · B: "See every bill and what's still due" | Running bills, payments, outstanding | PRODUCT_OVERVIEW §7 | todo |
-| 6 | Post ×2 (D+A) | B | Vision | A: "Every local shop deserves its own app" · B: "No app to build. Just join." | One shared app for all shops | PRODUCT_OVERVIEW §1, §3.2 | todo |
-| 7 | Reel (cover A) | T | First look | "First look 👀" — quick cuts of real Shop App screens | It's real and being built | SHP-005 | todo |
-| 8 | Post ×2 (A+A) | S | Your storefront | A: "Your shop, on every customer's phone" · B: "4 steps to go live: photo, address, support number, 10 products" | Onboarding checklist, then review | SHP-003, PLT-002 | todo |
-| 9 | Reel (cover A) | S | Shop App catalogue | "Change a price from your phone" | Prices, pack sizes, availability on the Shop App | SHP-005 | todo |
-| 10 | Post ×2 (A+A) | S | Brand catalogue | A: "Brand catalogues, ready to use" · B: "Shade codes, favourite shades, your own shades" | Platform brand catalogue + shades | CAT-001, CAT-002 | todo |
-| 11 | Post ×2 (A+D) | S | Packs & stock | A: "A price for every pack size" · B: "Out of stock? One tap." | Pack prices and availability | CAT-002 | todo |
-| 12 | Reel (cover A) | S | Register your shop | "How a shop goes live" — register → set up → review → Live | Self-registration and review | SHP-001, PLT-002 | todo |
-| 13 | Post ×2 (A+D) | S | Staff | A: "Staff accounts with roles" · B: "Owner reports stay with the owner" | Role-based access | FEATURE_CATALOG §3 | todo |
-| 14 | Post ×2 (A+A) | S | Offers & rewards | A: "Run your own offers" · B: "Reward points for app orders" | Shop-set offers and points | FEATURE_CATALOG §1, §4 | todo |
-| 15 | Reel (cover A) | P | Work sites | "Painters: meet your site list" — create "Green Villa", link an order | Multiple work sites | FEATURE_CATALOG §2 | todo |
-| 16 | Post ×2 (A+C) | P | Site spend | A: "One site total, across every shop" · B: "Each shop's bill stays separate" | Combined spend + shop-wise bills | PRODUCT_OVERVIEW §7 | todo |
-| 17 | Post ×2 (D+A) | P | Credit | A: "Credit, decided by your shop" · B: "Your shop sets the limit and terms" | Shop-specific credit, no auto score | PRODUCT_OVERVIEW §8 | todo |
-| 18 | Reel (cover A) | P | A painter's day | "POV: ordering paint from the site" | Order from site, linked to the site | FEATURE_CATALOG §2 | todo |
-| 19 | Post ×2 (C+A) | P | Bills | A: "Running bill → final bill" · B: "Payments recorded, balance clear" | Running/final bills, offline payments | PRODUCT_OVERVIEW §7 | todo |
-| 20 | Post ×2 (D+D) | B | Myth vs fact | A: "Will other shops see my credit? No." · B: "Will other shops see my prices? No." | Tenant isolation | PRODUCT_OVERVIEW §1, §8 | todo |
-| 21 | Reel (cover A) | P | Before / after | "Painter's notebook vs painter's app" | Sites, bills, dues in one view | PRODUCT_OVERVIEW §4 | todo |
-| 22 | Post ×2 (A+A) | C | Home customers | A: "Painting your home? Keep it simple" · B: "Pick by brand, pack size and shade" | Simple shopping flow | PRODUCT_OVERVIEW §4 | todo |
-| 23 | Reel (cover A) | C | Find shops | "Find paint shops near you" — nearest first, or pick a district | Discover shops, My Shops | D-037, D-038 | todo |
-| 24 | Post ×2 (A+D) | C | Search | A: "Your shop first, then others" · B: "One shop per cart — no mix-ups" | Cross-shop search rules | PRODUCT_OVERVIEW §5 | todo |
-| 25 | Post ×2 (A+A) | C | Reward points | A: "Earn points on app orders" · B: "Use them on eligible bills" (rules set by each shop) | Reward points | PRODUCT_OVERVIEW §9 | todo |
-| 26 | Reel (cover A) | C | Bills for everyone | "Where did my paint money go?" | Shop-wise orders and bills | FEATURE_CATALOG §1 | todo |
-| 27 | Post ×2 (D+D) | B | Trust | A: "Each shop's data stays with that shop" · B: "Your mobile number is your login" | Isolation, OTP sign-in | DATA_AND_SECURITY, D-021 | todo |
-| 28 | Reel (cover A) | B | Behind the scenes | "We're building this for Kerala" — screens, code, sketches | Made for local shops | PROJECT_STATE | todo |
-| 29 | Post ×2 (A+D) | B | Recap | A: "Everything coming, in one picture" · B: "Shops ✓ Painters ✓ Customers ✓" | Full recap | FEATURE_CATALOG | todo |
-| 30 | Reel (cover A) | B | Coming soon | "Coming soon. Be first." — shops DM to join early | Follow @zero.byt + early-shop CTA | brand.json cta | todo |
-
-Totals: 12 reel days, 18 post days (36 posters).
+| 1 | Post ×1: F1 | T | The big idea | "Your paint shop. Every phone." (COMING SOON) | Follow @zero.byt | PRODUCT_OVERVIEW §1, §3 | ready |
+| 2 | Reel: POV | P | Order from the site | "POV: you need 2 more buckets at the site" | Tag a painter friend | FEATURE_CATALOG §2 | todo |
+| 3 | Post: F2 + F4 | S | Storefront · counter pain | A: "Your catalogue, on every customer's phone." · B: "What slows your shop counter the most?" | Save this · Comment 1, 2 or 3 | PRODUCT_OVERVIEW §3.1, §6 | ready |
+| 4 | Reel: before/after | P | Notebook vs site bills | "Notebook vs app. Same painter, same site." | Share with a painter | PRODUCT_OVERVIEW §7 | todo |
+| 5 | Post: F3 + F7 | S | Go live · shade codes | A: "How a shop goes live" · B: "Shop tip #1: Write the shade code on every order." | DM to join early · Save this tip | SHP-001, SHP-003, PLT-002, CAT-002 | ready |
+| 6 | Post: F6 + F5 | B | Privacy · running bill | A: Myth "Other shops will see my prices" → Fact · B: "Notebook dues or a clear running bill?" | Comment ✍️ or 📱 | PRODUCT_OVERVIEW §1, §7 | ready |
+| 7 | Post: F10 + F8 | T | Teaser · peek | A: "Paint shops, get ready." (COMING SOON) · B: "What do you think this screen does?" | Guess in the comments | FEATURE_CATALOG §2 | ready |
+| 8 | Reel: quiz | S | Shade codes | "Same name, two shades. Which one did the customer want?" | Comment A or B | CAT-001, CAT-002 | todo |
+| 9 | Post: F2 + F7 | S/P | Shades & favourites · painter tip | A: "Every shade, with its code." · B: "Painter tip #1: Keep one list per work site." | Save · Tag a painter | CAT-002 (D-030), FEATURE_CATALOG §2 | todo |
+| 10 | Post: F4 + F3 | P | Painters' shops · site tracking | A: "Painters: how many shops do you buy from for one site?" (1 / 2 / 3+) · B: "How a painter tracks a site" | Comment 1, 2 or 3+ | FEATURE_CATALOG §2 | todo |
+| 11 | Reel: 3-step demo | S | Shop App on the phone | "Change a price from your phone in 3 taps" | Save this | SHP-005 | todo |
+| 12 | Post: F9 + F6 | P/B | Bills · credit | A: "From notebook to one app." · B: Myth "An app decides my credit" → Fact "Your shop decides." | Share with a shop owner | PRODUCT_OVERVIEW §7, §8 | todo |
+| 13 | Post: F8 + F2 | P | Site spend | A: sneak peek, site total card · B: "One site. Every shop. One total." | Guess · Save | FEATURE_CATALOG §2 | todo |
+| 14 | Reel: behind the build | B | Made for Kerala | "We're building this for Kerala's paint counters" | Follow for more | PROJECT_STATE | todo |
+| 15 | Post: F7 + F4 | S | Availability · wishlist | A: "Shop tip #2: Keep availability updated, not the phone ringing." · B: "Which would help you most? Running bill / Credit tracking / Reward points" | Save · Comment 1, 2 or 3 | CAT-002, PRODUCT_OVERVIEW §7–9 | todo |
+| 16 | Post: F2 + F5 | P/S | Running → final bill | A: "Running bill → final bill." · B: "Call the shop or check the app?" | Comment 📞 or 📱 | PRODUCT_OVERVIEW §7 | todo |
+| 17 | Reel: POV | C | Home customer | "Painting your home? Pick brand, pack, shade. Done." | Share with family | PRODUCT_OVERVIEW §4 | todo |
+| 18 | Post: F3 + F8 | C | Customer order · find shops | A: "How a customer orders" (find shop → pick → one shop per cart) · B: sneak peek, find shops nearby | Guess · Save | PRODUCT_OVERVIEW §5, D-037, D-038 | todo |
+| 19 | Post: F6 + F7 | P | Painter-only info | A: Myth "Everyone sees painter offers" → Fact "Only painters the shop confirms." · B: "Painter tip #2: Ask your shop to confirm you as their painter." | Tag a painter | D-036, PRODUCT_OVERVIEW §4 | todo |
+| 20 | Reel: quiz | B | Who is it for? | "Shop owner, painter or home customer? Which feature is yours?" | Comment your role | PRODUCT_OVERVIEW §3 | todo |
+| 21 | Post: F4 + F2 | C/B | What next · rewards | A: "What should we show you next?" (Shop App / Painter sites / Customer app) · B: "Earn points on app orders." | Comment 1, 2 or 3 | PRODUCT_OVERVIEW §9 | todo |
+| 22 | Post: F10 + F9 | T/C | Teaser · customer before/after | A: "Your counter, upgraded." (COMING SOON) · B: "Call five shops, or check one app?" | Share | PRODUCT_OVERVIEW §5 | todo |
+| 23 | Reel: 3-step demo | S | Staff roles | "Owner sees reports. Staff see orders." | Save | FEATURE_CATALOG §3 | todo |
+| 24 | Post: F5 + F3 | P/S | Bills · credit | A: "Paper bill or shop-wise bills on your phone?" · B: "How shop credit works" (request → your shop approves & sets the limit → track dues) | Comment ✍️ or 📱 | PRODUCT_OVERVIEW §7, §8 | todo |
+| 25 | Post: F7 + F8 | S | Favourite shades · Shop App peek | A: "Shop tip #3: Save your shop's favourite shades." · B: sneak peek, Shop App catalogue | Save · Guess | CAT-002, SHP-005 | todo |
+| 26 | Reel: before/after | S | A day at the counter | "A paint shop's day: before vs after" | Share with a shop owner | PRODUCT_OVERVIEW §2 | todo |
+| 27 | Post: F6 + F2 | S/C | Easy onboarding · My Shops | A: Myth "Going digital needs a big setup" → Fact "Register, add the basics, go live after review." · B: "Your shops, your list." (My Shops, active shop first) | Save | SHP-003, PLT-002, D-037 | todo |
+| 28 | Post: F10 + F4 | T | Almost here | A: "Almost here." (COMING SOON) · B: "Which feature are you waiting for?" | Comment | FEATURE_CATALOG | todo |
+| 29 | Reel: recap | B | 30 days in 30 seconds | "Everything we showed you, in 30 seconds" | Save + share | FEATURE_CATALOG | todo |
+| 30 | Post: F10 + F1 | T | Be first | A: "Be first." (COMING SOON) · B: "Shop owners: join early." | DM @zero.byt to join early | brand.json cta | todo |
 
 ## Status values
 

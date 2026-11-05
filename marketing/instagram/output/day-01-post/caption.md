@@ -1,6 +1,6 @@
-# Day 01: Teaser (Post ×2, styles A + D, 2-slide carousel)
+# Day 01: Teaser (Post ×1, format F1 showcase)
 
-Images: `poster-a.png` (slide 1, style A "App showcase") and `poster-b.png` (slide 2, style D "Bold typography"). Post them as one carousel. They can also go out as two separate posts.
+Image: `poster-a.png` (single post; product owner chose poster A alone for Day 1). The style-D "Paint shops, get ready." poster moves to Day 7.
 
 ## Caption
 
@@ -20,8 +20,7 @@ Powered by @zero.byt
 
 ## Alt text
 
-- Slide 1: A teal poster with a "Coming soon" badge and the headline "Your paint shop. Every phone." A phone shows a paint shop's storefront with paint tins, pack sizes and shades. Cards show shade codes, site-wise bills for painters and "Your shop on every phone". Powered by zero.byt.
-- Slide 2: A black poster with huge type, "Paint shops, get ready.", where "Ready" drips with colourful paint. A phone peeks in from the side showing a shade picker. The tagline reads "Your shop, your painters, your customers. Connected." Powered by zero.byt.
+- A teal poster with a "Coming soon" badge and the headline "Your paint shop. Every phone." A phone shows a paint shop's storefront with paint tins, pack sizes and shades. Cards show shade codes, site-wise bills for painters and "Your shop on every phone". Powered by zero.byt.
 
 ## Sources
 

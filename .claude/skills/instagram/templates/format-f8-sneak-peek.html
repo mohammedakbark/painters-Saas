@@ -1,0 +1,186 @@
+<!doctype html>
+<!--
+  Instagram poster format F8 Sneak peek (D). Spotlit, tilted close-up of a phone screen fading into darkness + a curiosity question + "Guess in the comments". Change: headline question, audience label, the screen content. Cropping the phone at the edges is intentional.
+  1080x1350. Copy to marketing/instagram/output/day-XX-post/poster-<a|b>.html, rewrite the copy and screen, render with scripts/render.mjs, then LOOK at the PNG (full size + 2x zoom of footer and edges).
+  Rules: English only; no product name; keep the .zb lockup exactly (logo 36px, 'Powered by' 18px on the logo baseline, left 64px, bottom 64px); fictional data only; no 'stock'; no 'Coming soon' badge unless the day is in brand.json comingSoonDays.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#09090C; --ink2:#141419; --white:#F5F4EF; --lime:#D4FF3A;
+    --teal:#14B8A6; --sun:#FFB627; --rose:#FF3D81; --violet:#7C5CFF;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1080px;height:1350px;overflow:hidden;background:var(--ink)}
+  body{position:relative;font-family:Inter,sans-serif;color:var(--white)}
+
+  .bg{position:absolute;inset:0;
+    background:
+      radial-gradient(560px 520px at 760px 860px, rgba(20,184,166,.30), transparent 68%),
+      radial-gradient(460px 420px at 1000px 1120px, rgba(124,92,255,.24), transparent 70%),
+      linear-gradient(180deg,#0B0B10 0%, #060608 100%);}
+  /* spotlight cone from the top-right */
+  .beamW{position:absolute;inset:0;z-index:2;pointer-events:none;filter:blur(22px);mix-blend-mode:screen}
+  .beam{position:absolute;inset:0;
+    clip-path:polygon(800px -40px, 900px -40px, 1240px 1180px, 330px 1180px);
+    background:linear-gradient(180deg,rgba(255,255,255,.36) 0%,rgba(255,255,255,.12) 50%,rgba(255,255,255,0) 85%)}
+  .pool{position:absolute;z-index:2;left:430px;top:600px;width:720px;height:620px;border-radius:50%;
+    background:radial-gradient(closest-side,rgba(20,184,166,.45),rgba(124,92,255,.16) 60%,transparent);filter:blur(30px)}
+  .rim{position:absolute;z-index:3;left:500px;top:520px;width:640px;height:420px;border-radius:50%;transform:rotate(-12deg);
+    background:radial-gradient(closest-side,rgba(20,184,166,.40),rgba(124,92,255,.14) 60%,transparent);filter:blur(36px)}
+  .rings{position:absolute;left:300px;top:380px;width:980px;height:980px;opacity:.22;z-index:1}
+  .dust{position:absolute;inset:0;z-index:6;pointer-events:none}
+  .vign{position:absolute;inset:0;z-index:7;pointer-events:none;
+    background:radial-gradient(900px 820px at 760px 760px, transparent 35%, rgba(4,4,6,.55) 70%, rgba(4,4,6,.92) 100%)}
+  .grain{position:absolute;inset:0;opacity:.18;mix-blend-mode:overlay;pointer-events:none;z-index:30}
+
+  /* top bar */
+  .top{position:absolute;left:64px;right:64px;top:58px;display:flex;justify-content:space-between;align-items:center;z-index:10}
+  .pill{display:flex;align-items:center;gap:14px;padding:12px 22px 12px 18px;border-radius:999px;
+    border:2px solid var(--lime);color:var(--lime);font-weight:800;font-size:24px;letter-spacing:.18em}
+  .pill .dot{width:14px;height:14px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 6px rgba(212,255,58,.18),0 0 18px var(--lime)}
+  .ml{display:flex;align-items:center;gap:14px;font-weight:700;font-size:20px;letter-spacing:.22em;text-transform:uppercase;color:rgba(245,244,239,.6)}
+  .ml i{display:block;width:44px;height:2px;background:rgba(245,244,239,.35)}
+
+  /* headline */
+  .hl{position:absolute;left:60px;top:150px;z-index:10;font-family:Anton,sans-serif;text-transform:uppercase;font-size:136px;line-height:.92;letter-spacing:.002em}
+  .hl span{display:block}
+  .hl .out{color:transparent;-webkit-text-stroke:3.5px var(--white);margin-left:5px}
+  .hl .paint{background:linear-gradient(95deg,var(--teal) 0%, var(--lime) 38%, var(--sun) 64%, var(--rose) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;display:inline-block;filter:drop-shadow(0 10px 40px rgba(255,61,129,.25))}
+
+  /* left column copy */
+  .sub{position:absolute;left:64px;top:648px;width:330px;z-index:10;font-weight:600;font-size:36px;line-height:1.22;letter-spacing:-.01em;color:var(--white)}
+  .sub span{color:rgba(245,244,239,.55)}
+  .arrow{position:absolute;left:150px;top:796px;z-index:10}
+  .cta{position:absolute;left:64px;top:1096px;z-index:10;display:flex;align-items:center;gap:14px;
+    padding:18px 22px 18px 26px;border-radius:999px;background:var(--lime);color:#09090C;
+    font-weight:800;font-size:30px;letter-spacing:-.01em;box-shadow:0 0 40px rgba(212,255,58,.22),0 18px 40px rgba(0,0,0,.5)}
+  .cta .em{font-size:30px;line-height:1}
+
+  /* phone: extreme close-up */
+  .phoneWrap{position:absolute;left:478px;top:596px;z-index:4;
+    transform:perspective(1800px) rotateY(-16deg) rotateX(8deg) rotate(-9deg) scale(1.42);transform-origin:top left;
+    -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 32%,rgba(0,0,0,.3) 48%,transparent 60%);
+            mask-image:linear-gradient(180deg,#000 0%,#000 32%,rgba(0,0,0,.3) 48%,transparent 60%)}
+  .glow{position:absolute;left:-100px;top:-60px;width:620px;height:760px;border-radius:50%;
+    background:radial-gradient(closest-side,rgba(20,184,166,.5),rgba(124,92,255,.18) 60%,transparent);filter:blur(30px)}
+  .phone{position:relative;width:410px;height:860px;border-radius:66px;padding:14px;
+    background:linear-gradient(145deg,#3a3a42,#121216 45%,#2a2a31);
+    box-shadow:0 0 0 2px #50505a inset}
+  .screen{position:relative;width:100%;height:100%;border-radius:53px;overflow:hidden;background:#F7F6F2;color:#141419}
+  .screen::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(115deg,rgba(255,255,255,.35) 0%,rgba(255,255,255,0) 30%)}
+  .island{position:absolute;top:14px;left:50%;transform:translateX(-50%);width:118px;height:34px;border-radius:20px;background:#000;z-index:3}
+  .sb{display:flex;justify-content:space-between;padding:20px 34px 0;font-size:15px;font-weight:700}
+  .app{padding:30px 22px 0}
+  .back{font-size:13px;font-weight:700;color:#6b6b74;display:flex;align-items:center;gap:6px}
+  .site{margin-top:12px;display:flex;align-items:center;gap:12px}
+  .site .ic{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#7C5CFF,#4B33C9);display:grid;place-items:center}
+  .site h4{font-size:24px;font-weight:800;letter-spacing:-.015em}
+  .site small{font-size:13px;color:#6b6b74;font-weight:600}
+  .spend{margin-top:16px;border-radius:22px;padding:18px 20px;position:relative;overflow:hidden;color:#fff;
+    background:linear-gradient(150deg,#16171D,#0B0B10)}
+  .spend::before{content:"";position:absolute;right:-40px;top:-50px;width:170px;height:170px;border-radius:50%;
+    background:radial-gradient(closest-side,rgba(212,255,58,.22),transparent)}
+  .spend small{display:block;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.62)}
+  .spend b{display:block;margin-top:6px;font-size:38px;font-weight:800;letter-spacing:-.02em;color:#D4FF3A}
+  .spend .bar{margin-top:14px;height:8px;border-radius:4px;display:flex;overflow:hidden;gap:3px}
+  .spend .bar i{display:block;height:100%;border-radius:4px}
+  .spend .leg{margin-top:8px;display:flex;gap:14px;font-size:11px;font-weight:600;color:rgba(255,255,255,.62)}
+  .spend .leg span{display:flex;align-items:center;gap:6px}
+  .spend .leg span::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c)}
+  .sec{margin-top:18px;font-size:14px;font-weight:800;display:flex;justify-content:space-between}
+  .sec i{font-style:normal;color:#6b6b74;font-weight:600}
+  .row{margin-top:10px;display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;background:#fff;border:1px solid #ECEAE3}
+  .row .av{width:40px;height:40px;border-radius:12px;color:#fff;font-weight:800;font-size:15px;display:grid;place-items:center}
+  .row .t{flex:1}
+  .row .t b{display:block;font-size:15px;font-weight:800}
+  .row .t small{font-size:12px;color:#6b6b74;font-weight:600}
+  .row .amt{font-size:16px;font-weight:800}
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <svg class="rings" viewBox="0 0 900 900" fill="none" stroke="#14B8A6">
+    <circle cx="450" cy="450" r="160" stroke-width="1.5"/>
+    <circle cx="450" cy="450" r="240" stroke-width="1.2"/>
+    <circle cx="450" cy="450" r="320" stroke-width="1" stroke-dasharray="4 10"/>
+    <circle cx="450" cy="450" r="400" stroke-width=".8"/>
+  </svg>
+  <div class="pool"></div>
+  <div class="rim"></div>
+
+  <div class="top">
+    <div class="pill"><span class="dot"></span>SNEAK PEEK</div>
+    <div class="ml"><i></i>For painters</div>
+  </div>
+
+  <div class="hl">
+    <span>What do you</span>
+    <span class="out">think this</span>
+    <span><span class="paint">screen does?</span></span>
+  </div>
+
+  <div class="phoneWrap">
+    <div class="phone"><div class="screen">
+      <div class="island"></div>
+      <div class="sb"><span>9:41</span><span>●●● ▮</span></div>
+      <div class="app">
+        <div class="back"><svg width="8" height="12" viewBox="0 0 8 12"><path d="M6.5 1 L1.5 6 L6.5 11" fill="none" stroke="#6b6b74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Work sites</div>
+        <div class="site">
+          <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M3 11 L12 4 L21 11 V20 H3 Z" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/><rect x="10" y="14" width="4" height="6" fill="#fff"/></svg></div>
+          <div><h4>Green Villa</h4><small>Painter · Rajesh</small></div>
+        </div>
+        <div class="spend">
+          <small>Total site spend</small>
+          <b>₹48,650</b>
+          <div class="bar"><i style="width:58%;background:#14B8A6"></i><i style="flex:1;background:#FFB627"></i></div>
+          <div class="leg"><span style="--c:#14B8A6">Sree Colours</span><span style="--c:#FFB627">Varma Paints</span></div>
+        </div>
+        <div class="sec">Bills <i>See all</i></div>
+        <div class="row"><div class="av" style="background:linear-gradient(135deg,#1AA392,#0B6E65)">SC</div><div class="t"><b>Sree Colours</b><small>Thrissur · 3 bills</small></div><div class="amt">₹28,400</div></div>
+        <div class="row"><div class="av" style="background:linear-gradient(135deg,#FFB627,#E08A00)">VP</div><div class="t"><b>Varma Paints</b><small>Kochi · 2 bills</small></div><div class="amt">₹20,250</div></div>
+        <div class="row"><div class="av" style="background:#d8d6ce"></div><div class="t"><b style="width:120px;height:12px;border-radius:6px;background:#E4E2DB"></b><small style="display:block;margin-top:6px;width:80px;height:9px;border-radius:5px;background:#ECEAE3"></small></div></div>
+      </div>
+    </div></div>
+  </div>
+
+  <div class="beamW"><div class="beam"></div></div>
+  <svg class="dust" width="1080" height="1350">
+    <g fill="#fff">
+      <circle cx="760" cy="180" r="1.6" opacity=".55"/><circle cx="842" cy="262" r="1.1" opacity=".4"/>
+      <circle cx="702" cy="388" r="1.4" opacity=".35"/><circle cx="905" cy="430" r="2" opacity=".45"/>
+      <circle cx="980" cy="330" r="1.2" opacity=".35"/><circle cx="640" cy="470" r="1.1" opacity=".3"/>
+      <circle cx="1010" cy="520" r="1.5" opacity=".4"/><circle cx="820" cy="120" r="1.2" opacity=".35"/>
+    </g>
+  </svg>
+  <div class="vign"></div>
+
+  <div class="sub">Painters,<br>this one's<br><span>for you.</span></div>
+  <svg class="arrow" width="300" height="170" viewBox="0 0 300 170" fill="none">
+    <path d="M10 20 C 40 120, 150 150, 270 110" stroke="#D4FF3A" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 12"/>
+    <path d="M248 96 L274 109 L252 130" stroke="#D4FF3A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+
+  <div class="cta">Guess in the comments <span class="em">👀</span></div>
+
+  <div class="zb"><span class="zb-label">Powered by</span><img class="zb-logo" src="../../assets/zerobyt-logo-light.png" alt="zero.byt"><span class="zb-sep"></span><span class="zb-cta">Follow @zero.byt</span></div>
+
+  <svg class="grain" width="1080" height="1350">
+    <filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+    <rect width="100%" height="100%" filter="url(#n)"/>
+  </svg>
+<style>
+.zb{position:absolute;left:64px;bottom:64px;display:flex;align-items:baseline;gap:12px;font-family:'Inter',sans-serif;line-height:1;z-index:20}
+.zb-label{font-size:18px;font-weight:500;letter-spacing:.01em;color:rgba(255,255,255,.72)}
+.zb-logo{height:36px;width:auto;display:block;flex:none;transform:translateY(7.7px)}
+.zb-sep{width:1.5px;height:28px;background:rgba(255,255,255,.28);margin:0 6px;flex:none}
+.zb-cta{font-size:18px;font-weight:700;color:#fff}
+</style>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!doctype html>
+<!--
+  Instagram poster format F6 Myth vs fact (D). Struck-through MYTH on top, FACT below a paint-gradient diagonal with a VS disc, plus one supporting visual. Change: myth, fact, proof line, the visual. The fact must be backed by the docs.
+  1080x1350. Copy to marketing/instagram/output/day-XX-post/poster-<a|b>.html, rewrite the copy and screen, render with scripts/render.mjs, then LOOK at the PNG (full size + 2x zoom of footer and edges).
+  Rules: English only; no product name; keep the .zb lockup exactly (logo 36px, 'Powered by' 18px on the logo baseline, left 64px, bottom 64px); fictional data only; no 'stock'; no 'Coming soon' badge unless the day is in brand.json comingSoonDays.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#09090C; --ink2:#141419; --white:#F5F4EF; --lime:#D4FF3A;
+    --teal:#14B8A6; --sun:#FFB627; --rose:#FF3D81; --violet:#7C5CFF;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1080px;height:1350px;overflow:hidden;background:var(--ink)}
+  body{position:relative;font-family:Inter,sans-serif;color:var(--white)}
+
+  /* atmosphere: rose haze over the myth, teal/violet over the fact */
+  .bg{position:absolute;inset:0;
+    background:
+      radial-gradient(620px 420px at 980px 230px, rgba(255,61,129,.16), transparent 70%),
+      radial-gradient(760px 640px at 860px 1010px, rgba(20,184,166,.30), transparent 66%),
+      radial-gradient(520px 460px at 1060px 1250px, rgba(124,92,255,.22), transparent 70%),
+      linear-gradient(180deg,#0B0B10 0%, #08080B 100%);}
+  .streak{position:absolute;width:1600px;height:2px;left:-300px;opacity:.45;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent)}
+  .grain{position:absolute;inset:0;opacity:.18;mix-blend-mode:overlay;pointer-events:none;z-index:30}
+
+  /* fact panel: slanted lower plane, edged by a paint-gradient seam */
+  .plane{position:absolute;left:0;right:0;top:0;bottom:0;z-index:1;
+    clip-path:polygon(0 690px,1080px 600px,1080px 1350px,0 1350px);
+    background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,0) 60%)}
+  .seam{position:absolute;left:-20px;top:642px;width:1120px;height:6px;z-index:2;transform:rotate(-4.76deg);transform-origin:center;
+    background:linear-gradient(90deg,var(--teal) 0%,var(--lime) 38%,var(--sun) 64%,var(--rose) 100%);
+    border-radius:3px;box-shadow:0 0 30px rgba(212,255,58,.35)}
+  .vs{position:absolute;z-index:3;left:828px;top:569px;width:96px;height:96px;border-radius:50%;
+    display:grid;place-items:center;background:#0B0B10;border:2px solid rgba(245,244,239,.18);
+    font-family:Anton,sans-serif;font-size:36px;letter-spacing:.02em;color:var(--white);
+    box-shadow:0 14px 40px rgba(0,0,0,.6)}
+
+  /* top bar */
+  .top{position:absolute;left:64px;right:64px;top:58px;display:flex;justify-content:space-between;align-items:center;z-index:5}
+  .pill{display:flex;align-items:center;gap:14px;padding:12px 22px 12px 18px;border-radius:999px;
+    border:2px solid var(--lime);color:var(--lime);font-weight:800;font-size:24px;letter-spacing:.18em}
+  .pill .dot{width:14px;height:14px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 6px rgba(212,255,58,.18),0 0 18px var(--lime)}
+  .ml{display:flex;align-items:center;gap:14px;font-weight:700;font-size:20px;letter-spacing:.22em;text-transform:uppercase;color:rgba(245,244,239,.6)}
+  .ml i{display:block;width:44px;height:2px;background:rgba(245,244,239,.35)}
+
+  /* section labels */
+  .lab{display:flex;align-items:center;gap:14px;font-weight:800;font-size:24px;letter-spacing:.22em;text-transform:uppercase}
+  .lab .ic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center}
+  .lab.myth{color:var(--rose)}
+  .lab.myth .ic{border:2px solid var(--rose)}
+  .lab.fact{color:var(--lime)}
+  .lab.fact .ic{background:var(--lime)}
+
+  /* MYTH */
+  .mythBlk{position:absolute;left:64px;top:180px;z-index:4}
+  .mq{margin-top:26px;font-family:Anton,sans-serif;text-transform:uppercase;font-size:96px;line-height:1.04;letter-spacing:.005em;color:rgba(245,244,239,.38)}
+  .mq .ln{position:relative;display:table}
+  .mq .ln::after{content:"";position:absolute;left:-8px;right:-18px;top:42%;height:32px;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 40' preserveAspectRatio='none'%3E%3Cpath fill='%23FF3D81' d='M6 20 C30 13 70 12 120 13 C200 11 280 9 360 11 C430 12 500 8 560 10 C578 10 590 12 596 15 L594 25 C560 29 500 27 430 29 C350 31 270 30 190 32 C130 33 70 33 30 33 C18 33 9 30 4 27 Z'/%3E%3Cpath fill='%23FF3D81' opacity='.55' d='M40 9 C120 6 220 7 300 6 L300 8 C220 9 120 9 40 11 Z M260 33 C340 34 430 33 520 31 L520 34 C430 36 340 36 260 35 Z'/%3E%3C/svg%3E") center/100% 100% no-repeat;
+    filter:drop-shadow(0 4px 14px rgba(255,61,129,.45))}
+  .mq .ln:nth-child(1)::after{transform:rotate(-1.6deg)}
+  .mq .ln:nth-child(2)::after{transform:rotate(1.1deg)}
+  .mq .ln:nth-child(3)::after{transform:rotate(-.8deg)}
+
+  /* FACT */
+  .factBlk{position:absolute;left:64px;top:724px;z-index:4}
+  .fq{margin-top:22px;font-family:Anton,sans-serif;text-transform:uppercase;font-size:108px;line-height:.98;letter-spacing:.005em;color:var(--white)}
+  .fq .lime{color:var(--lime)}
+  .proof{position:absolute;left:64px;top:1134px;width:560px;z-index:4;font-weight:600;font-size:30px;line-height:1.3;letter-spacing:-.01em;color:rgba(245,244,239,.72)}
+  .proof b{color:var(--white);font-weight:700}
+
+  /* padlock visual */
+  .lockWrap{position:absolute;left:712px;top:904px;width:300px;height:330px;z-index:3}
+  .rings{position:absolute;left:-270px;top:-290px;width:840px;height:840px;opacity:.32}
+  .lglow{position:absolute;left:-70px;top:-50px;width:420px;height:420px;border-radius:50%;
+    background:radial-gradient(closest-side,rgba(20,184,166,.55),rgba(124,92,255,.2) 60%,transparent);filter:blur(24px)}
+  .lock{position:absolute;left:44px;top:0;transform:rotate(8deg);filter:drop-shadow(0 30px 50px rgba(0,0,0,.65))}
+  .card{position:absolute;left:-8px;top:232px;transform:rotate(-6deg);z-index:2;
+    background:rgba(20,20,25,.82);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.14);border-radius:18px;
+    padding:12px 18px 12px 12px;display:flex;align-items:center;gap:12px;box-shadow:0 20px 40px rgba(0,0,0,.5)}
+  .card .av{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#1AA392,#0B6E65);color:#fff;font-weight:800;font-size:17px;display:grid;place-items:center}
+  .card b{display:block;font-size:19px;font-weight:800}
+  .card small{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--lime);font-weight:600}
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="streak" style="top:300px;transform:rotate(-24deg);opacity:.18"></div>
+  <div class="streak" style="top:1000px;transform:rotate(-24deg);opacity:.3"></div>
+
+  <div class="plane"></div>
+  <div class="seam"></div>
+  <div class="vs">VS</div>
+
+  <div class="top">
+    <div class="pill"><span class="dot"></span>MYTH VS FACT</div>
+    <div class="ml"><i></i>Made for Kerala</div>
+  </div>
+
+  <div class="mythBlk">
+    <div class="lab myth"><span class="ic"><svg width="16" height="16" viewBox="0 0 16 16"><path d="M3 3 L13 13 M13 3 L3 13" stroke="#FF3D81" stroke-width="3" stroke-linecap="round"/></svg></span>Myth</div>
+    <div class="mq">
+      <span class="ln">Other shops will</span>
+      <span class="ln">see my prices</span>
+      <span class="ln">and customers.</span>
+    </div>
+  </div>
+
+  <div class="factBlk">
+    <div class="lab fact"><span class="ic"><svg width="18" height="18" viewBox="0 0 18 18"><path d="M3.5 9.5 L7.5 13.5 L14.5 4.5" fill="none" stroke="#09090C" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Fact</div>
+    <div class="fq">Each shop's data<br>stays with<br><span class="lime">that shop.</span></div>
+  </div>
+
+  <div class="proof">Your <b>prices, customers, credit and bills</b> are visible only to your shop.</div>
+
+  <div class="lockWrap">
+    <svg class="rings" viewBox="0 0 900 900" fill="none" stroke="#14B8A6">
+      <circle cx="450" cy="450" r="150" stroke-width="1.5"/>
+      <circle cx="450" cy="450" r="230" stroke-width="1.2"/>
+      <circle cx="450" cy="450" r="310" stroke-width="1" stroke-dasharray="4 10"/>
+      <circle cx="450" cy="450" r="390" stroke-width=".8"/>
+    </svg>
+    <div class="lglow"></div>
+    <svg class="lock" width="216" height="249" viewBox="0 0 260 300">
+      <defs>
+        <linearGradient id="sh" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#5a5a64"/><stop offset=".35" stop-color="#e6e6ea"/><stop offset=".55" stop-color="#9a9aa4"/><stop offset="1" stop-color="#3a3a42"/>
+        </linearGradient>
+        <linearGradient id="bd" gradientUnits="userSpaceOnUse" x1="20" y1="120" x2="240" y2="290">
+          <stop offset="0" stop-color="#14B8A6"/><stop offset=".45" stop-color="#D4FF3A"/><stop offset=".75" stop-color="#FFB627"/><stop offset="1" stop-color="#FF3D81"/>
+        </linearGradient>
+        <linearGradient id="hi" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#fff" stop-opacity=".45"/><stop offset=".4" stop-color="#fff" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path d="M62 132 V88 a68 68 0 0 1 136 0 V132" fill="none" stroke="url(#sh)" stroke-width="26" stroke-linecap="round"/>
+      <rect x="20" y="118" width="220" height="172" rx="36" fill="url(#bd)"/>
+      <rect x="20" y="118" width="220" height="172" rx="36" fill="url(#hi)"/>
+      <rect x="21" y="119" width="218" height="170" rx="35" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2"/>
+      <circle cx="130" cy="190" r="20" fill="#09090C"/>
+      <path d="M121 198 h18 l-4 38 h-10 z" fill="#09090C"/>
+    </svg>
+    <div class="card">
+      <div class="av">SC</div>
+      <div><b>Sree Colours</b><small><svg width="12" height="14" viewBox="0 0 12 14"><rect x="1" y="6" width="10" height="7.5" rx="2" fill="#D4FF3A"/><path d="M3.5 6.5 V4.5 a2.5 2.5 0 0 1 5 0 V6.5" fill="none" stroke="#D4FF3A" stroke-width="1.8"/></svg>Only your shop</small></div>
+    </div>
+  </div>
+
+  <div class="zb"><span class="zb-label">Powered by</span><img class="zb-logo" src="../../assets/zerobyt-logo-light.png" alt="zero.byt"><span class="zb-sep"></span><span class="zb-cta">Follow @zero.byt</span></div>
+
+  <svg class="grain" width="1080" height="1350">
+    <filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+    <rect width="100%" height="100%" filter="url(#n)"/>
+  </svg>
+<style>
+.zb{position:absolute;left:64px;bottom:64px;display:flex;align-items:baseline;gap:12px;font-family:'Inter',sans-serif;line-height:1;z-index:20}
+.zb-label{font-size:18px;font-weight:500;letter-spacing:.01em;color:rgba(255,255,255,.72)}
+.zb-logo{height:36px;width:auto;display:block;flex:none;transform:translateY(7.7px)}
+.zb-sep{width:1.5px;height:28px;background:rgba(255,255,255,.28);margin:0 6px;flex:none}
+.zb-cta{font-size:18px;font-weight:700;color:#fff}
+</style>
+</body>
+</html>

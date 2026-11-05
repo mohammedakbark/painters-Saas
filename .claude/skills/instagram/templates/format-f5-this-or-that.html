@@ -1,0 +1,189 @@
+<!doctype html>
+<!--
+  Instagram poster format F5 This or that (C violet/lime). THIS (old way, desaturated paper) vs THAT (clean mini phone) with an OR disc. Change: headline question, both panels, chips, CTA emojis. Emoji font: Noto Color Emoji (Google Fonts).
+  1080x1350. Copy to marketing/instagram/output/day-XX-post/poster-<a|b>.html, rewrite the copy and screen, render with scripts/render.mjs, then LOOK at the PNG (full size + 2x zoom of footer and edges).
+  Rules: English only; no product name; keep the .zb lockup exactly (logo 36px, 'Powered by' 18px on the logo baseline, left 64px, bottom 64px); fictional data only; no 'stock'; no 'Coming soon' badge unless the day is in brand.json comingSoonDays.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Noto+Color+Emoji&family=Caveat:wght@500;700&family=Inter:wght@400;500;600;700;800&display=block" rel="stylesheet">
+<style>
+:root{
+  --violet:#4B2BE0; --violet-deep:#2E169E; --violet-lite:#7A5CFF; --lime:#C8F53C;
+  --ink:#1A1530; --paper:#FBF8EF; --concrete:#BDB8AE; --graphite:#3A3833;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1350px;overflow:hidden}
+body{position:relative;font-family:Inter,sans-serif;color:#fff;
+  background:
+   radial-gradient(700px 600px at 85% 70%, #7A5CFF 0%, rgba(122,92,255,0) 70%),
+   radial-gradient(900px 500px at 10% 0%, #5A3BF0 0%, rgba(90,59,240,0) 70%),
+   linear-gradient(160deg,#4B2BE0,#2E169E);}
+.emo{font-family:'Noto Color Emoji','Segoe UI Emoji',sans-serif;font-weight:400}
+
+/* header */
+.badge{position:absolute;left:64px;top:64px;display:flex;align-items:center;gap:12px;background:var(--lime);color:var(--ink);
+  font:800 22px/1 Inter;letter-spacing:.16em;padding:15px 24px 15px 20px;border-radius:999px}
+.badge i{width:12px;height:12px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 5px rgba(26,21,48,.18)}
+.for{position:absolute;right:64px;top:64px;height:52px;display:flex;align-items:center;font:600 21px Inter;color:rgba(255,255,255,.85)}
+.hl{position:absolute;left:64px;top:150px;font-family:Anton,sans-serif;text-transform:uppercase;font-size:104px;line-height:1.02;letter-spacing:.005em;color:#fff}
+.hl .old{color:#D6D1C4}
+.hl .or{font-family:Caveat,cursive;text-transform:none;font-weight:700;font-size:118px;color:var(--lime);margin-right:14px;display:inline-block;transform:rotate(-6deg) translateY(-4px)}
+.hl .new{color:var(--lime)}
+
+/* panels */
+.panel{position:absolute;top:516px;width:440px;height:608px;border-radius:36px;overflow:hidden}
+.p-this{left:64px;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255,255,255,.28), transparent 60%),
+    repeating-linear-gradient(35deg, rgba(0,0,0,.03) 0 2px, transparent 2px 6px),
+    var(--concrete);
+  box-shadow:0 30px 60px rgba(10,0,60,.45)}
+.p-that{left:576px;
+  background:
+    radial-gradient(360px 420px at 50% 55%, rgba(200,245,60,.30), rgba(200,245,60,0) 70%),
+    linear-gradient(165deg,#5A3BF0 0%,#2E169E 100%);
+  box-shadow:0 30px 60px rgba(10,0,60,.5), inset 0 0 0 2px rgba(255,255,255,.14)}
+.tag{position:absolute;left:28px;top:28px;font:800 18px/1 Inter;letter-spacing:.2em;padding:11px 16px;border-radius:999px;z-index:4}
+.tag.b{background:var(--graphite);color:#E6E2D9}
+.tag.a{background:var(--lime);color:var(--ink)}
+.cap{position:absolute;left:28px;right:28px;bottom:26px;height:60px;border-radius:999px;display:flex;align-items:center;gap:12px;padding:0 22px 0 10px;font:700 23px/1 Inter;z-index:4}
+.cap .e{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:24px}
+.p-this .cap{background:rgba(58,56,51,.12);color:var(--graphite)}
+.p-this .cap .e{background:#E9E5DC}
+.p-that .cap{background:rgba(255,255,255,.12);color:#fff}
+.p-that .cap .e{background:var(--lime)}
+
+/* notebook */
+.note{position:absolute;left:34px;top:96px;width:372px;height:400px;background:var(--paper);transform:rotate(-4deg);
+  box-shadow:0 18px 30px rgba(0,0,0,.28);
+  background-image:linear-gradient(90deg, transparent 48px, #C9A7A7 48px, #C9A7A7 50px, transparent 50px),
+                   repeating-linear-gradient(180deg, transparent 0 51px, #B7C0C8 51px 52px);
+  background-position:0 0, 0 22px;
+  clip-path:polygon(0 3%, 6% 0, 13% 2.5%, 21% 0, 30% 2%, 39% 0, 48% 2.5%, 57% 0, 66% 2%, 75% 0, 84% 2.5%, 92% 0, 100% 2%, 100% 100%, 0 100%);
+  font-family:Caveat,cursive;color:#3E3F5C;filter:saturate(.35)}
+.note .l{position:absolute;left:62px;font-size:38px;font-weight:700;white-space:nowrap;line-height:1}
+.strike{position:relative;display:inline-block}
+.strike::after{content:"";position:absolute;left:-4px;right:-4px;top:54%;height:4px;background:#8E3A3A;transform:rotate(-7deg);border-radius:2px}
+.red{color:#8E3A3A}
+.circle{display:inline-block;border:3px solid #8E3A3A;border-radius:50%;padding:0 8px;margin-left:2px;transform:rotate(-4deg)}
+.pencil{position:absolute;left:210px;top:430px;width:220px;height:40px;transform:rotate(-24deg);z-index:3;filter:saturate(.3)}
+
+/* OR badge */
+.or-b{position:absolute;left:540px;top:820px;width:150px;height:150px;margin:-75px 0 0 -75px;border-radius:50%;
+  background:var(--lime);color:var(--ink);display:grid;place-items:center;font:400 66px/1 Anton;letter-spacing:.02em;
+  box-shadow:0 0 0 10px #3A1FC0, 0 22px 44px rgba(10,0,60,.55), 0 0 60px rgba(200,245,60,.45);transform:rotate(-8deg);z-index:10;padding-top:2px}
+
+/* phone */
+.phone{position:absolute;left:66px;top:84px;width:308px;height:440px;-webkit-mask-image:linear-gradient(180deg,#000 86%,transparent 100%);mask-image:linear-gradient(180deg,#000 86%,transparent 100%);border-radius:44px 44px 0 0;background:#111;padding:11px 11px 0;
+  box-shadow:0 30px 60px rgba(10,0,60,.55), inset 0 0 0 2px #3a3a3a}
+.screen{position:relative;width:100%;height:100%;border-radius:34px 34px 0 0;overflow:hidden;background:#F5F4FF;color:var(--ink)}
+.island{position:absolute;left:50%;top:10px;width:84px;height:24px;border-radius:14px;background:#000;transform:translateX(-50%)}
+.sb{display:flex;justify-content:space-between;padding:12px 24px 0;font:700 13px Inter;height:40px}
+.k{font:700 11.5px Inter;letter-spacing:.1em;text-transform:uppercase;color:#6B6690}
+.sh{padding:6px 18px 0}
+.sh .n{font:800 23px/1.15 Inter;margin-top:4px}
+.sh .c{font:500 13px Inter;color:#6B6690;margin-top:2px}
+.due{margin:12px 12px 0;padding:14px 16px;border-radius:20px;background:linear-gradient(135deg,#4B2BE0,#7A3CF0);color:#fff;box-shadow:0 10px 22px rgba(75,43,224,.35)}
+.due .t{font:600 13px Inter;opacity:.85}
+.due .v{font:800 38px/1.1 Inter;margin-top:2px;letter-spacing:-.01em}
+.bar{height:10px;border-radius:6px;background:rgba(255,255,255,.25);margin-top:10px;overflow:hidden}
+.bar i{display:block;height:100%;width:80%;background:var(--lime);border-radius:6px}
+.legend{display:flex;justify-content:space-between;font:600 12.5px Inter;margin-top:7px}
+.legend b{font-weight:800}
+.rows{margin:10px 12px 0;background:#fff;border-radius:16px;padding:2px 14px;box-shadow:0 4px 12px rgba(30,20,90,.08)}
+.r{display:flex;align-items:center;gap:10px;padding:10px 0;font:600 13.5px/1.2 Inter}
+.r+.r{border-top:1px solid #ECEAF7}
+.r small{display:block;color:#6B6690;font-size:11.5px;font-weight:500}
+.r .a{margin-left:auto;font-weight:800;font-size:14.5px}
+.dot{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;flex:none}
+
+/* bottom CTA */
+.cta{position:absolute;right:64px;bottom:64px;text-align:right}
+.cta .q{font:700 26px/1 Inter;color:rgba(255,255,255,.85)}
+.cta .c{margin-top:14px;font:400 58px/1 Anton;text-transform:uppercase;color:var(--lime);letter-spacing:.01em;display:flex;align-items:center;gap:14px;justify-content:flex-end}
+.cta .c .emo{font-size:46px;text-transform:none}
+.cta .c .w{color:#fff}
+
+/* zero.byt lockup */
+.zb{position:absolute;left:64px;bottom:64px;display:flex;align-items:baseline;gap:12px;font-family:'Inter',sans-serif;line-height:1;z-index:20}
+.zb-label{font-size:18px;font-weight:500;letter-spacing:.01em;color:rgba(255,255,255,.72)}
+.zb-logo{height:36px;width:auto;display:block;flex:none;transform:translateY(7.7px)}
+</style>
+</head>
+<body>
+
+<div class="badge"><i></i>THIS OR THAT</div>
+<div class="for">For Kerala paint shops</div>
+<div class="hl"><span class="old">Notebook dues</span><br><span class="or">or</span>a clear<br><span class="new">running bill?</span></div>
+
+<!-- THIS: the old way -->
+<div class="panel p-this">
+  <div class="tag b">THIS</div>
+  <div class="note">
+    <div class="l" style="top:34px;font-size:34px;color:#6A6A78">credit a/c</div>
+    <div class="l" style="top:92px;font-size:46px">Rajesh – due <span class="circle red">₹??</span></div>
+    <div class="l" style="top:160px">4L teal + primer</div>
+    <div class="l" style="top:212px">paid <span class="strike">2000</span> 2500?</div>
+    <div class="l" style="top:264px">bal → ask him</div>
+    <div class="l" style="top:316px;color:#7A7A86">old page?? <span class="red">lost</span></div>
+  </div>
+  <svg class="pencil" viewBox="0 0 220 40">
+    <path d="M10 8 H170 V32 H10 Z" fill="#D9B54A"/>
+    <path d="M10 8 H170 V14 H10 Z" fill="#E8CB6E"/>
+    <path d="M170 8 L210 20 L170 32 Z" fill="#E7D3B0"/>
+    <path d="M198 16.5 L210 20 L198 23.5 Z" fill="#3A3833"/>
+    <rect x="0" y="8" width="14" height="24" rx="3" fill="#B98C8C"/>
+  </svg>
+  <div class="cap"><span class="e emo">✍️</span>Notebook dues</div>
+</div>
+
+<!-- THAT: the clear way -->
+<div class="panel p-that">
+  <div class="tag a">THAT</div>
+  <div class="phone"><div class="screen">
+    <div class="island"></div>
+    <div class="sb"><span>9:41</span><span>●●● ▮</span></div>
+    <div class="sh">
+      <div class="k">Running bill</div>
+      <div class="n">Sree Colours</div>
+      <div class="c">Thrissur · Painter Rajesh</div>
+    </div>
+    <div class="due">
+      <div class="t">Due</div>
+      <div class="v">₹6,200</div>
+      <div class="bar"><i></i></div>
+      <div class="legend"><span>Paid <b>₹25,200</b></span><span>Total <b>₹31,400</b></span></div>
+    </div>
+    <div class="rows">
+      <div class="r"><span class="dot" style="background:#DDF7E7;color:#137A3F">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#137A3F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5 6.5 12 13 4.5"/></svg></span>
+        <div>Payment recorded<small>Green Villa</small></div><span class="a">₹5,000</span></div>
+      <div class="r"><span class="dot" style="background:#EEEAFF">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#4B2BE0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2h8v12l-2-1.3L8 14l-2-1.3L4 14z"/><path d="M6 6h4M6 9h3"/></svg></span>
+        <div>Primer · 2 buckets<small>Added to bill</small></div><span class="a">₹3,720</span></div>
+    </div>
+  </div></div>
+  <div class="cap"><span class="e emo">📱</span>Running bill</div>
+</div>
+
+<div class="or-b">OR</div>
+
+<svg style="position:absolute;left:672px;top:372px;width:200px;height:134px;overflow:visible" viewBox="0 0 200 134">
+  <defs><filter id="rough"><feTurbulence baseFrequency=".9" numOctaves="2" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="4"/></filter></defs>
+  <g filter="url(#rough)" fill="none" stroke="#C8F53C" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 22 C 92 4, 150 34, 150 118"/>
+    <path d="M126 96 L150 122 L172 94"/>
+  </g>
+</svg>
+
+<div class="cta">
+  <div class="q">Which one is your shop?</div>
+  <div class="c"><span class="w">Comment</span><span class="emo">✍️</span>or<span class="emo" style="margin-right:-13px">📱</span></div>
+</div>
+
+<div class="zb"><span class="zb-label">Powered by</span><img class="zb-logo" src="../../assets/zerobyt-logo-light.png" alt="zero.byt"></div>
+</body>
+</html>

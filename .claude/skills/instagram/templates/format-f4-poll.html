@@ -1,0 +1,154 @@
+<!doctype html>
+<!--
+  Instagram poster format F4 Question / poll (A warm sun/coral, dark logo). Big question + 3 numbered answer cards with icons + "Comment 1, 2 or 3" pill. Change: question, audience line, the 3 answers and icons, CTA.
+  1080x1350. Copy to marketing/instagram/output/day-XX-post/poster-<a|b>.html, rewrite the copy and screen, render with scripts/render.mjs, then LOOK at the PNG (full size + 2x zoom of footer and edges).
+  Rules: English only; no product name; keep the .zb lockup exactly (logo 36px, 'Powered by' 18px on the logo baseline, left 64px, bottom 64px); fictional data only; no 'stock'; no 'Coming soon' badge unless the day is in brand.json comingSoonDays.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&family=Poppins:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=block" rel="stylesheet">
+<style>
+  :root{
+    --teal-900:#04363A; --teal-800:#065A5E; --teal-600:#0B8A86; --glow:#10A39C; --mint:#3DDBC4;
+    --coral:#FF5E3A; --sun:#FFC83D; --cream:#FFF7EC; --ink:#10201F;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1080px;height:1350px;overflow:hidden}
+  body{position:relative;font-family:'Poppins',sans-serif;color:var(--ink);
+    background:
+      radial-gradient(760px 620px at 88% 18%, #FFE38A 0%, rgba(255,227,138,0) 62%),
+      radial-gradient(900px 700px at 0% 100%, #FFAE2E 0%, rgba(255,174,46,0) 65%),
+      linear-gradient(165deg,#FFD257 0%,#FFC83D 48%,#FFB72F 100%);}
+
+  /* decor */
+  .rings{position:absolute;left:0;top:0;width:1080px;height:1350px;pointer-events:none}
+  .dots{position:absolute;left:64px;top:1150px;width:0;height:0}
+
+  /* header */
+  .badge{position:absolute;left:64px;top:64px;display:inline-flex;align-items:center;gap:12px;
+    background:var(--teal-900);color:var(--sun);font-weight:800;font-size:24px;letter-spacing:.16em;
+    padding:15px 28px 15px 22px;border-radius:999px;line-height:1;box-shadow:0 12px 24px rgba(4,54,58,.25)}
+  .badge .pulse{width:16px;height:16px;border-radius:50%;background:var(--coral);box-shadow:0 0 0 6px rgba(255,94,58,.3)}
+  .for{position:absolute;right:64px;top:64px;height:54px;display:flex;align-items:center;gap:10px;
+    font-family:'Inter';font-weight:600;font-size:22px;color:rgba(16,32,31,.78)}
+  .for svg{flex:none}
+
+  h1{position:absolute;left:64px;top:166px;font-weight:800;font-size:100px;line-height:.98;letter-spacing:-.035em;color:var(--ink)}
+  h1 .u{position:relative;display:inline-block;color:var(--teal-800)}
+  h1 .u svg{position:absolute;left:-4px;bottom:-18px;width:calc(100% + 8px);height:26px}
+  h1 .q{color:var(--coral)}
+
+  /* speech bubble */
+  .bub{position:absolute;left:706px;top:176px;width:310px;height:330px;overflow:visible}
+
+  /* answer cards */
+  .cards{position:absolute;left:64px;right:64px;top:612px}
+  .card{position:relative;height:160px;margin-bottom:26px;background:var(--cream);border-radius:32px;
+    display:flex;align-items:center;padding:0 32px 0 24px;gap:30px;
+    box-shadow:0 22px 40px rgba(150,80,0,.20),0 4px 10px rgba(150,80,0,.10)}
+  .card:last-child{margin-bottom:0}
+  .num{flex:none;width:112px;height:112px;border-radius:28px;display:grid;place-items:center;
+    background:linear-gradient(150deg,#0B8A86 0%,#065A5E 55%,#04363A 100%);color:var(--sun);
+    font-weight:800;font-size:66px;line-height:1;padding-top:6px;box-shadow:inset 0 -6px 0 rgba(0,0,0,.14)}
+  .txt{flex:1;font-weight:700;font-size:42px;line-height:1.08;letter-spacing:-.02em}
+  .ic{flex:none;width:96px;height:96px;border-radius:50%;background:#FFE4D9;display:grid;place-items:center}
+
+  /* CTA */
+  .cta{position:absolute;right:64px;bottom:64px;height:92px;display:flex;align-items:center;gap:14px;
+    background:var(--ink);color:#fff;border-radius:999px;padding:0 36px 0 40px;
+    font-weight:700;font-size:38px;letter-spacing:-.01em;line-height:1;box-shadow:0 18px 34px rgba(16,32,31,.28)}
+  .cta b{color:var(--sun);font-weight:800}
+  .cta .em{font-family:'Noto Color Emoji','Segoe UI Emoji',sans-serif;font-size:36px}
+
+  /* zero.byt lockup */
+  .zb{position:absolute;left:64px;bottom:64px;display:flex;align-items:baseline;gap:12px;font-family:'Inter',sans-serif;line-height:1;z-index:20}
+  .zb-label{font-size:18px;font-weight:500;letter-spacing:.01em;color:rgba(16,32,31,.65)}
+  .zb-logo{height:36px;width:auto;display:block;flex:none;transform:translateY(7.7px)}
+</style>
+</head>
+<body>
+
+<!-- soft concentric rings, echo of concept A -->
+<svg class="rings" viewBox="0 0 1080 1350">
+  <g fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="2" mask="url(#topc)">
+    <circle cx="880" cy="330" r="300"/>
+    <circle cx="880" cy="330" r="420"/>
+  </g>
+  <linearGradient id="fadeg" x1="0" y1="0" x2="0" y2="1350" gradientUnits="userSpaceOnUse"><stop offset=".25" stop-color="#fff"/><stop offset=".45" stop-color="#000"/></linearGradient><mask id="topc"><rect width="1080" height="1350" fill="url(#fadeg)"/></mask>
+  <circle mask="url(#topc)" cx="880" cy="330" r="540" fill="none" stroke="#FF5E3A" stroke-opacity=".35" stroke-width="3" stroke-dasharray="2 16" stroke-linecap="round"/>
+
+</svg>
+
+<div class="badge"><span class="pulse"></span>YOUR TURN</div>
+<div class="for">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#065A5E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 4.6 4h14.8L21 9.5"/><path d="M3 9.5h18v1a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0z"/><path d="M5 13v7h14v-7"/><path d="M10 20v-4h4v4"/></svg>
+  For shop owners &amp; staff
+</div>
+
+<h1>What slows<br>your shop<br><span class="u">counter<svg viewBox="0 0 300 26" preserveAspectRatio="none"><path d="M4 18 C 80 6, 190 4, 296 12" stroke="#FF5E3A" stroke-width="9" fill="none" stroke-linecap="round"/></svg></span><br>the most<span class="q">?</span></h1>
+
+<!-- comment bubble -->
+<svg class="bub" viewBox="0 0 310 330">
+  <defs>
+    <linearGradient id="tg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B8A86"/><stop offset=".55" stop-color="#065A5E"/><stop offset="1" stop-color="#04363A"/>
+    </linearGradient>
+    <filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#8A4A00" flood-opacity=".28"/></filter>
+  </defs>
+  <!-- small coral bubble behind -->
+  <g filter="url(#sh)" transform="rotate(8 236 70)">
+    <rect x="170" y="22" width="132" height="92" rx="40" fill="#FF5E3A"/>
+    <path d="M262 106 L286 136 L236 112 Z" fill="#FF5E3A"/>
+    <circle cx="206" cy="68" r="9" fill="#FFF7EC"/><circle cx="236" cy="68" r="9" fill="#FFF7EC"/><circle cx="266" cy="68" r="9" fill="#FFF7EC"/>
+  </g>
+  <!-- main teal bubble -->
+  <g filter="url(#sh)" transform="rotate(-6 140 190)">
+    <rect x="22" y="80" width="236" height="200" rx="64" fill="url(#tg)"/>
+    <path d="M70 262 L44 318 L118 272 Z" fill="#04363A"/>
+    <text x="140" y="246" text-anchor="middle" font-family="Poppins" font-weight="800" font-size="190" fill="#FFC83D">?</text>
+  </g>
+</svg>
+
+<div class="cards">
+  <div class="card">
+    <div class="num">1</div>
+    <div class="txt">Phone calls for prices</div>
+    <div class="ic">
+      <svg width="54" height="54" viewBox="0 0 48 48" fill="none" stroke="#FF5E3A" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 6h-4a4 4 0 0 0-4 4c0 17.7 14.3 32 32 32a4 4 0 0 0 4-4v-4l-8-4-4 4c-5-2-10-7-12-12l4-4z"/>
+        <path d="M30 6a12 12 0 0 1 12 12"/><path d="M29 13a5 5 0 0 1 6 6"/>
+      </svg>
+    </div>
+  </div>
+  <div class="card">
+    <div class="num">2</div>
+    <div class="txt">Writing bills by hand</div>
+    <div class="ic">
+      <svg width="54" height="54" viewBox="0 0 48 48" fill="none" stroke="#FF5E3A" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M30 26v16l-4-3-4 3-4-3-4 3-4-3-4 3V6h24v9"/>
+        <path d="M12 14h10M12 21h8M12 28h6"/>
+        <path d="M40 10l4 4-14 14h-4v-4z"/>
+      </svg>
+    </div>
+  </div>
+  <div class="card">
+    <div class="num">3</div>
+    <div class="txt">Chasing pending payments</div>
+    <div class="ic">
+      <svg width="54" height="54" viewBox="0 0 48 48" fill="none" stroke="#FF5E3A" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="24" cy="27" r="16"/>
+        <text x="24" y="35" text-anchor="middle" font-family="Inter" font-weight="800" font-size="22" fill="#FF5E3A" stroke="none">&#8377;</text>
+        <path d="M36 13l3-3"/>
+        <path d="M19 5h10M24 5v5"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<div class="cta">Comment <b>1, 2 or 3</b><span class="em">👇</span></div>
+
+<div class="zb"><span class="zb-label">Powered by</span><img class="zb-logo" src="../../assets/zerobyt-logo-dark.png" alt="zero.byt"></div>
+</body>
+</html>
