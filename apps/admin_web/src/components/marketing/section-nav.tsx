@@ -76,7 +76,7 @@ export function MobileMenu() {
     <details ref={menu} className="group relative desktop:hidden">
       <summary
         aria-label="Menu"
-        className="flex size-12 cursor-pointer list-none items-center justify-center rounded-control text-text-primary hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-brand-primary"
+        className="flex size-12 cursor-pointer list-none items-center justify-center rounded-button text-text-primary hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-brand-primary"
       >
         <Icon name="menu" className="size-6 group-open:hidden" />
         <Icon name="close" className="hidden size-6 group-open:block" />

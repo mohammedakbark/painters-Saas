@@ -120,7 +120,8 @@ Each property names a base token: `radius` a radius token, `minHeight` a layout 
 
 | Component token | Used by | Today |
 |---|---|---|
-| `control` | buttons, text fields, dropdowns, search | radius `medium`, minimum height `minTouchTarget`, border `border.strong`, error border `status.error` |
+| `control` | text fields, dropdowns, search (buttons share its height) | radius `medium`, minimum height `minTouchTarget`, border `border.strong`, error border `status.error` |
+| `button` | every button on the web and in Flutter | radius `pill`: fully rounded (product owner, 2026-11-05) |
 | `card` | cards, list panels, sections, empty states | radius `large`, border `border.default` |
 | `panel` | boxes inside a card (pack, shade, review rows) | radius `medium`, border `border.default` |
 | `inlineMessage` | web `Alert`, Flutter `AppInlineMessage` | radius `medium` |

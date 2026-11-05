@@ -62,7 +62,7 @@ export function Hero() {
             </ButtonLink>
             <Link
               href="/sign-in"
-              className="inline-flex min-h-control items-center gap-2 rounded-control px-3 text-body-large font-semibold text-surface-default underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-surface-default"
+              className="inline-flex min-h-control items-center gap-2 rounded-button px-3 text-body-large font-semibold text-surface-default underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-surface-default"
             >
               <Icon name="logIn" />
               Login

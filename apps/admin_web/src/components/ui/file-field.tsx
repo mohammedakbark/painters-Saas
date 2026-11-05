@@ -48,7 +48,7 @@ export function FileField({
         aria-describedby={describedBy}
         className={cn(
           'text-body text-text-primary',
-          'file:mr-4 file:min-h-control file:rounded-control file:border file:border-button-secondary-border',
+          'file:mr-4 file:min-h-control file:rounded-button file:border file:border-button-secondary-border',
           'file:bg-button-secondary-background file:px-5 file:text-body-large file:font-semibold file:text-button-secondary-foreground',
           'hover:file:bg-button-secondary-background-hover',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary',

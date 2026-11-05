@@ -56,8 +56,8 @@ abstract final class AppTheme {
   );
 
   static ThemeData light() {
-    final controlShape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(AppComponentTokens.controlRadius),
+    final buttonShape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(AppComponentTokens.buttonRadius),
     );
 
     return ThemeData(
@@ -112,13 +112,13 @@ abstract final class AppTheme {
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(shape: controlShape),
+        style: FilledButton.styleFrom(shape: buttonShape),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(shape: controlShape),
+        style: OutlinedButton.styleFrom(shape: buttonShape),
       ),
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(shape: controlShape),
+        style: TextButton.styleFrom(shape: buttonShape),
       ),
     );
   }

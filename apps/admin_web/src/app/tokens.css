@@ -84,6 +84,7 @@
 
   /* Component radii, e.g. rounded-control. */
   --radius-control: var(--radius-medium);
+  --radius-button: var(--radius-pill);
   --radius-card: var(--radius-large);
   --radius-panel: var(--radius-medium);
   --radius-image: var(--radius-medium);

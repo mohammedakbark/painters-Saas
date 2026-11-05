@@ -13,7 +13,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const BASE =
-  'inline-flex min-h-control items-center justify-center gap-2 rounded-control px-5 text-body-large font-semibold transition-colors ' +
+  'inline-flex min-h-control items-center justify-center gap-2 rounded-button px-6 text-body-large font-semibold transition-colors ' +
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary ' +
   'disabled:cursor-not-allowed disabled:opacity-70';
 

@@ -67,13 +67,13 @@ void main() {
       }
     });
 
-    test('uses radius tokens for cards and controls', () {
+    test('uses radius tokens for cards and buttons', () {
       final cardShape = theme.cardTheme.shape! as RoundedRectangleBorder;
       expect(cardShape.borderRadius, BorderRadius.circular(AppRadius.large));
       final buttonShape =
           theme.filledButtonTheme.style!.shape!.resolve({})!
               as RoundedRectangleBorder;
-      expect(buttonShape.borderRadius, BorderRadius.circular(AppRadius.medium));
+      expect(buttonShape.borderRadius, BorderRadius.circular(AppRadius.pill));
     });
   });
 }

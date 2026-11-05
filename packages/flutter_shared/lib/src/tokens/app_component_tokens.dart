@@ -10,12 +10,15 @@ import 'app_spacing.dart';
 /// What each shared component uses (D-039). The components read these, so
 /// one change in tokens.json restyles every screen.
 abstract final class AppComponentTokens {
-  /// Buttons, text fields, dropdowns and search fields.
+  /// Text fields, dropdowns and search fields; buttons share its height and take their shape from `button`.
   static const double controlRadius = AppRadius.medium;
   static const double controlMinHeight = AppSpacing.minTouchTarget;
   static const Color controlBackground = AppColors.surfaceDefault;
   static const Color controlBorder = AppColors.borderStrong;
   static const Color controlBorderError = AppColors.statusError;
+
+  /// Every button (web Button, ButtonLink, StoreButton; Flutter AppButton and the Material button themes): fully rounded pills (product owner, 2026-11-05).
+  static const double buttonRadius = AppRadius.pill;
 
   /// Cards, list panels, sections and empty states.
   static const double cardRadius = AppRadius.large;
