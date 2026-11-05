@@ -49,6 +49,14 @@ This is the first of a UI/UX pass before Phase 2. Next: WEB-002 (sign-in and reg
 - Illustrations are inline SVG drawn with token classes (no literal colours, no external images). **They are placeholders:** the product owner asked to replace them with real app screenshots and add more content later.
 - The page stays `noindex` (root layout) until the product name is decided and the site goes live.
 
+## 5a. Experience (product owner: "make it more premium", 2026-11-05)
+
+- **Scrolling:** smooth scrolling to sections (`scroll-padding-top` for the sticky header); a thin brand progress bar under the header; the header is translucent with a blur and gains a soft shadow once the page scrolls; section headings and cards fade up as they enter the screen, staggered.
+- **Navigation:** the desktop header highlights the section being read (IntersectionObserver, `section-nav.tsx`); phones get a menu (`details` disclosure) with the section links and Login, closing when a link is chosen.
+- **Polish:** larger hero headline (new `typography.hero` token, 52 px, desktop only), soft colour wash and gently floating illustration, hero highlights with icons, cards that lift on hover, a brand-gradient closing panel. A temporary mark (sparkle tile) sits beside the name until the logo exists.
+- **Icons:** `components/ui/icon.tsx` (`Icon`, `IconTile`): own line icons; App Store and Google Play glyphs from Font Awesome Free (CC BY 4.0, credited in the file). Switch to the stores' official badges at publication.
+- **Safety:** all motion is CSS (`globals.css`: `.reveal`, `.scroll-progress`, `.header-elevate`, `.float-slow`) inside `prefers-reduced-motion: no-preference` and `@supports (animation-timeline: view())`, so content is never hidden in browsers without scroll-driven animations or without JavaScript, and nothing moves for people who ask for reduced motion.
+
 ## 6. Tests
 
 - `src/app/page.test.tsx`: one `h1`; the three products; vision and mission; header Login/Register go to `/sign-in`; no link to `/platform/*` and no "platform admin" text; four store buttons disabled with "coming soon".
@@ -64,8 +72,10 @@ This is the first of a UI/UX pass before Phase 2. Next: WEB-002 (sign-in and reg
 | admin_web build | Passed |
 | Headless Chrome screenshots at 1280 px and 518 px (the narrowest headless width); header gap and badge width fixed after the first look | Verified |
 | `/platform/sign-in` still opens by URL (HTTP 200) | Verified |
+| Scroll check in headless Chrome over CDP (1280×900, scrolled to 3400 px): header shadow on, progress bar 61 %, "How it works" highlighted, all on-screen cards opacity 1; with reduced motion: no shadow/progress animation, content visible | Verified |
+| Phone header at 518 px: Register + menu (Login moved into the menu) | Verified |
 | Interactive check in the product owner's Chrome | **Not run** (Claude in Chrome was not connected) |
-| Flutter checks | Not needed (no token or brand change) |
+| Flutter format, analyze, `flutter_shared` tests (new `AppTypography.hero` generated) | See PROJECT_STATE |
 
 ## 8. Limitations and next
 

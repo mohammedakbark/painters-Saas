@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { BrandMark } from '@/components/brand/brand-mark';
 import { ButtonLink } from '@/components/ui/button-link';
 import { Card } from '@/components/ui/card';
@@ -15,7 +16,11 @@ export function FaqSection() {
     >
       <div className="flex max-w-content flex-col gap-3">
         {FAQS.map((faq) => (
-          <Card as="details" key={faq.question} className="group p-5">
+          <Card
+            as="details"
+            key={faq.question}
+            className="reveal group p-5 transition-[border-color] open:border-brand-primary/30"
+          >
             <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-title font-semibold text-text-primary">
               {faq.question}
               <Icon
@@ -33,34 +38,46 @@ export function FaqSection() {
   );
 }
 
-/** Closing call to action on the brand colour. */
+/** Closing call to action: a brand-colour panel with a soft glow. */
 export function FinalCta() {
   return (
     <section
       aria-labelledby="cta-heading"
-      className="bg-brand-primary px-4 py-16"
+      className="bg-surface-subtle px-4 pb-20 desktop:pb-28"
     >
-      <div className="mx-auto flex w-full max-w-page flex-col items-start gap-6 desktop:flex-row desktop:items-center desktop:justify-between">
-        <div className="flex flex-col gap-2">
-          <h2
-            id="cta-heading"
-            className="text-heading2 font-semibold text-surface-default"
-          >
-            Bring your paint shop online
-          </h2>
-          <p className="text-body-large text-surface-default">
-            Register with your mobile number and set up your shop today.
-          </p>
+      <div className="reveal relative isolate mx-auto w-full max-w-page overflow-hidden rounded-sheet bg-linear-to-br from-brand-primary to-brand-primary-strong px-6 py-14 shadow-2xl shadow-brand-primary/30 desktop:px-16 desktop:py-20">
+        <div aria-hidden="true" className="absolute inset-0 -z-10">
+          <div className="absolute -top-24 -right-16 size-80 rounded-badge bg-brand-accent/30 blur-3xl" />
+          <div className="absolute -bottom-32 left-1/3 size-80 rounded-badge bg-surface-default/10 blur-3xl" />
         </div>
-        <div className="flex flex-wrap gap-3">
-          <ButtonLink href="/sign-in" variant="secondary">
-            Register your shop
-            <Icon name="arrowRight" />
-          </ButtonLink>
-          <ButtonLink href="/sign-in" className="border border-surface-default">
-            <Icon name="logIn" />
-            Login
-          </ButtonLink>
+        <div className="flex flex-col items-start gap-8 desktop:flex-row desktop:items-center desktop:justify-between">
+          <div className="flex max-w-narrow flex-col gap-3">
+            <h2
+              id="cta-heading"
+              className="text-heading1 font-bold tracking-tight text-surface-default desktop:text-display"
+            >
+              Bring your paint shop online
+            </h2>
+            <p className="text-body-large text-brand-primary-soft">
+              Register with your mobile number and set up your shop today.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <ButtonLink href="/sign-in" variant="secondary" className="group">
+              Register your shop
+              <Icon
+                name="arrowRight"
+                className="transition-transform group-hover:translate-x-1"
+              />
+            </ButtonLink>
+            <Link
+              href="/sign-in"
+              className="inline-flex min-h-control items-center gap-2 rounded-control px-3 text-body-large font-semibold text-surface-default underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-surface-default"
+            >
+              <Icon name="logIn" />
+              Login
+            </Link>
+          </div>
         </div>
       </div>
     </section>

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 
 /** A full-width band of the home page with a centred heading block. */
@@ -26,12 +26,12 @@ export function MarketingSection({
       id={id}
       aria-labelledby={headingId}
       className={cn(
-        'scroll-mt-20 px-4 py-16 desktop:py-20',
+        'px-4 py-20 desktop:py-28',
         tone === 'subtle' ? 'bg-surface-subtle' : 'bg-surface-default',
       )}
     >
-      <div className="mx-auto flex w-full max-w-page flex-col gap-10">
-        <div className="flex max-w-content flex-col gap-3">
+      <div className="mx-auto flex w-full max-w-page flex-col gap-12">
+        <div className="reveal flex max-w-content flex-col gap-3">
           {eyebrow ? (
             <p className="text-caption font-semibold tracking-wide text-brand-primary uppercase">
               {eyebrow}
@@ -75,4 +75,13 @@ export function TickIcon({ className }: { className?: string }) {
       />
     </svg>
   );
+}
+
+/** Card motion on the home page: fades in on scroll, lifts on hover. */
+export const CARD_MOTION =
+  'reveal transition-[translate,box-shadow,border-color] duration-300 motion-safe:hover:-translate-y-1 hover:border-brand-primary/20 hover:shadow-xl hover:shadow-brand-primary/10';
+
+/** Staggers sibling cards as they fade in (see `.reveal` in globals.css). */
+export function revealIndex(index: number): CSSProperties {
+  return { '--reveal-index': index } as CSSProperties;
 }

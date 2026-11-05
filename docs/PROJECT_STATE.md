@@ -149,7 +149,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
   - add from the brand catalogue (brand, search, packs pre-ticked with prices);
   - rupee helpers in `flutter_shared` shared with the Customer App; API unchanged.
 
-- [x] WEB-001 (public home page, 2026-11-05): product site at `/` (what the platform provides, vision and mission, painters, how a shop goes live, privacy, store buttons "Coming soon", FAQ); Login/Register to `/sign-in`; platform admin link removed (`/platform/sign-in` by URL); new `StoreButton`.
+- [x] WEB-001 (public home page, 2026-11-05): product site at `/` (what the platform provides, vision and mission, painters, how a shop goes live, privacy, store buttons "Coming soon", FAQ); Login/Register to `/sign-in`; platform admin link removed (`/platform/sign-in` by URL); new `StoreButton`. Premium experience pass the same day: icons (`Icon`), `typography.hero` token, scroll progress, header elevation and section highlighting, reveal-on-scroll, phone menu; all motion respects reduced-motion settings.
 
 ## 5. Not done
 

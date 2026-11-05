@@ -48,6 +48,7 @@ Rules: use one primary action per screen; use accent yellow sparingly and dark t
 
 | Token | Size | Weight | Use |
 |---|---:|---:|---|
+| `hero` | 52 px | 700 | Public website headline only (desktop) |
 | `display` | 32 px | 700 | Rare hero/summary |
 | `heading1` | 28 px | 700 | Main page heading |
 | `heading2` | 24 px | 600/700 | Section/page title |
@@ -137,9 +138,10 @@ Web utilities: `rounded-control`, `min-h-control`, `rounded-card`, `border-card-
 | `SearchForm` | GET search with a labelled field, optional filters and hidden values |
 | `Card`, `CardList`, `CardLink`, `Panel` (`cardClasses` where an element can't be a component) | surfaces |
 | `Alert`, `Badge`, `StateMessage`, `Spinner`, `PageHeader` | messages, status, empty states, loading, page titles |
+| `Icon`, `IconTile` | the project's icon set (line icons, `currentColor`; store glyphs); a new icon is added here first (WEB-001) |
 | `StoreButton` | App Store / Google Play button; a link when the store URL exists, otherwise a disabled "Coming soon" (WEB-001) |
 
-The public home page builds its sections from these components in `components/marketing` (illustrations are inline SVG with token classes only). No dialog or toast exists on the web yet; the first screen that needs one adds `Dialog`/`Toast` here first.
+**Motion (public site only):** CSS scroll-driven reveal, header elevation and progress bar in `globals.css`, always inside `prefers-reduced-motion: no-preference` and `@supports`; content is never hidden without them. Console screens stay static. The public home page builds its sections from these components in `components/marketing` (illustrations are inline SVG with token classes only). No dialog or toast exists on the web yet; the first screen that needs one adds `Dialog`/`Toast` here first.
 
 ### Flutter components (`flutter_shared`)
 

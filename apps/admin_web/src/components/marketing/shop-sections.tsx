@@ -7,7 +7,13 @@ import {
   SHOP_STEPS,
   VISION,
 } from './home-content';
-import { MarketingSection, TickIcon } from './section';
+import { cn } from '@/lib/cn';
+import {
+  CARD_MOTION,
+  MarketingSection,
+  revealIndex,
+  TickIcon,
+} from './section';
 
 /** Today's problems and what the platform does instead. */
 export function ProblemsSection() {
@@ -19,8 +25,13 @@ export function ProblemsSection() {
       intro="Many shops still run on phone calls, WhatsApp messages and notebooks. That works, until it doesn’t."
     >
       <ul className="grid gap-4 desktop:grid-cols-3">
-        {PROBLEMS.map((item) => (
-          <Card as="li" key={item.today} className="flex flex-col gap-4 p-6">
+        {PROBLEMS.map((item, index) => (
+          <Card
+            as="li"
+            key={item.today}
+            style={revealIndex(index)}
+            className={cn(CARD_MOTION, 'flex flex-col gap-4 p-6')}
+          >
             <IconTile name={item.icon} />
             <p className="text-body font-medium text-text-secondary">
               <span className="sr-only">Today: </span>
@@ -49,14 +60,18 @@ export function VisionSection() {
       tone="subtle"
     >
       <div className="grid gap-4 desktop:grid-cols-2">
-        <Card className="flex flex-col gap-3 p-6 desktop:p-8">
+        <Card
+          className={cn(CARD_MOTION, 'flex flex-col gap-3 p-6 desktop:p-8')}
+        >
           <IconTile name="eye" />
           <h3 className="text-heading3 font-semibold text-brand-primary">
             Our vision
           </h3>
           <p className="text-body-large text-text-primary">{VISION}</p>
         </Card>
-        <Card className="flex flex-col gap-3 p-6 desktop:p-8">
+        <Card
+          className={cn(CARD_MOTION, 'flex flex-col gap-3 p-6 desktop:p-8')}
+        >
           <IconTile name="target" />
           <h3 className="text-heading3 font-semibold text-brand-primary">
             Our mission
@@ -79,7 +94,12 @@ export function StepsSection() {
     >
       <ol className="grid gap-4 medium:grid-cols-2 desktop:grid-cols-4">
         {SHOP_STEPS.map((step, index) => (
-          <Card as="li" key={step.title} className="flex flex-col gap-3 p-6">
+          <Card
+            as="li"
+            key={step.title}
+            style={revealIndex(index)}
+            className={cn(CARD_MOTION, 'flex flex-col gap-3 p-6')}
+          >
             <span
               aria-hidden="true"
               className="flex size-10 items-center justify-center rounded-badge bg-brand-primary text-title font-semibold text-surface-default"
@@ -107,8 +127,13 @@ export function PrivacySection() {
       tone="subtle"
     >
       <ul className="grid gap-4 desktop:grid-cols-3">
-        {PRIVACY_POINTS.map((point) => (
-          <Card as="li" key={point.text} className="flex flex-col gap-4 p-6">
+        {PRIVACY_POINTS.map((point, index) => (
+          <Card
+            as="li"
+            key={point.text}
+            style={revealIndex(index)}
+            className={cn(CARD_MOTION, 'flex flex-col gap-4 p-6')}
+          >
             <IconTile name={point.icon} />
             <span className="text-body-large text-text-primary">
               {point.text}

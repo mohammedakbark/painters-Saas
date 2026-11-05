@@ -6,7 +6,13 @@ import { StoreButton } from '@/components/ui/store-button';
 import { APP_STORE_LINKS, type AppStoreLinks } from '@/lib/app-stores';
 import { BRAND } from '@/lib/brand';
 import { PAINTER_POINTS, PRODUCTS } from './home-content';
-import { MarketingSection, TickIcon } from './section';
+import { cn } from '@/lib/cn';
+import {
+  CARD_MOTION,
+  MarketingSection,
+  revealIndex,
+  TickIcon,
+} from './section';
 
 /** The three things the platform provides, each with its status. */
 export function ProductsSection() {
@@ -18,12 +24,13 @@ export function ProductsSection() {
       intro="A mobile app for customers and painters, a mobile app for shops, and a web portal to run your shop."
     >
       <ul className="grid gap-4 desktop:grid-cols-3">
-        {PRODUCTS.map((product) => (
+        {PRODUCTS.map((product, index) => (
           <Card
             as="li"
             key={product.id}
             aria-labelledby={`${product.id}-name`}
-            className="flex flex-col gap-5 p-6"
+            style={revealIndex(index)}
+            className={cn(CARD_MOTION, 'flex flex-col gap-5 p-6')}
           >
             <div className="flex flex-col items-start gap-2">
               <div className="flex w-full items-start justify-between gap-3">
@@ -83,8 +90,13 @@ export function PaintersSection() {
       tone="subtle"
     >
       <ul className="grid gap-4 medium:grid-cols-2 desktop:grid-cols-4">
-        {PAINTER_POINTS.map((point) => (
-          <Card as="li" key={point.title} className="flex flex-col gap-2 p-6">
+        {PAINTER_POINTS.map((point, index) => (
+          <Card
+            as="li"
+            key={point.title}
+            style={revealIndex(index)}
+            className={cn(CARD_MOTION, 'flex flex-col gap-2 p-6')}
+          >
             <IconTile name={point.icon} />
             <h3 className="text-title font-semibold text-text-primary">
               {point.title}
@@ -107,7 +119,7 @@ function AppDownload({
   links: AppStoreLinks;
 }) {
   return (
-    <Card className="flex flex-col gap-5 p-6 desktop:p-8">
+    <Card className={cn(CARD_MOTION, 'flex flex-col gap-5 p-6 desktop:p-8')}>
       <div className="flex flex-col gap-2">
         <h3 className="text-heading3 font-semibold text-text-primary">
           {name}

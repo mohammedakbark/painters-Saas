@@ -24,6 +24,12 @@ const ICONS = {
     d: 'M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3',
   },
   chevronDown: { viewBox: LINE, d: 'M6 9l6 6 6-6' },
+  menu: { viewBox: LINE, d: 'M4 7h16M4 12h16M4 17h16' },
+  close: { viewBox: LINE, d: 'M6 6l12 12M18 6L6 18' },
+  sparkle: {
+    viewBox: LINE,
+    d: 'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z',
+  },
   smartphone: {
     viewBox: LINE,
     d: 'M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM11 18h2',

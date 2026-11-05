@@ -10,6 +10,12 @@ abstract final class AppTypography {
   static const String fontFamily = 'Inter';
   static const String fontPackage = 'flutter_shared';
 
+  /// Public website headline only (desktop).
+  static const TextStyle hero = TextStyle(
+    fontSize: 52,
+    fontWeight: FontWeight.w700,
+  );
+
   /// Rare hero/summary.
   static const TextStyle display = TextStyle(
     fontSize: 32,

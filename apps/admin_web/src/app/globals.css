@@ -9,9 +9,88 @@
 @layer base {
   html {
     color-scheme: light;
+    /* In-page links land below the sticky public header. */
+    scroll-padding-top: 5rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 
   body {
     @apply bg-surface-subtle font-sans text-body text-text-primary;
+  }
+}
+
+/*
+ * Public site motion (WEB-001). CSS only: content is never hidden when a
+ * browser lacks scroll-driven animations or JavaScript, and nothing moves
+ * for people who ask their device for reduced motion.
+ */
+@layer components {
+  .scroll-progress {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      /* Fades and lifts an element in as it enters the screen. Set
+         --reveal-index on siblings to stagger them. */
+      .reveal {
+        animation: reveal-up linear both;
+        animation-timeline: view();
+        animation-range: entry calc(var(--reveal-index, 0) * 6%) entry
+          calc(55% + var(--reveal-index, 0) * 6%);
+      }
+
+      .scroll-progress {
+        animation: grow-x linear both;
+        animation-timeline: scroll(root);
+      }
+
+      .header-elevate {
+        animation: header-elevate linear both;
+        animation-timeline: scroll(root);
+        animation-range: 0 6rem;
+      }
+    }
+
+    .float-slow {
+      animation: float-y 7s ease-in-out infinite;
+    }
+  }
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes grow-x {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes header-elevate {
+  to {
+    border-color: var(--color-border-default);
+    box-shadow: 0 0.75rem 2rem -1.25rem
+      color-mix(in srgb, var(--color-text-primary) 35%, transparent);
+  }
+}
+
+@keyframes float-y {
+  50% {
+    transform: translateY(-0.5rem);
   }
 }

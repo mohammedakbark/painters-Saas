@@ -64,6 +64,7 @@
 
   /* Sizes only; apply the weight from the design-system table with font-* utilities. */
   --text-*: initial;
+  --text-hero: 3.25rem;
   --text-display: 2rem;
   --text-heading1: 1.75rem;
   --text-heading2: 1.5rem;

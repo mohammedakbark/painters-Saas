@@ -25,14 +25,31 @@ describe('Home page', () => {
     const header = screen.getByRole('banner');
 
     expect(within(header).getByText(BRAND.productName)).toBeDefined();
-    expect(
-      within(header).getByRole('link', { name: 'Login' }).getAttribute('href'),
-    ).toBe('/sign-in');
+    // Login: the desktop button and the phone menu.
+    const logins = within(header).getAllByRole('link', { name: 'Login' });
+    expect(logins).toHaveLength(2);
+    for (const link of logins) {
+      expect(link.getAttribute('href')).toBe('/sign-in');
+    }
     expect(
       within(header)
         .getByRole('link', { name: /^Register/ })
         .getAttribute('href'),
     ).toBe('/sign-in');
+  });
+
+  it('links every header section to a section on the page', () => {
+    const { container } = render(<Home />);
+    const header = screen.getByRole('banner');
+
+    const anchors = within(header)
+      .getAllByRole('link')
+      .map((link) => link.getAttribute('href') ?? '')
+      .filter((href) => href.startsWith('#'));
+    expect(anchors.length).toBeGreaterThan(0);
+    for (const href of anchors) {
+      expect(container.querySelector(href)).not.toBeNull();
+    }
   });
 
   it('does not offer the platform admin sign-in', () => {
