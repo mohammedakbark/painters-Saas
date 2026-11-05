@@ -38,7 +38,7 @@ export const VISION =
   'Every independent paint shop can serve its painters and customers digitally, without building an app of its own.';
 
 export const MISSION =
-  'Give paint shops, painters and customers one dependable system for catalogues, orders, site spending, bills and credit, while every shop’s business stays its own.';
+  "Give paint shops, painters and customers one dependable system for catalogues, orders, site spending, bills and credit, while every shop's business stays its own.";
 
 export interface ProductOffer {
   id: string;
@@ -78,7 +78,7 @@ export const PRODUCTS: readonly ProductOffer[] = [
   },
   {
     id: 'shop-portal',
-    name: 'Shop Admin portal',
+    name: 'Shop Admin Portal',
     icon: 'monitor',
     audience: 'For running your shop from a computer',
     status: { label: 'Available now', tone: 'success' },
@@ -105,7 +105,7 @@ export const PAINTER_POINTS = [
   {
     icon: 'receipt',
     title: 'Separate bills from each shop',
-    text: 'Every shop’s orders, bills and payments stay separate and clear.',
+    text: "Every shop's orders, bills and payments stay separate and clear.",
   },
   {
     icon: 'wallet',
@@ -162,7 +162,7 @@ export const FAQS = [
   {
     question: 'Can other shops see my prices or my customers?',
     answer:
-      'No. Each shop’s customers, prices, orders, credit and bills are private to that shop.',
+      "No. Each shop's customers, prices, orders, credit and bills are private to that shop.",
   },
   {
     question: 'Who decides credit for a painter?',

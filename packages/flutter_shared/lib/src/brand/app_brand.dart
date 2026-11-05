@@ -6,10 +6,10 @@
 abstract final class AppBrand {
   static const String productName = 'Paint Shop Platform';
 
-  static const String adminPortalName = 'Admin portal';
+  static const String adminPortalName = 'Admin Portal';
 
   static const String adminPortalDescription =
-      'Shop Admin and Platform Super Admin portal.';
+      'Shop Admin Portal and Platform Admin console.';
 
   static const String shopAppName = 'Shop App';
 

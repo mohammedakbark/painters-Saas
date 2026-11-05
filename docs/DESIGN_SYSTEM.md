@@ -173,6 +173,24 @@ Prefer small composable components. Avoid universal components with dozens of un
 - Painter-only incentives must be distinct from public selling price and hidden from normal customers.
 - Bills should separate subtotal, discount, tax (if applicable), payments and outstanding amount.
 
+## 9a. Writing and capitalisation (product owner, 2026-11-05)
+
+Every piece of text in the web portal, both apps, emails and store listings follows these rules. Check them in every review.
+
+| Kind of text | Rule | Examples |
+|---|---|---|
+| Headings, buttons, labels, menu items, badges, tabs, messages | **Sentence case**: capitalise the first word and proper nouns only | "Add pack size", "Your shop's data stays yours", "Coming soon" |
+| Section labels shown in capitals | Write them in sentence case; capitals come from CSS (`uppercase`) only | source "How it works", shown as HOW IT WORKS |
+| Our apps and areas (proper nouns) | **Title case**, always the same words | Customer App, Shop App, Shop Admin Portal, Platform Admin, My Shops |
+| Account actions | "Sign in", "Sign out", "Register" (verbs); never "Login" or "Log in" as a button | "Sign in with your mobile" |
+| Company | **zero.byt** always lower case, even at the start of a sentence; handle **@zero.byt** | "Powered by zero.byt" |
+| Other brands and platforms | Their own spelling | WhatsApp, Instagram, LinkedIn, App Store, Google Play, Google Maps, Android, iPhone |
+| Abbreviations | Capitals | OTP, MRP, GST, PNG, CSV, ID |
+| Money and quantities | Rupee sign and Indian grouping; a space before units | ₹1,240 · 4 L · 20 kg |
+| Punctuation | Straight apostrophes (') as in the rest of the project; no full stop on buttons, labels or headings; full stops on sentences | "shop's", "doesn't", "Save price" |
+
+Paint brand, product and shade names are catalogue data: show them as entered.
+
 ## 10. Accessibility and change control
 
 Use semantic labels, keyboard navigation on web, readable contrast and scalable text. Do not communicate status by color alone. If a token changes, change `packages/design_tokens/tokens.json`, run `pnpm tokens:generate`, update this document, check affected components/screens and update `docs/PROJECT_STATE.md`. CI fails when the generated files are out of date (`pnpm tokens:check`) or when a screen uses a raw control (`pnpm ui:check`, §8).

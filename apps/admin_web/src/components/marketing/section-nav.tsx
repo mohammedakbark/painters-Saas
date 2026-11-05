@@ -101,7 +101,7 @@ export function MobileMenu() {
         <div className="mt-2 border-t border-border-default px-1 pt-3 pb-1">
           <ButtonLink href="/sign-in" variant="secondary" className="w-full">
             <Icon name="logIn" />
-            Login
+            Sign in
           </ButtonLink>
         </div>
       </nav>

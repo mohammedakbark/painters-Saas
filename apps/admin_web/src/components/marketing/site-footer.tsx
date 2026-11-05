@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { BrandMark } from '@/components/brand/brand-mark';
@@ -85,7 +86,7 @@ export function FinalCta() {
               className="inline-flex min-h-control items-center gap-2 rounded-button px-3 text-body-large font-semibold text-surface-default underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-surface-default"
             >
               <Icon name="logIn" />
-              Login
+              Sign in
             </Link>
           </div>
         </div>
@@ -179,10 +180,15 @@ function SocialButtons() {
 
 /** "Powered by zero.byt": the company behind the product. */
 function PoweredBy() {
+  // The zero.byt wordmark: transparent PNG, white version for dark surfaces.
   const chip = (
-    <span className="rounded-button bg-surface-default px-4 py-1.5 text-title font-bold tracking-tight text-text-primary">
-      {BRAND.companyName}
-    </span>
+    <Image
+      src="/brand/zerobyt-logo-light.png"
+      alt={BRAND.companyName}
+      width={936}
+      height={233}
+      className="h-6 w-auto"
+    />
   );
   return (
     <p className="inline-flex flex-wrap items-center gap-3 rounded-button border border-surface-default/15 bg-surface-default/5 py-2 pr-4 pl-5 text-body font-semibold text-brand-primary-soft">

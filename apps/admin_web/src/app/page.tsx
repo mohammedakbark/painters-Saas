@@ -17,7 +17,7 @@ import {
   SiteFooter,
 } from '@/components/marketing/site-footer';
 
-// Public home page (WEB-001): explains the platform and leads shops to Login
+// Public home page (WEB-001): explains the platform and leads shops to Sign in
 // and Register. Platform admins open /platform/sign-in directly; every area
 // authorizes on the server, so this page is static.
 export default function Home() {

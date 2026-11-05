@@ -7,7 +7,7 @@ import { HeroIllustration } from './illustrations';
 const HIGHLIGHTS: readonly { icon: IconName; text: string }[] = [
   { icon: 'smartphone', text: 'Sign in with your mobile number' },
   { icon: 'monitor', text: 'Works on phone and computer' },
-  { icon: 'lock', text: 'Your shop’s data stays private' },
+  { icon: 'lock', text: "Your shop's data stays private" },
 ];
 
 export function Hero() {
@@ -65,7 +65,7 @@ export function Hero() {
               className="inline-flex min-h-control items-center gap-2 rounded-button px-3 text-body-large font-semibold text-surface-default underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-surface-default"
             >
               <Icon name="logIn" />
-              Login
+              Sign in
             </Link>
           </div>
           <ul className="flex flex-wrap gap-x-6 gap-y-2">

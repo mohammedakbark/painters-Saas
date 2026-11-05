@@ -85,7 +85,7 @@ export function PaintersSection() {
       id="painters"
       eyebrow="For painters and contractors"
       title="Every site, every shop, one app"
-      intro="Painters often buy for one job from several shops. The Customer App keeps it all together while each shop’s bills stay separate."
+      intro="Painters often buy for one job from several shops. The Customer App keeps it all together while each shop's bills stay separate."
       aside={<Badge tone="neutral">Coming soon</Badge>}
       tone="subtle"
     >

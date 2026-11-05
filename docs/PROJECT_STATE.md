@@ -419,3 +419,4 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-05 | WEB-001 implemented: public home page with Login/Register; platform admin entry removed from it. |
 | 2026-11-05 | Trial palette from the product owner's brand poster (deep teal, sunflower, coral, cream) applied to all tokens (web + Flutter) and the home-page hero; one commit so it can be reverted. |
 | 2026-11-05 | Pill-shaped buttons everywhere (`component.button`). Home footer: company, legal and social placeholders and "Powered by zero.byt" (the platform is a product of zero.byt; `BRAND.companyName`). |
+| 2026-11-05 | zero.byt transparent PNG logo in the home footer. Writing and capitalisation rules for the whole project (DESIGN_SYSTEM §9a); home copy aligned ("Sign in", "Shop Admin Portal", straight apostrophes). |

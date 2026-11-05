@@ -8,7 +8,7 @@
 
 ## 1. Problem and goal
 
-`/` was a bare "choose how to sign in" page listing **Shop owners and staff** and **Platform admin**. The product owner (2026-11-05) asked for a product website first, in the style of a product launch page (reference: Shopify's "Introducing Shop" page): explain what the platform is, its vision and mission, everything it provides, then **Login** and **Register**. Shops should not see the platform admin entry; platform admins open `/platform/sign-in` directly.
+`/` was a bare "choose how to sign in" page listing **Shop owners and staff** and **Platform admin**. The product owner (2026-11-05) asked for a product website first, in the style of a product launch page (reference: Shopify's "Introducing Shop" page): explain what the platform is, its vision and mission, everything it provides, then **Sign in** and **Register**. Shops should not see the platform admin entry; platform admins open `/platform/sign-in` directly.
 
 This is the first of a UI/UX pass before Phase 2. Next: WEB-002 (sign-in and registration UX).
 
@@ -62,6 +62,11 @@ This is the first of a UI/UX pass before Phase 2. Next: WEB-002 (sign-in and reg
 - The platform is a product of **zero.byt** (`BRAND.companyName`, `BRAND.companyHandle` "@zero.byt" in `brand.json`). The footer shows a "Powered by zero.byt · @zero.byt" strip, as on the brand poster, and "A product of zero.byt."
 - Dark teal footer with columns Product (page sections), Company (About us, Contact us), Legal (Privacy policy, Terms of use) and round WhatsApp, Instagram and LinkedIn buttons.
 - **Placeholders:** none of these pages or accounts exist yet; they are added after the product name is confirmed. Each shows as a disabled link (`aria-disabled`, "coming soon" for screen readers). URLs live in `src/lib/site-links.ts`; setting one switches that link on.
+
+## 5c. Logo and wording (product owner, 2026-11-05)
+
+- The "Powered by" strip uses the zero.byt wordmark as a transparent PNG (`public/brand/zerobyt-logo-light.png`, white text with the green dot, for dark surfaces; `zerobyt-logo-dark.png` for light surfaces), 936 × 233.
+- Wording follows `docs/DESIGN_SYSTEM.md` §9a: the owner's "Login" is shown as **Sign in**, the verb used everywhere else in the project; "Shop Admin Portal" in title case like the other app names (`BRAND.adminPortalName` is now "Admin Portal"); straight apostrophes as in the rest of the project.
 
 ## 6. Tests
 

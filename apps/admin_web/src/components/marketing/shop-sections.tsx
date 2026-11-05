@@ -22,7 +22,7 @@ export function ProblemsSection() {
       id="why"
       eyebrow="Why"
       title="Built for how paint shops really work"
-      intro="Many shops still run on phone calls, WhatsApp messages and notebooks. That works, until it doesn’t."
+      intro="Many shops still run on phone calls, WhatsApp messages and notebooks. That works, until it doesn't."
     >
       <ul className="grid gap-4 desktop:grid-cols-3">
         {PROBLEMS.map((item, index) => (
@@ -90,7 +90,7 @@ export function StepsSection() {
       id="how-it-works"
       eyebrow="How it works"
       title="How a shop goes live"
-      intro="Getting your shop online takes four steps, all from the Shop Admin portal."
+      intro="Getting your shop online takes four steps, all from the Shop Admin Portal."
     >
       <ol className="grid gap-4 medium:grid-cols-2 desktop:grid-cols-4">
         {SHOP_STEPS.map((step, index) => (
@@ -123,7 +123,7 @@ export function PrivacySection() {
     <MarketingSection
       id="privacy"
       eyebrow="Trust"
-      title="Your shop’s data stays yours"
+      title="Your shop's data stays yours"
       tone="subtle"
     >
       <ul className="grid gap-4 desktop:grid-cols-3">

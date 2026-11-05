@@ -5,7 +5,7 @@ import { Icon } from '@/components/ui/icon';
 import { MobileMenu, SectionNav } from './section-nav';
 
 /**
- * Public site header: brand, section links, Login and Register. It is
+ * Public site header: brand, section links, Sign in and Register. It is
  * translucent at the top and gains a shadow and a progress bar as the page
  * scrolls (CSS scroll-driven, see globals.css).
  */
@@ -30,7 +30,7 @@ export function SiteHeader() {
           <div className="hidden medium:block">
             <ButtonLink href="/sign-in" variant="secondary" className="px-4">
               <Icon name="logIn" />
-              Login
+              Sign in
             </ButtonLink>
           </div>
           <ButtonLink href="/sign-in" className="px-4">

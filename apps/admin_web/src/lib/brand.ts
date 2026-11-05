@@ -4,8 +4,8 @@
 
 export const BRAND = {
   productName: 'Paint Shop Platform',
-  adminPortalName: 'Admin portal',
-  adminPortalDescription: 'Shop Admin and Platform Super Admin portal.',
+  adminPortalName: 'Admin Portal',
+  adminPortalDescription: 'Shop Admin Portal and Platform Admin console.',
   shopAppName: 'Shop App',
   customerAppName: 'Customer App',
   companyName: 'zero.byt',

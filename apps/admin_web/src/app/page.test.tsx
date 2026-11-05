@@ -11,7 +11,7 @@ describe('Home page', () => {
     const products = screen.getByRole('region', {
       name: 'One platform, three ways in',
     });
-    for (const name of ['Customer App', 'Shop App', 'Shop Admin portal']) {
+    for (const name of ['Customer App', 'Shop App', 'Shop Admin Portal']) {
       expect(
         within(products).getByRole('heading', { level: 3, name }),
       ).toBeDefined();
@@ -20,13 +20,13 @@ describe('Home page', () => {
     expect(screen.getByRole('heading', { name: 'Our mission' })).toBeDefined();
   });
 
-  it('leads shops to Login and Register in the header', () => {
+  it('leads shops to Sign in and Register in the header', () => {
     render(<Home />);
     const header = screen.getByRole('banner');
 
     expect(within(header).getByText(BRAND.productName)).toBeDefined();
-    // Login: the desktop button and the phone menu.
-    const logins = within(header).getAllByRole('link', { name: 'Login' });
+    // Sign in: the desktop button and the phone menu.
+    const logins = within(header).getAllByRole('link', { name: 'Sign in' });
     expect(logins).toHaveLength(2);
     for (const link of logins) {
       expect(link.getAttribute('href')).toBe('/sign-in');
@@ -95,9 +95,8 @@ describe('Home page', () => {
     expect(
       within(footer).getByText('Powered by', { exact: false }),
     ).toBeDefined();
-    expect(
-      within(footer).getAllByText(BRAND.companyName).length,
-    ).toBeGreaterThan(0);
+    const logo = within(footer).getByRole('img', { name: BRAND.companyName });
+    expect(logo.getAttribute('src')).toContain('zerobyt-logo-light');
     expect(within(footer).getByText(BRAND.companyHandle)).toBeDefined();
   });
 });
