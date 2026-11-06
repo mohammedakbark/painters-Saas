@@ -4,6 +4,8 @@ import {
   parseCatalogueListing,
   parseOwnPackRows,
   parsePackPrice,
+  parseQuickAdd,
+  QUICK_ADD_NOTHING,
 } from './forms';
 
 describe('pack price rows', () => {
@@ -131,5 +133,70 @@ describe('allValues', () => {
     data.set('$ACTION_ID_abc', '');
     data.set('image', new File(['x'], 'x.png'));
     expect(allValues(data)).toEqual({ name: 'Primer' });
+  });
+});
+
+describe('quick add (CAT-004)', () => {
+  const products = [
+    { catalogueProductId: 'p1', name: 'Silk Emulsion', packIds: ['a', 'b'] },
+    { catalogueProductId: 'p2', name: 'Wall Putty', packIds: ['c'] },
+    { catalogueProductId: 'p3', name: 'Primer', packIds: ['d'] },
+  ];
+
+  it('adds only the pack sizes with a price, as available', () => {
+    const result = parseQuickAdd(
+      { 'price-a': '450', 'mrp-a': '500', 'price-c': '1,200.50' },
+      products,
+    );
+    expect(result).toEqual({
+      ok: true,
+      body: [
+        {
+          catalogueProductId: 'p1',
+          name: 'Silk Emulsion',
+          packs: [
+            {
+              cataloguePackId: 'a',
+              pricePaise: 45000,
+              mrpPaise: 50000,
+              available: true,
+            },
+          ],
+        },
+        {
+          catalogueProductId: 'p2',
+          name: 'Wall Putty',
+          packs: [
+            {
+              cataloguePackId: 'c',
+              pricePaise: 120050,
+              mrpPaise: null,
+              available: true,
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  it('checks every field before adding anything', () => {
+    const result = parseQuickAdd(
+      { 'price-a': '600', 'mrp-a': '500', 'mrp-d': '300' },
+      products,
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.fieldErrors['price-a']).toBe(
+        'The price cannot be more than the MRP.',
+      );
+      expect(result.fieldErrors['price-d']).toBeDefined();
+    }
+  });
+
+  it('asks for at least one price', () => {
+    expect(parseQuickAdd({}, products)).toEqual({
+      ok: false,
+      fieldErrors: { form: QUICK_ADD_NOTHING },
+    });
   });
 });

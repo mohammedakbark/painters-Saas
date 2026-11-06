@@ -35,6 +35,8 @@ import {
   parseCatalogueListing,
   parseOwnPackRows,
   parsePackPrice,
+  parseQuickAdd,
+  type QuickAddProduct,
 } from '@/lib/shop-catalogue/forms';
 
 /*
@@ -108,6 +110,51 @@ export async function addCatalogueProductAction(
     return failure(error, values, { packs: 'form' });
   }
   redirect(`${productPath(shopId, productId)}?added=1`);
+}
+
+/**
+ * Quick add (CAT-004): every product on the page that has a price entered,
+ * in one submit. Nothing is added while any field is invalid; then products
+ * are added one by one, and any the API refuses are named.
+ */
+export async function addCatalogueProductsAction(
+  shopId: string,
+  products: QuickAddProduct[],
+  _previous: CatalogueFormState,
+  formData: FormData,
+): Promise<CatalogueFormState> {
+  const values = allValues(formData);
+  const parsed = parseQuickAdd(values, products);
+  if (!parsed.ok) {
+    return { values, fieldErrors: parsed.fieldErrors };
+  }
+  const token = await requireShopSession();
+  const failed: string[] = [];
+  let added = 0;
+  for (const listing of parsed.body) {
+    try {
+      await addShopProduct(token, shopId, {
+        source: 'catalogue',
+        catalogueProductId: listing.catalogueProductId,
+        packs: listing.packs,
+      });
+      added += 1;
+    } catch (error) {
+      const state = failure(error, values);
+      if (state.error === NOT_ALLOWED) {
+        return state;
+      }
+      failed.push(listing.name);
+    }
+  }
+  if (failed.length > 0) {
+    refresh();
+    return {
+      values,
+      error: `${added > 0 ? `${added} added. ` : ''}Not added: ${failed.join(', ')}. Check their prices and try again.`,
+    };
+  }
+  redirect(`/shops/${encodeURIComponent(shopId)}/catalogue?added=${added}`);
 }
 
 /** Reads the details fields of an own product (add and edit forms). */

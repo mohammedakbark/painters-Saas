@@ -1,10 +1,8 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { PageLoading } from '@/components/layout/page-loading';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ButtonLink } from '@/components/ui/button-link';
-import { Icon } from '@/components/ui/icon';
 import { Card } from '@/components/ui/card';
 import { Field } from '@/components/ui/field';
 import { PageHeader } from '@/components/ui/page-header';
@@ -14,8 +12,11 @@ import {
   browseBrandProducts,
   listCatalogueBrands,
 } from '@/lib/api/shop-catalogue';
+import { getShopOnboarding } from '@/lib/api/shop-profile';
 import { requireShopAccess, requireShopSession } from '@/lib/auth/shop-access';
+import { addCatalogueProductsAction } from '../actions';
 import { backToProducts, catalogueBase } from '../catalogue-parts';
+import { QuickAddForm } from './quick-add-form';
 
 export const metadata: Metadata = { title: 'Add from brand catalogue' };
 
@@ -71,6 +72,11 @@ async function AddFromCatalogue({
     q,
     cursor,
   });
+  const unlisted = page.items.filter((item) => !item.listedProductId);
+  const listed = page.items.filter((item) => item.listedProductId);
+  const products = (await getShopOnboarding(token, shopId)).items.find(
+    (item) => item.key === 'products',
+  )?.progress;
   const nextHref = page.nextCursor
     ? `${base}/add?${new URLSearchParams({
         brandId: brand.id,
@@ -84,8 +90,14 @@ async function AddFromCatalogue({
       <PageHeader
         back={backToProducts(shopId)}
         title="Add from brand catalogue"
-        description="Choose a product, then tick the pack sizes you sell and enter your prices."
+        description="Pick a brand, type your price for each pack size you sell, and add them all at once."
       />
+      {products && products.current < products.required ? (
+        <ProductProgress
+          current={products.current}
+          required={products.required}
+        />
+      ) : null}
       <form
         method="get"
         action={`${base}/add`}
@@ -129,50 +141,66 @@ async function AddFromCatalogue({
           }
         />
       ) : (
-        <ul className="grid gap-4 desktop:grid-cols-2">
-          {page.items.map(({ product, listedProductId }) => (
-            <Card
-              as="li"
-              key={product.id}
-              className="flex flex-col gap-4 p-5 medium:flex-row medium:items-center medium:justify-between"
-            >
-              <div className="flex min-w-0 flex-col gap-1">
-                <h2 className="text-title font-semibold text-text-primary">
-                  {product.name}
-                </h2>
-                <p className="text-body text-text-secondary">
-                  {product.category.name} ·{' '}
-                  {product.packs.map((pack) => pack.label).join(', ')}
-                </p>
-              </div>
-              {listedProductId ? (
-                <div className="flex shrink-0 flex-wrap items-center gap-2">
-                  <Badge tone="success">In your catalogue</Badge>
-                  <ButtonLink
-                    href={`${base}/products/${listedProductId}`}
-                    variant="tertiary"
-                    aria-label={`Edit prices of ${product.name}`}
-                  >
-                    Edit prices
-                  </ButtonLink>
-                </div>
-              ) : (
-                <ButtonLink
-                  href={`${base}/add/${product.id}`}
-                  variant="secondary"
-                  aria-label={`Choose ${product.name}`}
-                  className="group shrink-0"
-                >
-                  Choose
-                  <Icon
-                    name="arrowRight"
-                    className="size-4 transition-transform group-hover:translate-x-0.5"
-                  />
-                </ButtonLink>
+        <>
+          {unlisted.length > 0 ? (
+            <QuickAddForm
+              action={addCatalogueProductsAction.bind(
+                null,
+                shopId,
+                unlisted.map(({ product }) => ({
+                  catalogueProductId: product.id,
+                  name: product.name,
+                  packIds: product.packs.map((pack) => pack.id),
+                })),
               )}
-            </Card>
-          ))}
-        </ul>
+              rows={unlisted.map(({ product }) => ({
+                catalogueProductId: product.id,
+                name: product.name,
+                categoryName: product.category.name,
+                packs: product.packs.map((pack) => ({
+                  id: pack.id,
+                  label: pack.label,
+                })),
+              }))}
+            />
+          ) : null}
+          {listed.length > 0 ? (
+            <section
+              aria-labelledby="listed-heading"
+              className="flex flex-col gap-3"
+            >
+              <h2 id="listed-heading" className="text-heading3 font-semibold">
+                Already in your catalogue
+              </h2>
+              <ul className="grid gap-3 desktop:grid-cols-2">
+                {listed.map(({ product, listedProductId }) => (
+                  <Card
+                    as="li"
+                    key={product.id}
+                    className="flex items-center justify-between gap-3 px-5 py-3"
+                  >
+                    <span className="flex min-w-0 flex-col">
+                      <span className="truncate font-semibold text-text-primary">
+                        {product.name}
+                      </span>
+                      <span className="text-caption text-text-secondary">
+                        {product.category.name}
+                      </span>
+                    </span>
+                    <ButtonLink
+                      href={`${base}/products/${listedProductId}`}
+                      variant="tertiary"
+                      aria-label={`Edit prices of ${product.name}`}
+                      className="shrink-0"
+                    >
+                      Edit prices
+                    </ButtonLink>
+                  </Card>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+        </>
       )}
       {nextHref ? (
         <div>
@@ -182,5 +210,46 @@ async function AddFromCatalogue({
         </div>
       ) : null}
     </div>
+  );
+}
+
+/** Progress toward the products a shop needs before review (D-012). */
+function ProductProgress({
+  current,
+  required,
+}: {
+  current: number;
+  required: number;
+}) {
+  const percent = Math.min(100, Math.round((current / required) * 100));
+  return (
+    <Card
+      as="section"
+      aria-labelledby="progress-heading"
+      className="flex flex-col gap-3 p-5"
+    >
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 id="progress-heading" className="text-title font-semibold">
+          {current} of {required} products added
+        </h2>
+        <p className="text-body text-text-secondary">
+          Your shop needs at least {required} products before it can be
+          reviewed.
+        </p>
+      </div>
+      <div
+        role="progressbar"
+        aria-labelledby="progress-heading"
+        aria-valuemin={0}
+        aria-valuemax={required}
+        aria-valuenow={current}
+        className="h-2 overflow-hidden rounded-badge bg-border-default"
+      >
+        <div
+          className="h-full rounded-badge bg-brand-primary"
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+    </Card>
   );
 }

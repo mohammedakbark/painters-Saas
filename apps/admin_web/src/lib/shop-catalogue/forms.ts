@@ -158,3 +158,65 @@ export function parseOwnPackRows(
   }
   return { ok: true, body: packs };
 }
+
+/** A product on the quick-add page and the ids of its pack sizes. */
+export interface QuickAddProduct {
+  catalogueProductId: string;
+  name: string;
+  packIds: readonly string[];
+}
+
+export interface QuickAddListing {
+  catalogueProductId: string;
+  name: string;
+  packs: (PackPrice & { cataloguePackId: string })[];
+}
+
+export const QUICK_ADD_NOTHING = 'Enter a price for at least one pack size.';
+
+/**
+ * The quick-add page (CAT-004): every pack size with a price (or an MRP)
+ * entered is sold, available; empty pack sizes and products are skipped.
+ * All fields are checked before anything is added.
+ */
+export function parseQuickAdd(
+  values: Record<string, string>,
+  products: readonly QuickAddProduct[],
+): FormResult<QuickAddListing[]> {
+  const errors: FieldErrors = {};
+  const listings: QuickAddListing[] = [];
+  for (const product of products) {
+    const packs: QuickAddListing['packs'] = [];
+    for (const id of product.packIds) {
+      const fields = packFields(id);
+      const filled =
+        (values[fields.price] ?? '').trim() !== '' ||
+        (values[fields.mrp] ?? '').trim() !== '';
+      if (!filled) {
+        continue;
+      }
+      const price = parsePackPrice(
+        { ...values, [fields.available]: 'on' },
+        id,
+        errors,
+      );
+      if (price) {
+        packs.push({ cataloguePackId: id, ...price });
+      }
+    }
+    if (packs.length > 0) {
+      listings.push({
+        catalogueProductId: product.catalogueProductId,
+        name: product.name,
+        packs,
+      });
+    }
+  }
+  if (Object.keys(errors).length > 0) {
+    return { ok: false, fieldErrors: errors };
+  }
+  if (listings.length === 0) {
+    return { ok: false, fieldErrors: { form: QUICK_ADD_NOTHING } };
+  }
+  return { ok: true, body: listings };
+}

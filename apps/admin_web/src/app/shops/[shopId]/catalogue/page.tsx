@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { PageLoading } from '@/components/layout/page-loading';
+import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { ButtonLink } from '@/components/ui/button-link';
 import {
@@ -95,7 +96,9 @@ async function Catalogue({
   const { shopId } = await params;
   const shop = await requireShopAccess(shopId);
   const token = await requireShopSession();
-  const state = readParams(await searchParams);
+  const search = await searchParams;
+  const state = readParams(search);
+  const added = Number(text(search.added));
   const data = await listPackRows(token, shopId, state);
   const canEdit = shop.myRole === 'MASTER';
   const base = catalogueBase(shopId);
@@ -314,6 +317,15 @@ async function Catalogue({
 
   return (
     <div className="flex flex-col gap-6">
+      {Number.isInteger(added) && added > 0 ? (
+        <Alert
+          tone="success"
+          title={added === 1 ? '1 product added' : `${added} products added`}
+        >
+          They are on sale with the prices you entered. Change availability or
+          prices from the table.
+        </Alert>
+      ) : null}
       <PageHeader
         title="Products"
         description="The products you sell, with a price and availability for each pack size."

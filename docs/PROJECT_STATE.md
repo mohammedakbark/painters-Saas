@@ -33,6 +33,7 @@
 | DS-004: Required-field marker (red asterisk, spoken "required", one note per form) on web and Flutter forms | **Complete (local)** | `docs/features/DS-004-required-fields.md` |
 | CAT-003: Catalogue table (one row per pack, Litres/Kilograms/Pieces tabs, a filter per column, pagination, sort) and distinct status colours | **Complete for the shop admin web (local)**; platform admin, Shop App and Customer App next, in that order | `docs/features/CAT-003-catalogue-table.md` |
 | WEB-005: Console navigation v2 (collapsible sidebar, shop switcher, account menu) and the catalogue row ⋯ menu with archive confirmation | **Complete (local; Chrome)** | `docs/features/WEB-005-console-navigation-and-row-menu.md` |
+| CAT-004: Quick add: prices for many brand products in one form, progress toward 10 products | **Complete (local; Chrome)** | `docs/features/CAT-004-quick-add-products.md` |
 | DS-003: SevenPalette name and shade-card fan logo (D-040): names, logo files, web and Flutter brand mark, favicon, launcher icons | **Complete (local)**; Android emulator not run | `docs/features/DS-003-product-name-and-logo.md` |
 
 **Git (D-035):** every feature above is in `dev` (fast-forward merged and pushed on 2026-11-04; one commit per feature, `3697e4f` … `9c7885b`); the local per-feature branches were deleted. The first GitHub Actions run on `dev` (`8497b81`) passed all three jobs (TypeScript, Flutter, repository checks). The old remote branch `feat/shp-002-shop-app-sign-in` is still on GitHub (its commits are in `dev`); the product owner can delete it. From now on each finished feature is merged into `dev` and pushed the same way. `main` still holds only `c56f614` (project setup) until a release.
@@ -352,7 +353,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 
 ## 7. Next actions
 
-1. **UI/UX pass (product owner, 2026-11-05):** WEB-001 to WEB-004, DS-003, DS-004, SHP-006 and CAT-003 (shop catalogue table) done. Next, in the owner's order: shop web items planned on 2026-11-06 (FEATURE_CATALOG §4: guided first products; dashboard with orders; navigation v2 and row menu done in WEB-005), platform admin web tables, then Shop App mobile list patterns, then the Customer App. Owner: domains, trademark check, bundle IDs (question 41).
+1. **UI/UX pass (product owner, 2026-11-05):** WEB-001 to WEB-004, DS-003, DS-004, SHP-006 and CAT-003 (shop catalogue table) done. Next, in the owner's order: shop web items planned on 2026-11-06 (FEATURE_CATALOG §4: dashboard with orders; navigation v2, row menu and guided first products done in WEB-005 and CAT-004), platform admin web tables, then Shop App mobile list patterns, then the Customer App. Owner: domains, trademark check, bundle IDs (question 41).
 2. **Next phase: plan the Customer App foundation** with the product owner: CUS-001 sign-up and profile (customer type, D-036), CUS-002 Find shops and My Shops (D-037, D-038), CUS-003 shop storefront. Open before ordering: questions 30–32 (order approval, pickup/delivery, fulfilment).
 3. **Product owner checks:** try the platform **Reviews** decision form in Chrome as the platform admin; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
 4. **Hardening before any hosted environment:** questions 49 and 51.
@@ -442,3 +443,4 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-06 | Owner's admin-web guidance recorded: FEATURE_CATALOG §4 planned rows (navigation v2, business dashboard, guided first products, row action menu), ERP modules as a later phase, D-042, open questions 54–56. |
 | 2026-11-06 | Instagram: finished media (PNG/MP4) now live only in the marketing folder `C:\Users\faiza\Downloads\New folder` (brand.json `mediaDir`), one `day-XX/` per day plus a generated README index; media removed from git and ignored; the repo keeps sources and captions. |
 | 2026-11-06 | WEB-005: collapsible sidebar with shop switcher and account menu; ⋯ row menu (edit, availability, archive with confirmation) on the catalogue; new `Menu`, `ConfirmDialog`, `IconButton`. |
+| 2026-11-06 | CAT-004: "Add from brand catalogue" became a quick-add form (a price means "sell this pack size"), with progress toward 10 products and a sticky "Add N products" bar. Local test shop "Sree Colours" (test number 3) created for checks. |
