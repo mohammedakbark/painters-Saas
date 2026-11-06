@@ -21,6 +21,14 @@ const ICONS = {
   arrowRight: { viewBox: LINE, d: 'M5 12h14M13 6l6 6-6 6' },
   arrowLeft: { viewBox: LINE, d: 'M19 12H5M11 6l-6 6 6 6' },
   chevronRight: { viewBox: LINE, d: 'M9 6l6 6-6 6' },
+  chevronsUpDown: { viewBox: LINE, d: 'M8 9l4-4 4 4M8 15l4 4 4-4' },
+  moreHorizontal: {
+    viewBox: LINE,
+    d: 'M6 12a1 1 0 1 0-2 0 1 1 0 0 0 2 0zM13 12a1 1 0 1 0-2 0 1 1 0 0 0 2 0zM20 12a1 1 0 1 0-2 0 1 1 0 0 0 2 0z',
+  },
+  archive: { viewBox: LINE, d: 'M3 4h18v4H3zM5 8v12h14V8M10 12h4' },
+  plus: { viewBox: LINE, d: 'M12 5v14M5 12h14' },
+  panelLeft: { viewBox: LINE, d: 'M4 4h16v16H4zM9 4v16' },
   home: {
     viewBox: LINE,
     d: 'M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z',

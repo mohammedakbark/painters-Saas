@@ -2,7 +2,8 @@ import type { ButtonHTMLAttributes, Ref } from 'react';
 import { cn } from '@/lib/cn';
 import { Spinner } from './spinner';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'tertiary';
+export type ButtonVariant =
+  'primary' | 'secondary' | 'tertiary' | 'destructive';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
@@ -27,6 +28,9 @@ const VARIANTS: Record<ButtonVariant, string> = {
   /** Quiet text action, e.g. "Change number". */
   tertiary:
     'text-button-tertiary-foreground hover:bg-button-tertiary-background-hover',
+  /** Confirms a destructive action, e.g. in `ConfirmDialog`. */
+  destructive:
+    'bg-button-destructive-background text-button-destructive-foreground hover:bg-button-destructive-background-hover',
 };
 
 /** Button styles, shared with ButtonLink so links that act as actions look the same. */

@@ -1,4 +1,3 @@
-import { NavLinks } from '@/components/layout/nav-links';
 import { Badge } from '@/components/ui/badge';
 import type { ShopProduct } from '@/lib/api/shop-catalogue';
 
@@ -6,21 +5,6 @@ import type { ShopProduct } from '@/lib/api/shop-catalogue';
 
 export const catalogueBase = (shopId: string) =>
   `/shops/${encodeURIComponent(shopId)}/catalogue`;
-
-/** Products / Shades tabs. */
-export function CatalogueTabs({ shopId }: { shopId: string }) {
-  const base = catalogueBase(shopId);
-  return (
-    <NavLinks
-      label="Catalogue sections"
-      orientation="tabs"
-      items={[
-        { href: base, label: 'Products', exact: true },
-        { href: `${base}/shades`, label: 'Shades' },
-      ]}
-    />
-  );
-}
 
 /** Back link of the catalogue sub-pages, for PageHeader `back`. */
 export const backToProducts = (shopId: string) => ({

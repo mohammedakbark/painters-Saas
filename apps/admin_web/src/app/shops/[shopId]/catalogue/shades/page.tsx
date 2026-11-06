@@ -24,10 +24,10 @@ import {
   removeOwnShadeAction,
   setFavouriteShadeAction,
 } from '../actions';
-import { CatalogueTabs, catalogueBase } from '../catalogue-parts';
+import { catalogueBase } from '../catalogue-parts';
 import { Panel } from '@/components/ui/card';
 
-export const metadata: Metadata = { title: 'Shades · Catalogue' };
+export const metadata: Metadata = { title: 'Shades' };
 
 export default function ShadesPage(
   props: PageProps<'/shops/[shopId]/catalogue/shades'>,
@@ -69,10 +69,9 @@ async function Shades({
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title="Catalogue"
+        title="Shades"
         description="Mark the brand shades you use most, and add shade codes of your own."
       />
-      <CatalogueTabs shopId={shopId} />
       <p className="text-body text-text-secondary">
         Colours on screen are indicative only. Customers and staff should always
         go by the shade code and the printed shade card.

@@ -12,6 +12,8 @@ export interface NavItem {
   exact?: boolean;
   /** Shown before the label in the console navigation. */
   icon?: IconName;
+  /** Not active under this path, e.g. Products is not active on Shades. */
+  exclude?: string;
 }
 
 const LIST = {
@@ -48,11 +50,14 @@ export function NavLinks({
   items,
   orientation,
   label = 'Main',
+  collapsed = false,
 }: {
   items: readonly NavItem[];
   orientation: keyof typeof LIST;
   /** Accessible name of the navigation landmark. */
   label?: string;
+  /** Vertical only: icons, with the label as a tooltip. */
+  collapsed?: boolean;
 }) {
   const pathname = usePathname();
   const styles = ITEM[orientation];
@@ -60,16 +65,24 @@ export function NavLinks({
     <nav aria-label={label}>
       <ul className={LIST[orientation]}>
         {items.map((item) => {
-          const active = item.exact
-            ? pathname === item.href
-            : pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const excluded =
+            item.exclude !== undefined &&
+            (pathname === item.exclude ||
+              pathname.startsWith(`${item.exclude}/`));
+          const active =
+            !excluded &&
+            (item.exact
+              ? pathname === item.href
+              : pathname === item.href || pathname.startsWith(`${item.href}/`));
           return (
             <li key={item.href} className="shrink-0">
               <Link
                 href={item.href}
                 aria-current={active ? 'page' : undefined}
+                title={collapsed ? item.label : undefined}
                 className={cn(
                   styles.base,
+                  collapsed && 'justify-center px-0',
                   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary',
                   active ? styles.active : styles.idle,
                 )}
@@ -77,7 +90,9 @@ export function NavLinks({
                 {item.icon ? (
                   <Icon name={item.icon} className="size-5" />
                 ) : null}
-                {item.label}
+                <span className={collapsed ? 'sr-only' : undefined}>
+                  {item.label}
+                </span>
               </Link>
             </li>
           );

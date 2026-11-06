@@ -67,7 +67,7 @@ export function DataTable<T>({
             ))}
           </tr>
           {hasFilters ? (
-            <tr className="mb-4 grid grid-cols-1 gap-3 rounded-card border border-card-border bg-card-background p-4 desktop:mb-0 desktop:table-row desktop:rounded-none desktop:border-0 desktop:bg-surface-subtle desktop:p-0">
+            <tr className="mb-4 grid grid-cols-2 gap-3 [&>td:first-child]:col-span-2 rounded-card border border-card-border bg-card-background p-4 desktop:mb-0 desktop:table-row desktop:rounded-none desktop:border-0 desktop:bg-surface-subtle desktop:p-0">
               {columns.map((column) => (
                 <td
                   key={column.key}

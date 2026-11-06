@@ -30,6 +30,7 @@ async function ShopConsole({
   const { shopId } = await params;
   const shop = await requireShopAccess(shopId);
   const me = await getShopUser();
+  const base = `/shops/${shop.id}`;
   const account = me.phone
     ? formatIndianMobile(me.phone)
     : (me.displayName ?? 'Shop account');
@@ -39,21 +40,35 @@ async function ShopConsole({
       area={{
         caption: 'Shop',
         name: shop.name,
-        switchTo: { href: '/shops', label: 'All shops' },
+        switcher: {
+          items: me.shopMemberships.map((membership) => ({
+            href: `/shops/${membership.shopId}`,
+            label: membership.shopName,
+            current: membership.shopId === shop.id,
+          })),
+          links: [
+            { href: '/shops', label: 'All my shops', icon: 'store' },
+            { href: '/shops/new', label: 'Register a shop', icon: 'plus' },
+          ],
+        },
       }}
       nav={[
+        { href: base, label: 'Overview', exact: true, icon: 'home' },
         {
-          href: `/shops/${shop.id}`,
-          label: 'Overview',
-          exact: true,
-          icon: 'home',
-        },
-        { href: `/shops/${shop.id}/profile`, label: 'Profile', icon: 'store' },
-        {
-          href: `/shops/${shop.id}/catalogue`,
-          label: 'Catalogue',
+          href: `${base}/catalogue`,
+          label: 'Products',
           icon: 'tag',
+          exclude: `${base}/catalogue/shades`,
         },
+        { href: `${base}/catalogue/shades`, label: 'Shades', icon: 'palette' },
+      ]}
+      accountLinks={[
+        {
+          href: `${base}/profile`,
+          label: 'Shop details and photo',
+          icon: 'store',
+        },
+        { href: '/shops', label: 'My shops', icon: 'home' },
       ]}
       account={account}
       signOutAction={signOutOfShop}

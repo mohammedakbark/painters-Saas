@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { AppShell } from '@/components/layout/app-shell';
 import { NavLinks } from '@/components/layout/nav-links';
@@ -100,13 +100,23 @@ describe('NavLinks', () => {
 });
 
 describe('AppShell', () => {
-  it('shows the area, the way to switch area, the account and sign out', () => {
+  it('shows the shop switcher, the account menu and the navigation', () => {
     render(
       <AppShell
         area={{
           caption: 'Shop',
           name: 'ABC Paints',
-          switchTo: { href: '/shops', label: 'All shops' },
+          switcher: {
+            items: [
+              { href: '/shops/shop-1', label: 'ABC Paints', current: true },
+              {
+                href: '/shops/shop-2',
+                label: 'Lakshmi Paints',
+                current: false,
+              },
+            ],
+            links: [{ href: '/shops', label: 'All my shops', icon: 'store' }],
+          },
         }}
         nav={[
           {
@@ -117,22 +127,75 @@ describe('AppShell', () => {
           },
         ]}
         account="+91 99999 00001"
+        accountLinks={[
+          {
+            href: '/shops/shop-1/profile',
+            label: 'Shop details and photo',
+            icon: 'store',
+          },
+        ]}
         signOutAction={async () => {}}
       >
         <p>Content</p>
       </AppShell>,
     );
-    expect(screen.getAllByText('ABC Paints').length).toBeGreaterThan(0);
+    expect(screen.getByRole('main').textContent).toBe('Content');
+    expect(
+      screen.getAllByRole('link', { name: 'Overview' }).length,
+    ).toBeGreaterThan(0);
+
+    // Shop switcher (desktop sidebar copy).
+    const [switcher] = screen.getAllByRole('button', {
+      name: 'Shop: ABC Paints. Switch',
+    });
+    fireEvent.click(switcher!);
     expect(
       screen
-        .getAllByRole('link', { name: /All shops/ })[0]
-        ?.getAttribute('href'),
-    ).toBe('/shops');
-    expect(screen.getByText('+91 99999 00001')).toBeDefined();
+        .getByRole('menuitem', { name: 'Lakshmi Paints' })
+        .getAttribute('href'),
+    ).toBe('/shops/shop-2');
     expect(
-      screen.getAllByRole('button', { name: 'Sign out' }).length,
-    ).toBeGreaterThan(0);
-    expect(screen.getByRole('main').textContent).toBe('Content');
+      screen.getByRole('menuitem', { name: 'All my shops' }),
+    ).toBeDefined();
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(
+      screen.queryByRole('menuitem', { name: 'Lakshmi Paints' }),
+    ).toBeNull();
+
+    // Account menu.
+    const [accountButton] = screen.getAllByRole('button', {
+      name: 'Account: +91 99999 00001',
+    });
+    fireEvent.click(accountButton!);
+    expect(
+      screen.getByRole('menuitem', { name: 'Shop details and photo' }),
+    ).toBeDefined();
+    expect(screen.getByRole('menuitem', { name: 'Sign out' })).toBeDefined();
+  });
+
+  it('collapses the sidebar to icons and remembers it', () => {
+    render(
+      <AppShell
+        area={{ caption: 'Admin area', name: 'Platform Admin' }}
+        nav={[
+          { href: '/platform', label: 'Overview', exact: true, icon: 'home' },
+        ]}
+        account="admin@example.com"
+        signOutAction={async () => {}}
+      >
+        <p>Content</p>
+      </AppShell>,
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Collapse the sidebar' }),
+    );
+    expect(
+      screen.getByRole('button', { name: 'Expand the sidebar' }),
+    ).toBeDefined();
+    expect(window.localStorage.getItem('sevenpalette.sidebar.collapsed')).toBe(
+      '1',
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Expand the sidebar' }));
   });
 });
 

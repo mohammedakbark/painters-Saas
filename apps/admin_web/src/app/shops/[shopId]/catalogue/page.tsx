@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { PageLoading } from '@/components/layout/page-loading';
-import { ActionButtonForm } from '@/components/shop-catalogue/shop-catalogue-forms';
 import { Badge } from '@/components/ui/badge';
 import { ButtonLink } from '@/components/ui/button-link';
 import {
@@ -25,10 +24,11 @@ import {
 } from '@/lib/api/shop-catalogue';
 import { requireShopAccess, requireShopSession } from '@/lib/auth/shop-access';
 import { formatRupees } from '@/lib/money';
-import { setPackAvailableAction } from './actions';
-import { CatalogueTabs, catalogueBase } from './catalogue-parts';
+import { setPackAvailableAction, setShopProductStatusAction } from './actions';
+import { RowActions } from './row-actions';
+import { catalogueBase } from './catalogue-parts';
 
-export const metadata: Metadata = { title: 'Catalogue' };
+export const metadata: Metadata = { title: 'Products' };
 
 const FORM = 'catalogue-filters';
 
@@ -276,29 +276,33 @@ async function Catalogue({
           <Badge tone="warning">Not available</Badge>
         ),
     },
-    ...(canEdit && state.status === 'ACTIVE'
+    ...(canEdit
       ? [
           {
             key: 'action',
-            header: 'Action',
+            header: 'Actions',
             align: 'end' as const,
-            width: 'w-40',
-            cellClassName: 'whitespace-nowrap',
+            width: 'w-24',
             cell: (row: PackRow) => (
-              <ActionButtonForm
-                action={setPackAvailableAction.bind(
+              <RowActions
+                productName={row.productName}
+                sizeLabel={row.sizeLabel}
+                editHref={`${base}/products/${row.productId}`}
+                available={row.available}
+                archived={row.productStatus === 'ARCHIVED'}
+                toggleAvailable={setPackAvailableAction.bind(
                   null,
                   shopId,
                   row.productId,
                   row.packId,
                   !row.available,
                 )}
-                label={row.available ? 'Mark unavailable' : 'Mark available'}
-                pendingLabel="Saving…"
-                variant="tertiary"
-                accessibleLabel={`Mark ${row.productName} ${row.sizeLabel} ${
-                  row.available ? 'unavailable' : 'available'
-                }`}
+                setArchived={setShopProductStatusAction.bind(
+                  null,
+                  shopId,
+                  row.productId,
+                  row.productStatus === 'ARCHIVED' ? 'ACTIVE' : 'ARCHIVED',
+                )}
               />
             ),
           },
@@ -311,7 +315,7 @@ async function Catalogue({
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title="Catalogue"
+        title="Products"
         description="The products you sell, with a price and availability for each pack size."
         actions={
           canEdit ? (
@@ -326,7 +330,6 @@ async function Catalogue({
           ) : undefined
         }
       />
-      <CatalogueTabs shopId={shopId} />
 
       {nothingAtAll && state.status === 'ACTIVE' ? (
         <StateMessage
