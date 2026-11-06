@@ -29,7 +29,7 @@ Paths are relative to the repository root:
 
 ## 3. Hard rules
 
-- **No product name.** It doesn't exist yet (`productName: null`). Use "a new app for paint shops" / "the app". Credit only as **Powered by zero.byt**. The templates already carry the logo and handle.
+- **Product name is secret until the reveal day.** The product is SevenPalette (D-040), but the product owner wants it hidden until `brand.json` → `nameReveal.revealDay` (Day 30). Before then, never show the name or its fan logo; use "a new app for paint shops" / "the app". Credit only as **Powered by zero.byt**. The tagline is "Shop. Painter. Customer. Connected."
 - The app isn't out yet, so never say "download now" or show store links, dates, prices, "free", user/shop counts, statistics or testimonials. Only use the **"Coming soon" badge on the days listed in `brand.json` → `comingSoonDays`**. Every other day uses its format's badge and an engagement CTA (`brand.json` → `cta`).
 - Credit = "approved by your shop". Shops never see each other's data. Painter incentives are never shown as a customer perk.
 - Look and colours come from the format templates only. They belong to families A (main), D and C; B "paint splash" was rejected. Don't invent a new format or add colours outside the family palette in `brand.json` → `styles`. A new format must be added to the library first, and the product owner sees it.
@@ -59,6 +59,7 @@ For each poster:
 ## 4b. `reel` → script + cover + caption
 
 Write `output/day-XX-reel/script.md` with:
+0. **Review gate (product owner):** first show the script and **one rendered sample frame** (1080×1920) of a key beat, then stop. Build the cover, caption and files only after the owner confirms.
 1. **Hooks**: 3 options from `references/hooks.md`, each scored (Specific/Audience/Curiosity/Truth, 1–5), and the winner marked.
 2. **Spec**: length 15–30 s, 9:16, captions on screen, suggested trending-style audio mood (no specific copyrighted track names required).
 3. **Beat sheet** (timed table): `0–3 s` hook · `3–n s` 2–4 beats (problem → feature → outcome) · last 3 s CTA + "Powered by zero.byt" end card.

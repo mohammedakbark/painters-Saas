@@ -7,7 +7,7 @@
 Paint shops, get ready. 🎨
 
 Something new is coming to Kerala's paint counters.
-Your shop, your painters, your customers. Connected.
+Shop. Painter. Customer. Connected.
 
 Follow @zero.byt so you don't miss it.
 Powered by @zero.byt

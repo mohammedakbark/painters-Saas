@@ -1,0 +1,55 @@
+<!doctype html>
+<!--
+  Reel cover in style A (teal / sun / coral), 1080x1920 (9:16). The profile grid crops it to the centre
+  1080x1350, so all text sits inside .safe (top 285px .. bottom 285px).
+  Copy to marketing/instagram/output/day-XX-reel/cover.html, replace POV, Need 2 more buckets, at the site?, Shop. Painter. Customer. Connected.,
+  render with scripts/render.mjs at 1080 1920, then LOOK at the PNG.
+  Rules: English only; no product name; logo placed directly (never a white box).
+-->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;800;900&family=Inter:wght@500&display=block" rel="stylesheet" />
+    <style>
+      :root { --teal-900: #03373b; --teal-700: #07696a; --glow: #10a39c; --sun: #ffc83d; --coral: #ff5e3a; --mint: #3ddbc4; --cream: #fff7ec; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; }
+      body {
+        font-family: "Poppins", sans-serif; color: #fff; position: relative;
+        background: radial-gradient(900px 900px at 80% 38%, rgba(16, 163, 156, 0.55), transparent 70%),
+          linear-gradient(170deg, var(--teal-700) 0%, #054c51 55%, var(--teal-900) 100%);
+      }
+      .rings { position: absolute; right: -260px; top: 420px; width: 1100px; height: 1100px; border-radius: 50%;
+        background: repeating-radial-gradient(circle, rgba(255, 255, 255, 0.07) 0 2px, transparent 2px 90px); }
+      .dots { position: absolute; left: 80px; top: 120px; width: 260px; height: 120px;
+        background: radial-gradient(rgba(255, 255, 255, 0.35) 3px, transparent 3.5px) 0 0 / 40px 40px; }
+      .safe { position: absolute; top: 285px; left: 0; width: 1080px; height: 1350px; padding: 110px 84px;
+        display: flex; flex-direction: column; justify-content: center; }
+      .kicker { align-self: flex-start; background: var(--coral); font-weight: 800; font-size: 34px; letter-spacing: 0.12em;
+        text-transform: uppercase; padding: 16px 34px; border-radius: 999px; transform: rotate(-3deg);
+        box-shadow: 0 16px 40px rgba(255, 94, 58, 0.45); }
+      h1 { margin-top: 60px; font-weight: 900; font-size: 128px; line-height: 0.98; letter-spacing: -0.035em; text-transform: uppercase; }
+      h1 .two { color: var(--sun); }
+      .bar { width: 180px; height: 14px; border-radius: 8px; background: var(--coral); margin-top: 34px; transform: rotate(-1.5deg); }
+      .sub { margin-top: 48px; font-weight: 500; font-size: 46px; line-height: 1.3; color: var(--cream); max-width: 860px; }
+      /* zero.byt lockup: same spec as the posters (logo 36px, label on the 'zero' baseline). */
+      .zb { position: absolute; left: 84px; bottom: 118px; display: flex; align-items: baseline; gap: 12px; line-height: 1; }
+      .zb-label { font-family: "Inter", sans-serif; font-size: 18px; font-weight: 500; letter-spacing: 0.01em; color: rgba(255, 255, 255, 0.72); }
+      .zb-logo { height: 36px; width: auto; display: block; flex: none; transform: translateY(7.7px); }
+      .swatches { position: absolute; right: 84px; bottom: 110px; display: flex; gap: 14px; }
+      .swatches i { width: 54px; height: 54px; border-radius: 14px; display: block; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25); }
+    </style>
+  </head>
+  <body>
+    <div class="rings"></div>
+    <div class="dots"></div>
+    <div class="safe">
+      <div class="kicker">POV</div>
+      <h1>Need 2 more buckets<br /><span class="two">at the site?</span></h1>
+      <div class="bar"></div>
+      <p class="sub">Shop. Painter. Customer. Connected.</p>
+      <div class="zb"><span class="zb-label">Powered by</span><img class="zb-logo" src="../../assets/zerobyt-logo-light.png" alt="zero.byt" /></div>
+      <div class="swatches"><i style="background: #0f7c80"></i><i style="background: #e5a83b"></i><i style="background: #ff5e3a"></i><i style="background: #fff7ec"></i></div>
+    </div>
+  </body>
+</html>

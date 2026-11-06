@@ -4,7 +4,9 @@
 
 **Rhythm:** a reel day has 1 reel and a post day has 2 posters (two posts, or one 2-slide carousel). **Day 1 is a single poster.** There are 10 reel days and 20 post days.
 
-**Tagline (product owner):** "Your shop, your painters, your customers. Connected."
+**Tagline (D-040, switched 2026-11-06):** "Shop. Painter. Customer. Connected."
+
+**Product name is secret:** the product is named SevenPalette (D-040), but the product owner wants it kept secret in posts until the **Day 30 reveal**. Until then: no name and no fan logo, only "the app" and Powered by zero.byt.
 
 **Goal (product owner, 2026-11-05):** don't repeat one pattern, and don't say "Coming soon" every day. Get people engaged by showing what the software actually does: features, how it works, questions, tips and sneak peeks.
 
@@ -40,7 +42,7 @@ Templates are in `.claude/skills/instagram/templates/`.
 **What we say**
 - Only features that `docs/FEATURE_CATALOG.md` marks Confirmed, Confirmed direction or Implemented. Future features are described as coming, never as available now.
 - **"Coming soon" appears as a badge only on Days 1, 7, 22, 28 and 30.** Other days use their format's badge and an engagement CTA.
-- **No product name.** Call it "the app" or "a new app for paint shops". Credit it only as **Powered by zero.byt**: the logo lockup goes on every poster and cover, and `Powered by @zero.byt` ends every caption.
+- **No product name before Day 30.** Call it "the app" or "a new app for paint shops". Day 30 reveals **SevenPalette** and its fan logo. Credit it only as **Powered by zero.byt**: the logo lockup goes on every poster and cover, and `Powered by @zero.byt` ends every caption.
 - **English only.**
 
 **What we never say**
@@ -64,7 +66,7 @@ Pillars: **T** teaser · **S** shops · **P** painters · **C** customers · **B
 | Day | Format | Pillar | Topic | Headline / hook | Engagement CTA | Source | Status |
 |---:|---|---|---|---|---|---|---|
 | 1 | Post ×1: F1 | T | The big idea | "Your paint shop. Every phone." (COMING SOON) | Follow @zero.byt | PRODUCT_OVERVIEW §1, §3 | ready |
-| 2 | Reel: POV | P | Order from the site | "POV: you need 2 more buckets at the site" | Tag a painter friend | FEATURE_CATALOG §2 | todo |
+| 2 | Reel: POV | P | Order from the site | "POV: you need 2 more buckets at the site" | Tag a painter friend | FEATURE_CATALOG §2 | ready |
 | 3 | Post: F2 + F4 | S | Storefront · counter pain | A: "Your catalogue, on every customer's phone." · B: "What slows your shop counter the most?" | Save this · Comment 1, 2 or 3 | PRODUCT_OVERVIEW §3.1, §6 | ready |
 | 4 | Reel: before/after | P | Notebook vs site bills | "Notebook vs app. Same painter, same site." | Share with a painter | PRODUCT_OVERVIEW §7 | todo |
 | 5 | Post: F3 + F7 | S | Go live · shade codes | A: "How a shop goes live" · B: "Shop tip #1: Write the shade code on every order." | DM to join early · Save this tip | SHP-001, SHP-003, PLT-002, CAT-002 | ready |
@@ -92,7 +94,7 @@ Pillars: **T** teaser · **S** shops · **P** painters · **C** customers · **B
 | 27 | Post: F6 + F2 | S/C | Easy onboarding · My Shops | A: Myth "Going digital needs a big setup" → Fact "Register, add the basics, go live after review." · B: "Your shops, your list." (My Shops, active shop first) | Save | SHP-003, PLT-002, D-037 | todo |
 | 28 | Post: F10 + F4 | T | Almost here | A: "Almost here." (COMING SOON) · B: "Which feature are you waiting for?" | Comment | FEATURE_CATALOG | todo |
 | 29 | Reel: recap | B | 30 days in 30 seconds | "Everything we showed you, in 30 seconds" | Save + share | FEATURE_CATALOG | todo |
-| 30 | Post: F10 + F1 | T | Be first | A: "Be first." (COMING SOON) · B: "Shop owners: join early." | DM @zero.byt to join early | brand.json cta | todo |
+| 30 | Post: F10 + F1 | T | Name reveal · be first | A: "Meet SevenPalette." (COMING SOON, reveal the name and fan logo) · B: "Shop owners: join early." | DM @zero.byt to join early | brand.json cta | todo |
 
 ## Status values
 

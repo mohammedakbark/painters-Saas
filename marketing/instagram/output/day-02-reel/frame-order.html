@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=block" rel="stylesheet">
+<style>
+  :root{--t900:#03373B;--t700:#07696A;--t600:#0B8A86;--glow:#10A39C;--sun:#FFC83D;--coral:#FF5E3A;--mint:#3DDBC4;--cream:#FFF7EC;--ink:#10201F}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1080px;height:1920px;overflow:hidden}
+  body{font-family:Poppins,sans-serif;color:#fff;position:relative;
+    background:radial-gradient(900px 900px at 70% 52%,rgba(16,163,156,.55),transparent 70%),linear-gradient(170deg,var(--t700) 0%,#054C51 55%,var(--t900) 100%)}
+  .rings{position:absolute;left:50%;top:1000px;width:1500px;height:1500px;transform:translate(-50%,-50%);border-radius:50%;
+    background:repeating-radial-gradient(circle,rgba(255,255,255,.06) 0 2px,transparent 2px 100px)}
+  .dots{position:absolute;right:84px;top:420px;width:220px;height:100px;background:radial-gradient(rgba(255,255,255,.3) 3px,transparent 3.5px) 0 0/40px 40px}
+
+  /* progress + POV chip (top safe area starts ~ 250px under IG header) */
+  .top{position:absolute;left:84px;right:84px;top:260px;display:flex;align-items:center;justify-content:space-between}
+  .pov{background:var(--coral);font-weight:800;font-size:30px;letter-spacing:.12em;padding:12px 30px;border-radius:999px;transform:rotate(-3deg);box-shadow:0 14px 36px rgba(255,94,58,.45)}
+  .steps{display:flex;gap:10px}
+  .steps i{display:block;width:56px;height:8px;border-radius:8px;background:rgba(255,255,255,.25)}
+  .steps i.on{background:var(--sun)}
+
+  /* big on-screen text */
+  h1{position:absolute;left:84px;right:84px;top:380px;font-weight:900;font-size:104px;line-height:1.0;letter-spacing:-.03em;text-transform:uppercase}
+  h1 span{color:var(--sun)}
+  .bar{position:absolute;left:84px;top:610px;width:160px;height:12px;border-radius:8px;background:var(--coral);transform:rotate(-1.5deg)}
+
+  /* order card */
+  .card{position:absolute;left:120px;right:120px;top:700px;background:var(--cream);color:var(--ink);border-radius:40px;padding:40px 44px 44px;
+    transform:rotate(-2.5deg);box-shadow:0 40px 80px rgba(0,0,0,.35),0 0 0 1px rgba(255,255,255,.5)}
+  .card-head{display:flex;align-items:center;justify-content:space-between;font-family:Inter;font-size:24px;font-weight:600;color:#5b6b69}
+  .site{display:flex;align-items:center;gap:12px;color:var(--t700);font-weight:700}
+  .site b{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;background:#DDF3EF}
+  .shop{display:flex;align-items:center;gap:18px;margin-top:30px}
+  .av{width:72px;height:72px;border-radius:20px;background:var(--sun);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:28px;color:var(--ink)}
+  .shop h3{font-size:36px;font-weight:700;line-height:1.1}
+  .shop p{font-family:Inter;font-size:22px;color:#6b7a78;margin-top:4px}
+  .item{display:flex;gap:26px;margin-top:30px;padding:26px;border-radius:28px;background:#fff;box-shadow:0 2px 0 #efe6d8}
+  .tin{flex:none;width:150px;height:160px}
+  .item h4{font-size:32px;font-weight:700;line-height:1.15}
+  .item .brand{font-family:Inter;font-size:22px;color:#6b7a78;margin-top:6px}
+  .chips{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap}
+  .chip{display:inline-flex;align-items:center;gap:10px;font-family:Inter;font-weight:700;font-size:22px;padding:10px 16px;border-radius:999px;background:#EAF6F4;color:var(--t700)}
+  .chip i{display:block;width:24px;height:24px;border-radius:8px;background:#0F7C80}
+  .chip.pack{background:var(--ink);color:#fff}
+  .order{position:relative;margin-top:32px;height:96px;border-radius:999px;background:var(--coral);color:#fff;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:36px;letter-spacing:.01em;box-shadow:0 18px 36px rgba(255,94,58,.4)}
+  /* tap ripple = suggests the animation */
+  .tap{position:absolute;right:150px;top:50%;width:70px;height:70px;margin-top:-35px;border-radius:50%;background:rgba(255,255,255,.55)}
+  .tap::before,.tap::after{content:"";position:absolute;inset:-26px;border-radius:50%;border:4px solid rgba(255,255,255,.55)}
+  .tap::after{inset:-56px;border-color:rgba(255,255,255,.25)}
+
+  /* next beat peeking: added to site */
+  .added{position:absolute;left:190px;top:1370px;display:flex;align-items:center;gap:18px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.25);
+    backdrop-filter:blur(8px);padding:20px 30px 20px 22px;border-radius:999px;font-weight:700;font-size:30px;transform:rotate(1.5deg)}
+  .added b{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;background:var(--mint);color:var(--ink);font-size:30px}
+  .sparkle{position:absolute;color:var(--sun);font-size:44px}
+
+  /* voice-over subtitle */
+  .sub{position:absolute;left:84px;right:84px;top:1550px;text-align:center;font-family:Inter;font-weight:700;font-size:36px;line-height:1.35}
+  .sub span{background:rgba(3,55,59,.75);padding:6px 16px;border-radius:12px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+
+  /* zero.byt lockup (36px spec) — reel watermark sits above the IG caption area */
+  .zb{position:absolute;left:84px;top:1680px;display:flex;align-items:baseline;gap:12px;font-family:Inter,sans-serif;line-height:1}
+  .zb-label{font-size:18px;font-weight:500;letter-spacing:.01em;color:rgba(255,255,255,.72)}
+  .zb-logo{height:36px;width:auto;display:block;flex:none;transform:translateY(7.7px)}
+
+
+  .guide{position:absolute;left:0;right:0;border-top:2px dashed rgba(255,255,255,.35)}
+  .guide span{position:absolute;right:16px;top:6px;font:600 18px Inter;color:rgba(255,255,255,.6)}
+</style>
+</head>
+<body>
+  <div class="rings"></div>
+  <div class="dots"></div>
+
+  <div class="top">
+    <div class="pov">POV</div>
+    <div class="steps"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
+  </div>
+
+  <h1>Order from<br><span>your shop</span></h1>
+  <div class="bar"></div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="site"><b>📍</b>Green Villa</div>
+      <div>Site order</div>
+    </div>
+    <div class="shop">
+      <div class="av">SC</div>
+      <div><h3>Sree Colours</h3><p>Thrissur · Your shop</p></div>
+    </div>
+    <div class="item">
+      <svg class="tin" viewBox="0 0 150 160" aria-hidden="true">
+        <ellipse cx="75" cy="30" rx="58" ry="14" fill="#CFE3E0"/>
+        <path d="M17 30 v100 a58 14 0 0 0 116 0 v-100" fill="#E8F2F0"/>
+        <rect x="17" y="58" width="116" height="56" fill="#0F7C80"/>
+        <text x="75" y="93" text-anchor="middle" font-family="Poppins" font-weight="800" font-size="17" fill="#fff">AURORA</text>
+        <ellipse cx="75" cy="30" rx="58" ry="14" fill="none" stroke="#9FBDB8" stroke-width="3"/>
+        <path d="M30 26 q45 -40 90 0" fill="none" stroke="#7d8f8c" stroke-width="5" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <h4>Monsoon Shield Emulsion</h4>
+        <div class="brand">Aurora Paints · Exterior</div>
+        <div class="chips">
+          <span class="chip"><i></i>Kerala Teal · AP 4021</span>
+          <span class="chip pack">4L × 2</span>
+        </div>
+      </div>
+    </div>
+    <div class="order">Order<span class="tap"></span></div>
+  </div>
+
+  <div class="added"><b>✓</b>Added to Green Villa</div>
+  <div class="sparkle" style="left:120px;top:1352px">✦</div>
+  <div class="sparkle" style="left:880px;top:1412px;font-size:32px;color:var(--mint)">✦</div>
+
+  <div class="sub"><span>Order from your shop, right from the site.</span></div>
+
+  <div class="zb"><span class="zb-label">Powered by</span><img class="zb-logo" src="../../assets/zerobyt-logo-light.png" alt="zero.byt"></div>
+</body>
+</html>

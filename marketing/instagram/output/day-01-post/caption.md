@@ -11,7 +11,7 @@ Shops: your catalogue, packs and shades on customers' phones.
 Painters: every work site's spend, with separate bills for each shop.
 Customers: pick by brand, pack size and shade.
 
-Your shop, your painters, your customers. Connected.
+Shop. Painter. Customer. Connected.
 
 Follow @zero.byt for launch updates.
 Powered by @zero.byt

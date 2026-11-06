@@ -12,7 +12,7 @@
     "original": "assets/zerobyt-logo.png",
     "rule": "Transparent logo placed directly on the poster. Never a white box, never stretched. Light version has a brighter green dot for dark backgrounds."
   },
-  "tagline": "Your shop, your painters, your customers. Connected.",
+  "tagline": "Shop. Painter. Customer. Connected.",
   "market": "Kerala, India",
   "language": "en",
   "status": "coming-soon",
@@ -196,5 +196,10 @@
       ]
     }
   },
-  "lockup": "Powered by + logo 36px, label 18px on the 'zero' baseline (logo translateY 7.7px), left 64px, bottom 64px; identical on every poster"
+  "lockup": "Powered by + logo 36px, label 18px on the 'zero' baseline (logo translateY 7.7px), left 64px, bottom 64px; identical on every poster",
+  "nameReveal": {
+    "productName": "SevenPalette",
+    "revealDay": 30,
+    "status": "secret until the reveal day (product owner, 2026-11-06)"
+  }
 }
