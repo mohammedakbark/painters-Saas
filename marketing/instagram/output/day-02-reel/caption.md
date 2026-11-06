@@ -1,6 +1,6 @@
 # Day 02: POV, ordering from the site (Reel)
 
-Files: **`day-02-reel.mp4`** (the video: 21 s, 1080×1920, 30 fps, H.264, silent, fully animated; add a trending track in Instagram). The cover is `cover.png`. The script is `script.md`. The animation source is `reel.html` (re-render with `scripts/reel-capture.mjs`). The approved style frame is `frame-order.png`.
+Files: **`day-02-reel.mp4`** (the video: 27.5 s, 1080×1920, 30 fps, H.264 + AAC, fully animated, with an **AI voice-over**, male Indian English, Microsoft Prabhat; the lines and timings are in `voiceover.txt`). If you add music in Instagram, keep it at about 15–20% volume so the voice stays clear. The cover is `cover.png`. The script is `script.md`. The animation source is `reel.html` (re-render with `scripts/reel-capture.mjs`). The approved style frame is `frame-order.png`.
 
 ## Caption
 

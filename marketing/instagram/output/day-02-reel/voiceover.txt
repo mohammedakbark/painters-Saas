@@ -1,0 +1,9 @@
+# Day 02 voice-over — en-IN-PrabhatNeural (Microsoft neural, via edge-tts), rate +8%
+# start(s)  line
+0.4   Halfway through the wall... and the paint's gone.
+3.8   Call the shop. Wait. Call again?
+8.0   Open your site.
+10.8  Order from your shop, right from the site.
+14.4  Every order adds up under that site. Each shop's bill stays separate.
+20.0  Painters, this is coming. Tag a painter friend!
+24.0  Shop, painter, customer. Connected.

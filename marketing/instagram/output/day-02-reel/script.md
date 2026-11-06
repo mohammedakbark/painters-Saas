@@ -6,7 +6,7 @@
 
 The product owner chose a **fully animated** video, made by Claude. The b-roll scenes in the beat sheet below (ladder, bucket, phone) are illustrated animations instead of filmed footage. The S2 caption is "Call the shop? No reply?".
 
-Output: `day-02-reel.mp4`. Source: `reel.html`.
+Output: `day-02-reel.mp4` (27.5 s, re-timed to the voice). Source: `reel.html`. Voice-over: AI voice (en-IN Prabhat, product owner's choice), see `voiceover.txt`. Scene times: 0–3.4, 3.4–7.6, 7.6–10.4, 10.4–14.0, 14.0–19.6 and 19.6–27.5 s. The end card has two lines: the CTA, then the tagline.
 
 ## Hooks
 

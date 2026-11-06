@@ -431,3 +431,4 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-06 | Instagram: Day 2 reel (script, cover, approved style frame, caption). Campaign tagline switched to the D-040 one; Days 1 and 7 re-rendered; product name kept secret until a Day 30 reveal; reel review gate added to the skill. |
 | 2026-11-06 | WEB-004: shop console restyled; shared `AppShell`, `NavLinks`, `PageHeader`, `Field`, `StateMessage`, `PageLoading` gained options; new `SegmentedLinks`. Local sample catalogue loaded for checks. No API change. |
 | 2026-11-06 | Instagram: Day 2 reel rendered as a fully animated MP4 (21 s, 1080×1920, H.264) with `scripts/reel-capture.mjs` (headless Chrome frames + ffmpeg, installed via winget). |
+| 2026-11-06 | Instagram: Day 2 reel re-timed to an AI voice-over (en-IN Prabhat via edge-tts), now 27.5 s with AAC audio; skill reel step includes voice-over. |

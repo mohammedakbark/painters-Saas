@@ -69,7 +69,11 @@ Write `output/day-XX-reel/script.md` with:
    - Check stills first: `node .claude/skills/instagram/scripts/reel-capture.mjs <reel.html> <prefix> 0 30 --stills 2.5,6,10` and look at each one.
    - Then encode: `node .claude/skills/instagram/scripts/reel-capture.mjs <reel.html> output/day-XX-reel/day-XX-reel.mp4 <seconds> 30`. This needs ffmpeg (`winget install Gyan.FFmpeg`); set `FFMPEG` to its path if it isn't on PATH yet.
    - Verify with an ffmpeg contact sheet (`-vf fps=1,scale=270:480,tile=7x3`).
-   - The MP4 is silent; the owner adds trending audio in Instagram.
+   - **Voice-over (required; product owner, 2026-11-06):** use an AI voice. The default is male Indian English `en-IN-PrabhatNeural`, made with `python -m edge_tts --voice en-IN-PrabhatNeural --rate=+8% --text "<line>" --write-media lN.mp3` (install with `pip install --user edge-tts`; it sends the public script lines to Microsoft's TTS service).
+     - Trim silence from each line with ffmpeg `silenceremove`, then **re-time the scenes to the voice**: each scene starts 0.4 s before its line, with about 0.5 s of tail.
+     - Mix the lines with `adelay` + `amix` + `loudnorm=I=-16`, then mux as AAC 192k over the rendered video (`-c:v copy`).
+     - Save the lines and timings in `voiceover.txt`.
+     - Music is added by the owner in Instagram, at a low volume.
 7. **Cover**: copy `templates/reel-cover.html` to `output/day-XX-reel/cover.html`, fill KICKER, HOOK_1 (white line), HOOK_2 (yellow line) and SUB (usually the tagline), render at `1080 1920`, and inspect it as in 4a (text must stay inside the centre 1080×1350 safe zone).
 
 ## 5. Caption (both formats)
