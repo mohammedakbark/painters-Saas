@@ -7,7 +7,7 @@ import '../tokens/app_typography.dart';
 import 'app_spinner.dart';
 import 'app_tone.dart';
 
-/// A short status label, such as "Live" or "Unavailable". The text carries
+/// A short status label, such as "Live" or "Not available". The text carries
 /// the meaning; the colour only supports it.
 class AppBadge extends StatelessWidget {
   const AppBadge({super.key, required this.label, this.tone = AppTone.neutral});
@@ -18,22 +18,38 @@ class AppBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
+      // A filled soft background and a dot in the tone colour (CAT-003):
+      // opposite states never look alike. The text carries the meaning.
       decoration: BoxDecoration(
-        color: AppComponentTokens.badgeBackground,
+        color: tone.softColor,
         borderRadius: BorderRadius.circular(AppComponentTokens.badgeRadius),
-        border: Border.all(color: tone.borderColor),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.s12,
           vertical: AppSpacing.s4,
         ),
-        child: Text(
-          label,
-          style: AppTypography.caption.copyWith(
-            color: tone.color,
-            fontWeight: FontWeight.w600,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ExcludeSemantics(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: tone.color,
+                  shape: BoxShape.circle,
+                ),
+                child: const SizedBox.square(dimension: 6),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.s8),
+            Text(
+              label,
+              style: AppTypography.caption.copyWith(
+                color: tone.color,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
       ),
     );

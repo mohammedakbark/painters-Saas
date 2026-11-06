@@ -102,7 +102,7 @@ void main() {
       expect(find.text('1 L · ₹450'), findsOneWidget);
       expect(find.text('MRP ₹500'), findsOneWidget);
       expect(find.text('4 L · ₹1,450.5'), findsOneWidget);
-      expect(find.text('Unavailable'), findsOneWidget);
+      expect(find.text('Not available'), findsOneWidget);
       expect(find.text('Old Enamel'), findsNothing);
       expect(button('Add from brand catalogue'), findsOneWidget);
     });

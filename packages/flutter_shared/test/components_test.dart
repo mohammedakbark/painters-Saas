@@ -114,6 +114,35 @@ void main() {
     });
   });
 
+  group('AppBadge', () {
+    testWidgets('opposite states get different filled colours', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          const Row(
+            children: [
+              AppBadge(label: 'Available', tone: AppTone.success),
+              AppBadge(label: 'Not available', tone: AppTone.warning),
+            ],
+          ),
+        ),
+      );
+      Color fill(String label) {
+        final box = tester.widget<DecoratedBox>(
+          find
+              .ancestor(
+                of: find.text(label),
+                matching: find.byType(DecoratedBox),
+              )
+              .last,
+        );
+        return (box.decoration as BoxDecoration).color!;
+      }
+
+      expect(fill('Available'), AppColors.statusSuccessSoft);
+      expect(fill('Not available'), AppColors.statusWarningSoft);
+    });
+  });
+
   group('AppTextField', () {
     testWidgets('shows the label, prefix and error and limits the length', (
       tester,

@@ -71,4 +71,16 @@ abstract final class AppColors {
 
   /// Informational; always paired with text or an icon.
   static const Color statusInfo = Color(0xFF2563EB);
+
+  /// Background of a success badge (e.g. Available); text in status.success.
+  static const Color statusSuccessSoft = Color(0xFFE7F7EC);
+
+  /// Background of a warning badge (e.g. Not available); text in status.warning.
+  static const Color statusWarningSoft = Color(0xFFFEF3C7);
+
+  /// Background of an error badge; text in status.error.
+  static const Color statusErrorSoft = Color(0xFFFDECEA);
+
+  /// Background of an info badge (e.g. In review); text in status.info.
+  static const Color statusInfoSoft = Color(0xFFEAF2FE);
 }

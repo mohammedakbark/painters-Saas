@@ -20,6 +20,15 @@ enum AppTone {
     AppTone.error => AppColors.statusError,
   };
 
+  /// Soft background of a badge in this tone, so states differ at a glance.
+  Color get softColor => switch (this) {
+    AppTone.neutral => AppColors.surfaceSubtle,
+    AppTone.info => AppColors.statusInfoSoft,
+    AppTone.success => AppColors.statusSuccessSoft,
+    AppTone.warning => AppColors.statusWarningSoft,
+    AppTone.error => AppColors.statusErrorSoft,
+  };
+
   /// Border colour; the neutral tone uses the strong border.
   Color get borderColor =>
       this == AppTone.neutral ? AppColors.borderStrong : color;

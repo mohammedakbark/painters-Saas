@@ -35,6 +35,10 @@
   --color-status-warning: #b45309;
   --color-status-error: #b42318;
   --color-status-info: #2563eb;
+  --color-status-success-soft: #e7f7ec;
+  --color-status-warning-soft: #fef3c7;
+  --color-status-error-soft: #fdecea;
+  --color-status-info-soft: #eaf2fe;
 
   /* Component colours (tokens.json "component"). */
   --color-control-background: var(--color-surface-default);

@@ -91,6 +91,8 @@ Prefer subtle borders over heavy shadows. Do not wrap every content section in a
 - Minimum mobile touch target: 48 × 48 logical pixels where practical.
 - Buttons need action-oriented labels.
 - Inputs need labels, helper text, validation, disabled and loading states.
+- **Status colours (CAT-003):** badges are filled with a soft tone (`status.*Soft`) plus a dot and text in the tone colour. Success = green (Available, Live), warning = amber (Not available, Changes requested), info = blue (In review, Own product), error = red, neutral = grey (Draft). Opposite states never share a colour, and the words always say the state.
+- **Lists:** web lists that can grow use `DataTable` with pagination and column filters; the mobile apps use search, a filter sheet and "Load more" instead of tables.
 - **Required fields (DS-004, product owner 2026-11-06):** every required field shows a red asterisk after its label (`status.error`), and the control tells screen readers it is required (web `aria-required`; Flutter a spoken ", required"). Pass `required` to `Field`, `SelectField`, `TextareaField`, `FileField` and the choice groups, or `isRequired` to `AppTextField`, `AppDropdown` and `AppRadioGroup`.
   - A form with more than one field explains the marker once, above the fields: `RequiredFieldsNote` ("Fields marked * are required.").
   - Mark a field only when the server rejects the form without it. A field that is needed only in some cases (for example the extra pack rows of a new product) is not marked.
@@ -148,6 +150,7 @@ Web utilities: `rounded-control`, `min-h-control`, `rounded-card`, `border-card-
 | `SearchForm` | GET search with a labelled field, optional filters and hidden values |
 | `Card`, `CardList`, `CardLink` (`variant`: `default`, `raised` lifts on hover, `dashed` for an "add another" tile), `Panel` (`cardClasses` where an element can't be a component) | surfaces |
 | `Alert`, `Badge`, `StateMessage` (optional `icon` tile), `Spinner`, `PageHeader` (optional `eyebrow` caption and `back` link) | messages, status, empty states, loading, page titles |
+| `DataTable` (`Column`: header, cell, `filter`, `align`, `width`, `sorted`, `cellClassName`; stacks into cards below `desktop`), `SortHeader`, `ColumnSelectFilter`, `ColumnSearchFilter`, `FilterForm`, `Pagination` (CAT-003) | data lists that can grow: per-column filters in the URL, sorting, pages and rows per page |
 | `SegmentedLinks` | switching a list between views (e.g. Selling and Archived), links with `aria-current` |
 | `AppShell` (`area` with caption, name and switch link; icon `nav`), `NavLinks` (`vertical`, `horizontal`, `tabs`; optional `icon`), `PageLoading` (placeholder skeleton) | console frame, navigation, page loading |
 | `Icon`, `IconTile` | the project's icon set (line icons, `currentColor`; store glyphs); a new icon is added here first (WEB-001) |

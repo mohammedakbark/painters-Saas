@@ -110,7 +110,7 @@ async function ShopProductView({
                     {pack.available ? (
                       <Badge tone="success">Available</Badge>
                     ) : (
-                      <Badge tone="warning">Unavailable</Badge>
+                      <Badge tone="warning">Not available</Badge>
                     )}
                   </span>
                   {canEdit && product.packs.length > 1 ? (

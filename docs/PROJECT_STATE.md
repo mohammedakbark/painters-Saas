@@ -31,6 +31,7 @@
 | WEB-004: Shop console in the premium style (sidebar with area card and icons, page header back link, skeleton loading, setup guide with progress, profile cards, catalogue tabs/search/segmented filter/aligned pack rows) | **Complete (local; headless Chrome)**; platform console frame not browser-checked | `docs/features/WEB-004-shop-console.md` |
 | SHP-006: Maps on OpenStreetMap (D-041): web map with search, pin and address suggestion; Shop App map preview; Google Maps removed | **Complete (local; real services in headless Chrome)**; Shop App map not checked on an emulator | `docs/features/SHP-006-openstreetmap.md` |
 | DS-004: Required-field marker (red asterisk, spoken "required", one note per form) on web and Flutter forms | **Complete (local)** | `docs/features/DS-004-required-fields.md` |
+| CAT-003: Catalogue table (one row per pack, Litres/Kilograms/Pieces tabs, a filter per column, pagination, sort) and distinct status colours | **Complete for the shop admin web (local)**; platform admin, Shop App and Customer App next, in that order | `docs/features/CAT-003-catalogue-table.md` |
 | DS-003: SevenPalette name and shade-card fan logo (D-040): names, logo files, web and Flutter brand mark, favicon, launcher icons | **Complete (local)**; Android emulator not run | `docs/features/DS-003-product-name-and-logo.md` |
 
 **Git (D-035):** every feature above is in `dev` (fast-forward merged and pushed on 2026-11-04; one commit per feature, `3697e4f` … `9c7885b`); the local per-feature branches were deleted. The first GitHub Actions run on `dev` (`8497b81`) passed all three jobs (TypeScript, Flutter, repository checks). The old remote branch `feat/shp-002-shop-app-sign-in` is still on GitHub (its commits are in `dev`); the product owner can delete it. From now on each finished feature is merged into `dev` and pushed the same way. `main` still holds only `c56f614` (project setup) until a release.
@@ -350,7 +351,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 
 ## 7. Next actions
 
-1. **UI/UX pass (product owner, 2026-11-05):** WEB-002, DS-003 (SevenPalette), WEB-003 (Your shops) and WEB-004 (shop console) done (2026-11-06). Next (to confirm with the owner): the platform console pages in the same style, then the Customer App foundation. Owner: buy the SevenPalette domains, run the trademark check, and choose the bundle IDs (question 41).
+1. **UI/UX pass (product owner, 2026-11-05):** WEB-001 to WEB-004, DS-003, DS-004, SHP-006 and CAT-003 (shop catalogue table) done. Next, in the owner's order: platform admin web lists as tables (shops, reviews, brand catalogue), then Shop App mobile list patterns, then the Customer App. Owner: domains, trademark check, bundle IDs (question 41).
 2. **Next phase: plan the Customer App foundation** with the product owner: CUS-001 sign-up and profile (customer type, D-036), CUS-002 Find shops and My Shops (D-037, D-038), CUS-003 shop storefront. Open before ordering: questions 30–32 (order approval, pickup/delivery, fulfilment).
 3. **Product owner checks:** try the platform **Reviews** decision form in Chrome as the platform admin; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
 4. **Hardening before any hosted environment:** questions 49 and 51.
@@ -436,3 +437,4 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-06 | Instagram: Day 2 reel re-timed to an AI voice-over (en-IN Prabhat via edge-tts), now 27.5 s with AAC audio; skill reel step includes voice-over. |
 | 2026-11-06 | SHP-006: product owner chose not to set up Google billing; maps moved to OpenStreetMap (D-041). Leaflet + Nominatim on the web, flutter_map in the apps; Google Maps packages, keys and native wiring removed; `docs/guides/MAPS.md` replaces the Google setup guide. |
 | 2026-11-06 | DS-004: required fields show a red asterisk (web `aria-required`, Flutter spoken "required") with "Fields marked * are required." per form; shop profile note explains the fields are needed for review. |
+| 2026-11-06 | CAT-003: shop catalogue is a filterable, paged table (new `pack-rows` API, `DataTable`/`ColumnFilter`/`Pagination`); status badges filled with soft colours (green Available, amber Not available); list, colour and rollout rules added to CLAUDE.md and the UI skill. |

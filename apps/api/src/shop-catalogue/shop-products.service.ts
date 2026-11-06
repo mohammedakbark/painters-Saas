@@ -22,6 +22,7 @@ import { ImageStore } from '../media/image-store.js';
 import { isUniqueViolation } from '../prisma/prisma-errors.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { ShopContext } from '../shop-access/shop-access.guard.js';
+import { packRows } from './pack-rows.js';
 import {
   CATALOGUE_MANAGER_ROLES,
   requireShopRole,
@@ -43,6 +44,8 @@ import type {
   ShopProductResponse,
   UpdateShopPackRequest,
   UpdateShopProductRequest,
+  ShopPackRowPage,
+  ShopPackRowQuery,
 } from './shop-catalogue.schemas.js';
 
 type Tx = Prisma.TransactionClient;
@@ -119,6 +122,21 @@ export class ShopProductsService {
           ? encodeCursor(last.id, last.id)
           : null,
     };
+  }
+
+  /** One row per pack for the catalogue table (CAT-003); see pack-rows.ts. */
+  async packRows(
+    shop: ShopContext,
+    query: ShopPackRowQuery,
+  ): Promise<ShopPackRowPage> {
+    const rows = await this.prisma.shopProduct.findMany({
+      where: { shopId: shop.shopId, status: query.status },
+      select: SHOP_PRODUCT_SELECT,
+    });
+    return packRows(
+      rows.map((row) => toShopProduct(row, this.images)),
+      query,
+    );
   }
 
   /**

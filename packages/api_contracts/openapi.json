@@ -2614,6 +2614,72 @@
         ]
       }
     },
+    "/v1/shops/{shopId}/catalogue/pack-rows": {
+      "get": {
+        "operationId": "ShopCatalogueController_listPackRows",
+        "parameters": [
+          {
+            "name": "shopId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopPackRowPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown shop, or the caller is not a member.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "One row per pack for the catalogue table: filtered, sorted and paged, with the filter options.",
+        "tags": [
+          "shop catalogue"
+        ]
+      }
+    },
     "/v1/shops/{shopId}/catalogue/products/{productId}": {
       "get": {
         "operationId": "ShopCatalogueController_getProduct",
@@ -5926,6 +5992,296 @@
           "mrpPaise",
           "pricePaise",
           "available"
+        ],
+        "additionalProperties": false
+      },
+      "ShopPackRowQuery": {
+        "type": "object",
+        "properties": {
+          "tab": {
+            "default": "ALL",
+            "type": "string",
+            "enum": [
+              "ALL",
+              "VOLUME",
+              "WEIGHT",
+              "PIECE"
+            ]
+          },
+          "status": {
+            "default": "ACTIVE",
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "ARCHIVED"
+            ]
+          },
+          "q": {
+            "type": "string",
+            "maxLength": 60
+          },
+          "brand": {
+            "description": "A brand key from options.brands.",
+            "type": "string",
+            "maxLength": 130
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "size": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d+)?:(LITRE|MILLILITRE|KILOGRAM|GRAM|PIECE)$"
+          },
+          "available": {
+            "type": "string",
+            "enum": [
+              "true",
+              "false"
+            ]
+          },
+          "sort": {
+            "default": "name",
+            "type": "string",
+            "enum": [
+              "name",
+              "-name",
+              "price",
+              "-price"
+            ]
+          },
+          "page": {
+            "default": 1,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "pageSize": {
+            "default": 25,
+            "type": "number"
+          }
+        }
+      },
+      "ShopPackRowPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "packId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "productId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "productName": {
+                  "type": "string"
+                },
+                "source": {
+                  "type": "string",
+                  "enum": [
+                    "catalogue",
+                    "own"
+                  ]
+                },
+                "productStatus": {
+                  "type": "string",
+                  "enum": [
+                    "ACTIVE",
+                    "ARCHIVED"
+                  ]
+                },
+                "catalogueActive": {
+                  "type": "boolean"
+                },
+                "brandName": {
+                  "nullable": true,
+                  "type": "string"
+                },
+                "categoryName": {
+                  "type": "string"
+                },
+                "sizeLabel": {
+                  "type": "string"
+                },
+                "quantity": {
+                  "type": "number"
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "LITRE",
+                    "MILLILITRE",
+                    "KILOGRAM",
+                    "GRAM",
+                    "PIECE"
+                  ]
+                },
+                "pricePaise": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "mrpPaise": {
+                  "nullable": true,
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "available": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "packId",
+                "productId",
+                "productName",
+                "source",
+                "productStatus",
+                "catalogueActive",
+                "brandName",
+                "categoryName",
+                "sizeLabel",
+                "quantity",
+                "unit",
+                "pricePaise",
+                "mrpPaise",
+                "available"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "page": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "tabCounts": {
+            "type": "object",
+            "properties": {
+              "ALL": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "VOLUME": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "WEIGHT": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "PIECE": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "ALL",
+              "VOLUME",
+              "WEIGHT",
+              "PIECE"
+            ],
+            "additionalProperties": false
+          },
+          "options": {
+            "type": "object",
+            "properties": {
+              "brands": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "value",
+                    "label"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "categories": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "value",
+                    "label"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "sizes": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "value",
+                    "label"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "brands",
+              "categories",
+              "sizes"
+            ],
+            "additionalProperties": false,
+            "description": "Filter values that exist in this shop for the current tab and status."
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize",
+          "tabCounts",
+          "options"
         ],
         "additionalProperties": false
       },

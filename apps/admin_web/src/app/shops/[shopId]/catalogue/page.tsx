@@ -4,27 +4,45 @@ import { Suspense } from 'react';
 import { PageLoading } from '@/components/layout/page-loading';
 import { ActionButtonForm } from '@/components/shop-catalogue/shop-catalogue-forms';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { ButtonLink } from '@/components/ui/button-link';
-import { Card } from '@/components/ui/card';
-import { Field } from '@/components/ui/field';
-import { Icon } from '@/components/ui/icon';
-import { SegmentedLinks } from '@/components/ui/segmented-links';
+import {
+  ColumnSearchFilter,
+  ColumnSelectFilter,
+} from '@/components/ui/column-filter';
+import { type Column, DataTable, SortHeader } from '@/components/ui/data-table';
 import { PageHeader } from '@/components/ui/page-header';
+import { FilterForm } from '@/components/ui/filter-form';
+import { Pagination } from '@/components/ui/pagination';
+import { SegmentedLinks } from '@/components/ui/segmented-links';
 import { StateMessage } from '@/components/ui/state-message';
-import { listShopProducts } from '@/lib/api/shop-catalogue';
+import {
+  listPackRows,
+  PACK_ROW_PAGE_SIZES,
+  PACK_ROW_SORTS,
+  PACK_TABS,
+  type PackRow,
+  type PackRowParams,
+} from '@/lib/api/shop-catalogue';
 import { requireShopAccess, requireShopSession } from '@/lib/auth/shop-access';
-import { countLabel } from '@/lib/format';
 import { formatRupees } from '@/lib/money';
 import { setPackAvailableAction } from './actions';
-import {
-  CatalogueTabs,
-  catalogueBase,
-  ProductBadges,
-  productSubtitle,
-} from './catalogue-parts';
+import { CatalogueTabs, catalogueBase } from './catalogue-parts';
 
 export const metadata: Metadata = { title: 'Catalogue' };
+
+const FORM = 'catalogue-filters';
+
+const TAB_LABELS: Record<PackRowParams['tab'], string> = {
+  ALL: 'All',
+  VOLUME: 'Litres',
+  WEIGHT: 'Kilograms',
+  PIECE: 'Pieces',
+};
+
+const AVAILABILITY = [
+  { value: 'true', label: 'Available' },
+  { value: 'false', label: 'Not available' },
+];
 
 export default function CataloguePage(
   props: PageProps<'/shops/[shopId]/catalogue'>,
@@ -36,8 +54,39 @@ export default function CataloguePage(
   );
 }
 
+type Search = Record<string, string | string[] | undefined>;
+
 const text = (value: string | string[] | undefined) =>
   typeof value === 'string' && value.trim() !== '' ? value.trim() : undefined;
+
+const oneOf = <T extends string>(
+  list: readonly T[],
+  value: string | undefined,
+  fallback: T,
+): T =>
+  (list as readonly string[]).includes(value ?? '') ? (value as T) : fallback;
+
+/** Reads the table state from the URL; unknown values fall back to defaults. */
+function readParams(search: Search): PackRowParams {
+  const page = Number(text(search.page));
+  const pageSize = Number(text(search.pageSize));
+  const available = text(search.available);
+  return {
+    tab: oneOf(PACK_TABS, text(search.tab), 'ALL'),
+    status: text(search.status) === 'ARCHIVED' ? 'ARCHIVED' : 'ACTIVE',
+    q: text(search.q)?.slice(0, 60),
+    brand: text(search.brand),
+    categoryId: text(search.categoryId),
+    size: text(search.size),
+    available:
+      available === 'true' || available === 'false' ? available : undefined,
+    sort: oneOf(PACK_ROW_SORTS, text(search.sort), 'name'),
+    page: Number.isInteger(page) && page > 0 ? page : 1,
+    pageSize: (PACK_ROW_PAGE_SIZES as readonly number[]).includes(pageSize)
+      ? pageSize
+      : 25,
+  };
+}
 
 async function Catalogue({
   params,
@@ -46,28 +95,218 @@ async function Catalogue({
   const { shopId } = await params;
   const shop = await requireShopAccess(shopId);
   const token = await requireShopSession();
-  const search = await searchParams;
-  const q = text(search.q)?.slice(0, 60);
-  const status = search.status === 'ARCHIVED' ? 'ARCHIVED' : 'ACTIVE';
-  const cursor = text(search.cursor);
-  const page = await listShopProducts(token, shopId, {
-    q,
-    status,
-    cursor,
-    limit: 20,
-  });
+  const state = readParams(await searchParams);
+  const data = await listPackRows(token, shopId, state);
   const canEdit = shop.myRole === 'MASTER';
   const base = catalogueBase(shopId);
-  const link = (next: Record<string, string | undefined>) => {
+
+  /** The current URL with some values changed; defaults are left out. */
+  const link = (next: Partial<PackRowParams>) => {
+    const merged = { ...state, ...next };
     const query = new URLSearchParams();
-    for (const [key, value] of Object.entries({ q, status, ...next })) {
-      if (value && !(key === 'status' && value === 'ACTIVE')) {
-        query.set(key, value);
+    const defaults: Partial<Record<keyof PackRowParams, string>> = {
+      tab: 'ALL',
+      status: 'ACTIVE',
+      sort: 'name',
+      page: '1',
+      pageSize: '25',
+    };
+    for (const [key, value] of Object.entries(merged)) {
+      if (
+        value !== undefined &&
+        String(value) !== defaults[key as keyof PackRowParams]
+      ) {
+        query.set(key, String(value));
       }
     }
     const qs = query.toString();
     return qs ? `${base}?${qs}` : base;
   };
+  const filtered = Boolean(
+    state.q || state.brand || state.categoryId || state.size || state.available,
+  );
+  const clearFilters = link({
+    q: undefined,
+    brand: undefined,
+    categoryId: undefined,
+    size: undefined,
+    available: undefined,
+    page: 1,
+  });
+  const sortHeader = (label: string, key: 'name' | 'price', end = false) => {
+    const direction: 'ascending' | 'descending' | null =
+      state.sort === key
+        ? 'ascending'
+        : state.sort === `-${key}`
+          ? 'descending'
+          : null;
+    return {
+      sorted: direction ?? undefined,
+      headerContent: (
+        <SortHeader
+          label={label}
+          align={end ? 'end' : 'start'}
+          direction={direction}
+          href={link({
+            sort: direction === 'ascending' ? `-${key}` : key,
+            page: 1,
+          })}
+        />
+      ),
+    };
+  };
+
+  const columns: Column<PackRow>[] = [
+    {
+      key: 'product',
+      header: 'Product',
+      ...sortHeader('Product', 'name'),
+      filter: (
+        <ColumnSearchFilter
+          form={FORM}
+          name="q"
+          label="Search products"
+          placeholder="Search"
+          value={state.q}
+        />
+      ),
+      cell: (row) => (
+        <span className="flex min-w-0 flex-col items-end gap-1 desktop:items-start">
+          <Link
+            href={`${base}/products/${row.productId}`}
+            className="rounded-nav-item font-semibold text-text-primary hover:text-brand-primary hover:underline focus-visible:outline-2 focus-visible:outline-brand-primary"
+          >
+            {row.productName}
+          </Link>
+          {row.source === 'own' || !row.catalogueActive ? (
+            <span className="flex flex-wrap gap-1">
+              {row.source === 'own' ? (
+                <Badge tone="info">Own product</Badge>
+              ) : null}
+              {row.catalogueActive ? null : (
+                <Badge tone="warning">Removed from brand catalogue</Badge>
+              )}
+            </span>
+          ) : null}
+        </span>
+      ),
+    },
+    {
+      key: 'brand',
+      header: 'Brand',
+      width: 'w-28',
+      filter: (
+        <ColumnSelectFilter
+          form={FORM}
+          name="brand"
+          label="Filter by brand"
+          value={state.brand}
+          options={data.options.brands}
+        />
+      ),
+      cell: (row) =>
+        row.brandName ?? <span className="text-text-secondary">No brand</span>,
+    },
+    {
+      key: 'category',
+      header: 'Category',
+      width: 'w-32',
+      filter: (
+        <ColumnSelectFilter
+          form={FORM}
+          name="categoryId"
+          label="Filter by category"
+          value={state.categoryId}
+          options={data.options.categories}
+        />
+      ),
+      cell: (row) => row.categoryName,
+    },
+    {
+      key: 'size',
+      header: 'Pack size',
+      width: 'w-24',
+      filter: (
+        <ColumnSelectFilter
+          form={FORM}
+          name="size"
+          label="Filter by pack size"
+          value={state.size}
+          options={data.options.sizes}
+        />
+      ),
+      cell: (row) => <span className="font-semibold">{row.sizeLabel}</span>,
+    },
+    {
+      key: 'price',
+      header: 'Price',
+      align: 'end',
+      width: 'w-24',
+      cellClassName: 'whitespace-nowrap',
+      ...sortHeader('Price', 'price', true),
+      cell: (row) => (
+        <span className="flex flex-col items-end tabular-nums">
+          <span className="font-semibold">{formatRupees(row.pricePaise)}</span>
+          {row.mrpPaise === null ? null : (
+            <span className="text-caption text-text-secondary">
+              MRP {formatRupees(row.mrpPaise)}
+            </span>
+          )}
+        </span>
+      ),
+    },
+    {
+      key: 'availability',
+      header: 'Availability',
+      width: 'w-36',
+      cellClassName: 'whitespace-nowrap',
+      filter: (
+        <ColumnSelectFilter
+          form={FORM}
+          name="available"
+          label="Filter by availability"
+          value={state.available}
+          options={AVAILABILITY}
+        />
+      ),
+      cell: (row) =>
+        row.available ? (
+          <Badge tone="success">Available</Badge>
+        ) : (
+          <Badge tone="warning">Not available</Badge>
+        ),
+    },
+    ...(canEdit && state.status === 'ACTIVE'
+      ? [
+          {
+            key: 'action',
+            header: 'Action',
+            align: 'end' as const,
+            width: 'w-40',
+            cellClassName: 'whitespace-nowrap',
+            cell: (row: PackRow) => (
+              <ActionButtonForm
+                action={setPackAvailableAction.bind(
+                  null,
+                  shopId,
+                  row.productId,
+                  row.packId,
+                  !row.available,
+                )}
+                label={row.available ? 'Mark unavailable' : 'Mark available'}
+                pendingLabel="Saving…"
+                variant="tertiary"
+                accessibleLabel={`Mark ${row.productName} ${row.sizeLabel} ${
+                  row.available ? 'unavailable' : 'available'
+                }`}
+              />
+            ),
+          },
+        ]
+      : []),
+  ];
+
+  const nothingAtAll = data.tabCounts.ALL === 0 && !filtered;
 
   return (
     <div className="flex flex-col gap-6">
@@ -89,60 +328,13 @@ async function Catalogue({
       />
       <CatalogueTabs shopId={shopId} />
 
-      <div className="flex flex-col gap-4 medium:flex-row medium:items-end medium:justify-between">
-        <form
-          method="get"
-          action={base}
-          role="search"
-          className="flex w-full flex-col gap-3 medium:max-w-content medium:flex-row medium:items-end"
-        >
-          <div className="w-full medium:max-w-narrow">
-            <Field
-              label="Search products"
-              name="q"
-              type="search"
-              maxLength={60}
-              defaultValue={q}
-              placeholder="Product or brand name"
-              leadingIcon="search"
-            />
-          </div>
-          {status === 'ARCHIVED' ? (
-            <input type="hidden" name="status" value="ARCHIVED" />
-          ) : null}
-          <Button type="submit" variant="secondary" className="shrink-0">
-            Search
-          </Button>
-        </form>
-        <SegmentedLinks
-          label="Product status"
-          segments={(['ACTIVE', 'ARCHIVED'] as const).map((value) => ({
-            href: link({ status: value, cursor: undefined }),
-            label: value === 'ACTIVE' ? 'Selling' : 'Archived',
-            current: status === value,
-          }))}
-        />
-      </div>
-
-      {page.items.length === 0 ? (
+      {nothingAtAll && state.status === 'ACTIVE' ? (
         <StateMessage
-          icon={q ? 'search' : 'tag'}
-          title={
-            q
-              ? 'No products match your search'
-              : status === 'ARCHIVED'
-                ? 'No archived products'
-                : 'No products yet'
-          }
-          description={
-            q
-              ? 'Try another product or brand name.'
-              : status === 'ARCHIVED'
-                ? undefined
-                : 'Add products from the brand catalogue, or add your own. Your shop needs at least 10 products before it can be reviewed.'
-          }
+          icon="tag"
+          title="No products yet"
+          description="Add products from the brand catalogue, or add your own. Your shop needs at least 10 products before it can be reviewed."
           action={
-            canEdit && !q && status === 'ACTIVE' ? (
+            canEdit ? (
               <>
                 <ButtonLink href={`${base}/add`}>
                   Add from brand catalogue
@@ -155,99 +347,92 @@ async function Catalogue({
           }
         />
       ) : (
-        <ul className="flex flex-col gap-4">
-          {page.items.map((product) => (
-            <Card
-              as="li"
-              key={product.id}
-              className="flex flex-col gap-4 p-5 medium:p-6"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="flex min-w-0 flex-col gap-1">
-                  <Link
-                    href={`${base}/products/${product.id}`}
-                    className="group inline-flex w-fit items-center gap-2 rounded-nav-item text-heading3 font-semibold text-text-primary hover:text-brand-primary focus-visible:outline-2 focus-visible:outline-brand-primary"
-                  >
-                    {product.name}
-                    <Icon
-                      name="arrowRight"
-                      className="size-4 text-brand-primary transition-transform group-hover:translate-x-1"
-                    />
-                  </Link>
-                  <p className="text-body text-text-secondary">
-                    {productSubtitle(product)} ·{' '}
-                    {countLabel(product.packs.length, 'pack size')}
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <ProductBadges product={product} />
-                </div>
-              </div>
-              <ul className="flex flex-col divide-y divide-border-default rounded-panel border border-panel-border">
-                {product.packs.map((pack) => (
-                  <li
-                    key={pack.id}
-                    className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 px-4 py-3 medium:grid-cols-[6rem_12rem_minmax(0,1fr)_auto]"
-                  >
-                    <span className="text-body-large font-semibold text-text-primary">
-                      {pack.label}
-                    </span>
-                    <span className="text-right text-body-large text-text-primary tabular-nums medium:text-left">
-                      {formatRupees(pack.pricePaise)}
-                      {pack.mrpPaise === null ? null : (
-                        <span className="ml-2 text-body text-text-secondary">
-                          MRP {formatRupees(pack.mrpPaise)}
-                        </span>
-                      )}
-                    </span>
-                    <span>
-                      {pack.available ? (
-                        <Badge tone="success">Available</Badge>
-                      ) : (
-                        <Badge tone="warning">Unavailable</Badge>
-                      )}
-                    </span>
-                    <span className="justify-self-end">
-                      {canEdit && product.status === 'ACTIVE' ? (
-                        <ActionButtonForm
-                          action={setPackAvailableAction.bind(
-                            null,
-                            shopId,
-                            product.id,
-                            pack.id,
-                            !pack.available,
-                          )}
-                          label={
-                            pack.available
-                              ? 'Mark unavailable'
-                              : 'Mark available'
-                          }
-                          pendingLabel="Saving…"
-                          variant="tertiary"
-                          accessibleLabel={`Mark ${product.name} ${pack.label} ${
-                            pack.available ? 'unavailable' : 'available'
-                          }`}
-                        />
-                      ) : null}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          ))}
-        </ul>
-      )}
+        <>
+          <div className="flex flex-col gap-3 desktop:flex-row desktop:items-center desktop:justify-between">
+            <SegmentedLinks
+              label="Pack type"
+              segments={PACK_TABS.map((tab) => ({
+                href: link({
+                  tab,
+                  size: undefined,
+                  page: 1,
+                }),
+                label: `${TAB_LABELS[tab]} (${data.tabCounts[tab]})`,
+                current: state.tab === tab,
+              }))}
+            />
+            <SegmentedLinks
+              label="Product status"
+              segments={(['ACTIVE', 'ARCHIVED'] as const).map((status) => ({
+                href: link({ status, page: 1 }),
+                label: status === 'ACTIVE' ? 'Selling' : 'Archived',
+                current: state.status === status,
+              }))}
+            />
+          </div>
 
-      {page.nextCursor ? (
-        <div>
-          <ButtonLink
-            href={link({ cursor: page.nextCursor })}
-            variant="secondary"
+          {/* The column filters submit this form (see ColumnFilter). */}
+          <FilterForm
+            id={FORM}
+            action={base}
+            className="flex flex-wrap items-center justify-between gap-3"
           >
-            Next page
-          </ButtonLink>
-        </div>
-      ) : null}
+            {state.tab !== 'ALL' ? (
+              <input type="hidden" name="tab" value={state.tab} />
+            ) : null}
+            {state.status !== 'ACTIVE' ? (
+              <input type="hidden" name="status" value={state.status} />
+            ) : null}
+            {state.sort !== 'name' ? (
+              <input type="hidden" name="sort" value={state.sort} />
+            ) : null}
+            <p className="text-body text-text-secondary">
+              Filter by any column; press Enter to search by name.
+            </p>
+            {filtered ? (
+              <ButtonLink href={clearFilters} variant="tertiary">
+                Clear filters
+              </ButtonLink>
+            ) : null}
+          </FilterForm>
+
+          <DataTable
+            caption={`Pack sizes in your catalogue, ${TAB_LABELS[state.tab].toLowerCase()}`}
+            columns={columns}
+            rows={data.items}
+            rowKey={(row) => row.packId}
+            empty={
+              <StateMessage
+                icon="search"
+                title={
+                  filtered
+                    ? 'No pack sizes match these filters'
+                    : state.status === 'ARCHIVED'
+                      ? 'No archived products'
+                      : 'No pack sizes here'
+                }
+                action={
+                  filtered ? (
+                    <ButtonLink href={clearFilters} variant="secondary">
+                      Clear filters
+                    </ButtonLink>
+                  ) : undefined
+                }
+              />
+            }
+          />
+
+          <Pagination
+            page={data.page}
+            pageSize={data.pageSize}
+            total={data.total}
+            href={(page) => link({ page })}
+            form={FORM}
+            pageSizes={PACK_ROW_PAGE_SIZES}
+            noun="pack sizes"
+          />
+        </>
+      )}
     </div>
   );
 }

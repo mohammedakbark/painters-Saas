@@ -512,7 +512,12 @@ describe('Shop catalogue (e2e, real Postgres)', () => {
       ).body as { id: string };
 
       // B on A's shop id: not a member.
-      for (const path of ['/products', `/products/${product.id}`, '/shades']) {
+      for (const path of [
+        '/products',
+        `/products/${product.id}`,
+        '/shades',
+        '/pack-rows',
+      ]) {
         const response = await call(b, 'get', path, undefined, a.shopId).expect(
           404,
         );
@@ -558,6 +563,12 @@ describe('Shop catalogue (e2e, real Postgres)', () => {
       expect((await call(b, 'get', '/shades').expect(200)).body.items).toEqual(
         [],
       );
+      const rows = (await call(b, 'get', '/pack-rows').expect(200)).body as {
+        items: { productId: string }[];
+        tabCounts: { ALL: number };
+      };
+      expect(rows.items.map((row) => row.productId)).toEqual([own.id]);
+      expect(rows.tabCounts.ALL).toBe(1);
 
       // Nothing of A's changed.
       const after = await call(a, 'get', `/products/${product.id}`).expect(200);
@@ -572,6 +583,95 @@ describe('Shop catalogue (e2e, real Postgres)', () => {
       await request(server())
         .get(`/v1/shops/${a.shopId}/catalogue/products`)
         .expect(401);
+    });
+  });
+
+  describe('pack rows (catalogue table)', () => {
+    interface RowPage {
+      items: {
+        productName: string;
+        sizeLabel: string;
+        pricePaise: number;
+        available: boolean;
+        brandName: string | null;
+      }[];
+      total: number;
+      page: number;
+      pageSize: number;
+      tabCounts: Record<'ALL' | 'VOLUME' | 'WEIGHT' | 'PIECE', number>;
+      options: Record<
+        'brands' | 'categories' | 'sizes',
+        { value: string; label: string }[]
+      >;
+    }
+    const rows = async (owner: Owner, query = '') =>
+      (await call(owner, 'get', `/pack-rows${query}`).expect(200))
+        .body as RowPage;
+
+    it('lists one row per pack with tabs, filters, sort and pages', async () => {
+      const a = await shopOwner('919999900001', 'Lakshmi Paints');
+      // Silk Emulsion: 1 L (₹450) and 4 L (₹1,450), from the brand catalogue.
+      await listCatalogueProduct(a).expect(201);
+      // Wall Putty: 1 kg (₹120) and 20 kg; own product, typed brand.
+      const putty = (
+        await ownProduct(a, 'Wall Putty', {
+          packs: [
+            { quantity: 1, unit: 'KILOGRAM', pricePaise: 12000 },
+            { quantity: 20, unit: 'KILOGRAM', pricePaise: 90000 },
+          ],
+        }).expect(201)
+      ).body as ShopProduct;
+      await call(
+        a,
+        'patch',
+        `/products/${putty.id}/packs/${putty.packs[1].id}`,
+        { available: false },
+      ).expect(200);
+
+      const all = await rows(a);
+      expect(all.total).toBe(4);
+      expect(all.tabCounts).toEqual({ ALL: 4, VOLUME: 2, WEIGHT: 2, PIECE: 0 });
+      expect(all.items.map((r) => `${r.productName} ${r.sizeLabel}`)).toEqual([
+        'Silk Emulsion 1 L',
+        'Silk Emulsion 4 L',
+        'Wall Putty 1 kg',
+        'Wall Putty 20 kg',
+      ]);
+      expect(all.options.brands.map((o) => o.label)).toEqual([
+        'Local Brand',
+        'Sample Paints',
+      ]);
+
+      const weight = await rows(a, '?tab=WEIGHT');
+      expect(weight.items.map((r) => r.sizeLabel)).toEqual(['1 kg', '20 kg']);
+      expect(weight.options.sizes).toEqual([
+        { value: '1:KILOGRAM', label: '1 kg' },
+        { value: '20:KILOGRAM', label: '20 kg' },
+      ]);
+
+      expect((await rows(a, '?available=false')).items).toEqual([
+        expect.objectContaining({
+          productName: 'Wall Putty',
+          available: false,
+        }),
+      ]);
+      expect(
+        (await rows(a, '?size=4:LITRE')).items.map((r) => r.pricePaise),
+      ).toEqual([145000]);
+      expect((await rows(a, '?q=sample')).total).toBe(2);
+      expect((await rows(a, `?brand=${brandId}`)).total).toBe(2);
+      expect((await rows(a, '?brand=name:local%20brand')).total).toBe(2);
+      expect((await rows(a, `?categoryId=${categoryId}`)).total).toBe(4);
+
+      expect(
+        (await rows(a, '?sort=-price')).items.map((r) => r.pricePaise),
+      ).toEqual([145000, 90000, 45000, 12000]);
+      const page2 = await rows(a, '?pageSize=10&page=1');
+      expect(page2).toMatchObject({ page: 1, pageSize: 10, total: 4 });
+      expect((await rows(a, '?page=2')).items).toEqual([]);
+
+      await call(a, 'get', '/pack-rows?pageSize=7').expect(400);
+      await call(a, 'get', '/pack-rows?size=4L').expect(400);
     });
   });
 

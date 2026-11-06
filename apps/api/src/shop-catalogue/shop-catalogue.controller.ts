@@ -57,6 +57,10 @@ import {
   type FavouriteShadePage,
   FavouriteShadePageSchema,
   FavouriteShadeSchema,
+  type ShopPackRowPage,
+  ShopPackRowPageSchema,
+  type ShopPackRowQuery,
+  ShopPackRowQuerySchema,
   type ShopProductListQuery,
   ShopProductListQuerySchema,
   type ShopProductPage,
@@ -117,6 +121,21 @@ export class ShopCatalogueController {
     @Query({ schema: ShopProductListQuerySchema }) query: ShopProductListQuery,
   ): Promise<ShopProductPage> {
     return this.products.list(shop, query);
+  }
+
+  @Get('pack-rows')
+  @ShopScoped()
+  @ApiOperation({
+    summary:
+      'One row per pack for the catalogue table: filtered, sorted and paged, with the filter options.',
+  })
+  @ApiOkResponse({ standardSchema: ShopPackRowPageSchema })
+  @ApiBadRequestResponse(PROBLEM)
+  listPackRows(
+    @CurrentShop() shop: ShopContext,
+    @Query({ schema: ShopPackRowQuerySchema }) query: ShopPackRowQuery,
+  ): Promise<ShopPackRowPage> {
+    return this.products.packRows(shop, query);
   }
 
   @Post('products')

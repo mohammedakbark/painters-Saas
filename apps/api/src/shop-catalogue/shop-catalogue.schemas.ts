@@ -418,3 +418,105 @@ export type FavouriteShade = z.infer<typeof FavouriteShadeSchema>;
 export type FavouriteShadePage = z.infer<typeof FavouriteShadePageSchema>;
 export type ShopShadeResponse = z.infer<typeof ShopShadeSchema>;
 export type ShopShadePage = z.infer<typeof ShopShadePageSchema>;
+
+// --- Pack rows (CAT-003): one row per pack, for the catalogue table --------
+
+export const PACK_TABS = ['ALL', 'VOLUME', 'WEIGHT', 'PIECE'] as const;
+export const PACK_ROW_PAGE_SIZES = [10, 25, 50] as const;
+
+export const ShopPackRowQuerySchema = z
+  .object({
+    tab: z
+      .enum(PACK_TABS, { error: 'tab must be ALL, VOLUME, WEIGHT or PIECE.' })
+      .default('ALL'),
+    status: z
+      .enum(['ACTIVE', 'ARCHIVED'], {
+        error: 'status must be ACTIVE or ARCHIVED.',
+      })
+      .default('ACTIVE'),
+    q: search,
+    brand: z
+      .string()
+      .max(130, { error: 'brand must be a brand from the options.' })
+      .optional()
+      .meta({ description: 'A brand key from options.brands.' }),
+    categoryId: z
+      .uuid({ error: 'categoryId must be a category id.' })
+      .optional(),
+    size: z
+      .string()
+      .regex(/^\d+(\.\d+)?:(LITRE|MILLILITRE|KILOGRAM|GRAM|PIECE)$/, {
+        error: 'size must look like 4:LITRE.',
+      })
+      .optional(),
+    available: z
+      .enum(['true', 'false'], { error: 'available must be true or false.' })
+      .optional(),
+    sort: z
+      .enum(['name', '-name', 'price', '-price'], {
+        error: 'sort must be name, -name, price or -price.',
+      })
+      .default('name'),
+    page: z.coerce
+      .number({ error: 'page must be a number.' })
+      .int({ error: 'page must be a whole number.' })
+      .min(1, { error: 'page must be at least 1.' })
+      .default(1),
+    pageSize: z.coerce
+      .number({ error: 'pageSize must be a number.' })
+      .refine(
+        (value) => (PACK_ROW_PAGE_SIZES as readonly number[]).includes(value),
+        {
+          error: 'pageSize must be 10, 25 or 50.',
+        },
+      )
+      .default(25),
+  })
+  .meta({ id: 'ShopPackRowQuery' });
+
+const option = z.object({ value: z.string(), label: z.string() });
+
+export const ShopPackRowPageSchema = z
+  .object({
+    items: z.array(
+      z.object({
+        packId: z.uuid(),
+        productId: z.uuid(),
+        productName: z.string(),
+        source: z.enum(['catalogue', 'own']),
+        productStatus: z.enum(['ACTIVE', 'ARCHIVED']),
+        catalogueActive: z.boolean(),
+        brandName: z.string().nullable(),
+        categoryName: z.string(),
+        sizeLabel: z.string(),
+        quantity: z.number(),
+        unit: z.enum(PackUnit),
+        pricePaise: z.int(),
+        mrpPaise: z.int().nullable(),
+        available: z.boolean(),
+      }),
+    ),
+    total: z.int(),
+    page: z.int(),
+    pageSize: z.int(),
+    tabCounts: z.object({
+      ALL: z.int(),
+      VOLUME: z.int(),
+      WEIGHT: z.int(),
+      PIECE: z.int(),
+    }),
+    options: z
+      .object({
+        brands: z.array(option),
+        categories: z.array(option),
+        sizes: z.array(option),
+      })
+      .meta({
+        description:
+          'Filter values that exist in this shop for the current tab and status.',
+      }),
+  })
+  .meta({ id: 'ShopPackRowPage' });
+
+export type ShopPackRowQuery = z.infer<typeof ShopPackRowQuerySchema>;
+export type ShopPackRowPage = z.infer<typeof ShopPackRowPageSchema>;

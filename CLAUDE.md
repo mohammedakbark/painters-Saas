@@ -60,6 +60,12 @@ Follow `docs/DESIGN_SYSTEM.md`. Its tokens are provisional, but do not introduce
 
 Screens use only the shared components (D-039): `apps/admin_web/src/components/ui` on the web and `flutter_shared` components in Flutter (`AppButton`, `AppTextField`, `AppDropdown`, `showAppBottomSheet`, `showAppDialog`, `showAppSnackBar`, …), never raw framework controls, base radii or literal colours. Components take their looks from the component tokens in `packages/design_tokens/tokens.json`. If a screen needs a new kind of control, add it as a component first. `pnpm ui:check` enforces this in CI.
 
+Lists and status (product owner, 2026-11-06; details in `.claude/skills/ui-implementation/SKILL.md`):
+- Web lists that can pass about 20 rows use `DataTable` with server-side pagination and a filter per column kept in the URL. Mobile apps use mobile patterns (search, filter sheet, load more), never tables.
+- Each status has its own token colour; opposite states (Available / Not available) must never look alike.
+- UI rollout order: shop admin web, platform admin web, Shop App, Customer App.
+- Work efficiently: small fixes need no plan or long report.
+
 ## 7. One-feature-at-a-time workflow
 
 For every task:

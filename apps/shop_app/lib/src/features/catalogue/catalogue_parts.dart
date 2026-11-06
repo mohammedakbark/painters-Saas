@@ -41,7 +41,7 @@ class PackPriceLine extends StatelessWidget {
             ),
           ),
         if (!pack.available)
-          const AppBadge(label: 'Unavailable', tone: AppTone.warning),
+          const AppBadge(label: 'Not available', tone: AppTone.warning),
       ],
     );
   }

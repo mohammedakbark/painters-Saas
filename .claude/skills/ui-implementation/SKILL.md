@@ -33,4 +33,12 @@ Use for Customer App, Shop App and admin web UI work.
 - Do not duplicate design tokens in individual screens.
 - Keep API/business rules out of presentation widgets.
 
+## Lists, status colours and rollout (product owner, 2026-11-06)
+- **Web lists that can grow past about 20 rows** use `DataTable` + `ColumnFilter` + `Pagination` (CAT-003): server-side filtering and paging, filters in the URL (`FilterForm`), a filter per column, tabs for big groupings (for example litres / kilograms), sortable name and price. The same table stacks into cards on phones.
+- **Mobile apps never use tables:** search, a filter bottom sheet, chips for active filters and a list with "Load more". Design for the thumb first.
+- **Status colours:** every state has its own token colour (filled soft badge with a dot: green success, amber warning, red error, blue info, grey neutral). Opposite states (Available / Not available, Live / Draft) must never look alike. Always keep the words.
+- **Copy:** follow DESIGN_SYSTEM §9a (sentence case, "Not available", "Sign in").
+- **Rollout order for UI work:** shop admin web, then platform admin web, then the Shop App, then the Customer App. One area at a time, each verified in a browser or emulator.
+- **Efficiency:** small fixes go straight to the change and a short check; plans, screenshots and long reports are for features.
+
 Review small mobile widths, larger phones and responsive web. Verify accessibility labels, keyboard behavior, contrast and readable text. Update the design-system document if tokens change.
