@@ -1,6 +1,6 @@
 # Day 02: POV, ordering from the site (Reel)
 
-Files: the cover is `cover.png`. The script and beat sheet are in `script.md`. The approved style frame is `frame-order.png`.
+Files: **`day-02-reel.mp4`** (the video: 21 s, 1080×1920, 30 fps, H.264, silent, fully animated; add a trending track in Instagram). The cover is `cover.png`. The script is `script.md`. The animation source is `reel.html` (re-render with `scripts/reel-capture.mjs`). The approved style frame is `frame-order.png`.
 
 ## Caption
 

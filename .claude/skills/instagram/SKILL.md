@@ -65,7 +65,12 @@ Write `output/day-XX-reel/script.md` with:
 3. **Beat sheet** (timed table): `0–3 s` hook · `3–n s` 2–4 beats (problem → feature → outcome) · last 3 s CTA + "Powered by zero.byt" end card.
 4. **Shot list**: per beat, what to film. Use screen recordings of **real implemented screens** (see `docs/PROJECT_STATE.md` for what exists: Shop App sign-in and catalogue, web shop profile/catalogue, the public home page) with fictional sample data (`pnpm --filter api catalogue:seed-sample`), plus simple phone-in-hand or shop-counter b-roll. For features not built yet, use text-on-screen or a simple animated card, never a fake UI.
 5. **On-screen text** per beat (≤ 7 words) and **voice-over** in English.
-6. **Cover**: copy `templates/reel-cover.html` to `output/day-XX-reel/cover.html`, fill KICKER, HOOK_1 (white line), HOOK_2 (yellow line) and SUB (usually the tagline), render at `1080 1920`, and inspect it as in 4a (text must stay inside the centre 1080×1350 safe zone).
+6. **Video (MP4)**: after the owner approves the script and sample frame, build the reel as a fully animated video (no real footage). Write `output/day-XX-reel/reel.html`: one page, 1080×1920, scenes in the approved A style, and a deterministic `window.render(t)` that draws the exact frame for time `t` in seconds. Use `output/day-02-reel/reel.html` as the reference (POV tag, progress bar, caption, cards, subtitle bar, lockup).
+   - Check stills first: `node .claude/skills/instagram/scripts/reel-capture.mjs <reel.html> <prefix> 0 30 --stills 2.5,6,10` and look at each one.
+   - Then encode: `node .claude/skills/instagram/scripts/reel-capture.mjs <reel.html> output/day-XX-reel/day-XX-reel.mp4 <seconds> 30`. This needs ffmpeg (`winget install Gyan.FFmpeg`); set `FFMPEG` to its path if it isn't on PATH yet.
+   - Verify with an ffmpeg contact sheet (`-vf fps=1,scale=270:480,tile=7x3`).
+   - The MP4 is silent; the owner adds trending audio in Instagram.
+7. **Cover**: copy `templates/reel-cover.html` to `output/day-XX-reel/cover.html`, fill KICKER, HOOK_1 (white line), HOOK_2 (yellow line) and SUB (usually the tagline), render at `1080 1920`, and inspect it as in 4a (text must stay inside the centre 1080×1350 safe zone).
 
 ## 5. Caption (both formats)
 

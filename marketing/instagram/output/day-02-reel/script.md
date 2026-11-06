@@ -2,6 +2,12 @@
 
 **Approved look:** `frame-order.png` (the 11–15 s beat, approved by the product owner on 2026-11-06). Build every app beat in this style: teal A background with rings, a coral "POV" tag, a top progress bar (5 segments), a big white + yellow two-line caption, a cream animated card, a subtitle bar, and the Powered by zero.byt lockup.
 
+## Production (2026-11-06)
+
+The product owner chose a **fully animated** video, made by Claude. The b-roll scenes in the beat sheet below (ladder, bucket, phone) are illustrated animations instead of filmed footage. The S2 caption is "Call the shop? No reply?".
+
+Output: `day-02-reel.mp4`. Source: `reel.html`.
+
 ## Hooks
 
 | Hook | Specific | Audience | Curiosity | Truth | Total |
