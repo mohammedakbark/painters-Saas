@@ -12,6 +12,7 @@ import { SelectField } from '@/components/ui/select-field';
 import { TextareaField } from '@/components/ui/textarea-field';
 import type { CatalogueFormState } from '@/lib/catalogue/form-state';
 import { OWN_PACK_ROWS, packFields } from '@/lib/shop-catalogue/forms';
+import { RequiredFieldsNote } from '@/components/ui/field-label';
 import { PackPriceFields } from './pack-price-fields';
 
 export type FormAction = (
@@ -57,6 +58,7 @@ export function CatalogueListingForm({
       className="flex flex-col gap-5"
     >
       <FormStatus state={state} />
+      <RequiredFieldsNote />
       {errors.form ? (
         <Alert tone="error" title="Not added">
           {errors.form}
@@ -138,6 +140,7 @@ export function OwnProductForm({
       className="flex flex-col gap-5"
     >
       <FormStatus state={state} />
+      <RequiredFieldsNote />
       <Field
         label="Product name"
         name="name"
@@ -222,6 +225,7 @@ export function OwnProductForm({
               >
                 <Field
                   label={`Pack size ${row + 1}`}
+                  required={row === 0}
                   name={fields.size}
                   maxLength={20}
                   placeholder="4 L"
@@ -231,6 +235,7 @@ export function OwnProductForm({
                 <PackPriceFields
                   rowKey={key}
                   packLabel={`pack ${row + 1}`}
+                  priceRequired={row === 0}
                   values={values}
                   errors={errors}
                 />
@@ -341,10 +346,12 @@ export function AddPackForm({
       className="flex flex-col gap-4"
     >
       <FormStatus state={state} />
+      <RequiredFieldsNote />
       <div className="grid gap-3 medium:grid-cols-2 medium:items-start">
         {cataloguePacks ? (
           <SelectField
             label="Pack size"
+            required
             name="cataloguePackId"
             options={[
               { value: '', label: 'Choose' },
@@ -356,6 +363,7 @@ export function AddPackForm({
         ) : (
           <Field
             label="Pack size"
+            required
             name={fields.size}
             maxLength={20}
             placeholder="4 L"
@@ -454,6 +462,7 @@ export function OwnShadeForm({
       className="flex flex-col gap-4"
     >
       <FormStatus state={state} />
+      <RequiredFieldsNote />
       <div className="grid gap-3 medium:grid-cols-2 medium:items-start">
         <Field
           label="Shade code"

@@ -97,6 +97,7 @@ class AppRadioGroup<T> extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.error,
+    this.isRequired = false,
   });
 
   /// Spoken and shown above the options.
@@ -106,18 +107,23 @@ class AppRadioGroup<T> extends StatelessWidget {
   final ValueChanged<T?> onChanged;
   final String? error;
 
+  /// Shows the required marker (a red asterisk) after the label.
+  final bool isRequired;
+
   @override
   Widget build(BuildContext context) {
     final error = this.error;
     return Semantics(
       container: true,
-      label: label,
+      label: isRequired ? '$label, required' : label,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            label,
+          DefaultTextStyle.merge(
             style: AppTypography.body.copyWith(fontWeight: FontWeight.w500),
+            child: ExcludeSemantics(
+              child: isRequired ? appRequiredLabel(label) : Text(label),
+            ),
           ),
           RadioGroup<T>(
             groupValue: value,

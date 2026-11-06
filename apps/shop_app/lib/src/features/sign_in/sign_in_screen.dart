@@ -90,6 +90,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     AppTextField(
       key: const Key('phone-field'),
       label: 'Mobile number',
+      isRequired: true,
       controller: _phone,
       enabled: !state.busy,
       keyboardType: TextInputType.phone,
@@ -126,6 +127,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     AppTextField(
       key: const Key('code-field'),
       label: '6-digit code',
+      isRequired: true,
       controller: _code,
       enabled: !state.busy,
       keyboardType: TextInputType.number,

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ButtonLink } from '@/components/ui/button-link';
 import { Field } from '@/components/ui/field';
 import type { RegisterShopFormState } from '@/lib/shops/register';
+import { RequiredFieldsNote } from '@/components/ui/field-label';
 
 export type RegisterShopAction = (
   previous: RegisterShopFormState,
@@ -21,6 +22,7 @@ export function RegisterShopForm({ action }: { action: RegisterShopAction }) {
 
   return (
     <form action={formAction} noValidate className="flex flex-col gap-5">
+      <RequiredFieldsNote />
       {state.formError ? (
         <Alert tone="error" title="Registration failed">
           {state.formError}

@@ -11,10 +11,30 @@ OutlineInputBorder _border(Color color, {double width = 1}) =>
       borderSide: BorderSide(color: color, width: width),
     );
 
+/// The label of a required field: the name and a red asterisk. Screen
+/// readers hear the name and "required" instead of "star".
+Widget appRequiredLabel(String label) => Text.rich(
+  TextSpan(
+    text: label,
+    children: const [
+      TextSpan(
+        text: ' *',
+        semanticsLabel: ', required',
+        style: TextStyle(
+          color: AppColors.statusError,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    ],
+  ),
+);
+
 /// The decoration every text field and dropdown uses (D-039): label always
-/// visible, helper and error text, radius and colours from the tokens.
+/// visible (with a red asterisk when [isRequired]), helper and error text,
+/// radius and colours from the tokens.
 InputDecoration appInputDecoration({
   required String label,
+  bool isRequired = false,
   String? hint,
   String? helper,
   String? error,
@@ -23,7 +43,8 @@ InputDecoration appInputDecoration({
   Widget? suffixIcon,
   String? counterText,
 }) => InputDecoration(
-  labelText: label,
+  labelText: isRequired ? null : label,
+  label: isRequired ? appRequiredLabel(label) : null,
   hintText: hint,
   helperText: helper,
   helperMaxLines: 3,
@@ -66,6 +87,7 @@ class AppTextField extends StatelessWidget {
     this.autofillHints,
     this.enabled = true,
     this.autofocus = false,
+    this.isRequired = false,
   });
 
   final String label;
@@ -88,6 +110,9 @@ class AppTextField extends StatelessWidget {
   final bool enabled;
   final bool autofocus;
 
+  /// Shows the required marker (a red asterisk) after the label.
+  final bool isRequired;
+
   @override
   Widget build(BuildContext context) {
     return TextField(
@@ -103,6 +128,7 @@ class AppTextField extends StatelessWidget {
       autofillHints: autofillHints,
       decoration: appInputDecoration(
         label: label,
+        isRequired: isRequired,
         hint: hint,
         helper: helper,
         error: error,
@@ -184,6 +210,7 @@ class AppDropdown<T> extends StatelessWidget {
     required this.onChanged,
     this.helper,
     this.error,
+    this.isRequired = false,
   });
 
   final String label;
@@ -194,6 +221,9 @@ class AppDropdown<T> extends StatelessWidget {
   final ValueChanged<T?>? onChanged;
   final String? helper;
   final String? error;
+
+  /// Shows the required marker (a red asterisk) after the label.
+  final bool isRequired;
 
   @override
   Widget build(BuildContext context) {
@@ -208,6 +238,7 @@ class AppDropdown<T> extends StatelessWidget {
       menuMaxHeight: AppSpacing.s64 * 6,
       decoration: appInputDecoration(
         label: label,
+        isRequired: isRequired,
         helper: helper,
         error: error,
       ),

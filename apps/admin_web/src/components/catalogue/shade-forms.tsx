@@ -6,6 +6,7 @@ import { Field } from '@/components/ui/field';
 import type { CatalogueFormState } from '@/lib/catalogue/form-state';
 import type { CatalogueAction } from './brand-forms';
 import { FormStatus } from './form-status';
+import { RequiredFieldsNote } from '@/components/ui/field-label';
 
 /** "Add a shade": code, name and an optional indicative colour. */
 export function ShadeCreateForm({ action }: { action: CatalogueAction }) {
@@ -14,6 +15,7 @@ export function ShadeCreateForm({ action }: { action: CatalogueAction }) {
   return (
     <form action={formAction} noValidate className="flex flex-col gap-4">
       <FormStatus state={state} />
+      <RequiredFieldsNote />
       <div className="grid gap-3 medium:grid-cols-3 medium:items-start">
         <Field
           label="Shade code"

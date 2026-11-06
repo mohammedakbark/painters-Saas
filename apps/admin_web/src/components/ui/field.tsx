@@ -1,5 +1,6 @@
 import type { InputHTMLAttributes } from 'react';
 import { cn } from '@/lib/cn';
+import { FieldLabel } from './field-label';
 import { Icon, type IconName } from './icon';
 
 export interface FieldProps extends Omit<
@@ -28,6 +29,7 @@ export function Field({
   prefix,
   leadingIcon,
   className,
+  required,
   ...input
 }: FieldProps) {
   const id = `field-${name}`;
@@ -38,9 +40,9 @@ export function Field({
 
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor={id} className="text-body font-medium text-text-primary">
+      <FieldLabel htmlFor={id} required={required}>
         {label}
-      </label>
+      </FieldLabel>
       {description ? (
         <p id={descriptionId} className="text-caption text-text-secondary">
           {description}
@@ -64,6 +66,7 @@ export function Field({
             id={id}
             name={name}
             aria-invalid={error ? true : undefined}
+            aria-required={required || undefined}
             aria-describedby={
               [`${id}-prefix`, describedBy].filter(Boolean).join(' ') ||
               undefined
@@ -88,6 +91,7 @@ export function Field({
             id={id}
             name={name}
             aria-invalid={error ? true : undefined}
+            aria-required={required || undefined}
             aria-describedby={describedBy}
             className={cn(
               'min-h-control w-full rounded-control border bg-control-background text-body-large text-text-primary',

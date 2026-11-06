@@ -1,5 +1,6 @@
 import type { TextareaHTMLAttributes } from 'react';
 import { cn } from '@/lib/cn';
+import { FieldLabel } from './field-label';
 
 export interface TextareaFieldProps extends Omit<
   TextareaHTMLAttributes<HTMLTextAreaElement>,
@@ -18,6 +19,7 @@ export function TextareaField({
   description,
   error,
   className,
+  required,
   ...textarea
 }: TextareaFieldProps) {
   const id = `field-${name}`;
@@ -28,9 +30,9 @@ export function TextareaField({
 
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor={id} className="text-body font-medium text-text-primary">
+      <FieldLabel htmlFor={id} required={required}>
         {label}
-      </label>
+      </FieldLabel>
       {description ? (
         <p id={descriptionId} className="text-caption text-text-secondary">
           {description}
@@ -41,6 +43,7 @@ export function TextareaField({
         name={name}
         rows={3}
         aria-invalid={error ? true : undefined}
+        aria-required={required || undefined}
         aria-describedby={describedBy}
         className={cn(
           'rounded-control border bg-control-background px-4 py-3 text-body-large text-text-primary',

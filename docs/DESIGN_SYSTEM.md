@@ -91,6 +91,11 @@ Prefer subtle borders over heavy shadows. Do not wrap every content section in a
 - Minimum mobile touch target: 48 × 48 logical pixels where practical.
 - Buttons need action-oriented labels.
 - Inputs need labels, helper text, validation, disabled and loading states.
+- **Required fields (DS-004, product owner 2026-11-06):** every required field shows a red asterisk after its label (`status.error`), and the control tells screen readers it is required (web `aria-required`; Flutter a spoken ", required"). Pass `required` to `Field`, `SelectField`, `TextareaField`, `FileField` and the choice groups, or `isRequired` to `AppTextField`, `AppDropdown` and `AppRadioGroup`.
+  - A form with more than one field explains the marker once, above the fields: `RequiredFieldsNote` ("Fields marked * are required.").
+  - Mark a field only when the server rejects the form without it. A field that is needed only in some cases (for example the extra pack rows of a new product) is not marked.
+  - On the shop profile the marker means "needed before the shop can be submitted for review"; the note says so, because the profile can be saved part-filled.
+  - Optional fields keep "(optional)" in the label. The browser's own required pop-ups are not used; the server's messages show next to the field.
 - Confirm destructive actions involving data loss or financial changes.
 - Include loading, empty, error and success states for data-driven screens.
 - Do not rely only on toast messages for important financial/order updates.

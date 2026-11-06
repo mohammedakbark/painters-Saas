@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { RequiredMark } from '@/components/ui/field-label';
 import { FileField } from '@/components/ui/file-field';
 import {
   checkImageFile,
@@ -38,6 +39,7 @@ export function ImageUploadForm({
   description,
   noun,
   fieldName,
+  required = false,
 }: {
   action: UploadImageAction;
   currentUrl: string | null;
@@ -47,6 +49,8 @@ export function ImageUploadForm({
   noun: ImageNoun;
   /** Form field the action reads, for example "photo". */
   fieldName: string;
+  /** Marks the image as required (for example the shop photo for review). */
+  required?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(action, {});
   const [preview, setPreview] = useState<string | null>(null);
@@ -91,7 +95,15 @@ export function ImageUploadForm({
       aria-describedby={error ? errorId : undefined}
     >
       <fieldset disabled={!canEdit} className="flex flex-col gap-4">
-        <legend className="mb-2 text-heading3 font-semibold">{title}</legend>
+        <legend className="mb-2 text-heading3 font-semibold">
+          {title}
+          {required ? (
+            <>
+              <RequiredMark />
+              <span className="sr-only"> (required)</span>
+            </>
+          ) : null}
+        </legend>
         <p className="text-body text-text-secondary">{description}</p>
         <Card
           tone="subtle"
@@ -123,6 +135,7 @@ export function ImageUploadForm({
             }
             name={fieldName}
             accept={IMAGE_ACCEPT}
+            required
             onChange={choose}
             error={error ?? undefined}
           />

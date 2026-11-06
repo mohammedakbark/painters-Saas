@@ -1,6 +1,7 @@
 'use client';
 
 import { type FormEvent, startTransition, useActionState } from 'react';
+import { RequiredFieldsNote } from '@/components/ui/field-label';
 import { FormStatus } from '@/components/catalogue/form-status';
 import { Button } from '@/components/ui/button';
 import {
@@ -61,8 +62,10 @@ export function ReviewDecisionForm({ action }: { action: DecisionAction }) {
       className="flex flex-col gap-5"
     >
       <FormStatus state={state} />
+      <RequiredFieldsNote />
       <RadioGroupField
         legend="Decision"
+        required
         name="decision"
         options={DECISIONS}
         defaultValue={values?.decision}

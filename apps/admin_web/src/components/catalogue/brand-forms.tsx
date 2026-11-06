@@ -56,6 +56,7 @@ export function BrandSettingsForm({
           {/* "brandName": this form shares pages with others that use "name". */}
           <Field
             label="Brand name"
+            required
             name="brandName"
             maxLength={80}
             defaultValue={state.values?.brandName ?? name}
@@ -145,6 +146,7 @@ export function CategoryRowForm({
       <div className="grid gap-3 medium:grid-cols-[minmax(0,1fr)_var(--container-sidebar)_auto] medium:items-end">
         <Field
           label="Name"
+          required
           name={`name-${id}`}
           maxLength={60}
           defaultValue={state.values?.name ?? name}

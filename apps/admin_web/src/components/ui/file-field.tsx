@@ -1,5 +1,6 @@
 import type { InputHTMLAttributes } from 'react';
 import { cn } from '@/lib/cn';
+import { FieldLabel } from './field-label';
 
 export interface FileFieldProps extends Omit<
   InputHTMLAttributes<HTMLInputElement>,
@@ -22,6 +23,7 @@ export function FileField({
   description,
   error,
   className,
+  required,
   ...input
 }: FileFieldProps) {
   const id = `field-${name}`;
@@ -32,9 +34,9 @@ export function FileField({
 
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor={id} className="text-body font-medium text-text-primary">
+      <FieldLabel htmlFor={id} required={required}>
         {label}
-      </label>
+      </FieldLabel>
       {description ? (
         <p id={descriptionId} className="text-caption text-text-secondary">
           {description}
@@ -45,6 +47,7 @@ export function FileField({
         name={name}
         type="file"
         aria-invalid={error ? true : undefined}
+        aria-required={required || undefined}
         aria-describedby={describedBy}
         className={cn(
           'text-body text-text-primary',

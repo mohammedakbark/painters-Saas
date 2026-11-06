@@ -13,6 +13,7 @@ export function PackPriceFields({
   errors,
   initial,
   disabled,
+  priceRequired = true,
 }: {
   rowKey: string;
   /** For example "4 L"; names the fields for screen readers. */
@@ -21,6 +22,8 @@ export function PackPriceFields({
   errors: Record<string, string>;
   initial?: { mrp: string; price: string; available: boolean };
   disabled?: boolean;
+  /** False for optional rows, such as the extra pack rows of a new product. */
+  priceRequired?: boolean;
 }) {
   const fields = packFields(rowKey);
   const available = values
@@ -40,6 +43,7 @@ export function PackPriceFields({
       />
       <Field
         label={`Price of ${packLabel} (₹)`}
+        required={priceRequired}
         name={fields.price}
         inputMode="decimal"
         autoComplete="off"

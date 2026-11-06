@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { RequiredMark } from '@/components/ui/field-label';
 import { cn } from '@/lib/cn';
 import {
   GEOLOCATION_MESSAGES,
@@ -109,7 +110,11 @@ export function LocationPicker({
       disabled={disabled}
       aria-describedby={errorId}
     >
-      <legend className="text-heading3 font-semibold">Map location</legend>
+      <legend className="text-heading3 font-semibold">
+        Map location
+        <RequiredMark />
+        <span className="sr-only"> (required)</span>
+      </legend>
       <p className="text-body text-text-secondary">
         Customers will find your shop with this pin. Stand at the shop and use
         your current location, or search and place the pin on the map.

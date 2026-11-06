@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { PageLoading } from '@/components/layout/page-loading';
 import { Alert } from '@/components/ui/alert';
 import { Card } from '@/components/ui/card';
+import { RequiredFieldsNote } from '@/components/ui/field-label';
 import { PageHeader } from '@/components/ui/page-header';
 import { getShopProfile, type ShopProfile } from '@/lib/api/shop-profile';
 import { requireShopAccess, requireShopSession } from '@/lib/auth/shop-access';
@@ -66,6 +67,12 @@ async function ShopProfileContent({
         title="Shop profile"
         description="Photo, support mobile, address and map location. Customers see these once your shop is live."
       />
+      {canEdit ? (
+        <RequiredFieldsNote>
+          are needed before you can submit your shop for review. You can save
+          the profile at any time.
+        </RequiredFieldsNote>
+      ) : null}
       <div className="grid items-start gap-6 desktop:grid-cols-[minmax(0,1fr)_22rem]">
         <Card
           as="section"
@@ -81,6 +88,7 @@ async function ShopProfileContent({
             action={uploadShopPhotoAction.bind(null, shop.id)}
             currentUrl={profile.photo?.url ?? null}
             canEdit={canEdit}
+            required
           />
         </Card>
         <ShopProfileForm

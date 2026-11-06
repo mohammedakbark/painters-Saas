@@ -142,6 +142,34 @@ void main() {
       expect(decoration.errorText, 'Enter the price.');
       expect(decoration.prefixText, '₹ ');
     });
+
+    testWidgets('a required field shows a red asterisk and says "required"', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _host(const AppTextField(label: 'Your price', isRequired: true)),
+      );
+
+      final label = find.byWidgetPredicate(
+        (widget) =>
+            widget is Text &&
+            widget.textSpan?.toPlainText(includeSemanticsLabels: false) ==
+                'Your price *',
+      );
+      expect(label, findsOneWidget);
+      final rich = tester.widget<Text>(label);
+      final mark = (rich.textSpan! as TextSpan).children!.single as TextSpan;
+      expect(mark.style!.color, AppColors.statusError);
+      expect(find.bySemanticsLabel(RegExp('Your price, required')), findsOne);
+      semantics.dispose();
+    });
+
+    testWidgets('an optional field has no marker', (tester) async {
+      await tester.pumpWidget(_host(const AppTextField(label: 'Landmark')));
+      expect(find.text('Landmark'), findsOneWidget);
+      expect(find.textContaining('*'), findsNothing);
+    });
   });
 
   group('AppSearchField', () {

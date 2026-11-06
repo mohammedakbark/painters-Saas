@@ -134,6 +134,7 @@ export function ShopProfileForm({
           </legend>
           <Field
             label="Support mobile number"
+            required
             type="tel"
             inputMode="tel"
             autoComplete="tel-national"
@@ -181,6 +182,7 @@ export function ShopProfileForm({
           ) : null}
           <Field
             label="Shop number, building and street"
+            required
             autoComplete="address-line1"
             maxLength={200}
             {...text('line1')}
@@ -200,19 +202,27 @@ export function ShopProfileForm({
           <div className="grid gap-5 medium:grid-cols-2">
             <Field
               label="City or town"
+              required
               autoComplete="address-level2"
               maxLength={80}
               {...text('city')}
             />
-            <Field label="District" maxLength={80} {...text('district')} />
+            <Field
+              label="District"
+              required
+              maxLength={80}
+              {...text('district')}
+            />
             <SelectField
               label="State"
+              required
               autoComplete="address-level1"
               options={STATE_OPTIONS}
               {...text('stateCode')}
             />
             <Field
               label="PIN code"
+              required
               inputMode="numeric"
               autoComplete="postal-code"
               maxLength={6}

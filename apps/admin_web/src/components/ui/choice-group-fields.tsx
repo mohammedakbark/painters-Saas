@@ -2,6 +2,7 @@
 // hint, one labelled control per option and an accessible error.
 
 import type { ReactNode } from 'react';
+import { RequiredMark } from './field-label';
 
 export interface ChoiceOption {
   value: string;
@@ -15,6 +16,8 @@ interface GroupProps {
   options: readonly ChoiceOption[];
   hint?: string;
   error?: string;
+  /** Shows the required marker; a choice must be made. */
+  required?: boolean;
 }
 
 function GroupFrame({
@@ -22,6 +25,7 @@ function GroupFrame({
   name,
   hint,
   error,
+  required,
   children,
 }: Omit<GroupProps, 'options'> & { children: ReactNode }) {
   const hintId = hint ? `${name}-hint` : undefined;
@@ -33,7 +37,15 @@ function GroupFrame({
         [hintId, errorId].filter(Boolean).join(' ') || undefined
       }
     >
-      <legend className="text-body-large font-semibold">{legend}</legend>
+      <legend className="text-body-large font-semibold">
+        {legend}
+        {required ? (
+          <>
+            <RequiredMark />
+            <span className="sr-only"> (required)</span>
+          </>
+        ) : null}
+      </legend>
       {hint ? (
         <p id={hintId} className="text-caption text-text-secondary">
           {hint}

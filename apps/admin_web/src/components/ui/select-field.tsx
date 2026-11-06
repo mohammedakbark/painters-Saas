@@ -1,5 +1,6 @@
 import type { SelectHTMLAttributes } from 'react';
 import { cn } from '@/lib/cn';
+import { FieldLabel } from './field-label';
 
 export interface SelectFieldProps extends Omit<
   SelectHTMLAttributes<HTMLSelectElement>,
@@ -21,6 +22,7 @@ export function SelectField({
   description,
   error,
   className,
+  required,
   ...select
 }: SelectFieldProps) {
   const id = `field-${name}`;
@@ -31,9 +33,9 @@ export function SelectField({
 
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor={id} className="text-body font-medium text-text-primary">
+      <FieldLabel htmlFor={id} required={required}>
         {label}
-      </label>
+      </FieldLabel>
       {description ? (
         <p id={descriptionId} className="text-caption text-text-secondary">
           {description}
@@ -43,6 +45,7 @@ export function SelectField({
         id={id}
         name={name}
         aria-invalid={error ? true : undefined}
+        aria-required={required || undefined}
         aria-describedby={describedBy}
         className={cn(
           'min-h-control rounded-control border bg-control-background px-4 text-body-large text-text-primary',

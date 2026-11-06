@@ -4,10 +4,15 @@ import { AppShell } from '@/components/layout/app-shell';
 import { NavLinks } from '@/components/layout/nav-links';
 import { PageLoading } from '@/components/layout/page-loading';
 import { CardLink } from './card';
+import { RadioGroupField } from './choice-group-fields';
 import { Field } from './field';
+import { RequiredFieldsNote } from './field-label';
+import { FileField } from './file-field';
 import { PageHeader } from './page-header';
 import { SegmentedLinks } from './segmented-links';
+import { SelectField } from './select-field';
 import { StateMessage } from './state-message';
+import { TextareaField } from './textarea-field';
 
 vi.mock('next/navigation', () => ({
   usePathname: () => '/shops/shop-1/catalogue/shades',
@@ -187,5 +192,71 @@ describe('PageLoading', () => {
       'sr-only',
     );
     expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
+  });
+});
+
+describe('Required fields', () => {
+  it('marks a required field visibly and for screen readers, keeping its name', () => {
+    const { container } = render(
+      <Field label="Shop name" name="shopName" required />,
+    );
+    const input = screen.getByLabelText('Shop name');
+    expect(input.getAttribute('aria-required')).toBe('true');
+    expect(input.hasAttribute('required')).toBe(false);
+    const mark = container.querySelector('span[aria-hidden="true"]');
+    expect(mark?.textContent).toBe('*');
+    expect(mark?.className).toContain('text-status-error');
+  });
+
+  it('shows no marker on optional fields', () => {
+    const { container } = render(
+      <Field label="Landmark (optional)" name="landmark" />,
+    );
+    expect(
+      screen
+        .getByLabelText('Landmark (optional)')
+        .hasAttribute('aria-required'),
+    ).toBe(false);
+    expect(container.textContent).not.toContain('*');
+  });
+
+  it('marks select, textarea and file fields and choice groups', () => {
+    render(
+      <>
+        <SelectField
+          label="State"
+          name="state"
+          options={[{ value: 'KL', label: 'Kerala' }]}
+          required
+        />
+        <TextareaField label="Description" name="description" required />
+        <FileField label="Choose a photo" name="photo" required />
+        <RadioGroupField
+          legend="Decision"
+          name="decision"
+          options={[{ value: 'a', label: 'Approve' }]}
+          required
+        />
+      </>,
+    );
+    expect(screen.getByLabelText('State').getAttribute('aria-required')).toBe(
+      'true',
+    );
+    expect(
+      screen.getByLabelText('Description').getAttribute('aria-required'),
+    ).toBe('true');
+    expect(
+      screen.getByLabelText('Choose a photo').getAttribute('aria-required'),
+    ).toBe('true');
+    expect(
+      screen.getByRole('group', { name: /^Decision\W*\(required\)$/ }),
+    ).toBeDefined();
+  });
+
+  it('explains the marker once per form', () => {
+    render(<RequiredFieldsNote />);
+    expect(screen.getByText(/are required\./).textContent).toBe(
+      'Fields marked *with an asterisk are required.',
+    );
   });
 });

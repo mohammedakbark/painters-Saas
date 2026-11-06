@@ -69,6 +69,7 @@ class PackPriceFields extends StatelessWidget {
       children: [
         AppTextField(
           label: 'Your price$suffix',
+          isRequired: true,
           controller: price,
           enabled: enabled,
           prefixText: '₹ ',
@@ -306,6 +307,7 @@ class _AddPackFormState extends ConsumerState<_AddPackForm> {
         if (_fromCatalogue)
           AppRadioGroup<String>(
             label: 'Pack size',
+            isRequired: true,
             value: _cataloguePackId,
             options: [
               for (final pack in widget.product.unlistedCataloguePacks)
@@ -321,6 +323,7 @@ class _AddPackFormState extends ConsumerState<_AddPackForm> {
               Expanded(
                 child: AppTextField(
                   label: 'Quantity',
+                  isRequired: true,
                   controller: _quantity,
                   enabled: !_saving,
                   keyboardType: _moneyKeyboard,
@@ -332,6 +335,7 @@ class _AddPackFormState extends ConsumerState<_AddPackForm> {
               Expanded(
                 child: AppDropdown<PackUnit>(
                   label: 'Unit',
+                  isRequired: true,
                   value: _unit,
                   options: [
                     for (final unit in PackUnit.values)

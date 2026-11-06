@@ -10,6 +10,7 @@ import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { CardList } from '@/components/ui/card';
 import { FileField } from '@/components/ui/file-field';
+import { RequiredFieldsNote } from '@/components/ui/field-label';
 import { SelectField } from '@/components/ui/select-field';
 import type { ImportResult } from '@/lib/api/platform-catalogue';
 import type { ImportFormState } from '@/lib/catalogue/form-state';
@@ -55,9 +56,16 @@ export function ImportForm({ action }: { action: ImportAction }) {
 
   return (
     <form action={formAction} onSubmit={submit} className="flex flex-col gap-5">
-      <SelectField label="What the file contains" name="kind" options={KINDS} />
+      <RequiredFieldsNote />
+      <SelectField
+        label="What the file contains"
+        name="kind"
+        options={KINDS}
+        required
+      />
       <FileField
         label="CSV file"
+        required
         name="file"
         accept=".csv,text/csv"
         description="Comma-separated, first line is the header, up to 5,000 rows and 2 MB. Download a template below."

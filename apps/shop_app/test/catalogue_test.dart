@@ -19,6 +19,11 @@ const _staffShop = MyShop(
   myRole: 'STAFF',
 );
 
+/// Finds a field by its label setting (the shown label may add a marker).
+Finder _field(String label) => find.byWidgetPredicate(
+  (widget) => widget is AppTextField && widget.label == label,
+);
+
 void main() {
   late FakeShopCatalogueRepository catalogue;
   late FakeProductPhotoPicker photos;
@@ -220,7 +225,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Price of 1 L'), findsOneWidget);
 
-      final price = find.widgetWithText(AppTextField, 'Your price');
+      final price = _field('Your price');
       await tester.enterText(price, 'abc');
       await tester.tap(button('Save price'));
       await tester.pumpAndSettle();
@@ -241,14 +246,8 @@ void main() {
       await tester.tap(button('Change price').first);
       await tester.pumpAndSettle();
 
-      await tester.enterText(
-        find.widgetWithText(AppTextField, 'Your price'),
-        '1,450.50',
-      );
-      await tester.enterText(
-        find.widgetWithText(AppTextField, 'MRP (optional)'),
-        '',
-      );
+      await tester.enterText(_field('Your price'), '1,450.50');
+      await tester.enterText(_field('MRP (optional)'), '');
       await tester.tap(button('Save price'));
       await tester.pumpAndSettle();
 
@@ -322,10 +321,7 @@ void main() {
       await tester.tap(button('Add a pack size'));
       await tester.pumpAndSettle();
       expect(find.text('20 L'), findsOneWidget);
-      await tester.enterText(
-        find.widgetWithText(AppTextField, 'Your price'),
-        '5200',
-      );
+      await tester.enterText(_field('Your price'), '5200');
       await tester.tap(button('Add pack size'));
       await tester.pumpAndSettle();
 
@@ -348,18 +344,12 @@ void main() {
 
       await tester.tap(button('Add a pack size'));
       await tester.pumpAndSettle();
-      await tester.enterText(
-        find.widgetWithText(AppTextField, 'Your price'),
-        '300',
-      );
+      await tester.enterText(_field('Your price'), '300');
       await tester.tap(button('Add pack size'));
       await tester.pumpAndSettle();
       expect(find.text('Enter the pack quantity.'), findsOneWidget);
 
-      await tester.enterText(
-        find.widgetWithText(AppTextField, 'Quantity'),
-        '5',
-      );
+      await tester.enterText(_field('Quantity'), '5');
       await tester.tap(button('Add pack size'));
       await tester.pumpAndSettle();
       expect(catalogue.addedPacks.single.$2.toJson(), {
@@ -492,10 +482,7 @@ void main() {
         find.text('Enter the price in rupees, for example 1450 or 1450.50.'),
         findsOneWidget,
       );
-      await tester.enterText(
-        find.widgetWithText(AppTextField, 'Your price for 1 L'),
-        '420',
-      );
+      await tester.enterText(_field('Your price for 1 L'), '420');
       await tester.tap(button('Add to my products'));
       await tester.pumpAndSettle();
 
@@ -528,10 +515,7 @@ void main() {
       await tester.tap(button('Add'));
       await tester.pumpAndSettle();
       for (final label in ['1 L', '4 L']) {
-        await tester.enterText(
-          find.widgetWithText(AppTextField, 'Your price for $label'),
-          '100',
-        );
+        await tester.enterText(_field('Your price for $label'), '100');
       }
       catalogue.nextError = const ApiException(
         status: 409,

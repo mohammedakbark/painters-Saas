@@ -10,6 +10,7 @@ import { TextareaField } from '@/components/ui/textarea-field';
 import type { CatalogueFormState } from '@/lib/catalogue/form-state';
 import type { CatalogueAction } from './brand-forms';
 import { FormStatus } from './form-status';
+import { RequiredFieldsNote } from '@/components/ui/field-label';
 
 export interface ProductFormValues {
   name: string;
@@ -67,6 +68,7 @@ export function ProductForm({
       className="flex flex-col gap-5"
     >
       <FormStatus state={state} />
+      <RequiredFieldsNote />
       <Field
         label="Product name"
         name="name"
@@ -77,6 +79,7 @@ export function ProductForm({
       />
       <SelectField
         label="Category"
+        required
         name="categoryId"
         options={options}
         defaultValue={values?.categoryId ?? initial.categoryId}
