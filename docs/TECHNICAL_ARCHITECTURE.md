@@ -207,7 +207,7 @@ M0 foundation implemented 2026-11-03 (ADR 0004), then AUTH-001 (ADR 0005, ADR 00
 | Database (local/CI) | PostgreSQL in Docker | `postgres:17-alpine` (matches Supabase's Postgres 17 line) |
 | CI | GitHub Actions | checkout v7.0.1, setup-node v7.1.0, pnpm/action-setup v6.1.0, flutter-action v2.23.0, actionlint 1.7.12 (all SHA/digest pinned) |
 
-Shop App (SHP-002): supabase_flutter ^2.18.3, flutter_riverpod ^3.4.3, go_router ^18.1.2, dio ^5.11.1, flutter_secure_storage ^11.2.0; geolocator 14.1.2 (SHP-003). `flutter_shared`: google_maps_flutter 2.19.0 (SHP-003). Web: @vis.gl/react-google-maps 1.10.2 and @types/google.maps 3.66.9 (SHP-003). Verified compatible but **not added yet**: freezed 4.0.3, json_serializable 6.15.2. Also deferred on the web: shadcn/ui, TanStack Query, React Hook Form and Playwright.
+Shop App (SHP-002): supabase_flutter ^2.18.3, flutter_riverpod ^3.4.3, go_router ^18.1.2, dio ^5.11.1, flutter_secure_storage ^11.2.0; geolocator 14.1.2 (SHP-003). `flutter_shared`: flutter_map 8.3.2 and latlong2 0.10.1 (SHP-006, replacing google_maps_flutter).19.0 (SHP-003). Web: @vis.gl/react-google-maps 1.10.2 and @types/google.maps 3.66.9 (SHP-003). Verified compatible but **not added yet**: freezed 4.0.3, json_serializable 6.15.2. Also deferred on the web: shadcn/ui, TanStack Query, React Hook Form and Playwright.
 
 ### 14.2 Structure
 
@@ -329,8 +329,8 @@ cd apps/shop_app && fvm flutter run --dart-define-from-file=config/local.json
 | `infra/local/.env` | `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_TEST_DB`, `POSTGRES_PORT` | Local container only |
 | `apps/api/.env` | `NODE_ENV`, `PORT`, `DATABASE_URL`, `AUTH_ISSUER`, `AUTH_JWKS_URL`, `AUTH_AUDIENCE`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `STORAGE_S3_ENDPOINT`, `STORAGE_S3_REGION`, `STORAGE_S3_ACCESS_KEY_ID`, `STORAGE_S3_SECRET_ACCESS_KEY`, `STORAGE_S3_FORCE_PATH_STYLE`, `STORAGE_BUCKET`, `STORAGE_PUBLIC_BASE_URL` | Validated at startup; https required in production (auth, Supabase and storage URLs); the Supabase secret key and the S3 keys are server-only |
 | `apps/api/.env.test` | `NODE_ENV`, `DATABASE_URL`, `AUTH_ISSUER`, `AUTH_JWKS_URL`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY` | e2e only; test DB; auth values are placeholders (tests sign their own tokens) |
-| `apps/admin_web/.env.local` | `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `API_BASE_URL`; optional `GOOGLE_MAPS_BROWSER_KEY`, `GOOGLE_MAPS_MAP_ID` | All server-only (no `NEXT_PUBLIC_*`); read at request time. The Maps browser key is public by design and is passed to the profile page only when set (restrict it; `docs/guides/GOOGLE_MAPS_SETUP.md`) |
-| `apps/shop_app/config/local.json` | `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `API_BASE_URL`, `GOOGLE_MAPS_ENABLED` (default false) | Passed with `--dart-define-from-file`; non-secret values only; gitignored (example: `config/local.example.json`). The Android emulator reaches the host at `10.0.2.2`. |
+| `apps/admin_web/.env.local` | `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `API_BASE_URL` | All server-only (no `NEXT_PUBLIC_*`); read at request time. Maps need no key (OpenStreetMap, D-041; `docs/guides/MAPS.md`) |
+| `apps/shop_app/config/local.json` | `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `API_BASE_URL`, `MAPS_ENABLED` (default true; OpenStreetMap) | Passed with `--dart-define-from-file`; non-secret values only; gitignored (example: `config/local.example.json`). The Android emulator reaches the host at `10.0.2.2`. |
 
 SMS variables are defined when that provider arrives. Secret keys must exist only on the server.
 

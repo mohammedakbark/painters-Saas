@@ -53,7 +53,7 @@ The **project foundation (M0)** is in place: a monorepo with Flutter app shells,
 - **CAT-002:** shop catalogue (products from the brand catalogue or own, per-pack prices and availability, favourite and own shades).
 - **CAT-001:** platform brand catalogue (categories, brands, products, pack sizes, shades) with CSV import; `pnpm --filter api catalogue:seed-sample` loads a fictional sample brand.
 - **SHP-004:** shop photo upload; files go through a replaceable S3-protocol storage port (ADR 0007).
-- **SHP-003:** shop profile with address, map location ("Use my current location"; Google map once keys exist, see `docs/guides/GOOGLE_MAPS_SETUP.md`) and the onboarding checklist.
+- **SHP-003:** shop profile with address, map location (OpenStreetMap search and pin, or "Use my current location"; see `docs/guides/MAPS.md`) and the onboarding checklist.
 
 Catalogue, customer and order features are not built yet, and **no cloud infrastructure exists**. See `docs/PROJECT_STATE.md` for the live status.
 

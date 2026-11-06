@@ -19,7 +19,7 @@ import type {
   ProfileFormState,
   ProfileFormValues,
 } from '@/lib/shops/profile';
-import { LocationPicker, type MapsConfig } from './location-picker';
+import { LocationPicker } from './location-picker';
 
 export type SaveProfileAction = (
   previous: ProfileFormState,
@@ -44,14 +44,12 @@ const SUGGESTED_FIELDS = [
 export function ShopProfileForm({
   action,
   initialValues,
-  maps,
   canEdit,
   cancelHref,
   viewOnlyNote = 'Only the shop owner can change the profile.',
 }: {
   action: SaveProfileAction;
   initialValues: ProfileFormValues;
-  maps: MapsConfig | null;
   canEdit: boolean;
   cancelHref: string;
   /** Why the form is read-only; null when the page already explains it. */
@@ -236,7 +234,6 @@ export function ShopProfileForm({
             }))
           }
           onSuggestAddress={setSuggestion}
-          maps={maps}
           error={errors.latitude}
           disabled={!canEdit}
         />

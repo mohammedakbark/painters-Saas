@@ -7,40 +7,21 @@ import {
 import { suggestAddress } from './map-address';
 
 describe('suggestAddress', () => {
-  it('reads Geocoder components (long_name/short_name)', () => {
+  it('reads a Nominatim address and the state from its ISO code', () => {
     expect(
-      suggestAddress([
-        { types: ['street_number'], long_name: '12/345', short_name: '12/345' },
-        { types: ['route'], long_name: 'MG Road', short_name: 'MG Rd' },
-        {
-          types: ['sublocality_level_1', 'sublocality', 'political'],
-          long_name: 'Ravipuram',
-          short_name: 'Ravipuram',
-        },
-        {
-          types: ['locality', 'political'],
-          long_name: 'Kochi',
-          short_name: 'Kochi',
-        },
-        {
-          types: ['administrative_area_level_2', 'political'],
-          long_name: 'Ernakulam',
-          short_name: 'EKM',
-        },
-        {
-          types: ['administrative_area_level_1', 'political'],
-          long_name: 'Kerala',
-          short_name: 'KL',
-        },
-        {
-          types: ['country', 'political'],
-          long_name: 'India',
-          short_name: 'IN',
-        },
-        { types: ['postal_code'], long_name: '682016', short_name: '682016' },
-      ]),
+      suggestAddress({
+        shop: 'Lakshmi Paints',
+        house_number: '12/345',
+        road: 'MG Road',
+        suburb: 'Ravipuram',
+        city: 'Kochi',
+        state_district: 'Ernakulam',
+        state: 'Kerala',
+        postcode: '682 016',
+        'ISO3166-2-lvl4': 'IN-KL',
+      }),
     ).toEqual({
-      line1: '12/345, MG Road',
+      line1: 'Lakshmi Paints, 12/345, MG Road',
       line2: 'Ravipuram',
       city: 'Kochi',
       district: 'Ernakulam',
@@ -49,32 +30,29 @@ describe('suggestAddress', () => {
     });
   });
 
-  it('reads Places API (New) components (longText/shortText) and matches the state by name', () => {
+  it('falls back to town, county and the state name', () => {
     expect(
-      suggestAddress([
-        { types: ['premise'], longText: 'Lakshmi Towers', shortText: null },
-        {
-          types: ['administrative_area_level_1'],
-          longText: 'Tamil Nadu',
-          shortText: 'Tamil Nadu',
-        },
-      ]),
-    ).toMatchObject({
-      line1: 'Lakshmi Towers',
-      stateCode: 'TN',
+      suggestAddress({
+        road: 'Temple Road',
+        town: 'Perumbavoor',
+        county: 'Ernakulam',
+        state: 'Kerala',
+        'ISO3166-2-lvl4': 'IN-XX',
+      }),
+    ).toEqual({
+      line1: 'Temple Road',
+      line2: '',
+      city: 'Perumbavoor',
+      district: 'Ernakulam',
+      stateCode: 'KL',
       postalCode: '',
     });
   });
 
   it('leaves unknown states and malformed PIN codes empty, and returns null for nothing', () => {
-    expect(
-      suggestAddress([
-        { types: ['administrative_area_level_1'], long_name: 'California' },
-        { types: ['postal_code'], long_name: '94043' },
-        { types: ['locality'], long_name: 'Mountain View' },
-      ]),
-    ).toMatchObject({ stateCode: '', postalCode: '', city: 'Mountain View' });
-    expect(suggestAddress([])).toBeNull();
+    expect(suggestAddress({ state: 'Atlantis', postcode: '12345' })).toBeNull();
+    expect(suggestAddress({})).toBeNull();
+    expect(suggestAddress(null)).toBeNull();
   });
 });
 

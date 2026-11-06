@@ -29,6 +29,7 @@
 | WEB-002: Sign-in and registration UX (separate Sign in and Register, 2 steps, +91 field, self-submitting code, resend countdown) | **Complete (local; real flow in headless Chrome)** | `docs/features/WEB-002-sign-in-and-registration.md` |
 | WEB-003: Your shops screen (brand bar, welcome band, shop cards, getting-started steps, loading cards) | **Complete (local; real flow in headless Chrome)** | `docs/features/WEB-003-my-shops.md` |
 | WEB-004: Shop console in the premium style (sidebar with area card and icons, page header back link, skeleton loading, setup guide with progress, profile cards, catalogue tabs/search/segmented filter/aligned pack rows) | **Complete (local; headless Chrome)**; platform console frame not browser-checked | `docs/features/WEB-004-shop-console.md` |
+| SHP-006: Maps on OpenStreetMap (D-041): web map with search, pin and address suggestion; Shop App map preview; Google Maps removed | **Complete (local; real services in headless Chrome)**; Shop App map not checked on an emulator | `docs/features/SHP-006-openstreetmap.md` |
 | DS-003: SevenPalette name and shade-card fan logo (D-040): names, logo files, web and Flutter brand mark, favicon, launcher icons | **Complete (local)**; Android emulator not run | `docs/features/DS-003-product-name-and-logo.md` |
 
 **Git (D-035):** every feature above is in `dev` (fast-forward merged and pushed on 2026-11-04; one commit per feature, `3697e4f` … `9c7885b`); the local per-feature branches were deleted. The first GitHub Actions run on `dev` (`8497b81`) passed all three jobs (TypeScript, Flutter, repository checks). The old remote branch `feat/shp-002-shop-app-sign-in` is still on GitHub (its commits are in `dev`); the product owner can delete it. From now on each finished feature is merged into `dev` and pushed the same way. `main` still holds only `c56f614` (project setup) until a release.
@@ -157,7 +158,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 
 ## 5. Not done
 
-- [ ] Google Cloud project and Maps keys (product owner; D-027; steps in `docs/guides/GOOGLE_MAPS_SETUP.md`). Until then the map screens use the no-map fallback, and the Google map, place search and address suggestions are unverified.
+- [x] Maps without Google keys: OpenStreetMap since SHP-006 (D-041, 2026-11-06). Before launch, move map tiles to a hosted provider (`docs/guides/MAPS.md`).
 - [ ] PLT-002 decision form submitted from a browser by a platform admin (verified over HTTP and the API; the session could not use the test admin password in Chrome).
 - [ ] Decision notifications to the owner (SMS/push; question 53).
 - [ ] Product owner to confirm two CAT-002 assumptions: the selling price may not exceed the MRP, and the 10-product rule counts active products with at least one pack size (DECISIONS §3a).
@@ -271,7 +272,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | HTTP check: owner B's responses contain none of owner A's profile values (incl. RSC payload) | Verified |
 | **Android emulator**: web-saved profile shown, permission denied → retry → allowed, Google accuracy prompt declined, test GPS position saved after confirmation; DB holds `DEVICE_GPS`, audit holds the source only | Verified |
 | No secret key value in the APK or the web bundle; no phone numbers, addresses or coordinates in API/web logs or audit metadata | Verified |
-| Google map, place search, reverse geocoding (web) and the rendered map (app) | **Not verified** (no Google keys yet) |
+| Google map, place search, reverse geocoding (web) and the rendered map (app) | Replaced by OpenStreetMap in SHP-006; web map, search and address suggestion verified in Chrome on 2026-11-06 |
 | iOS build | **Not run** (requires macOS) |
 
 
@@ -352,7 +353,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 2. **Next phase: plan the Customer App foundation** with the product owner: CUS-001 sign-up and profile (customer type, D-036), CUS-002 Find shops and My Shops (D-037, D-038), CUS-003 shop storefront. Open before ordering: questions 30–32 (order approval, pickup/delivery, fulfilment).
 3. **Product owner checks:** try the platform **Reviews** decision form in Chrome as the platform admin; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
 4. **Hardening before any hosted environment:** questions 49 and 51.
-5. **Product owner:** Google Maps keys (`docs/guides/GOOGLE_MAPS_SETUP.md`); real brand catalogue data; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
+5. **Product owner:** real brand catalogue data; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
 6. **Housekeeping.** Install Node 24 locally.
 7. **Marketing (not a product feature):** daily Instagram content for **@zero.byt** via `/instagram post <day>` / `/instagram reel <day>` (skill `.claude/skills/instagram/`) and the 30-day calendar `marketing/instagram/CONTENT_PLAN_30_DAYS.md`. A format library of 10 poster formats (showcase, feature spotlight, how it works, poll, this or that, myth vs fact, tip, sneak peek, before/after, big-type teaser) in the approved families A (main), D and C. No format repeats on consecutive post days, and "Coming soon" appears only on Days 1, 7, 22, 28 and 30. English only, no product name, "Powered by zero.byt" lockup (36px logo). Days 1 (single poster), 2 (reel), 3, 5, 6 and 7 are `ready`. Tagline "Shop. Painter. Customer. Connected." (D-040); the SevenPalette name stays secret in posts until the Day 30 reveal (product owner, 2026-11-06). Reels: the owner reviews the script and one sample frame before the rest is built.
 
@@ -432,3 +433,4 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-06 | WEB-004: shop console restyled; shared `AppShell`, `NavLinks`, `PageHeader`, `Field`, `StateMessage`, `PageLoading` gained options; new `SegmentedLinks`. Local sample catalogue loaded for checks. No API change. |
 | 2026-11-06 | Instagram: Day 2 reel rendered as a fully animated MP4 (21 s, 1080×1920, H.264) with `scripts/reel-capture.mjs` (headless Chrome frames + ffmpeg, installed via winget). |
 | 2026-11-06 | Instagram: Day 2 reel re-timed to an AI voice-over (en-IN Prabhat via edge-tts), now 27.5 s with AAC audio; skill reel step includes voice-over. |
+| 2026-11-06 | SHP-006: product owner chose not to set up Google billing; maps moved to OpenStreetMap (D-041). Leaflet + Nominatim on the web, flutter_map in the apps; Google Maps packages, keys and native wiring removed; `docs/guides/MAPS.md` replaces the Google setup guide. |

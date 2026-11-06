@@ -2,23 +2,23 @@
 /// `--dart-define-from-file=config/local.json` (see `config/local.example.json`).
 ///
 /// Only non-secret values belong here: the Supabase URL, the Supabase
-/// **publishable** key, the API base URL and whether a Google Maps key was
-/// configured for this build. Never put a secret key in the app.
+/// **publishable** key, the API base URL and whether maps are shown. Never
+/// put a secret key in the app.
 class AppConfig {
   const AppConfig({
     required this.supabaseUrl,
     required this.supabasePublishableKey,
     required this.apiBaseUrl,
-    this.mapsEnabled = false,
+    this.mapsEnabled = true,
   });
 
   final Uri supabaseUrl;
   final String supabasePublishableKey;
   final Uri apiBaseUrl;
 
-  /// True when the native Google Maps key is set for this build (Android
-  /// `local.properties`, iOS `MapsKey.xcconfig`). Without it, maps show the
-  /// coordinates instead (D-027).
+  /// Whether maps are drawn (OpenStreetMap, D-041; no key needed). Set
+  /// `MAPS_ENABLED` to false to show the coordinates instead, for example
+  /// for a build without network maps.
   final bool mapsEnabled;
 
   /// Reads and validates the compile-time values. Throws [AppConfigError]
@@ -29,14 +29,14 @@ class AppConfig {
       'SUPABASE_PUBLISHABLE_KEY',
     ),
     apiBaseUrl: const String.fromEnvironment('API_BASE_URL'),
-    mapsEnabled: const bool.fromEnvironment('GOOGLE_MAPS_ENABLED'),
+    mapsEnabled: const bool.fromEnvironment('MAPS_ENABLED', defaultValue: true),
   );
 
   static AppConfig parse({
     required String supabaseUrl,
     required String supabasePublishableKey,
     required String apiBaseUrl,
-    bool mapsEnabled = false,
+    bool mapsEnabled = true,
   }) {
     final problems = <String>[];
     final supabase = _httpUri(supabaseUrl);

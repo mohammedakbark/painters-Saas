@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../components/app_card.dart';
 import '../tokens/app_colors.dart';
@@ -9,18 +10,27 @@ import '../tokens/app_spacing.dart';
 String formatCoordinates(double latitude, double longitude) =>
     '${latitude.toStringAsFixed(6)}, ${longitude.toStringAsFixed(6)}';
 
-/// A shop's location on a map (D-027). Used by the Shop App profile and,
-/// later, the Customer App's shop page.
+/// OpenStreetMap's standard tiles (SHP-006, D-041). A free community service:
+/// the attribution must be shown, and heavy use needs a hosted provider, which
+/// is changed here and in the web portal's `lib/maps/openstreetmap.ts` (D-028).
+const String osmTileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+/// Identifies the apps to the tile server, as its usage policy asks.
+/// Update with the final app IDs (question 41).
+const String osmUserAgentPackage = 'app.sevenpalette';
+
+/// A shop's location on a map (D-027, D-041). Used by the Shop App profile
+/// and, later, the Customer App's shop page.
 ///
-/// The only place the apps use Google Maps, so the map provider can be
-/// changed here (D-028). When the build has no Maps key ([mapsEnabled] is
-/// false) it shows the coordinates instead of a blank map.
+/// The only place the apps draw a map, so the provider can be changed here
+/// (D-028). When [mapsEnabled] is false (tests, or a build without network
+/// maps) it shows the coordinates instead.
 class ShopLocationMap extends StatelessWidget {
   const ShopLocationMap({
     super.key,
     required this.latitude,
     required this.longitude,
-    required this.mapsEnabled,
+    this.mapsEnabled = true,
     this.shopName,
     this.height = 200,
   });
@@ -39,27 +49,59 @@ class ShopLocationMap extends StatelessWidget {
     }
     final position = LatLng(latitude, longitude);
     return Semantics(
-      label: 'Map showing the shop location, $coordinates',
+      label: shopName == null
+          ? 'Map showing the shop location, $coordinates'
+          : 'Map showing $shopName, $coordinates',
       child: AppCard(
         padding: EdgeInsets.zero,
         child: SizedBox(
           height: height,
-          child: GoogleMap(
-            initialCameraPosition: CameraPosition(target: position, zoom: 16),
-            markers: {
-              Marker(
-                markerId: const MarkerId('shop'),
-                position: position,
-                infoWindow: InfoWindow(title: shopName),
+          child: FlutterMap(
+            options: MapOptions(
+              initialCenter: position,
+              initialZoom: 16,
+              // A static preview: scrolling the page never pans it.
+              interactionOptions: const InteractionOptions(
+                flags: InteractiveFlag.none,
               ),
-            },
-            // A static preview: cheaper, and scrolling the page never pans it.
-            liteModeEnabled: true,
-            zoomControlsEnabled: false,
-            mapToolbarEnabled: false,
-            myLocationButtonEnabled: false,
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: osmTileUrl,
+                userAgentPackageName: osmUserAgentPackage,
+              ),
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    point: position,
+                    width: 28,
+                    height: 28,
+                    child: const _ShopPin(),
+                  ),
+                ],
+              ),
+              const SimpleAttributionWidget(
+                source: Text('OpenStreetMap contributors'),
+              ),
+            ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// The shop pin: a teal dot with a white ring, as on the web map.
+class _ShopPin extends StatelessWidget {
+  const _ShopPin();
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppColors.brandPrimary,
+        shape: BoxShape.circle,
+        border: Border.all(color: AppColors.surfaceDefault, width: 4),
       ),
     );
   }

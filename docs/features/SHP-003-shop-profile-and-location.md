@@ -6,6 +6,8 @@
 - **Related modules:** API (`apps/api/src/shops/`), web portal (`/shops/[shopId]/profile`, overview checklist), Shop App (shop profile screen), `packages/flutter_shared` (`ShopLocationMap`)
 - **Decisions:** D-012 (onboarding checklist), D-027 (address on a Google map plus current location), D-028 (free tiers, replaceable providers), D-033 (edit lock during review, built with PLT-002)
 
+> **Maps changed in SHP-006 (D-041):** Google Maps was replaced by OpenStreetMap (Leaflet, Nominatim, flutter_map) and the Google keys and settings below were removed. The Google details in this document describe the first implementation; see `docs/features/SHP-006-openstreetmap.md` for the current one.
+
 ## 1. Problem and goal
 
 A shop goes live only after its owner completes the onboarding checklist (D-012). This feature covers three checklist items:
@@ -26,7 +28,7 @@ Customers will find the shop with the pin, and its location will be shown on a m
 ## 3. Preconditions
 
 - The shop is registered (SHP-001).
-- **Map display, place search and address suggestions** need the product owner's Google Maps keys (`docs/guides/GOOGLE_MAPS_SETUP.md`). Without them, everything else works.
+- **Map display, place search and address suggestions** use OpenStreetMap since SHP-006 (D-041); no keys are needed. See `docs/features/SHP-006-openstreetmap.md`.
 
 ## 4. User flow
 
@@ -178,7 +180,7 @@ State codes are the two-letter subdivision codes of ISO 3166-2:IN, 2023 revision
 
 ## 12. Dependencies and open questions
 
-- Google Maps keys: product-owner action (D-027); see the setup guide.
+- Maps: replaced by OpenStreetMap in SHP-006 (D-041); no keys.
 - iOS: the location permission text, Maps key wiring and `GoogleMaps` import are added but **not built** (no Mac). The Podfile may need a higher iOS deployment target for `google_maps_flutter`.
 - Showing the support mobile to customers: question 39.
 

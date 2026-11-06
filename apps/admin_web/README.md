@@ -16,7 +16,7 @@ Shop area (SHP-001):
 
 The layout and every page call `requireShopAccess(shopId)`. The API answers 404 for shops the user is not a member of. Each page reads its data inside its own `<Suspense>` so navigation between console pages is instant.
 
-Google Maps is optional: set `GOOGLE_MAPS_BROWSER_KEY` (public by design, restricted to this site and three APIs) to show the map picker; see `docs/guides/GOOGLE_MAPS_SETUP.md`.
+The shop location map uses OpenStreetMap (Leaflet, Nominatim) and needs no key; see `docs/guides/MAPS.md`.
 
 Setup: copy `.env.example` to `.env.local` and paste the local publishable key from `pnpm supabase:status`. No variable is `NEXT_PUBLIC_*`.
 

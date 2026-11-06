@@ -9,12 +9,6 @@
         android:allowBackup="false"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-        <!-- Google Maps Android key (public by design; restrict it to this package
-             and signing certificate). Set GOOGLE_MAPS_API_KEY in android/local.properties
-             (gitignored); empty when not set, and the app then shows coordinates. -->
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="${googleMapsApiKey}"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -1,14 +1,3 @@
-import java.util.Properties
-
-// Local, gitignored settings (Flutter writes sdk.dir here). GOOGLE_MAPS_API_KEY
-// is read from it for the Google Maps meta-data in AndroidManifest.xml.
-val localProperties = Properties().apply {
-    val file = rootProject.file("local.properties")
-    if (file.exists()) {
-        file.inputStream().use { load(it) }
-    }
-}
-
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -38,8 +27,6 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        manifestPlaceholders["googleMapsApiKey"] =
-            localProperties.getProperty("GOOGLE_MAPS_API_KEY") ?: ""
     }
 
     buildTypes {

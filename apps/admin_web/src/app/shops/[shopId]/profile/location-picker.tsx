@@ -3,7 +3,6 @@
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Panel } from '@/components/ui/card';
 import { cn } from '@/lib/cn';
 import {
   GEOLOCATION_MESSAGES,
@@ -24,14 +23,8 @@ export interface PickedLocation {
   source: LocationSource;
 }
 
-/** Browser key and map ID, or null when Google Maps isn't configured. */
-export interface MapsConfig {
-  apiKey: string;
-  mapId: string | null;
-}
-
-// Loaded only when a key is configured, so the no-map page ships no map code.
-const GoogleLocationMap = dynamic(() => import('./google-location-map'), {
+// Leaflet needs the browser, so the map loads on the client only.
+const OsmLocationMap = dynamic(() => import('./osm-location-map'), {
   ssr: false,
   loading: () => (
     <p className="text-body text-text-secondary" aria-busy="true">
@@ -43,21 +36,19 @@ const GoogleLocationMap = dynamic(() => import('./google-location-map'), {
 type Status = { tone: 'error' | 'info'; message: string } | null;
 
 /**
- * The shop's map location (D-027): a Google map with search and a draggable
- * pin when configured, and "Use my current location" in every case.
+ * The shop's map location (D-027, D-041): an OpenStreetMap map with search
+ * and a draggable pin, and "Use my current location".
  */
 export function LocationPicker({
   value,
   onChange,
   onSuggestAddress,
-  maps,
   error,
   disabled = false,
 }: {
   value: PickedLocation | null;
   onChange: (location: PickedLocation) => void;
   onSuggestAddress: (suggestion: SuggestedAddress) => void;
-  maps: MapsConfig | null;
   error?: string;
   disabled?: boolean;
 }) {
@@ -121,36 +112,24 @@ export function LocationPicker({
       <legend className="text-heading3 font-semibold">Map location</legend>
       <p className="text-body text-text-secondary">
         Customers will find your shop with this pin. Stand at the shop and use
-        your current location, or{' '}
-        {maps
-          ? 'search or place the pin on the map.'
-          : 'set it later on the map.'}
+        your current location, or search and place the pin on the map.
       </p>
 
-      {maps ? (
-        <GoogleLocationMap
-          apiKey={maps.apiKey}
-          mapId={maps.mapId}
-          value={value}
-          onPick={(latitude, longitude) => {
-            if (!isInIndia(latitude, longitude)) {
-              setStatus({
-                tone: 'error',
-                message: GEOLOCATION_MESSAGES.outsideIndia,
-              });
-              return;
-            }
-            setStatus(null);
-            onChange({ latitude, longitude, source: 'MAP_PIN' });
-          }}
-          onSuggestAddress={onSuggestAddress}
-        />
-      ) : (
-        <Panel className="bg-surface-subtle px-4 py-3 text-body text-text-secondary">
-          The map isn&apos;t set up yet. You can still save the location with
-          &ldquo;Use my current location&rdquo;.
-        </Panel>
-      )}
+      <OsmLocationMap
+        value={value}
+        onPick={(latitude, longitude) => {
+          if (!isInIndia(latitude, longitude)) {
+            setStatus({
+              tone: 'error',
+              message: GEOLOCATION_MESSAGES.outsideIndia,
+            });
+            return;
+          }
+          setStatus(null);
+          onChange({ latitude, longitude, source: 'MAP_PIN' });
+        }}
+        onSuggestAddress={onSuggestAddress}
+      />
 
       <div className="flex flex-wrap items-center gap-3">
         <Button

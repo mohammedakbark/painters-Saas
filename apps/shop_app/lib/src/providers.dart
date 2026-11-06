@@ -39,7 +39,8 @@ final locationServiceProvider = Provider<LocationService>(
   (ref) => const GeolocatorLocationService(),
 );
 
-/// Whether this build has a Google Maps key (`GOOGLE_MAPS_ENABLED`).
+/// Whether maps are drawn (`MAPS_ENABLED`, true by default; D-041). `main`
+/// overrides it from `AppConfig`; tests keep false, so no tiles are fetched.
 final mapsEnabledProvider = Provider<bool>((ref) => false);
 
 /// No automatic retries: failures show an error view with a "Try again" action.

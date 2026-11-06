@@ -31,9 +31,9 @@ cp config/local.example.json config/local.json   # gitignored
 | `SUPABASE_URL` | `http://10.0.2.2:54321` (Android emulator → host; iOS simulator: `http://127.0.0.1:54321`) |
 | `SUPABASE_PUBLISHABLE_KEY` | The "Publishable" key from `pnpm supabase:status` |
 | `API_BASE_URL` | `http://10.0.2.2:<API port>` |
-| `GOOGLE_MAPS_ENABLED` | `false` until a Maps key is set (then `true`) |
+| `MAPS_ENABLED` | `true` (OpenStreetMap, no key); `false` shows the coordinates instead |
 
-**Google Maps (optional):** put `GOOGLE_MAPS_API_KEY=...` in `android/local.properties` (gitignored; iOS: `ios/Flutter/MapsKey.xcconfig`) and set `GOOGLE_MAPS_ENABLED` to `true`. Steps and key restrictions: `docs/guides/GOOGLE_MAPS_SETUP.md`. Without a key the app shows the coordinates instead of a map.
+**Maps:** OpenStreetMap through flutter_map, no key needed (D-041); see `docs/guides/MAPS.md`.
 
 **Images on the emulator:** shop photo URLs point at local Storage on the host (`127.0.0.1:54321`). Run `adb reverse tcp:54321 tcp:54321` once per emulator start.
 

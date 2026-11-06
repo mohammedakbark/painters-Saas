@@ -13,7 +13,7 @@ Research on 2026-11-04 (re-check before relying on the numbers):
 - **Cloudflare R2, free tier:** 10 GB of storage, no egress fees, 1 million Class A and 10 million Class B operations per month.
 - **S3 protocol:** both services support it, as do AWS S3 and Backblaze B2.
 - **Local development:** MinIO stopped publishing free Docker images in October 2025. The Supabase CLI already in the repo (2.122.0) runs Storage locally with an S3-compatible endpoint (`[storage.s3_protocol]`).
-- **Google Maps Platform:**
+- **Maps:** OpenStreetMap since D-041 (no account or billing; free community services with usage policies). Before that, Google Maps Platform:
   - free usage per API (SKU) per month (higher under India pricing);
   - the mobile Maps SDKs are free and unlimited;
   - a billing account is required and there is no automatic spending cap.
@@ -33,10 +33,10 @@ Research on 2026-11-04 (re-check before relying on the numbers):
    - **Image transformations** (a paid Supabase feature) are not used; the API resizes images itself (sharp).
    - **Public vs. private:** public images only in the public `shop-media` bucket. Identity documents, when they exist, need a separate private bucket and short-lived signed URLs (`DATA_AND_SECURITY.md`).
 3. **Identity:** Supabase Auth stays behind JWKS verification and the `IdentityAdmin` port (ADR 0005). Replacing it would mean migrating users; that is accepted as the one non-trivial switch.
-4. **Maps:** confined to one web component (`google-location-map.tsx`) and one Flutter widget (`ShopLocationMap`). The database stores coordinates and the owner-confirmed address, never provider data.
+4. **Maps:** confined to one web module (`lib/maps/openstreetmap.ts` with `osm-location-map.tsx`) and one Flutter widget (`ShopLocationMap`). The database stores coordinates and the owner-confirmed address, never provider data.
 5. **Notifications (later):** behind a port, with Firebase Cloud Messaging (free) as the first implementation, when the product-request and review notifications are built (question 53).
 6. **Guardrails** (product-owner actions before a hosted environment):
-   - Google Maps quotas and a budget alert;
+   - moving map tiles to a hosted provider before real traffic (`docs/guides/MAPS.md`);
    - knowing that the Supabase free project pauses after inactivity;
    - a storage usage check before images reach about 80% of the free quota.
 

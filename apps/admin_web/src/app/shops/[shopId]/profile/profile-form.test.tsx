@@ -4,6 +4,14 @@ import { GEOLOCATION_MESSAGES } from '@/lib/shops/geolocation';
 import type { ProfileFormState, ProfileFormValues } from '@/lib/shops/profile';
 import { ShopProfileForm } from './profile-form';
 
+// Leaflet needs a real browser; the map itself is checked in Chrome (SHP-006).
+vi.mock('next/dynamic', () => ({
+  default: () =>
+    function MapStandIn() {
+      return <div role="application" aria-label="Map stand-in" />;
+    },
+}));
+
 const VALUES: ProfileFormValues = {
   supportPhone: '+91 98765 43210',
   line1: 'Door 12, MG Road',
@@ -29,7 +37,6 @@ function renderForm(
     <ShopProfileForm
       action={noopAction}
       initialValues={VALUES}
-      maps={null}
       canEdit
       cancelHref="/shops/1"
       {...overrides}
@@ -40,7 +47,7 @@ function renderForm(
 type Success = (position: GeolocationPosition) => void;
 type Failure = (error: GeolocationPositionError) => void;
 
-describe('ShopProfileForm without Google Maps (no key configured)', () => {
+describe('ShopProfileForm', () => {
   let getCurrentPosition: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
@@ -59,14 +66,16 @@ describe('ShopProfileForm without Google Maps (no key configured)', () => {
     vi.restoreAllMocks();
   });
 
-  it('shows the saved values, the no-map notice and the current-location button', () => {
+  it('shows the saved values, the map and the current-location button', () => {
     renderForm();
     expect(screen.getByLabelText('Support mobile number')).toHaveProperty(
       'value',
       '+91 98765 43210',
     );
     expect(screen.getByLabelText('State')).toHaveProperty('value', 'KL');
-    expect(screen.getByText(/The map isn.t set up yet/)).toBeTruthy();
+    expect(
+      screen.getByRole('application', { name: 'Map stand-in' }),
+    ).toBeTruthy();
     expect(screen.getByText('No location chosen yet.')).toBeTruthy();
     expect(
       screen.getByRole('button', { name: 'Use my current location' }),
