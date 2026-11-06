@@ -47,6 +47,7 @@ This document prevents assumptions from silently becoming requirements.
 | D-039 | Every UI control is the project's own component, on the web and in Flutter (buttons, text fields, dropdowns, bottom sheets, snack bars, dialogs and so on), styled from tokens, so that radius, colour and similar design changes are made in one place after development. | Confirmed (product owner, 2026-11-04); implemented by DS-002 |
 | D-040 | The product is named **SevenPalette** (one word, capital S and P). App names: Customer App "SevenPalette", Shop App "SevenPalette Shop", web portal "SevenPalette Admin". Tagline "Shop. Painter. Customer. Connected." The logo is the **shade-card fan**: seven swatch strips in a half arc in the brand colours. It is a product of zero.byt. | Confirmed (product owner, 2026-11-06); domains and trademark check still to do |
 | D-041 | Maps use **OpenStreetMap** instead of Google Maps: OpenStreetMap tiles, Nominatim for search and the address from a pin, Leaflet on the web and flutter_map in the apps. No account, key or billing. The free community services are used within their usage policies until launch; before real traffic, tiles (and search if needed) move to a hosted OpenStreetMap-based provider (D-028). Replaces the "Google map" part of D-027; the rest of D-027 (search, pin, suggested address, current location, map in the apps) stands. | Confirmed (product owner, 2026-11-06, after choosing not to set up Google billing); implemented in SHP-006 |
+| D-042 | The Admin Web keeps one consistent design system. The mobile apps may have their own fonts, colours and visual identity where appropriate (still built from shared tokens and components). Every Admin Web screen supports desktop, tablet and phone from the start. | Confirmed (product owner, 2026-11-06) |
 
 ## 2. Proposed technical decisions — require approval
 
@@ -165,6 +166,9 @@ Do not treat proposals as approved until the product owner confirms them.
 50. ~~What does a platform admin do with a shop it does not approve?~~ **Resolved (D-032):** request changes with reasons; the owner fixes and resubmits.
 52. What is the tinting/mixing workflow: does the shop record the base and colorant, or only the chosen shade code? (Raised with D-030.)
 53. Through which channel is the shop owner notified of a customer's product request and of review decisions: in-app only, push notification or SMS? (Raised with D-029 and D-032.)
+54. Can a shop create its own product categories, or only use the platform's categories (today: platform only)?
+55. Should "Delete" on a shop product mean archive (today: products are archived, pack sizes can be removed) or permanent removal?
+56. What does the planned "Mobile Apps" section of the shop console manage: staff app access, signed-in devices, app registrations?
 51. Public email sign-up is technically possible because Supabase has one global sign-up switch; such accounts get no access. For the hosted project, which mitigation is preferred: email confirmations + CAPTCHA, or a before-user-created hook that only allows phone sign-ups?
 
 ## 3a. Temporary assumptions (foundation)

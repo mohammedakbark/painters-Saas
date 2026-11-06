@@ -106,6 +106,7 @@ Prefer subtle borders over heavy shadows. Do not wrap every content section in a
 
 Proposed breakpoints: compact below 600 px; medium 600–899 px; desktop 900–1199 px; wide desktop 1200 px and above.
 
+- Every new screen supports desktop, tablet and phone from the start, including tables, navigation and dialogs (D-042).
 - Mobile web uses compact navigation.
 - Desktop admin may use a persistent sidebar.
 - Tables must remain usable on narrow screens (responsive cards or controlled horizontal scroll).

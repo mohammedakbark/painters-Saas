@@ -56,7 +56,7 @@ The proposed baseline is Flutter mobile, Next.js web, NestJS API, PostgreSQL, Pr
 
 ## 6. UI and design system
 
-Follow `docs/DESIGN_SYSTEM.md`. Its tokens are provisional, but do not introduce unrelated colors, fonts, radii or spacing values. Use the same design language across Flutter and web while respecting platform conventions. Prioritize readable text, accessible contrast, responsive layouts, practical touch targets and clear shop context. Include loading, empty, error and success states.
+Follow `docs/DESIGN_SYSTEM.md`. Its tokens are provisional, but do not introduce unrelated colors, fonts, radii or spacing values. Use one consistent design language on the web; the mobile apps may have their own fonts, colours and visual identity (D-042), still from shared tokens and components. Prioritize readable text, accessible contrast, responsive layouts, practical touch targets and clear shop context. Include loading, empty, error and success states.
 
 Screens use only the shared components (D-039): `apps/admin_web/src/components/ui` on the web and `flutter_shared` components in Flutter (`AppButton`, `AppTextField`, `AppDropdown`, `showAppBottomSheet`, `showAppDialog`, `showAppSnackBar`, …), never raw framework controls, base radii or literal colours. Components take their looks from the component tokens in `packages/design_tokens/tokens.json`. If a screen needs a new kind of control, add it as a component first. `pnpm ui:check` enforces this in CI.
 

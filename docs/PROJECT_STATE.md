@@ -351,7 +351,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 
 ## 7. Next actions
 
-1. **UI/UX pass (product owner, 2026-11-05):** WEB-001 to WEB-004, DS-003, DS-004, SHP-006 and CAT-003 (shop catalogue table) done. Next, in the owner's order: platform admin web lists as tables (shops, reviews, brand catalogue), then Shop App mobile list patterns, then the Customer App. Owner: domains, trademark check, bundle IDs (question 41).
+1. **UI/UX pass (product owner, 2026-11-05):** WEB-001 to WEB-004, DS-003, DS-004, SHP-006 and CAT-003 (shop catalogue table) done. Next, in the owner's order: shop web items planned on 2026-11-06 (FEATURE_CATALOG §4: navigation v2, row action menu, guided first products; dashboard with orders), platform admin web tables, then Shop App mobile list patterns, then the Customer App. Owner: domains, trademark check, bundle IDs (question 41).
 2. **Next phase: plan the Customer App foundation** with the product owner: CUS-001 sign-up and profile (customer type, D-036), CUS-002 Find shops and My Shops (D-037, D-038), CUS-003 shop storefront. Open before ordering: questions 30–32 (order approval, pickup/delivery, fulfilment).
 3. **Product owner checks:** try the platform **Reviews** decision form in Chrome as the platform admin; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
 4. **Hardening before any hosted environment:** questions 49 and 51.
@@ -438,3 +438,4 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-06 | SHP-006: product owner chose not to set up Google billing; maps moved to OpenStreetMap (D-041). Leaflet + Nominatim on the web, flutter_map in the apps; Google Maps packages, keys and native wiring removed; `docs/guides/MAPS.md` replaces the Google setup guide. |
 | 2026-11-06 | DS-004: required fields show a red asterisk (web `aria-required`, Flutter spoken "required") with "Fields marked * are required." per form; shop profile note explains the fields are needed for review. |
 | 2026-11-06 | CAT-003: shop catalogue is a filterable, paged table (new `pack-rows` API, `DataTable`/`ColumnFilter`/`Pagination`); status badges filled with soft colours (green Available, amber Not available); list, colour and rollout rules added to CLAUDE.md and the UI skill. |
+| 2026-11-06 | Owner's admin-web guidance recorded: FEATURE_CATALOG §4 planned rows (navigation v2, business dashboard, guided first products, row action menu), ERP modules as a later phase, D-042, open questions 54–56. |

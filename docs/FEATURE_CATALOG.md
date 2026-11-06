@@ -56,6 +56,10 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 | Your shops (web) | **Implemented (WEB-003)** | `/shops` after sign-in: shop cards with status, Register another shop, getting-started steps when there is no shop. Spec: `docs/features/WEB-003-my-shops.md`. |
 | Shop console look (web) | **Implemented (WEB-004)** | Sidebar and phone header with the shop, icon navigation; overview setup guide with progress; profile and catalogue pages in cards. Spec: `docs/features/WEB-004-shop-console.md`. |
 | Catalogue table (web) | **Implemented (CAT-003)** | One row per pack; Litres/Kilograms/Pieces tabs; filters for name, brand, category, pack size and availability; pagination and sort. Spec: `docs/features/CAT-003-catalogue-table.md`. |
+| Console navigation v2 (web) | Planned (UI pass, owner 2026-11-06) | Collapsible sidebar (icons + labels, or icons with tooltips); current shop at the top with a shop switcher; sections Overview, Orders, Products, Shades, Categories, Users, Mobile Apps, later ERP modules (each shown once its module exists); profile menu at the bottom (profile, My shops, shop details and photos, settings, sign out). Desktop, tablet and phone. |
+| Business dashboard after approval (web) | Planned (UI pass, owner 2026-11-06); needs orders (Phase 2) | Once the shop is Live the onboarding checklist gives way to KPIs (customers, products, orders, pending orders, sales), charts, filters and quick actions, with loading, empty and error states. |
+| Guided first-products setup (web) | Planned (UI pass, owner 2026-11-06) | A short guided path to the first 10 products: search, choose several, price them in one place, clear validation. |
+| Row action menu in tables (web) | Planned (UI pass, owner 2026-11-06) | A ⋯ menu per row: Edit, Mark available / Not available, Archive / Restore, Remove pack size; room for later actions. Destructive actions confirm; owner-only actions follow permissions. Products are archived, not deleted (open question 55). |
 | Shop self-registration (web) | **Implemented (SHP-001)** | Mobile OTP sign-in/up, register shop name + owner name; the shop starts as a private Draft. Spec: `docs/features/SHP-001-shop-registration-and-sign-in.md`. |
 | Shop profile/onboarding checklist | Confirmed / **profile + checklist implemented (SHP-003)** | Address, map location (OpenStreetMap picker with search, or current location; D-027, D-041), support mobile, the shop photo (SHP-004) and 10 products (CAT-002) are on the checklist; the owner then submits for review (D-025, PLT-002). Spec: `docs/features/SHP-003-shop-profile-and-location.md`. |
 | Product/category/brand/pack management | Confirmed / **brand catalogue implemented (CAT-001)** | Platform admins maintain categories, brands, products with pack sizes and shades, by hand or CSV import (D-030, ADR 0008). Shop listings implemented in CAT-002 (products from the brand catalogue or own, pack sizes, archive). Specs: `docs/features/CAT-001-platform-brand-catalogue.md`, `docs/features/CAT-002-shop-catalogue.md`. |
@@ -143,6 +147,10 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 - Security and tenant-isolation testing.
 - Backup/restore checks, monitoring and error reporting.
 - App-store release preparation and production runbooks.
+
+### Later — ERP modules
+- The long-term goal is a complete paint-shop ERP: inventory, purchasing, billing and payments, customers, staff, reporting and more.
+- Each module is added one at a time after the product owner approves its scope; none is in the current scope.
 
 These phases are a proposal, not a delivery-date commitment. Approve each phase before work begins.
 
