@@ -6,6 +6,8 @@
 - **Related modules:** `apps/admin_web`: `app/shops/[shopId]/catalogue/add/page.tsx`, `add/quick-add-form.tsx`, `catalogue/actions.ts` (`addCatalogueProductsAction`), `lib/shop-catalogue/forms.ts` (`parseQuickAdd`), `catalogue/page.tsx` (added message)
 - **Decisions:** D-012 (10 products before review), D-029 (availability per pack); owner guidance 2026-11-06 (FEATURE_CATALOG §4)
 
+> **Entry point changed in CAT-005 (D-043):** products are added through one Add product flow; see `docs/features/CAT-005-add-product.md`. This page is now "Quick start".
+
 ## 1. Why
 
 Adding a product used to take a separate page per product: choose it, tick its pack sizes, enter prices, save, and go back. Reaching the 10 products needed for review took more than 10 round trips.

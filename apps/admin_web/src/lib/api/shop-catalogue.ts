@@ -380,7 +380,8 @@ export function removeShopPack(
 export function browseBrandProducts(
   token: string,
   shopId: string,
-  params: { brandId: string; q?: string; cursor?: string },
+  /** Without brandId, searches every brand (q of at least 2 characters). */
+  params: { brandId?: string; q?: string; cursor?: string },
 ): Promise<Page<BrandProductItem>> {
   return apiRequest(`${base(shopId)}/brand-products${query(params)}`, {
     token,
@@ -398,7 +399,8 @@ export function browseBrandProducts(
 export function browseBrandShades(
   token: string,
   shopId: string,
-  params: { brandId: string; q?: string; cursor?: string },
+  /** Without brandId, searches every brand (q of at least 2 characters). */
+  params: { brandId?: string; q?: string; cursor?: string },
 ): Promise<Page<BrandShadeItem>> {
   return apiRequest(`${base(shopId)}/brand-shades${query(params)}`, {
     token,
@@ -480,4 +482,14 @@ export function removeOwnShade(
     schema: z.undefined(),
     method: 'DELETE',
   });
+}
+
+/** One result of the Add product search (CAT-005). */
+export interface BrandSearchResult {
+  id: string;
+  name: string;
+  brandName: string;
+  categoryName: string;
+  packs: { id: string; label: string }[];
+  listedProductId: string | null;
 }

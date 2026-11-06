@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   allValues,
+  applySoldBy,
   parseCatalogueListing,
   parseOwnPackRows,
   parsePackPrice,
@@ -197,6 +198,33 @@ describe('quick add (CAT-004)', () => {
     expect(parseQuickAdd({}, products)).toEqual({
       ok: false,
       fieldErrors: { form: QUICK_ADD_NOTHING },
+    });
+  });
+});
+
+describe('Sold by (CAT-005)', () => {
+  it('adds the chosen unit to plain numbers and keeps typed units', () => {
+    const result = applySoldBy({
+      soldBy: 'KILOGRAM',
+      'size-0': '20',
+      'size-1': '0.5',
+      'size-2': '4 L',
+    });
+    expect(result).toEqual({
+      ok: true,
+      values: {
+        soldBy: 'KILOGRAM',
+        'size-0': '20 kg',
+        'size-1': '0.5 kg',
+        'size-2': '4 L',
+      },
+    });
+  });
+
+  it('asks how the product is sold', () => {
+    expect(applySoldBy({ 'size-0': '4' })).toEqual({
+      ok: false,
+      error: 'Choose how this product is sold.',
     });
   });
 });

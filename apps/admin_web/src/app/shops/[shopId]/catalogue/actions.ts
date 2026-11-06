@@ -7,6 +7,8 @@ import {
   addFavouriteShade,
   addShopPack,
   addShopProduct,
+  type BrandSearchResult,
+  browseBrandProducts,
   createOwnShade,
   removeFavouriteShade,
   removeOwnShade,
@@ -30,6 +32,7 @@ import {
 } from '@/lib/media/image-file';
 import {
   allValues,
+  applySoldBy,
   type FieldErrors,
   packFields,
   parseCatalogueListing,
@@ -109,7 +112,8 @@ export async function addCatalogueProductAction(
   } catch (error) {
     return failure(error, values, { packs: 'form' });
   }
-  redirect(`${productPath(shopId, productId)}?added=1`);
+  const photo = await uploadOptionalPhoto(token, shopId, productId, formData);
+  redirect(`${productPath(shopId, productId)}?added=1${photo}`);
 }
 
 /**
@@ -157,6 +161,60 @@ export async function addCatalogueProductsAction(
   redirect(`/shops/${encodeURIComponent(shopId)}/catalogue?added=${added}`);
 }
 
+/**
+ * The optional photo chosen while adding a product (CAT-005), uploaded once
+ * the product exists. Returns a query suffix: "" or "&photo=failed".
+ */
+async function uploadOptionalPhoto(
+  token: string,
+  shopId: string,
+  productId: string,
+  formData: FormData,
+): Promise<string> {
+  const value = formData.get('image');
+  const file = value instanceof File && value.size > 0 ? value : null;
+  if (!file) {
+    return '';
+  }
+  if (checkImageFile(file, 'image')) {
+    return '&photo=failed';
+  }
+  try {
+    await uploadShopProductImage(token, shopId, productId, file);
+    return '';
+  } catch {
+    return '&photo=failed';
+  }
+}
+
+/** Products from every brand for the Add product search (CAT-005). */
+export async function searchBrandProductsAction(
+  shopId: string,
+  q: string,
+): Promise<BrandSearchResult[]> {
+  const text = q.trim().slice(0, 60);
+  if (text.length < 2) {
+    return [];
+  }
+  const token = await requireShopSession();
+  try {
+    const page = await browseBrandProducts(token, shopId, { q: text });
+    return page.items.map(({ product, listedProductId }) => ({
+      id: product.id,
+      name: product.name,
+      brandName: product.brand.name,
+      categoryName: product.category.name,
+      packs: product.packs.map((pack) => ({ id: pack.id, label: pack.label })),
+      listedProductId,
+    }));
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) {
+      redirect(SHOP_SIGN_IN_PATH);
+    }
+    return [];
+  }
+}
+
 /** Reads the details fields of an own product (add and edit forms). */
 function ownDetails(values: Record<string, string>) {
   const brandId = values.brandId?.trim() || null;
@@ -193,7 +251,14 @@ export async function addOwnProductAction(
 ): Promise<CatalogueFormState> {
   const values = allValues(formData);
   const details = ownDetails(values);
-  const packs = parseOwnPackRows(values);
+  const sized = applySoldBy(values);
+  if (!sized.ok) {
+    return {
+      values,
+      fieldErrors: { ...checkOwnDetails(details), soldBy: sized.error },
+    };
+  }
+  const packs = parseOwnPackRows(sized.values);
   const fieldErrors = {
     ...checkOwnDetails(details),
     ...(packs.ok ? {} : packs.fieldErrors),
@@ -214,7 +279,8 @@ export async function addOwnProductAction(
   } catch (error) {
     return failure(error, values, { packs: 'form' });
   }
-  redirect(`${productPath(shopId, productId)}?added=1`);
+  const photo = await uploadOptionalPhoto(token, shopId, productId, formData);
+  redirect(`${productPath(shopId, productId)}?added=1${photo}`);
 }
 
 export async function updateOwnProductAction(

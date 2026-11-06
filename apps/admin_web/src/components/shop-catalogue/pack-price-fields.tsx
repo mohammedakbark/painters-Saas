@@ -55,7 +55,7 @@ export function PackPriceFields({
       <CheckboxField
         label="Available"
         name={fields.available}
-        description="Unavailable packs can't be bought."
+        description="Packs that are not available can't be bought."
         disabled={disabled}
         defaultChecked={available}
       />

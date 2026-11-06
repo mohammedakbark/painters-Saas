@@ -18,7 +18,7 @@ import { addCatalogueProductsAction } from '../actions';
 import { backToProducts, catalogueBase } from '../catalogue-parts';
 import { QuickAddForm } from './quick-add-form';
 
-export const metadata: Metadata = { title: 'Add from brand catalogue' };
+export const metadata: Metadata = { title: 'Quick start' };
 
 export default function AddFromCataloguePage(
   props: PageProps<'/shops/[shopId]/catalogue/add'>,
@@ -89,8 +89,8 @@ async function AddFromCatalogue({
     <div className="flex flex-col gap-6">
       <PageHeader
         back={backToProducts(shopId)}
-        title="Add from brand catalogue"
-        description="Pick a brand, type your price for each pack size you sell, and add them all at once."
+        title="Quick start"
+        description="Add several brand products at once: pick a brand, type your price for each pack size you sell, and add them together."
       />
       {products && products.current < products.required ? (
         <ProductProgress

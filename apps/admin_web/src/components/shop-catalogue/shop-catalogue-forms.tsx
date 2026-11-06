@@ -1,17 +1,31 @@
 'use client';
 
-import { type FormEvent, startTransition, useActionState } from 'react';
+import {
+  type FormEvent,
+  startTransition,
+  useActionState,
+  useState,
+} from 'react';
 import { FormStatus } from '@/components/catalogue/form-status';
 import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { ButtonLink } from '@/components/ui/button-link';
 import { Panel } from '@/components/ui/card';
 import { CheckboxField } from '@/components/ui/checkbox-field';
+import { RadioGroupField } from '@/components/ui/choice-group-fields';
+import { FileField } from '@/components/ui/file-field';
 import { Field } from '@/components/ui/field';
 import { SelectField } from '@/components/ui/select-field';
 import { TextareaField } from '@/components/ui/textarea-field';
 import type { CatalogueFormState } from '@/lib/catalogue/form-state';
-import { OWN_PACK_ROWS, packFields } from '@/lib/shop-catalogue/forms';
+import { IMAGE_ACCEPT } from '@/lib/media/image-file';
+import {
+  OWN_PACK_ROWS,
+  packFields,
+  SOLD_BY,
+  SOLD_BY_SUFFIX,
+  type SoldBy,
+} from '@/lib/shop-catalogue/forms';
 import { RequiredFieldsNote } from '@/components/ui/field-label';
 import { PackPriceFields } from './pack-price-fields';
 
@@ -42,10 +56,13 @@ export function CatalogueListingForm({
   action,
   packs,
   cancelHref,
+  withPhoto = false,
 }: {
   action: FormAction;
   packs: readonly { id: string; label: string }[];
   cancelHref: string;
+  /** Offers the shop's own photo (the Add product page, CAT-005). */
+  withPhoto?: boolean;
 }) {
   const { state, formAction, pending, onSubmit } = useTransitionSubmit(action);
   const errors = state.fieldErrors ?? {};
@@ -86,9 +103,10 @@ export function CatalogueListingForm({
           );
         })}
       </ul>
+      {withPhoto ? <PhotoField error={errors.image} /> : null}
       <div className="flex flex-wrap gap-3">
         <Button type="submit" pending={pending} pendingLabel="Adding…">
-          Add to my catalogue
+          {withPhoto ? 'Save product' : 'Add to my catalogue'}
         </Button>
         <ButtonLink href={cancelHref} variant="secondary">
           Cancel
@@ -130,12 +148,21 @@ export function OwnProductForm({
   const { state, formAction, pending, onSubmit } = useTransitionSubmit(action);
   const errors = state.fieldErrors ?? {};
   const values = state.values;
+  const [soldBy, setSoldBy] = useState<SoldBy>(
+    (values?.soldBy as SoldBy | undefined) ?? 'LITRE',
+  );
   const value = (name: keyof OwnProductInitial) =>
     values ? (values[name] ?? '') : String(initial[name]);
   return (
     <form
       action={formAction}
       onSubmit={onSubmit}
+      onChange={(event) => {
+        const target = event.target;
+        if (target instanceof HTMLInputElement && target.name === 'soldBy') {
+          setSoldBy(target.value as SoldBy);
+        }
+      }}
       noValidate
       className="flex flex-col gap-5"
     >
@@ -206,9 +233,22 @@ export function OwnProductForm({
           <legend className="text-heading3 font-semibold">
             Pack sizes and prices
           </legend>
+          <RadioGroupField
+            legend="Sold by"
+            name="soldBy"
+            required
+            hint="Every pack size of this product uses this unit. It decides the tab (Litres, Kilograms or Pieces) the product appears in."
+            options={SOLD_BY.map((unit) => ({
+              value: unit.value,
+              label: unit.label,
+              description: unit.example,
+            }))}
+            defaultValue={soldBy}
+            error={errors.soldBy}
+          />
           <p className="text-body text-text-secondary">
-            Fill one row per pack size, for example 1 kg or 4 L. Leave unused
-            rows empty; you can add more sizes later.
+            Fill one row per pack size: the number only, for example 4. Leave
+            unused rows empty; you can add more sizes later.
           </p>
           {errors.form ? (
             <p role="alert" className="text-body text-status-error">
@@ -224,11 +264,12 @@ export function OwnProductForm({
                 className="grid gap-3 p-4 medium:grid-cols-2 medium:items-start"
               >
                 <Field
-                  label={`Pack size ${row + 1}`}
+                  label={`Pack size ${row + 1} (${SOLD_BY_SUFFIX[soldBy]})`}
                   required={row === 0}
                   name={fields.size}
-                  maxLength={20}
-                  placeholder="4 L"
+                  maxLength={10}
+                  inputMode="decimal"
+                  placeholder="4"
                   defaultValue={values?.[fields.size]}
                   error={errors[fields.size]}
                 />
@@ -244,6 +285,7 @@ export function OwnProductForm({
           })}
         </fieldset>
       ) : null}
+      {withPacks ? <PhotoField error={errors.image} /> : null}
       {disabled ? null : (
         <div className="flex flex-wrap gap-3">
           <Button
@@ -506,5 +548,18 @@ export function OwnShadeForm({
         </Button>
       </div>
     </form>
+  );
+}
+
+/** Optional photo when adding a product (CAT-005); uploaded after saving. */
+function PhotoField({ error }: { error?: string }) {
+  return (
+    <FileField
+      label="Product photo (optional)"
+      name="image"
+      accept={IMAGE_ACCEPT}
+      description="A photo you took yourself. JPEG, PNG or WebP, up to 5 MB."
+      error={error}
+    />
   );
 }

@@ -23,6 +23,7 @@ import { isUniqueViolation } from '../prisma/prisma-errors.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { ShopContext } from '../shop-access/shop-access.guard.js';
 import { packRows } from './pack-rows.js';
+import { UNIT_GROUP_MESSAGE, unitGroup } from './shop-catalogue-rules.js';
 import {
   CATALOGUE_MANAGER_ROLES,
   requireShopRole,
@@ -366,6 +367,23 @@ export class ShopProductsService {
           );
         }
         const size = await this.packSize(tx, product.catalogueProductId, input);
+        if (product.catalogueProductId === null) {
+          const existing = await tx.shopProductPack.findFirst({
+            where: { shopId: shop.shopId, shopProductId: product.id },
+            select: { unit: true },
+          });
+          if (
+            existing?.unit &&
+            'unit' in size &&
+            unitGroup(existing.unit) !== unitGroup(size.unit)
+          ) {
+            throw problem(
+              HttpStatus.BAD_REQUEST,
+              'pack_unit_group_mismatch',
+              UNIT_GROUP_MESSAGE,
+            );
+          }
+        }
         await tx.shopProductPack.create({
           data: {
             shopId: shop.shopId,

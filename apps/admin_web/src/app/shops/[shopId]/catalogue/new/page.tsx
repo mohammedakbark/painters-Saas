@@ -1,31 +1,29 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { PageLoading } from '@/components/layout/page-loading';
-import { OwnProductForm } from '@/components/shop-catalogue/shop-catalogue-forms';
 import { Alert } from '@/components/ui/alert';
-import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import {
   listCatalogueBrands,
   listCatalogueCategories,
 } from '@/lib/api/shop-catalogue';
 import { requireShopAccess, requireShopSession } from '@/lib/auth/shop-access';
-import { addOwnProductAction } from '../actions';
 import { backToProducts, catalogueBase } from '../catalogue-parts';
+import { AddProductFlow } from './add-product-flow';
 
-export const metadata: Metadata = { title: 'Add your own product' };
+export const metadata: Metadata = { title: 'Add product' };
 
-export default function NewOwnProductPage(
+export default function AddProductPage(
   props: PageProps<'/shops/[shopId]/catalogue/new'>,
 ) {
   return (
     <Suspense fallback={<PageLoading label="Loading…" />}>
-      <NewOwnProduct {...props} />
+      <AddProduct {...props} />
     </Suspense>
   );
 }
 
-async function NewOwnProduct({
+async function AddProduct({
   params,
 }: PageProps<'/shops/[shopId]/catalogue/new'>) {
   const { shopId } = await params;
@@ -40,36 +38,26 @@ async function NewOwnProduct({
     <div className="flex flex-col gap-6">
       <PageHeader
         back={backToProducts(shopId)}
-        title="Add your own product"
-        description="For products that are not in the brand catalogue, such as local brands, tools or accessories."
+        title="Add product"
+        description="Find the product in the brand catalogue, or add it as a new product. Then set your prices."
       />
-      <Card as="section" className="max-w-content p-6">
-        {shop.myRole !== 'MASTER' ? (
-          <Alert tone="info">Only the shop owner can add products.</Alert>
-        ) : categories.length === 0 ? (
-          <Alert tone="info" title="No categories yet">
-            The platform team has not set up product categories yet. Try again
-            later.
-          </Alert>
-        ) : (
-          <OwnProductForm
-            action={addOwnProductAction.bind(null, shopId)}
+      {shop.myRole !== 'MASTER' ? (
+        <Alert tone="info">Only the shop owner can add products.</Alert>
+      ) : categories.length === 0 ? (
+        <Alert tone="info" title="No categories yet">
+          The platform team has not set up product categories yet. Try again
+          later.
+        </Alert>
+      ) : (
+        <div className="max-w-content">
+          <AddProductFlow
+            shopId={shopId}
+            base={catalogueBase(shopId)}
             categories={categories}
             brands={brands}
-            initial={{
-              name: '',
-              categoryId: '',
-              brandId: '',
-              brandName: '',
-              description: '',
-              supportsShades: false,
-            }}
-            withPacks
-            submitLabel="Add product"
-            cancelHref={catalogueBase(shopId)}
           />
-        )}
-      </Card>
+        </div>
+      )}
     </div>
   );
 }

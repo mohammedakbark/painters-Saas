@@ -153,6 +153,7 @@ Web utilities: `rounded-control`, `min-h-control`, `rounded-card`, `border-card-
 | `Alert`, `Badge`, `StateMessage` (optional `icon` tile), `Spinner`, `PageHeader` (optional `eyebrow` caption and `back` link) | messages, status, empty states, loading, page titles |
 | `DataTable` (`Column`: header, cell, `filter`, `align`, `width`, `sorted`, `cellClassName`; stacks into cards below `desktop`), `SortHeader`, `ColumnSelectFilter`, `ColumnSearchFilter`, `FilterForm`, `Pagination` (CAT-003) | data lists that can grow: per-column filters in the URL, sorting, pages and rows per page |
 | `Menu` (`MenuLink`, `MenuButton`, `MenuSeparator`, `MenuLabel`), `ConfirmDialog`, `IconButton`, `Button` `destructive` (WEB-005) | dropdown and row action menus, confirming destructive actions, icon-only buttons |
+| `Combobox` (CAT-005) | search with suggestions and a "create new" option, ARIA combobox |
 | `SegmentedLinks` | switching a list between views (e.g. Selling and Archived), links with `aria-current` |
 | `AppShell` (`area` with caption, name and switch link; icon `nav`), `NavLinks` (`vertical`, `horizontal`, `tabs`; optional `icon`), `PageLoading` (placeholder skeleton) | console frame, navigation, page loading |
 | `Icon`, `IconTile` | the project's icon set (line icons, `currentColor`; store glyphs); a new icon is added here first (WEB-001) |

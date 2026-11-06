@@ -220,3 +220,52 @@ export function parseQuickAdd(
   }
   return { ok: true, body: listings };
 }
+
+/** "Sold by" for a new own product (CAT-005, D-043). */
+export const SOLD_BY = [
+  {
+    value: 'LITRE',
+    label: 'Litres',
+    example: 'Paint, primer, varnish: 1, 4, 10, 20 L',
+  },
+  {
+    value: 'KILOGRAM',
+    label: 'Kilograms',
+    example: 'Putty, distemper, powders: 1, 5, 20 kg',
+  },
+  { value: 'PIECE', label: 'Pieces', example: 'Brushes, rollers, tools' },
+] as const;
+export type SoldBy = (typeof SOLD_BY)[number]['value'];
+export const SOLD_BY_SUFFIX: Record<SoldBy, string> = {
+  LITRE: 'L',
+  KILOGRAM: 'kg',
+  PIECE: 'pieces',
+};
+const SOLD_BY_TEXT: Record<SoldBy, string> = {
+  LITRE: 'L',
+  KILOGRAM: 'kg',
+  PIECE: 'piece',
+};
+
+/**
+ * Turns "4" in each pack row into "4 L" (or kg, piece) for the chosen unit,
+ * so the usual pack-size parsing applies. Rows that already name a unit are
+ * left as typed and checked as usual.
+ */
+export function applySoldBy(
+  values: Record<string, string>,
+): { ok: true; values: Record<string, string> } | { ok: false; error: string } {
+  const soldBy = values.soldBy as SoldBy | undefined;
+  if (!soldBy || !(soldBy in SOLD_BY_TEXT)) {
+    return { ok: false, error: 'Choose how this product is sold.' };
+  }
+  const next = { ...values };
+  for (let row = 0; row < OWN_PACK_ROWS; row += 1) {
+    const field = packFields(String(row)).size;
+    const text = (next[field] ?? '').trim();
+    if (/^\d+(\.\d+)?$/.test(text)) {
+      next[field] = `${text} ${SOLD_BY_TEXT[soldBy]}`;
+    }
+  }
+  return { ok: true, values: next };
+}

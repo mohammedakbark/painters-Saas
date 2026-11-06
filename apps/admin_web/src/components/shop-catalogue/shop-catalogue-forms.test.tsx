@@ -90,8 +90,12 @@ describe('OwnProductForm', () => {
     );
     expect(screen.getByRole('option', { name: 'Putty' })).toBeTruthy();
     expect(screen.getByRole('option', { name: 'Sample Paints' })).toBeTruthy();
-    expect(screen.getByLabelText('Pack size 1')).toBeTruthy();
-    expect(screen.getByLabelText('Pack size 4')).toBeTruthy();
+    expect(screen.getByLabelText('Pack size 1 (L)')).toBeTruthy();
+    expect(screen.getByLabelText('Pack size 4 (L)')).toBeTruthy();
+    // "Sold by" changes the unit of every row (CAT-005).
+    fireEvent.click(screen.getByLabelText('Kilograms'));
+    expect(screen.getByLabelText('Pack size 1 (kg)')).toBeTruthy();
+    expect(screen.getByLabelText('Product photo (optional)')).toBeTruthy();
   });
 
   it('shows details only, read-only, for members who cannot edit', () => {

@@ -6,6 +6,8 @@
 - **Related modules:** API (`src/shop-catalogue/`), web portal (`/shops/[shopId]/catalogue/**`), onboarding checklist
 - **Decisions:** D-029 (availability per pack size), D-030 (brand catalogues; shops' own products and shades; favourite shades), D-033 (products always editable), D-012 (10 products before review), ADR 0008 (catalogue model), ADR 0007 (images)
 
+> **Entry point changed in CAT-005 (D-043):** products are added through one Add product flow; see `docs/features/CAT-005-add-product.md`.
+
 ## 1. Problem and goal
 
 A shop must list what it sells, with its own prices, before it can be reviewed (D-012). The owner picks products from the platform's brand catalogue (CAT-001) and enters prices per pack size. Products that aren't in the brand catalogue are added as the shop's own. Each pack size is marked available or unavailable (D-029). The owner also marks the brand shades the shop uses most and adds shade codes of its own (D-030).

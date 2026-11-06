@@ -10,6 +10,7 @@ import {
   ColumnSelectFilter,
 } from '@/components/ui/column-filter';
 import { type Column, DataTable, SortHeader } from '@/components/ui/data-table';
+import { Icon } from '@/components/ui/icon';
 import { PageHeader } from '@/components/ui/page-header';
 import { FilterForm } from '@/components/ui/filter-form';
 import { Pagination } from '@/components/ui/pagination';
@@ -23,6 +24,7 @@ import {
   type PackRow,
   type PackRowParams,
 } from '@/lib/api/shop-catalogue';
+import { getShopOnboarding } from '@/lib/api/shop-profile';
 import { requireShopAccess, requireShopSession } from '@/lib/auth/shop-access';
 import { formatRupees } from '@/lib/money';
 import { setPackAvailableAction, setShopProductStatusAction } from './actions';
@@ -99,7 +101,17 @@ async function Catalogue({
   const search = await searchParams;
   const state = readParams(search);
   const added = Number(text(search.added));
-  const data = await listPackRows(token, shopId, state);
+  const [data, onboarding] = await Promise.all([
+    listPackRows(token, shopId, state),
+    getShopOnboarding(token, shopId),
+  ]);
+  const productsNeeded = onboarding.items.find(
+    (item) => item.key === 'products',
+  )?.progress;
+  // The bulk quick add helps a new shop reach the products needed for review.
+  const quickStart = Boolean(
+    productsNeeded && productsNeeded.current < productsNeeded.required,
+  );
   const canEdit = shop.myRole === 'MASTER';
   const base = catalogueBase(shopId);
 
@@ -332,11 +344,14 @@ async function Catalogue({
         actions={
           canEdit ? (
             <>
-              <ButtonLink href={`${base}/add`}>
-                Add from brand catalogue
-              </ButtonLink>
-              <ButtonLink href={`${base}/new`} variant="secondary">
-                Add your own product
+              {quickStart ? (
+                <ButtonLink href={`${base}/add`} variant="secondary">
+                  Quick start
+                </ButtonLink>
+              ) : null}
+              <ButtonLink href={`${base}/new`} className="group">
+                <Icon name="plus" className="size-5" />
+                Add product
               </ButtonLink>
             </>
           ) : undefined
@@ -351,11 +366,9 @@ async function Catalogue({
           action={
             canEdit ? (
               <>
-                <ButtonLink href={`${base}/add`}>
-                  Add from brand catalogue
-                </ButtonLink>
-                <ButtonLink href={`${base}/new`} variant="secondary">
-                  Add your own product
+                <ButtonLink href={`${base}/new`}>Add product</ButtonLink>
+                <ButtonLink href={`${base}/add`} variant="secondary">
+                  Quick start: add several products
                 </ButtonLink>
               </>
             ) : undefined

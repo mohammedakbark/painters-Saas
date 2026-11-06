@@ -55,7 +55,9 @@ async function ShopProductView({
   const { shopId, productId } = await params;
   const shop = await requireShopAccess(shopId);
   const token = await requireShopSession();
-  const added = (await searchParams).added === '1';
+  const query = await searchParams;
+  const added = query.added === '1';
+  const photoFailed = query.photo === 'failed';
   const product = await orNotFound(getShopProduct(token, shopId, productId));
   const own = product.source === 'own';
   const [categories, brands] = own
@@ -72,6 +74,7 @@ async function ShopProductView({
       {added ? (
         <Alert tone="success" title="Product added">
           {product.name} is in your catalogue.
+          {photoFailed ? ' The photo was not saved; add it again below.' : null}
         </Alert>
       ) : null}
       <PageHeader

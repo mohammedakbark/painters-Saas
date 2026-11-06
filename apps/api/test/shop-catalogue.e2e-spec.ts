@@ -586,6 +586,67 @@ describe('Shop catalogue (e2e, real Postgres)', () => {
     });
   });
 
+  describe('one add-product flow (CAT-005)', () => {
+    it('searches every brand when no brand is given', async () => {
+      const a = await shopOwner('919999900001', 'Lakshmi Paints');
+      const otherBrand = (
+        await platform('post', '/brands', { name: 'Other Paints' })
+      ).body.id as string;
+      await platform('post', `/brands/${otherBrand}/products`, {
+        name: 'Silk Primer',
+        categoryId,
+        supportsShades: false,
+        packs: [{ quantity: 4, unit: 'LITRE' }],
+      });
+      await listCatalogueProduct(a).expect(201);
+
+      const found = (await call(a, 'get', '/brand-products?q=silk').expect(200))
+        .body as {
+        items: { product: { name: string }; listedProductId: string | null }[];
+      };
+      expect(found.items.map((item) => item.product.name)).toEqual([
+        'Silk Emulsion',
+        'Silk Primer',
+      ]);
+      expect(found.items[0].listedProductId).not.toBeNull();
+      expect(found.items[1].listedProductId).toBeNull();
+
+      await call(a, 'get', '/brand-products').expect(400);
+      await call(a, 'get', '/brand-products?q=s').expect(400);
+    });
+
+    it('keeps all pack sizes of an own product in one unit (Sold by)', async () => {
+      const a = await shopOwner('919999900001', 'Lakshmi Paints');
+      const mixed = await ownProduct(a, 'Mixed Primer', {
+        packs: [
+          { quantity: 1, unit: 'LITRE', pricePaise: 10000 },
+          { quantity: 1, unit: 'KILOGRAM', pricePaise: 10000 },
+        ],
+      }).expect(400);
+      expect(JSON.stringify(mixed.body)).toContain('same unit');
+
+      const putty = (
+        await ownProduct(a, 'Wall Putty', {
+          packs: [
+            { quantity: 1, unit: 'KILOGRAM', pricePaise: 12000 },
+            { quantity: 500, unit: 'GRAM', pricePaise: 7000 },
+          ],
+        }).expect(201)
+      ).body as ShopProduct;
+      const refused = await call(a, 'post', `/products/${putty.id}/packs`, {
+        quantity: 4,
+        unit: 'LITRE',
+        pricePaise: 100,
+      }).expect(400);
+      expect(refused.body.code).toBe('pack_unit_group_mismatch');
+      await call(a, 'post', `/products/${putty.id}/packs`, {
+        quantity: 20,
+        unit: 'KILOGRAM',
+        pricePaise: 90000,
+      }).expect(201);
+    });
+  });
+
   describe('pack rows (catalogue table)', () => {
     interface RowPage {
       items: {

@@ -7,7 +7,11 @@ import {
   ShadeSchema,
 } from '../catalogue/catalogue.schemas.js';
 import { CATALOGUE_LIMITS, SHADE_CODE } from '../catalogue/catalogue-text.js';
-import { SHOP_CATALOGUE_LIMITS } from './shop-catalogue-rules.js';
+import {
+  SHOP_CATALOGUE_LIMITS,
+  UNIT_GROUP_MESSAGE,
+  unitGroup,
+} from './shop-catalogue-rules.js';
 
 // Shop catalogue requests and responses (CAT-002). Money is integer paise
 // everywhere; clients enter and show rupees.
@@ -148,7 +152,12 @@ const AddOwnProductSchema = z
   .refine((value) => !(value.brandId && value.brandName), {
     error: 'Choose a catalogue brand or type a brand name, not both.',
     path: ['brandName'],
-  });
+  })
+  .refine(
+    (value) =>
+      new Set(value.packs.map((pack) => unitGroup(pack.unit))).size <= 1,
+    { error: UNIT_GROUP_MESSAGE, path: ['packs'] },
+  );
 
 export const AddShopProductRequestSchema = z
   .discriminatedUnion('source', [
@@ -278,13 +287,20 @@ export const ShopProductListQuerySchema = z
 
 export const BrandBrowseQuerySchema = z
   .object({
-    brandId: z.uuid({ error: 'Choose a brand.' }),
+    brandId: z
+      .uuid({ error: 'Choose a brand.' })
+      .optional()
+      .meta({ description: 'Leave out to search every brand (needs q).' }),
     q: search,
     categoryId: z
       .uuid({ error: 'categoryId must be a category id.' })
       .optional(),
     cursor,
     limit,
+  })
+  .refine((value) => value.brandId || (value.q?.length ?? 0) >= 2, {
+    error: 'Choose a brand or search for at least 2 characters.',
+    path: ['q'],
   })
   .meta({ id: 'ShopBrandBrowseQuery' });
 

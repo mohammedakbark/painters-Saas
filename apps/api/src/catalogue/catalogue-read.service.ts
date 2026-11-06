@@ -69,15 +69,18 @@ export class CatalogueReadService {
     return toBrand(await this.requireActiveBrand(brandId));
   }
 
+  /** A brand's products, or (CAT-005) a search across every active brand. */
   async products(
-    brandId: string,
+    brandId: string | undefined,
     query: ProductListQuery,
   ): Promise<ProductPage> {
-    await this.requireActiveBrand(brandId);
+    if (brandId) {
+      await this.requireActiveBrand(brandId);
+    }
     const after = query.cursor ? decodeCursor(query.cursor) : undefined;
     const rows = await this.prisma.catalogueProduct.findMany({
       where: {
-        brandId,
+        ...(brandId ? { brandId } : { brand: { active: true } }),
         active: true,
         category: { active: true },
         ...(query.categoryId ? { categoryId: query.categoryId } : {}),
