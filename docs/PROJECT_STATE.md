@@ -27,6 +27,7 @@
 | SHP-005: Shop App catalogue: products, availability, prices, pack sizes, archive, add from brand catalogue, photos | **Complete (local; Android emulator against the real API, Chrome cross-check)** | `docs/features/SHP-005-shop-app-catalogue.md` |
 | WEB-001: Public home page (product site with Sign in/Register; no platform admin entry), poster palette, pill buttons, footer with "Powered by zero.byt" | **Complete (local; headless Chrome over CDP)**; merged into `dev` 2026-11-05; copy drafts awaiting product-owner review | `docs/features/WEB-001-public-home-page.md` |
 | WEB-002: Sign-in and registration UX (separate Sign in and Register, 2 steps, +91 field, self-submitting code, resend countdown) | **Complete (local; real flow in headless Chrome)** | `docs/features/WEB-002-sign-in-and-registration.md` |
+| WEB-003: Your shops screen (brand bar, welcome band, shop cards, getting-started steps, loading cards) | **Complete (local; real flow in headless Chrome)** | `docs/features/WEB-003-my-shops.md` |
 | DS-003: SevenPalette name and shade-card fan logo (D-040): names, logo files, web and Flutter brand mark, favicon, launcher icons | **Complete (local)**; Android emulator not run | `docs/features/DS-003-product-name-and-logo.md` |
 
 **Git (D-035):** every feature above is in `dev` (fast-forward merged and pushed on 2026-11-04; one commit per feature, `3697e4f` … `9c7885b`); the local per-feature branches were deleted. The first GitHub Actions run on `dev` (`8497b81`) passed all three jobs (TypeScript, Flutter, repository checks). The old remote branch `feat/shp-002-shop-app-sign-in` is still on GitHub (its commits are in `dev`); the product owner can delete it. From now on each finished feature is merged into `dev` and pushed the same way. `main` still holds only `c56f614` (project setup) until a release.
@@ -346,7 +347,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 
 ## 7. Next actions
 
-1. **UI/UX pass (product owner, 2026-11-05):** WEB-002 and DS-003 (SevenPalette) done (2026-11-06). Next: the My shops screen in the same style. Owner: buy the SevenPalette domains, run the trademark check, and choose the bundle IDs (question 41).
+1. **UI/UX pass (product owner, 2026-11-05):** WEB-002, DS-003 (SevenPalette) and WEB-003 (Your shops) done (2026-11-06). Next (to confirm with the owner): the shop console (overview, profile, catalogue) in the same style. Owner: buy the SevenPalette domains, run the trademark check, and choose the bundle IDs (question 41).
 2. **Next phase: plan the Customer App foundation** with the product owner: CUS-001 sign-up and profile (customer type, D-036), CUS-002 Find shops and My Shops (D-037, D-038), CUS-003 shop storefront. Open before ordering: questions 30–32 (order approval, pickup/delivery, fulfilment).
 3. **Product owner checks:** try the platform **Reviews** decision form in Chrome as the platform admin; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
 4. **Hardening before any hosted environment:** questions 49 and 51.
@@ -425,3 +426,4 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-06 | WEB-002 implemented: separate Sign in (`/sign-in`) and Register (`/register`, 2 steps → `/shops/new`), shared auth layout, +91 field, self-submitting code, 60 s resend countdown; `Field` prefix, `Button` tertiary. |
 | 2026-11-06 | WEB-002 gaps closed: platform admin sign-in in the shared auth layout, resend countdown restarts for every code (`sentAt`), full flow verified at phone width. |
 | 2026-11-06 | DS-003: product named SevenPalette (D-040) with the shade-card fan logo; names in brand.json and native labels, logo files and generator, web and Flutter brand mark, favicon, launcher icons. |
+| 2026-11-06 | WEB-003: Your shops screen in the premium style; `CardLink` `raised` and `dashed` variants. No API change. |

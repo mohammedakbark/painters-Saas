@@ -141,7 +141,7 @@ Web utilities: `rounded-control`, `min-h-control`, `rounded-card`, `border-card-
 | `Field` (optional `prefix`, e.g. "+91"), `SelectField`, `TextareaField`, `FileField` | labelled inputs with helper text and errors linked through `aria-describedby`; file errors are announced |
 | `CheckboxField`, `CheckboxGroupField`, `RadioGroupField` | single checkbox; groups with a legend, hint and error |
 | `SearchForm` | GET search with a labelled field, optional filters and hidden values |
-| `Card`, `CardList`, `CardLink`, `Panel` (`cardClasses` where an element can't be a component) | surfaces |
+| `Card`, `CardList`, `CardLink` (`variant`: `default`, `raised` lifts on hover, `dashed` for an "add another" tile), `Panel` (`cardClasses` where an element can't be a component) | surfaces |
 | `Alert`, `Badge`, `StateMessage`, `Spinner`, `PageHeader` | messages, status, empty states, loading, page titles |
 | `Icon`, `IconTile` | the project's icon set (line icons, `currentColor`; store glyphs); a new icon is added here first (WEB-001) |
 | `AuthLayout`, `AuthSteps` (`components/auth`) | sign-in and registration frame and the 2-step indicator (WEB-002) |

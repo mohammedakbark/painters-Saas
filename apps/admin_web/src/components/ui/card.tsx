@@ -63,14 +63,30 @@ export function CardList({
   );
 }
 
+const LINK_VARIANTS = {
+  default: cn(CARD, TONES.default, 'hover:border-control-border'),
+  /** Lifts on hover; for the main cards on a page, such as a shop. */
+  raised: cn(
+    CARD,
+    TONES.default,
+    'group transition-[translate,box-shadow,border-color] duration-300 hover:border-brand-primary/30 hover:shadow-xl hover:shadow-brand-primary/10 motion-safe:hover:-translate-y-1',
+  ),
+  /** A dashed "add another" tile at the end of a card grid. */
+  dashed:
+    'group rounded-card border-2 border-dashed border-border-strong transition-colors duration-300 hover:border-brand-primary hover:bg-brand-primary-soft/50',
+} as const;
+
 /** A whole card that is one link, such as a shop in "Your shops". */
-export function CardLink({ className, ...props }: ComponentProps<typeof Link>) {
+export function CardLink({
+  className,
+  variant = 'default',
+  ...props
+}: ComponentProps<typeof Link> & { variant?: keyof typeof LINK_VARIANTS }) {
   return (
     <Link
       className={cn(
-        CARD,
-        TONES.default,
-        'hover:border-control-border focus-visible:outline-2 focus-visible:outline-brand-primary',
+        LINK_VARIANTS[variant],
+        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary',
         className,
       )}
       {...props}
