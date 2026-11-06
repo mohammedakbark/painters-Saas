@@ -217,17 +217,11 @@ export function SiteFooter() {
         <div className="grid gap-10 medium:grid-cols-2 desktop:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div className="flex flex-col gap-5">
             <div className="flex items-center gap-2">
-              <span
-                aria-hidden="true"
-                className="flex size-8 items-center justify-center rounded-panel bg-surface-default/10 text-brand-accent"
-              >
-                <Icon name="sparkle" className="size-4" />
-              </span>
               <BrandMark name="product" tone="inverse" />
             </div>
             <p className="max-w-form text-body text-brand-primary-soft">
-              For independent paint shops, painters and customers. Your shop,
-              your painters, your customers: connected.
+              For independent paint shops, painters and customers.{' '}
+              {BRAND.tagline}
             </p>
             <SocialButtons />
           </div>

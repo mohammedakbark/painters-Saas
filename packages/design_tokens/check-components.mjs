@@ -103,7 +103,14 @@ export const FLUTTER_RULES = [
  * instead whenever possible.
  * `{ file: 'apps/…/x.dart', text: 'Widget(', reason: '…' }`
  */
-export const EXCEPTIONS = [];
+export const EXCEPTIONS = [
+  {
+    file: 'packages/flutter_shared/lib/src/brand/brand_mark.dart',
+    text: 'Radius.circular(',
+    reason:
+      'SevenPalette logo geometry (strip corners, DS-003), not a UI radius',
+  },
+];
 
 function lineOf(text, index) {
   let line = 1;

@@ -22,9 +22,22 @@ dependencies:
   supabase_flutter: 2.18.3
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.14.4
   flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
 
 flutter:
   uses-material-design: true
+
+# Launcher icons (DS-003). Regenerate the PNGs with
+# `pnpm --filter design-tokens run logo`, then run
+# `fvm dart run flutter_launcher_icons` in this folder.
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: ../../packages/design_tokens/logo/png/app-icon-1024.png
+  # brand.primary from packages/design_tokens/tokens.json.
+  adaptive_icon_background: "#0F6B66"
+  adaptive_icon_foreground: ../../packages/design_tokens/logo/png/app-icon-foreground-1024.png
+  remove_alpha_ios: true

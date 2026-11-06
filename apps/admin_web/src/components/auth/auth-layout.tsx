@@ -80,12 +80,6 @@ function BrandPanel({ highlights }: { highlights: readonly AuthHighlight[] }) {
         href="/"
         className="flex w-fit items-center gap-2 rounded-nav-item focus-visible:outline-2 focus-visible:outline-surface-default"
       >
-        <span
-          aria-hidden="true"
-          className="flex size-8 items-center justify-center rounded-panel bg-surface-default/10 text-brand-accent"
-        >
-          <Icon name="sparkle" className="size-4" />
-        </span>
         <BrandMark as="span" name="product" tone="inverse" />
         <span className="sr-only">: back to the home page</span>
       </Link>

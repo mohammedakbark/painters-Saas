@@ -3,7 +3,7 @@
 **Last updated:** 2026-11-05  
 **Current stage:** Phase 1: shop onboarding. Identity and shop accounts done (AUTH-001, SHP-001, PLT-001, SHP-002). The product owner answered the onboarding and catalogue questions on 2026-11-04 (D-027 to D-034). DS-001 (single-source theme), SHP-003 (shop profile and map location), SHP-004 (shop photo, portable storage), CAT-001 (platform brand catalogue), CAT-002 (shop catalogue) and PLT-002 (shop review) done: a shop can now go from registration to Live locally. DS-002 (the project's own UI components, D-039) and SHP-005 (Shop App catalogue) done: Phase 1 is complete. Before Phase 2 the product owner asked for a UI/UX pass on the web: WEB-001 (public home page) done; next WEB-002 (sign-in and registration UX), then plan the Customer App foundation (D-036 to D-038 recorded).  
 **Overall status:** Foundation complete with CI green on GitHub. Implemented and verified locally: platform admin sign-in, shop self-registration with tenant-scoped access, the platform shop registry, and Shop App sign-in (Android emulator).  
-**Product name:** Not decided
+**Product name:** SevenPalette (D-040, 2026-11-06), a product of zero.byt
 
 > Claude Code must read this file before every task and update it after every completed task or meaningful project change.
 
@@ -27,6 +27,7 @@
 | SHP-005: Shop App catalogue: products, availability, prices, pack sizes, archive, add from brand catalogue, photos | **Complete (local; Android emulator against the real API, Chrome cross-check)** | `docs/features/SHP-005-shop-app-catalogue.md` |
 | WEB-001: Public home page (product site with Sign in/Register; no platform admin entry), poster palette, pill buttons, footer with "Powered by zero.byt" | **Complete (local; headless Chrome over CDP)**; merged into `dev` 2026-11-05; copy drafts awaiting product-owner review | `docs/features/WEB-001-public-home-page.md` |
 | WEB-002: Sign-in and registration UX (separate Sign in and Register, 2 steps, +91 field, self-submitting code, resend countdown) | **Complete (local; real flow in headless Chrome)** | `docs/features/WEB-002-sign-in-and-registration.md` |
+| DS-003: SevenPalette name and shade-card fan logo (D-040): names, logo files, web and Flutter brand mark, favicon, launcher icons | **Complete (local)**; Android emulator not run | `docs/features/DS-003-product-name-and-logo.md` |
 
 **Git (D-035):** every feature above is in `dev` (fast-forward merged and pushed on 2026-11-04; one commit per feature, `3697e4f` … `9c7885b`); the local per-feature branches were deleted. The first GitHub Actions run on `dev` (`8497b81`) passed all three jobs (TypeScript, Flutter, repository checks). The old remote branch `feat/shp-002-shop-app-sign-in` is still on GitHub (its commits are in `dev`); the product owner can delete it. From now on each finished feature is merged into `dev` and pushed the same way. `main` still holds only `c56f614` (project setup) until a release.
 
@@ -345,7 +346,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 
 ## 7. Next actions
 
-1. **UI/UX pass (product owner, 2026-11-05):** WEB-002 done (2026-11-06). Next: the DS-003 rebrand to the chosen name and logo, then the My shops screen in the same style.
+1. **UI/UX pass (product owner, 2026-11-05):** WEB-002 and DS-003 (SevenPalette) done (2026-11-06). Next: the My shops screen in the same style. Owner: buy the SevenPalette domains, run the trademark check, and choose the bundle IDs (question 41).
 2. **Next phase: plan the Customer App foundation** with the product owner: CUS-001 sign-up and profile (customer type, D-036), CUS-002 Find shops and My Shops (D-037, D-038), CUS-003 shop storefront. Open before ordering: questions 30–32 (order approval, pickup/delivery, fulfilment).
 3. **Product owner checks:** try the platform **Reviews** decision form in Chrome as the platform admin; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
 4. **Hardening before any hosted environment:** questions 49 and 51.
@@ -423,3 +424,4 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-05 | WEB-001 merged into `dev` after rebasing onto the marketing commits. Flutter 3.47.9 reinstalled through FVM; Flutter format, analyze and tests (flutter_shared 64, shop_app 70, customer_app 1) passed. Stale Turbopack dev cache (`apps/admin_web/.next/dev`) served an old `globals.css`; clearing it fixed the scroll effects in dev. |
 | 2026-11-06 | WEB-002 implemented: separate Sign in (`/sign-in`) and Register (`/register`, 2 steps → `/shops/new`), shared auth layout, +91 field, self-submitting code, 60 s resend countdown; `Field` prefix, `Button` tertiary. |
 | 2026-11-06 | WEB-002 gaps closed: platform admin sign-in in the shared auth layout, resend countdown restarts for every code (`sentAt`), full flow verified at phone width. |
+| 2026-11-06 | DS-003: product named SevenPalette (D-040) with the shade-card fan logo; names in brand.json and native labels, logo files and generator, web and Flutter brand mark, favicon, launcher icons. |

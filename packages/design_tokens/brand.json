@@ -1,10 +1,11 @@
 {
-  "$comment": "Working names until the product name and logo are decided (question 41). Edit this file, then run `pnpm tokens:generate`. Native app labels and launcher icons are separate manual steps (see README.md).",
-  "productName": "Paint Shop Platform",
-  "adminPortalName": "Admin Portal",
-  "adminPortalDescription": "Shop Admin Portal and Platform Admin console.",
-  "shopAppName": "Shop App",
-  "customerAppName": "Customer App",
+  "$comment": "Product name SevenPalette (D-040, 2026-11-06). Edit this file, then run `pnpm tokens:generate`. Native app labels and launcher icons are separate manual steps (see README.md).",
+  "productName": "SevenPalette",
+  "adminPortalName": "SevenPalette Admin",
+  "adminPortalDescription": "Shop and platform administration for SevenPalette.",
+  "shopAppName": "SevenPalette Shop",
+  "customerAppName": "SevenPalette",
   "companyName": "zero.byt",
+  "tagline": "Shop. Painter. Customer. Connected.",
   "companyHandle": "@zero.byt"
 }

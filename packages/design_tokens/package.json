@@ -7,6 +7,10 @@
     "generate": "node generate.mjs",
     "check": "node generate.mjs --check",
     "test": "node --test",
-    "check:components": "node check-components.mjs"
+    "check:components": "node check-components.mjs",
+    "logo": "node logo/build-logo.mjs"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "2.6.2"
   }
 }

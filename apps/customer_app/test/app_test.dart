@@ -9,7 +9,8 @@ void main() {
   ) async {
     await tester.pumpWidget(const CustomerApp());
 
-    expect(find.text('Customer App'), findsOneWidget);
+    expect(find.byType(BrandMark), findsOneWidget);
+    expect(find.byType(LogoMark), findsOneWidget);
     final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
     expect(app.theme?.colorScheme.primary, AppColors.brandPrimary);
   });

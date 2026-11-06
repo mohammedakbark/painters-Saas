@@ -3,11 +3,12 @@
 // name and logo are decided.
 
 export const BRAND = {
-  productName: 'Paint Shop Platform',
-  adminPortalName: 'Admin Portal',
-  adminPortalDescription: 'Shop Admin Portal and Platform Admin console.',
-  shopAppName: 'Shop App',
-  customerAppName: 'Customer App',
+  productName: 'SevenPalette',
+  adminPortalName: 'SevenPalette Admin',
+  adminPortalDescription: 'Shop and platform administration for SevenPalette.',
+  shopAppName: 'SevenPalette Shop',
+  customerAppName: 'SevenPalette',
   companyName: 'zero.byt',
+  tagline: 'Shop. Painter. Customer. Connected.',
   companyHandle: '@zero.byt',
 } as const;

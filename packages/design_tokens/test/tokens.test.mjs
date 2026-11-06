@@ -226,9 +226,10 @@ describe('renderers', () => {
   });
 
   it('emits Dart colours as opaque ARGB literals', () => {
+    const hex = tokens.color['brand.primary'].value.slice(1).toUpperCase();
     assert.ok(
       renderDartColors(tokens).includes(
-        'static const Color brandPrimary = Color(0xFF1F4B7A);',
+        `static const Color brandPrimary = Color(0xFF${hex});`,
       ),
     );
   });

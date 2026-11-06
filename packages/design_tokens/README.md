@@ -46,10 +46,14 @@ Edit `brand.json` and run `pnpm tokens:generate`. Two native labels are separate
 2. Change the `next/font` import in `apps/admin_web/src/app/fonts.ts`, keeping or updating the `variable`.
 3. Set `font.family` (and `font.webVariable` if it changed) in `tokens.json`, then run `pnpm tokens:generate`. The generator fails if steps 1 and 2 don't match.
 
-### Logo
-- Web: change `apps/admin_web/src/components/brand/brand-mark.tsx` (a text mark today).
-- Flutter: change `packages/flutter_shared/lib/src/brand/brand_mark.dart`.
-- App launcher icons (Flutter defaults today) and a web favicon (none yet; Next.js uses `apps/admin_web/src/app/icon.png` or `favicon.ico` when added) come with the logo, for example generated with the `flutter_launcher_icons` tool. This is not set up yet.
+### Logo (DS-003: SevenPalette shade-card fan)
+- **Master files:** `logo/` holds `mark.svg` (full colour), `mark-inverse.svg` (on teal), `mark-mono-white.svg`, `mark-mono-black.svg`, `icon-small.svg` (three strips, favicon) and the app icon sources. They are all written by `logo/build-logo.mjs` from the colours in `tokens.json` (`brand.*`, `logo.*`); never edit the SVGs by hand.
+- **Regenerate:** `pnpm --filter design-tokens run logo`. It writes the SVGs, `logo/png/app-icon-1024.png`, `logo/png/app-icon-foreground-1024.png`, and the web favicon and Apple icon (`apps/admin_web/src/app/icon.svg`, `apple-icon.png`).
+- **App launcher icons:** after regenerating, run `fvm dart run flutter_launcher_icons` in `apps/shop_app` and `apps/customer_app`. The configuration is in each `pubspec.yaml`. The tool also edits `ios/Runner.xcodeproj/project.pbxproj`, putting `AppIcon` into `ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS`; that is a known slip, so revert it with `git checkout -- apps/*/ios/Runner.xcodeproj/project.pbxproj`.
+- **In the UI:**
+  - Web: `components/brand/logo-mark.tsx` (the fan as token classes) and `brand-mark.tsx` (fan plus "Seven**Palette**" wordmark).
+  - Flutter: `LogoMark` and `BrandMark` in `packages/flutter_shared/lib/src/brand/brand_mark.dart`.
+  - The geometry matches `build-logo.mjs` (strips 12 × 62, 24° apart, pivot at (50, 84), drawing box `-24.23 8 148.46 85`).
 
 Paint shade colours are catalogue data and never belong in these files.
 

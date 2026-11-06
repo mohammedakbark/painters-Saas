@@ -17,12 +17,6 @@ export function SiteHeader() {
           href="/"
           className="flex items-center gap-2 rounded-nav-item focus-visible:outline-2 focus-visible:outline-brand-primary"
         >
-          <span
-            aria-hidden="true"
-            className="flex size-8 items-center justify-center rounded-panel bg-linear-to-br from-brand-primary to-brand-primary-strong text-brand-accent"
-          >
-            <Icon name="sparkle" className="size-4" />
-          </span>
           <BrandMark as="span" name="product" />
         </Link>
         <SectionNav />

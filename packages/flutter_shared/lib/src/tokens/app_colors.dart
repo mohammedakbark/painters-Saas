@@ -21,6 +21,21 @@ abstract final class AppColors {
   /// Coral from the brand poster: decorative marks only (underlines, dots, small shapes). Never text, never the only signal.
   static const Color brandHighlight = Color(0xFFF25C3B);
 
+  /// SevenPalette fan logo strip only (DS-003); never text or UI.
+  static const Color logoTealMid = Color(0xFF3E8C86);
+
+  /// SevenPalette fan logo strip only (DS-003); never text or UI.
+  static const Color logoTealLight = Color(0xFF7FB8B2);
+
+  /// SevenPalette fan logo strip only (DS-003); never text or UI.
+  static const Color logoOrange = Color(0xFFF59A3F);
+
+  /// SevenPalette fan logo strip on dark surfaces only (DS-003).
+  static const Color logoMint = Color(0xFFA9D3CE);
+
+  /// SevenPalette fan logo strip on the app icon only (DS-003).
+  static const Color logoMist = Color(0xFFCFE3DF);
+
   /// Main surfaces.
   static const Color surfaceDefault = Color(0xFFFFFFFF);
 

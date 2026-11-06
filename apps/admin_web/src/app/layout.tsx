@@ -15,7 +15,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="en" className={appFont.variable}>
+    <html
+      lang="en"
+      className={appFont.variable}
+      // Lets the router turn smooth scrolling off during navigation.
+      data-scroll-behavior="smooth"
+    >
       <body>{children}</body>
     </html>
   );

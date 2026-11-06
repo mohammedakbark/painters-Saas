@@ -45,6 +45,7 @@ This document prevents assumptions from silently becoming requirements.
 | D-037 | Any Live shop can be opened and browsed without adding it. Adding a shop to My Shops is instant and needs no approval. Painter confirmation and credit stay separate per-shop steps. | Confirmed (product owner, 2026-11-04) |
 | D-038 | Finding shops lists every Live shop, nearest first by the phone's location. When location is off or refused, the customer picks a district and its shops are listed first. There is no distance cut-off while there are few shops. | Confirmed (product owner, 2026-11-04) |
 | D-039 | Every UI control is the project's own component, on the web and in Flutter (buttons, text fields, dropdowns, bottom sheets, snack bars, dialogs and so on), styled from tokens, so that radius, colour and similar design changes are made in one place after development. | Confirmed (product owner, 2026-11-04); implemented by DS-002 |
+| D-040 | The product is named **SevenPalette** (one word, capital S and P). App names: Customer App "SevenPalette", Shop App "SevenPalette Shop", web portal "SevenPalette Admin". Tagline "Shop. Painter. Customer. Connected." The logo is the **shade-card fan**: seven swatch strips in a half arc in the brand colours. It is a product of zero.byt. | Confirmed (product owner, 2026-11-06); domains and trademark check still to do |
 
 ## 2. Proposed technical decisions — require approval
 
@@ -151,7 +152,7 @@ Do not treat proposals as approved until the product owner confirms them.
 40. Is customer shopping required on web, or is responsive web only for shop/platform administration?
 
 ### Technical (raised during foundation)
-41. What are the final Android application IDs and iOS bundle identifiers? Currently `com.example.*` placeholders, which the stores reject. This depends on the product name.
+41. What are the final Android application IDs and iOS bundle identifiers? Currently `com.example.*` placeholders, which the stores reject. The product name is now decided (D-040, SevenPalette), so this can be answered, for example `com.sevenpalette.shop` and `com.sevenpalette.app`, once the domain is bought.
 42. ~~Which auth/OTP provider will be used? Once decided, should local development move to the Supabase CLI stack?~~ **Resolved:** Supabase Auth (D-021); local development runs the Supabase CLI for Auth only (T-011). The SMS vendor is question 46.
 43. ~~Which DTO validation approach will the API use (class-validator or Zod/Standard Schema)?~~ **Resolved:** Zod 4 + Standard Schema (T-012).
 44. ~~What are the API versioning prefix (for example `/v1`) and the standard error-response shape?~~ **Resolved:** `/v1` and RFC 9457 problem details (T-013).

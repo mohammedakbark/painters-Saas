@@ -1,7 +1,7 @@
 # Product Overview
 
 **Working title:** Paint Shop SaaS Platform  
-**Product name:** Not decided  
+**Product name:** SevenPalette (D-040), a product of zero.byt  
 **Initial market:** Kerala, India  
 **Initial language:** English  
 **Platforms:** Android, iOS and responsive web administration  

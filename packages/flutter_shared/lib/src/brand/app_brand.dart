@@ -4,18 +4,20 @@
 
 /// Product and app names shown in the apps.
 abstract final class AppBrand {
-  static const String productName = 'Paint Shop Platform';
+  static const String productName = 'SevenPalette';
 
-  static const String adminPortalName = 'Admin Portal';
+  static const String adminPortalName = 'SevenPalette Admin';
 
   static const String adminPortalDescription =
-      'Shop Admin Portal and Platform Admin console.';
+      'Shop and platform administration for SevenPalette.';
 
-  static const String shopAppName = 'Shop App';
+  static const String shopAppName = 'SevenPalette Shop';
 
-  static const String customerAppName = 'Customer App';
+  static const String customerAppName = 'SevenPalette';
 
   static const String companyName = 'zero.byt';
+
+  static const String tagline = 'Shop. Painter. Customer. Connected.';
 
   static const String companyHandle = '@zero.byt';
 }

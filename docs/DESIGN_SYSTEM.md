@@ -3,7 +3,7 @@
 **Status:** Provisional visual foundation — review before detailed screen design  
 **Last updated:** 2026-11-04
 
-The product should feel clear, dependable and practical for local paint shops, painters and customers. Avoid a generic admin-template appearance. Prioritize product information, readable prices, clear shop context and simple actions. Product name/logo are not decided.
+The product should feel clear, dependable and practical for local paint shops, painters and customers. Avoid a generic admin-template appearance. Prioritize product information, readable prices, clear shop context and simple actions. Product name SevenPalette with the shade-card fan logo (D-040, DS-003).
 
 ## 1. Visual direction
 
@@ -28,6 +28,7 @@ Palette from the product owner's brand poster (2026-11-05, trial: kept or revert
 | `brand.primarySoft` | `#E3F2EF` | Selected backgrounds/highlights |
 | `brand.accent` | `#F7C344` (sunflower) | Limited highlights and offers; also headline text on `brand.primaryStrong` |
 | `brand.highlight` | `#F25C3B` (coral) | Decorative marks only (underlines, dots, small shapes); never text |
+| `logo.tealMid`, `logo.tealLight`, `logo.orange`, `logo.mint`, `logo.mist` | `#3E8C86`, `#7FB8B2`, `#F59A3F`, `#A9D3CE`, `#CFE3DF` | Strips of the SevenPalette fan logo only (DS-003); never text or UI |
 | `surface.default` | `#FFFFFF` | Main surfaces |
 | `surface.subtle` | `#FAF6EE` (warm cream) | Page backgrounds/secondary sections |
 | `surface.raised` | `#FFFFFF` | Cards/dialogs |
@@ -184,6 +185,7 @@ Every piece of text in the web portal, both apps, emails and store listings foll
 | Section labels shown in capitals | Write them in sentence case; capitals come from CSS (`uppercase`) only | source "How it works", shown as HOW IT WORKS |
 | Our apps and areas (proper nouns) | **Title case**, always the same words | Customer App, Shop App, Shop Admin Portal, Platform Admin, My Shops |
 | Account actions | "Sign in", "Sign out", "Register" (verbs); never "Login" or "Log in" as a button | "Sign in with your mobile" |
+| Product | **SevenPalette**: one word, capital S and P; app names SevenPalette, SevenPalette Shop, SevenPalette Admin (D-040) | "SevenPalette gives independent paint shops…" |
 | Company | **zero.byt** always lower case, even at the start of a sentence; handle **@zero.byt** | "Powered by zero.byt" |
 | Other brands and platforms | Their own spelling | WhatsApp, Instagram, LinkedIn, App Store, Google Play, Google Maps, Android, iPhone |
 | Abbreviations | Capitals | OTP, MRP, GST, PNG, CSV, ID |
