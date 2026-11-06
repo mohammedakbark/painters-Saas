@@ -9,6 +9,7 @@ import {
 import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { ButtonLink } from '@/components/ui/button-link';
+import { Card } from '@/components/ui/card';
 import { Field } from '@/components/ui/field';
 import { SelectField } from '@/components/ui/select-field';
 import { INDIAN_STATES } from '@/lib/shops/indian-states';
@@ -115,7 +116,7 @@ export function ShopProfileForm({
       action={formAction}
       onSubmit={submit}
       noValidate
-      className="flex flex-col gap-8"
+      className="flex flex-col gap-6"
     >
       {state.formError ? (
         <Alert tone="error" title="The profile was not saved">
@@ -128,111 +129,118 @@ export function ShopProfileForm({
         </Alert>
       ) : null}
 
-      <fieldset disabled={!canEdit} className="flex flex-col gap-5">
-        <legend className="mb-2 text-heading3 font-semibold">
-          Customer support
-        </legend>
-        <Field
-          label="Support mobile number"
-          type="tel"
-          inputMode="tel"
-          autoComplete="tel-national"
-          maxLength={20}
-          description="Customers will contact the shop on this number. A 10-digit Indian mobile."
-          {...text('supportPhone')}
-        />
-      </fieldset>
-
-      <fieldset disabled={!canEdit} className="flex flex-col gap-5">
-        <legend className="mb-2 text-heading3 font-semibold">
-          Shop address
-        </legend>
-        {suggestion ? (
-          <Alert tone="info" title="Address from the map">
-            <p>
-              {[
-                suggestion.line1,
-                suggestion.line2,
-                suggestion.city,
-                suggestion.district,
-                suggestion.postalCode,
-              ]
-                .filter(Boolean)
-                .join(', ')}
-            </p>
-            <p className="mt-1 text-caption text-text-secondary">
-              Map addresses can be incomplete. Check every field after using it.
-            </p>
-            <div className="mt-3 flex flex-wrap gap-3">
-              <Button
-                variant="secondary"
-                onClick={() => applySuggestion(suggestion)}
-              >
-                Use this address
-              </Button>
-              <Button variant="secondary" onClick={() => setSuggestion(null)}>
-                Keep what I typed
-              </Button>
-            </div>
-          </Alert>
-        ) : null}
-        <Field
-          label="Shop number, building and street"
-          autoComplete="address-line1"
-          maxLength={200}
-          {...text('line1')}
-        />
-        <Field
-          label="Area or locality (optional)"
-          autoComplete="address-line2"
-          maxLength={200}
-          {...text('line2')}
-        />
-        <Field
-          label="Landmark (optional)"
-          maxLength={120}
-          description="For example: Opposite the bus stand."
-          {...text('landmark')}
-        />
-        <div className="grid gap-5 medium:grid-cols-2">
+      <Card as="section" className="p-6 medium:p-8">
+        <fieldset disabled={!canEdit} className="flex flex-col gap-5">
+          <legend className="mb-2 text-heading3 font-semibold">
+            Customer support
+          </legend>
           <Field
-            label="City or town"
-            autoComplete="address-level2"
-            maxLength={80}
-            {...text('city')}
+            label="Support mobile number"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel-national"
+            maxLength={20}
+            description="Customers will contact the shop on this number. A 10-digit Indian mobile."
+            {...text('supportPhone')}
           />
-          <Field label="District" maxLength={80} {...text('district')} />
-          <SelectField
-            label="State"
-            autoComplete="address-level1"
-            options={STATE_OPTIONS}
-            {...text('stateCode')}
+        </fieldset>
+      </Card>
+
+      <Card as="section" className="p-6 medium:p-8">
+        <fieldset disabled={!canEdit} className="flex flex-col gap-5">
+          <legend className="mb-2 text-heading3 font-semibold">
+            Shop address
+          </legend>
+          {suggestion ? (
+            <Alert tone="info" title="Address from the map">
+              <p>
+                {[
+                  suggestion.line1,
+                  suggestion.line2,
+                  suggestion.city,
+                  suggestion.district,
+                  suggestion.postalCode,
+                ]
+                  .filter(Boolean)
+                  .join(', ')}
+              </p>
+              <p className="mt-1 text-caption text-text-secondary">
+                Map addresses can be incomplete. Check every field after using
+                it.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-3">
+                <Button
+                  variant="secondary"
+                  onClick={() => applySuggestion(suggestion)}
+                >
+                  Use this address
+                </Button>
+                <Button variant="secondary" onClick={() => setSuggestion(null)}>
+                  Keep what I typed
+                </Button>
+              </div>
+            </Alert>
+          ) : null}
+          <Field
+            label="Shop number, building and street"
+            autoComplete="address-line1"
+            maxLength={200}
+            {...text('line1')}
           />
           <Field
-            label="PIN code"
-            inputMode="numeric"
-            autoComplete="postal-code"
-            maxLength={6}
-            {...text('postalCode')}
+            label="Area or locality (optional)"
+            autoComplete="address-line2"
+            maxLength={200}
+            {...text('line2')}
           />
-        </div>
-      </fieldset>
+          <Field
+            label="Landmark (optional)"
+            maxLength={120}
+            description="For example: Opposite the bus stand."
+            {...text('landmark')}
+          />
+          <div className="grid gap-5 medium:grid-cols-2">
+            <Field
+              label="City or town"
+              autoComplete="address-level2"
+              maxLength={80}
+              {...text('city')}
+            />
+            <Field label="District" maxLength={80} {...text('district')} />
+            <SelectField
+              label="State"
+              autoComplete="address-level1"
+              options={STATE_OPTIONS}
+              {...text('stateCode')}
+            />
+            <Field
+              label="PIN code"
+              inputMode="numeric"
+              autoComplete="postal-code"
+              maxLength={6}
+              {...text('postalCode')}
+            />
+          </div>
+        </fieldset>
+      </Card>
 
-      <LocationPicker
-        value={location}
-        onChange={(picked) =>
-          setValues((current) => ({
-            ...current,
-            latitude: String(picked.latitude),
-            longitude: String(picked.longitude),
-            locationSource: picked.source,
-          }))
-        }
-        onSuggestAddress={setSuggestion}
-        maps={maps}
-        error={errors.latitude}
-        disabled={!canEdit}
-      />
+      <Card as="section" className="p-6 medium:p-8">
+        <LocationPicker
+          value={location}
+          onChange={(picked) =>
+            setValues((current) => ({
+              ...current,
+              latitude: String(picked.latitude),
+              longitude: String(picked.longitude),
+              locationSource: picked.source,
+            }))
+          }
+          onSuggestAddress={setSuggestion}
+          maps={maps}
+          error={errors.latitude}
+          disabled={!canEdit}
+        />
+      </Card>
       <input type="hidden" name="latitude" value={values.latitude} />
       <input type="hidden" name="longitude" value={values.longitude} />
       <input
@@ -242,13 +250,13 @@ export function ShopProfileForm({
       />
 
       {canEdit ? (
-        <div className="flex flex-wrap gap-3">
-          <Button type="submit" pending={pending} pendingLabel="Saving…">
-            Save profile
-          </Button>
+        <div className="flex flex-col-reverse gap-3 medium:flex-row medium:justify-end">
           <ButtonLink href={cancelHref} variant="secondary">
             Cancel
           </ButtonLink>
+          <Button type="submit" pending={pending} pendingLabel="Saving…">
+            Save profile
+          </Button>
         </div>
       ) : null}
     </form>

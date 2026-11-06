@@ -36,12 +36,24 @@ async function ShopConsole({
 
   return (
     <AppShell
-      areaLabel={shop.name}
+      area={{
+        caption: 'Shop',
+        name: shop.name,
+        switchTo: { href: '/shops', label: 'All shops' },
+      }}
       nav={[
-        { href: `/shops/${shop.id}`, label: 'Overview', exact: true },
-        { href: `/shops/${shop.id}/profile`, label: 'Profile' },
-        { href: `/shops/${shop.id}/catalogue`, label: 'Catalogue' },
-        { href: '/shops', label: 'All my shops', exact: true },
+        {
+          href: `/shops/${shop.id}`,
+          label: 'Overview',
+          exact: true,
+          icon: 'home',
+        },
+        { href: `/shops/${shop.id}/profile`, label: 'Profile', icon: 'store' },
+        {
+          href: `/shops/${shop.id}/catalogue`,
+          label: 'Catalogue',
+          icon: 'tag',
+        },
       ]}
       account={account}
       signOutAction={signOutOfShop}

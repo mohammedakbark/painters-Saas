@@ -1,5 +1,6 @@
 import type { InputHTMLAttributes } from 'react';
 import { cn } from '@/lib/cn';
+import { Icon, type IconName } from './icon';
 
 export interface FieldProps extends Omit<
   InputHTMLAttributes<HTMLInputElement>,
@@ -14,6 +15,8 @@ export interface FieldProps extends Omit<
   error?: string;
   /** Fixed text shown before the value inside the control, e.g. "+91". */
   prefix?: string;
+  /** Decorative icon inside the control, e.g. `search`. */
+  leadingIcon?: IconName;
 }
 
 /** Labelled text input with helper text and an accessible error message. */
@@ -23,6 +26,7 @@ export function Field({
   description,
   error,
   prefix,
+  leadingIcon,
   className,
   ...input
 }: FieldProps) {
@@ -73,20 +77,29 @@ export function Field({
           />
         </div>
       ) : (
-        <input
-          id={id}
-          name={name}
-          aria-invalid={error ? true : undefined}
-          aria-describedby={describedBy}
-          className={cn(
-            'min-h-control rounded-control border bg-control-background px-4 text-body-large text-text-primary',
-            'placeholder:text-text-disabled disabled:bg-surface-subtle disabled:text-text-disabled',
-            'focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-brand-primary',
-            error ? 'border-control-border-error' : 'border-control-border',
-            className,
-          )}
-          {...input}
-        />
+        <div className="relative">
+          {leadingIcon ? (
+            <Icon
+              name={leadingIcon}
+              className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-text-secondary"
+            />
+          ) : null}
+          <input
+            id={id}
+            name={name}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={describedBy}
+            className={cn(
+              'min-h-control w-full rounded-control border bg-control-background text-body-large text-text-primary',
+              leadingIcon ? 'pr-4 pl-12' : 'px-4',
+              'placeholder:text-text-disabled disabled:bg-surface-subtle disabled:text-text-disabled',
+              'focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-brand-primary',
+              error ? 'border-control-border-error' : 'border-control-border',
+              className,
+            )}
+            {...input}
+          />
+        </div>
       )}
       {error ? (
         <p id={errorId} className="text-body text-status-error">

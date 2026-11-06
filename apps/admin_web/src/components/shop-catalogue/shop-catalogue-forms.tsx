@@ -397,11 +397,19 @@ export function ActionButtonForm({
   pendingLabel: string;
   /** Names the target for screen readers, for example "Remove 4 L". */
   accessibleLabel?: string;
-  variant?: 'primary' | 'secondary';
+  /** `tertiary` for a quiet action repeated on every row of a list. */
+  variant?: 'primary' | 'secondary' | 'tertiary';
 }) {
   const [state, formAction, pending] = useActionState(action, {});
   return (
-    <form action={formAction} className="flex flex-col items-start gap-2">
+    <form
+      action={formAction}
+      className={
+        variant === 'tertiary'
+          ? 'flex flex-col items-end gap-1'
+          : 'flex flex-col items-start gap-2'
+      }
+    >
       <Button
         type="submit"
         variant={variant}

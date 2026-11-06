@@ -17,10 +17,10 @@ export const metadata: Metadata = {
 };
 
 const PLATFORM_NAV: readonly NavItem[] = [
-  { href: '/platform', label: 'Overview', exact: true },
-  { href: '/platform/reviews', label: 'Reviews' },
-  { href: '/platform/shops', label: 'Shops' },
-  { href: '/platform/catalogue', label: 'Catalogue' },
+  { href: '/platform', label: 'Overview', exact: true, icon: 'home' },
+  { href: '/platform/reviews', label: 'Reviews', icon: 'shield' },
+  { href: '/platform/shops', label: 'Shops', icon: 'store' },
+  { href: '/platform/catalogue', label: 'Catalogue', icon: 'notebook' },
 ];
 
 /**
@@ -44,9 +44,9 @@ async function PlatformConsole({ children }: { children: ReactNode }) {
   const admin = await requirePlatformAdmin();
   return (
     <AppShell
-      areaLabel="Platform admin"
+      area={{ caption: 'Admin area', name: 'Platform Admin' }}
       nav={PLATFORM_NAV}
-      account={admin.email ?? 'Platform admin'}
+      account={admin.email ?? 'Platform Admin'}
       signOutAction={signOutOfPlatform}
     >
       {children}

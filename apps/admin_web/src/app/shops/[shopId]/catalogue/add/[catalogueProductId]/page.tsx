@@ -48,13 +48,8 @@ async function PriceCatalogueProduct({
 
   return (
     <div className="flex flex-col gap-6">
-      <Link
-        href={backHref}
-        className="text-body font-semibold text-brand-primary underline underline-offset-4"
-      >
-        {product.brand.name} products
-      </Link>
       <PageHeader
+        back={{ href: backHref, label: `${product.brand.name} products` }}
         title={product.name}
         description={`${product.brand.name} · ${product.category.name}`}
       />

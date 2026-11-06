@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { PageLoading } from '@/components/layout/page-loading';
 import { Alert } from '@/components/ui/alert';
+import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { getShopProfile, type ShopProfile } from '@/lib/api/shop-profile';
 import { requireShopAccess, requireShopSession } from '@/lib/auth/shop-access';
@@ -63,21 +64,27 @@ async function ShopProfileContent({
         </Alert>
       ) : null}
       <PageHeader
+        eyebrow="Profile"
         title="Shop profile"
         description="Photo, support mobile, address and map location. Customers see these once your shop is live."
       />
-      <div className="flex max-w-content flex-col gap-10">
-        <ImageUploadForm
-          title="Shop photo"
-          description="A clear photo of the shop front. JPEG, PNG or WebP, up to 5 MB. Photo details such as the camera and location are removed."
-          noun="photo"
-          fieldName="photo"
-          // Remount after an upload so the preview is cleared.
-          key={profile.photo?.updatedAt ?? 'none'}
-          action={uploadShopPhotoAction.bind(null, shop.id)}
-          currentUrl={profile.photo?.url ?? null}
-          canEdit={canEdit}
-        />
+      <div className="grid items-start gap-6 desktop:grid-cols-[minmax(0,1fr)_22rem]">
+        <Card
+          as="section"
+          className="p-6 medium:p-8 desktop:sticky desktop:top-10 desktop:order-last"
+        >
+          <ImageUploadForm
+            title="Shop photo"
+            description="A clear photo of the shop front. JPEG, PNG or WebP, up to 5 MB. Photo details such as the camera and location are removed."
+            noun="photo"
+            fieldName="photo"
+            // Remount after an upload so the preview is cleared.
+            key={profile.photo?.updatedAt ?? 'none'}
+            action={uploadShopPhotoAction.bind(null, shop.id)}
+            currentUrl={profile.photo?.url ?? null}
+            canEdit={canEdit}
+          />
+        </Card>
         <ShopProfileForm
           // Remount after a save so the form shows the stored values.
           key={profile.updatedAt ?? 'new'}

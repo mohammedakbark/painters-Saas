@@ -1,8 +1,6 @@
-import Link from 'next/link';
 import { NavLinks } from '@/components/layout/nav-links';
 import { Badge } from '@/components/ui/badge';
-import type { ShopPack, ShopProduct } from '@/lib/api/shop-catalogue';
-import { formatRupees } from '@/lib/money';
+import type { ShopProduct } from '@/lib/api/shop-catalogue';
 
 /** Shared pieces of the shop catalogue pages (CAT-002). */
 
@@ -15,7 +13,7 @@ export function CatalogueTabs({ shopId }: { shopId: string }) {
   return (
     <NavLinks
       label="Catalogue sections"
-      orientation="horizontal"
+      orientation="tabs"
       items={[
         { href: base, label: 'Products', exact: true },
         { href: `${base}/shades`, label: 'Shades' },
@@ -24,16 +22,11 @@ export function CatalogueTabs({ shopId }: { shopId: string }) {
   );
 }
 
-export function BackToProducts({ shopId }: { shopId: string }) {
-  return (
-    <Link
-      href={catalogueBase(shopId)}
-      className="text-body font-semibold text-brand-primary underline underline-offset-4"
-    >
-      All products
-    </Link>
-  );
-}
+/** Back link of the catalogue sub-pages, for PageHeader `back`. */
+export const backToProducts = (shopId: string) => ({
+  href: catalogueBase(shopId),
+  label: 'All products',
+});
 
 /** Archived / removed-from-catalogue badges of a product. */
 export function ProductBadges({ product }: { product: ShopProduct }) {
@@ -46,13 +39,6 @@ export function ProductBadges({ product }: { product: ShopProduct }) {
       {product.source === 'own' ? <Badge tone="info">Own product</Badge> : null}
     </>
   );
-}
-
-/** "₹1,450 (MRP ₹1,500)". */
-export function packPriceText(pack: ShopPack): string {
-  return pack.mrpPaise === null
-    ? formatRupees(pack.pricePaise)
-    : `${formatRupees(pack.pricePaise)} (MRP ${formatRupees(pack.mrpPaise)})`;
 }
 
 /** "Brand · Category" line of a product. */

@@ -9,7 +9,7 @@ export const GEOLOCATION_MESSAGES = {
   timeout:
     'Finding your location took too long. Try again, or place the pin on the map.',
   outsideIndia: 'That location is outside India. Place the pin at the shop.',
-  insecure: 'Location works only on a secure (https) connection.',
+  insecure: 'Location works only on a secure (HTTPS) connection.',
   inaccurate: (meters: number) =>
     `This device could only find your location to within about ${formatDistance(meters)}, which is too rough for a shop pin. Use the Shop App on your phone at the shop, or place the pin on the map.`,
 } as const;

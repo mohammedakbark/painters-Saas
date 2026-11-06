@@ -18,7 +18,7 @@ export function BrandTabs({ brandId }: { brandId: string }) {
   return (
     <NavLinks
       label="Brand sections"
-      orientation="horizontal"
+      orientation="tabs"
       items={[
         { href: base, label: 'Products', exact: true },
         { href: `${base}/shades`, label: 'Shades' },

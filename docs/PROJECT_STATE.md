@@ -28,6 +28,7 @@
 | WEB-001: Public home page (product site with Sign in/Register; no platform admin entry), poster palette, pill buttons, footer with "Powered by zero.byt" | **Complete (local; headless Chrome over CDP)**; merged into `dev` 2026-11-05; copy drafts awaiting product-owner review | `docs/features/WEB-001-public-home-page.md` |
 | WEB-002: Sign-in and registration UX (separate Sign in and Register, 2 steps, +91 field, self-submitting code, resend countdown) | **Complete (local; real flow in headless Chrome)** | `docs/features/WEB-002-sign-in-and-registration.md` |
 | WEB-003: Your shops screen (brand bar, welcome band, shop cards, getting-started steps, loading cards) | **Complete (local; real flow in headless Chrome)** | `docs/features/WEB-003-my-shops.md` |
+| WEB-004: Shop console in the premium style (sidebar with area card and icons, page header back link, skeleton loading, setup guide with progress, profile cards, catalogue tabs/search/segmented filter/aligned pack rows) | **Complete (local; headless Chrome)**; platform console frame not browser-checked | `docs/features/WEB-004-shop-console.md` |
 | DS-003: SevenPalette name and shade-card fan logo (D-040): names, logo files, web and Flutter brand mark, favicon, launcher icons | **Complete (local)**; Android emulator not run | `docs/features/DS-003-product-name-and-logo.md` |
 
 **Git (D-035):** every feature above is in `dev` (fast-forward merged and pushed on 2026-11-04; one commit per feature, `3697e4f` … `9c7885b`); the local per-feature branches were deleted. The first GitHub Actions run on `dev` (`8497b81`) passed all three jobs (TypeScript, Flutter, repository checks). The old remote branch `feat/shp-002-shop-app-sign-in` is still on GitHub (its commits are in `dev`); the product owner can delete it. From now on each finished feature is merged into `dev` and pushed the same way. `main` still holds only `c56f614` (project setup) until a release.
@@ -347,7 +348,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 
 ## 7. Next actions
 
-1. **UI/UX pass (product owner, 2026-11-05):** WEB-002, DS-003 (SevenPalette) and WEB-003 (Your shops) done (2026-11-06). Next (to confirm with the owner): the shop console (overview, profile, catalogue) in the same style. Owner: buy the SevenPalette domains, run the trademark check, and choose the bundle IDs (question 41).
+1. **UI/UX pass (product owner, 2026-11-05):** WEB-002, DS-003 (SevenPalette), WEB-003 (Your shops) and WEB-004 (shop console) done (2026-11-06). Next (to confirm with the owner): the platform console pages in the same style, then the Customer App foundation. Owner: buy the SevenPalette domains, run the trademark check, and choose the bundle IDs (question 41).
 2. **Next phase: plan the Customer App foundation** with the product owner: CUS-001 sign-up and profile (customer type, D-036), CUS-002 Find shops and My Shops (D-037, D-038), CUS-003 shop storefront. Open before ordering: questions 30–32 (order approval, pickup/delivery, fulfilment).
 3. **Product owner checks:** try the platform **Reviews** decision form in Chrome as the platform admin; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
 4. **Hardening before any hosted environment:** questions 49 and 51.
@@ -428,3 +429,4 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-06 | DS-003: product named SevenPalette (D-040) with the shade-card fan logo; names in brand.json and native labels, logo files and generator, web and Flutter brand mark, favicon, launcher icons. |
 | 2026-11-06 | WEB-003: Your shops screen in the premium style; `CardLink` `raised` and `dashed` variants. No API change. |
 | 2026-11-06 | Instagram: Day 2 reel (script, cover, approved style frame, caption). Campaign tagline switched to the D-040 one; Days 1 and 7 re-rendered; product name kept secret until a Day 30 reveal; reel review gate added to the skill. |
+| 2026-11-06 | WEB-004: shop console restyled; shared `AppShell`, `NavLinks`, `PageHeader`, `Field`, `StateMessage`, `PageLoading` gained options; new `SegmentedLinks`. Local sample catalogue loaded for checks. No API change. |

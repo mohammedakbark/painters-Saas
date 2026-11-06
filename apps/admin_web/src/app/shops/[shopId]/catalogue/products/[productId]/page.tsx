@@ -29,7 +29,7 @@ import {
   uploadShopProductImageAction,
 } from '../../actions';
 import {
-  BackToProducts,
+  backToProducts,
   ProductBadges,
   productSubtitle,
 } from '../../catalogue-parts';
@@ -69,19 +69,17 @@ async function ShopProductView({
 
   return (
     <div className="flex flex-col gap-6">
-      <BackToProducts shopId={shopId} />
       {added ? (
         <Alert tone="success" title="Product added">
           {product.name} is in your catalogue.
         </Alert>
       ) : null}
-      <div className="flex flex-wrap items-center gap-3">
-        <PageHeader
-          title={product.name}
-          description={productSubtitle(product)}
-        />
-        <ProductBadges product={product} />
-      </div>
+      <PageHeader
+        back={backToProducts(shopId)}
+        title={product.name}
+        description={productSubtitle(product)}
+        actions={<ProductBadges product={product} />}
+      />
       {product.catalogueActive ? null : (
         <Alert tone="info" title="Removed from the brand catalogue">
           The platform team removed this product, its brand or its category from

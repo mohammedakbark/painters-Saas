@@ -11,7 +11,7 @@ import {
 } from '@/lib/api/shop-catalogue';
 import { requireShopAccess, requireShopSession } from '@/lib/auth/shop-access';
 import { addOwnProductAction } from '../actions';
-import { BackToProducts, catalogueBase } from '../catalogue-parts';
+import { backToProducts, catalogueBase } from '../catalogue-parts';
 
 export const metadata: Metadata = { title: 'Add your own product' };
 
@@ -38,8 +38,8 @@ async function NewOwnProduct({
 
   return (
     <div className="flex flex-col gap-6">
-      <BackToProducts shopId={shopId} />
       <PageHeader
+        back={backToProducts(shopId)}
         title="Add your own product"
         description="For products that are not in the brand catalogue, such as local brands, tools or accessories."
       />

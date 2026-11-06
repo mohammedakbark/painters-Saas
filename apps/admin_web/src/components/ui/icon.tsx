@@ -19,6 +19,28 @@ const LINE = '0 0 24 24';
 
 const ICONS = {
   arrowRight: { viewBox: LINE, d: 'M5 12h14M13 6l6 6-6 6' },
+  arrowLeft: { viewBox: LINE, d: 'M19 12H5M11 6l-6 6 6 6' },
+  chevronRight: { viewBox: LINE, d: 'M9 6l6 6-6 6' },
+  home: {
+    viewBox: LINE,
+    d: 'M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z',
+  },
+  search: {
+    viewBox: LINE,
+    d: 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4',
+  },
+  logOut: {
+    viewBox: LINE,
+    d: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9',
+  },
+  user: {
+    viewBox: LINE,
+    d: 'M20 21a8 8 0 0 0-16 0M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10z',
+  },
+  palette: {
+    viewBox: LINE,
+    d: 'M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.9 1.8-1.9 0-.5-.2-.9-.5-1.3-.3-.3-.5-.8-.5-1.3 0-1 .8-1.8 1.8-1.8H17a4 4 0 0 0 4-4c0-4.3-4-7.7-9-7.7zM7.5 12.5h.01M10 8h.01M15 8h.01',
+  },
   logIn: {
     viewBox: LINE,
     d: 'M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3',

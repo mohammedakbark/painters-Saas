@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';
+import { IconTile, type IconName } from './icon';
 
 /**
  * Centred message for empty, error and access states of a page or section.
@@ -10,12 +11,15 @@ export function StateMessage({
   description,
   action,
   role,
+  icon,
   className,
 }: {
   title: string;
   description?: ReactNode;
   action?: ReactNode;
   role?: 'alert' | 'status';
+  /** Icon tile above the title, e.g. `tag` for an empty catalogue. */
+  icon?: IconName;
   className?: string;
 }) {
   return (
@@ -26,11 +30,18 @@ export function StateMessage({
         className,
       )}
     >
+      {icon ? (
+        <span className="mb-1">
+          <IconTile name={icon} />
+        </span>
+      ) : null}
       <h2 className="text-heading3 font-semibold text-text-primary">{title}</h2>
       {description ? (
         <p className="text-body-large text-text-secondary">{description}</p>
       ) : null}
-      {action ? <div className="mt-2">{action}</div> : null}
+      {action ? (
+        <div className="mt-2 flex flex-wrap justify-center gap-3">{action}</div>
+      ) : null}
     </section>
   );
 }

@@ -138,11 +138,13 @@ Web utilities: `rounded-control`, `min-h-control`, `rounded-card`, `border-card-
 | Component | Use |
 |---|---|
 | `Button`, `SubmitButton`, `ButtonLink` | actions (primary, secondary, tertiary for quiet text actions such as "Change number"); pending state |
-| `Field` (optional `prefix`, e.g. "+91"), `SelectField`, `TextareaField`, `FileField` | labelled inputs with helper text and errors linked through `aria-describedby`; file errors are announced |
+| `Field` (optional `prefix`, e.g. "+91", and decorative `leadingIcon`, e.g. `search`), `SelectField`, `TextareaField`, `FileField` | labelled inputs with helper text and errors linked through `aria-describedby`; file errors are announced |
 | `CheckboxField`, `CheckboxGroupField`, `RadioGroupField` | single checkbox; groups with a legend, hint and error |
 | `SearchForm` | GET search with a labelled field, optional filters and hidden values |
 | `Card`, `CardList`, `CardLink` (`variant`: `default`, `raised` lifts on hover, `dashed` for an "add another" tile), `Panel` (`cardClasses` where an element can't be a component) | surfaces |
-| `Alert`, `Badge`, `StateMessage`, `Spinner`, `PageHeader` | messages, status, empty states, loading, page titles |
+| `Alert`, `Badge`, `StateMessage` (optional `icon` tile), `Spinner`, `PageHeader` (optional `eyebrow` caption and `back` link) | messages, status, empty states, loading, page titles |
+| `SegmentedLinks` | switching a list between views (e.g. Selling and Archived), links with `aria-current` |
+| `AppShell` (`area` with caption, name and switch link; icon `nav`), `NavLinks` (`vertical`, `horizontal`, `tabs`; optional `icon`), `PageLoading` (placeholder skeleton) | console frame, navigation, page loading |
 | `Icon`, `IconTile` | the project's icon set (line icons, `currentColor`; store glyphs); a new icon is added here first (WEB-001) |
 | `AuthLayout`, `AuthSteps` (`components/auth`) | sign-in and registration frame and the 2-step indicator (WEB-002) |
 | `StoreButton` | App Store / Google Play button; a link when the store URL exists, otherwise a disabled "Coming soon" (WEB-001) |

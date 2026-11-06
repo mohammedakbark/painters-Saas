@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { Suspense } from 'react';
 import { PageLoading } from '@/components/layout/page-loading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ButtonLink } from '@/components/ui/button-link';
+import { Icon } from '@/components/ui/icon';
 import { Card } from '@/components/ui/card';
 import { Field } from '@/components/ui/field';
 import { PageHeader } from '@/components/ui/page-header';
@@ -15,7 +15,7 @@ import {
   listCatalogueBrands,
 } from '@/lib/api/shop-catalogue';
 import { requireShopAccess, requireShopSession } from '@/lib/auth/shop-access';
-import { BackToProducts, catalogueBase } from '../catalogue-parts';
+import { backToProducts, catalogueBase } from '../catalogue-parts';
 
 export const metadata: Metadata = { title: 'Add from brand catalogue' };
 
@@ -46,9 +46,12 @@ async function AddFromCatalogue({
   if (brands.length === 0) {
     return (
       <div className="flex flex-col gap-6">
-        <BackToProducts shopId={shopId} />
-        <PageHeader title="Add from brand catalogue" />
+        <PageHeader
+          back={backToProducts(shopId)}
+          title="Add from brand catalogue"
+        />
         <StateMessage
+          icon="notebook"
           title="The brand catalogue is empty"
           description="The platform team has not added brands yet. You can add your own products meanwhile."
           action={
@@ -78,8 +81,8 @@ async function AddFromCatalogue({
 
   return (
     <div className="flex flex-col gap-6">
-      <BackToProducts shopId={shopId} />
       <PageHeader
+        back={backToProducts(shopId)}
         title="Add from brand catalogue"
         description="Choose a product, then tick the pack sizes you sell and enter your prices."
       />
@@ -128,34 +131,44 @@ async function AddFromCatalogue({
       ) : (
         <ul className="grid gap-4 desktop:grid-cols-2">
           {page.items.map(({ product, listedProductId }) => (
-            <Card as="li" key={product.id} className="flex flex-col gap-3 p-5">
-              <div className="flex flex-col gap-1">
-                <h2 className="text-heading3 font-semibold">{product.name}</h2>
+            <Card
+              as="li"
+              key={product.id}
+              className="flex flex-col gap-4 p-5 medium:flex-row medium:items-center medium:justify-between"
+            >
+              <div className="flex min-w-0 flex-col gap-1">
+                <h2 className="text-title font-semibold text-text-primary">
+                  {product.name}
+                </h2>
                 <p className="text-body text-text-secondary">
                   {product.category.name} ·{' '}
                   {product.packs.map((pack) => pack.label).join(', ')}
                 </p>
               </div>
               {listedProductId ? (
-                <div className="flex flex-wrap items-center gap-3">
+                <div className="flex shrink-0 flex-wrap items-center gap-2">
                   <Badge tone="success">In your catalogue</Badge>
-                  <Link
+                  <ButtonLink
                     href={`${base}/products/${listedProductId}`}
+                    variant="tertiary"
                     aria-label={`Edit prices of ${product.name}`}
-                    className="text-body font-semibold text-brand-primary underline underline-offset-4"
                   >
                     Edit prices
-                  </Link>
-                </div>
-              ) : (
-                <div>
-                  <ButtonLink
-                    href={`${base}/add/${product.id}`}
-                    aria-label={`Choose ${product.name}`}
-                  >
-                    Choose
                   </ButtonLink>
                 </div>
+              ) : (
+                <ButtonLink
+                  href={`${base}/add/${product.id}`}
+                  variant="secondary"
+                  aria-label={`Choose ${product.name}`}
+                  className="group shrink-0"
+                >
+                  Choose
+                  <Icon
+                    name="arrowRight"
+                    className="size-4 transition-transform group-hover:translate-x-0.5"
+                  />
+                </ButtonLink>
               )}
             </Card>
           ))}

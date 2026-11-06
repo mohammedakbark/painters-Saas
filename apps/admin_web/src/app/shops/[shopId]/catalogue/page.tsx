@@ -8,17 +8,18 @@ import { Button } from '@/components/ui/button';
 import { ButtonLink } from '@/components/ui/button-link';
 import { Card } from '@/components/ui/card';
 import { Field } from '@/components/ui/field';
+import { Icon } from '@/components/ui/icon';
+import { SegmentedLinks } from '@/components/ui/segmented-links';
 import { PageHeader } from '@/components/ui/page-header';
 import { StateMessage } from '@/components/ui/state-message';
 import { listShopProducts } from '@/lib/api/shop-catalogue';
 import { requireShopAccess, requireShopSession } from '@/lib/auth/shop-access';
-import { cn } from '@/lib/cn';
 import { countLabel } from '@/lib/format';
+import { formatRupees } from '@/lib/money';
 import { setPackAvailableAction } from './actions';
 import {
   CatalogueTabs,
   catalogueBase,
-  packPriceText,
   ProductBadges,
   productSubtitle,
 } from './catalogue-parts';
@@ -88,50 +89,44 @@ async function Catalogue({
       />
       <CatalogueTabs shopId={shopId} />
 
-      <form
-        method="get"
-        action={base}
-        role="search"
-        className="flex flex-col gap-3 medium:flex-row medium:items-end"
-      >
-        <div className="w-full medium:max-w-narrow">
-          <Field
-            label="Search products"
-            name="q"
-            type="search"
-            maxLength={60}
-            defaultValue={q}
-            description="By product or brand name."
-          />
-        </div>
-        {status === 'ARCHIVED' ? (
-          <input type="hidden" name="status" value="ARCHIVED" />
-        ) : null}
-        <Button type="submit" variant="secondary" className="shrink-0">
-          Search
-        </Button>
-      </form>
-
-      <nav aria-label="Product status" className="flex gap-4">
-        {(['ACTIVE', 'ARCHIVED'] as const).map((value) => (
-          <Link
-            key={value}
-            href={link({ status: value, cursor: undefined })}
-            aria-current={status === value ? 'page' : undefined}
-            className={cn(
-              'text-body font-semibold underline-offset-4',
-              status === value
-                ? 'text-text-primary underline'
-                : 'text-brand-primary hover:underline',
-            )}
-          >
-            {value === 'ACTIVE' ? 'Selling' : 'Archived'}
-          </Link>
-        ))}
-      </nav>
+      <div className="flex flex-col gap-4 medium:flex-row medium:items-end medium:justify-between">
+        <form
+          method="get"
+          action={base}
+          role="search"
+          className="flex w-full flex-col gap-3 medium:max-w-content medium:flex-row medium:items-end"
+        >
+          <div className="w-full medium:max-w-narrow">
+            <Field
+              label="Search products"
+              name="q"
+              type="search"
+              maxLength={60}
+              defaultValue={q}
+              placeholder="Product or brand name"
+              leadingIcon="search"
+            />
+          </div>
+          {status === 'ARCHIVED' ? (
+            <input type="hidden" name="status" value="ARCHIVED" />
+          ) : null}
+          <Button type="submit" variant="secondary" className="shrink-0">
+            Search
+          </Button>
+        </form>
+        <SegmentedLinks
+          label="Product status"
+          segments={(['ACTIVE', 'ARCHIVED'] as const).map((value) => ({
+            href: link({ status: value, cursor: undefined }),
+            label: value === 'ACTIVE' ? 'Selling' : 'Archived',
+            current: status === value,
+          }))}
+        />
+      </div>
 
       {page.items.length === 0 ? (
         <StateMessage
+          icon={q ? 'search' : 'tag'}
           title={
             q
               ? 'No products match your search'
@@ -140,29 +135,44 @@ async function Catalogue({
                 : 'No products yet'
           }
           description={
-            q || status === 'ARCHIVED'
-              ? undefined
-              : 'Add products from the brand catalogue, or add your own. Your shop needs at least 10 products before it can be reviewed.'
+            q
+              ? 'Try another product or brand name.'
+              : status === 'ARCHIVED'
+                ? undefined
+                : 'Add products from the brand catalogue, or add your own. Your shop needs at least 10 products before it can be reviewed.'
           }
           action={
             canEdit && !q && status === 'ACTIVE' ? (
-              <ButtonLink href={`${base}/add`}>
-                Add from brand catalogue
-              </ButtonLink>
+              <>
+                <ButtonLink href={`${base}/add`}>
+                  Add from brand catalogue
+                </ButtonLink>
+                <ButtonLink href={`${base}/new`} variant="secondary">
+                  Add your own product
+                </ButtonLink>
+              </>
             ) : undefined
           }
         />
       ) : (
         <ul className="flex flex-col gap-4">
           {page.items.map((product) => (
-            <Card as="li" key={product.id} className="flex flex-col gap-4 p-5">
+            <Card
+              as="li"
+              key={product.id}
+              className="flex flex-col gap-4 p-5 medium:p-6"
+            >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="flex min-w-0 flex-col gap-1">
                   <Link
                     href={`${base}/products/${product.id}`}
-                    className="text-heading3 font-semibold text-brand-primary underline-offset-4 hover:underline"
+                    className="group inline-flex w-fit items-center gap-2 rounded-nav-item text-heading3 font-semibold text-text-primary hover:text-brand-primary focus-visible:outline-2 focus-visible:outline-brand-primary"
                   >
                     {product.name}
+                    <Icon
+                      name="arrowRight"
+                      className="size-4 text-brand-primary transition-transform group-hover:translate-x-1"
+                    />
                   </Link>
                   <p className="text-body text-text-secondary">
                     {productSubtitle(product)} ·{' '}
@@ -173,43 +183,53 @@ async function Catalogue({
                   <ProductBadges product={product} />
                 </div>
               </div>
-              <ul className="flex flex-col divide-y divide-border-default">
+              <ul className="flex flex-col divide-y divide-border-default rounded-panel border border-panel-border">
                 {product.packs.map((pack) => (
                   <li
                     key={pack.id}
-                    className="flex flex-wrap items-center justify-between gap-3 py-2"
+                    className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 px-4 py-3 medium:grid-cols-[6rem_12rem_minmax(0,1fr)_auto]"
                   >
-                    <span className="flex flex-wrap items-center gap-3">
-                      <span className="text-body-large font-semibold">
-                        {pack.label}
-                      </span>
-                      <span className="text-body-large tabular-nums">
-                        {packPriceText(pack)}
-                      </span>
+                    <span className="text-body-large font-semibold text-text-primary">
+                      {pack.label}
+                    </span>
+                    <span className="text-right text-body-large text-text-primary tabular-nums medium:text-left">
+                      {formatRupees(pack.pricePaise)}
+                      {pack.mrpPaise === null ? null : (
+                        <span className="ml-2 text-body text-text-secondary">
+                          MRP {formatRupees(pack.mrpPaise)}
+                        </span>
+                      )}
+                    </span>
+                    <span>
                       {pack.available ? (
                         <Badge tone="success">Available</Badge>
                       ) : (
                         <Badge tone="warning">Unavailable</Badge>
                       )}
                     </span>
-                    {canEdit && product.status === 'ACTIVE' ? (
-                      <ActionButtonForm
-                        action={setPackAvailableAction.bind(
-                          null,
-                          shopId,
-                          product.id,
-                          pack.id,
-                          !pack.available,
-                        )}
-                        label={
-                          pack.available ? 'Mark unavailable' : 'Mark available'
-                        }
-                        pendingLabel="Saving…"
-                        accessibleLabel={`Mark ${product.name} ${pack.label} ${
-                          pack.available ? 'unavailable' : 'available'
-                        }`}
-                      />
-                    ) : null}
+                    <span className="justify-self-end">
+                      {canEdit && product.status === 'ACTIVE' ? (
+                        <ActionButtonForm
+                          action={setPackAvailableAction.bind(
+                            null,
+                            shopId,
+                            product.id,
+                            pack.id,
+                            !pack.available,
+                          )}
+                          label={
+                            pack.available
+                              ? 'Mark unavailable'
+                              : 'Mark available'
+                          }
+                          pendingLabel="Saving…"
+                          variant="tertiary"
+                          accessibleLabel={`Mark ${product.name} ${pack.label} ${
+                            pack.available ? 'unavailable' : 'available'
+                          }`}
+                        />
+                      ) : null}
+                    </span>
                   </li>
                 ))}
               </ul>
