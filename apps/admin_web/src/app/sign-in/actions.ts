@@ -21,7 +21,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
  * the code is verified; it is mapped to a fixed path, never used as a URL.
  */
 export async function otpSignIn(
-  _previous: OtpFormState,
+  previous: OtpFormState,
   formData: FormData,
 ): Promise<OtpFormState> {
   const intent = String(formData.get('intent') ?? 'request');
@@ -35,8 +35,16 @@ export async function otpSignIn(
     const error = await sendCode(phone);
     return error
       ? { step: 'phone', phoneInput, error }
-      : { step: 'code', phone, notice: codeSentNotice(phone) };
+      : {
+          step: 'code',
+          phone,
+          notice: codeSentNotice(phone),
+          sentAt: Date.now(),
+        };
   }
+
+  // Errors on the code step keep the time of the last code sent.
+  const sentAt = previous.step === 'code' ? previous.sentAt : undefined;
 
   // The remaining intents act on the number from step 1, re-validated here.
   const phone = parseIndianMobile(String(formData.get('phone') ?? ''));
@@ -51,17 +59,18 @@ export async function otpSignIn(
   if (intent === 'resend') {
     const error = await sendCode(phone);
     return error
-      ? { step: 'code', phone, error }
+      ? { step: 'code', phone, error, sentAt }
       : {
           step: 'code',
           phone,
           notice: `We sent a new code to ${formatIndianMobile(phone)}.`,
+          sentAt: Date.now(),
         };
   }
 
   const code = String(formData.get('code') ?? '').trim();
   if (!isOtpCode(code)) {
-    return { step: 'code', phone, error: OTP_MESSAGES.invalidCode };
+    return { step: 'code', phone, error: OTP_MESSAGES.invalidCode, sentAt };
   }
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.auth.verifyOtp({
@@ -70,7 +79,12 @@ export async function otpSignIn(
     type: 'sms',
   });
   if (error || !data.session) {
-    return { step: 'code', phone, error: otpVerifyErrorMessage(error) };
+    return {
+      step: 'code',
+      phone,
+      error: otpVerifyErrorMessage(error),
+      sentAt,
+    };
   }
   redirect(afterVerifyPath(parseAuthMode(formData.get('mode'))));
 }

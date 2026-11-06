@@ -7,6 +7,8 @@ export type OtpFormState =
       phone: string;
       error?: string;
       notice?: string;
+      /** When the latest code was sent (ms); restarts the resend wait. */
+      sentAt?: number;
     };
 
 export const OTP_MESSAGES = {

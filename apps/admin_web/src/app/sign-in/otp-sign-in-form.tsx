@@ -85,7 +85,7 @@ export function OtpSignInForm({
 
   return (
     <CodeStep
-      key={state.notice ?? 'code'}
+      key={state.sentAt ?? 'code'}
       state={state}
       formAction={formAction}
       pending={pending}

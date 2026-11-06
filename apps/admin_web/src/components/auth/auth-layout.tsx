@@ -5,7 +5,12 @@ import { BrandMark } from '@/components/brand/brand-mark';
 import { Icon, type IconName } from '@/components/ui/icon';
 import { BRAND } from '@/lib/brand';
 
-const PROMISES: readonly { icon: IconName; text: string }[] = [
+export interface AuthHighlight {
+  icon: IconName;
+  text: string;
+}
+
+const SHOP_HIGHLIGHTS: readonly AuthHighlight[] = [
   { icon: 'store', text: 'Your catalogue, prices and stock in one place' },
   { icon: 'smartphone', text: 'Run your shop from the web or the Shop App' },
   { icon: 'lock', text: "Your shop's data stays private to your shop" },
@@ -21,6 +26,7 @@ export function AuthLayout({
   aside,
   children,
   footer,
+  highlights = SHOP_HIGHLIGHTS,
 }: {
   title: string;
   description?: ReactNode;
@@ -29,10 +35,12 @@ export function AuthLayout({
   children: ReactNode;
   /** Shown under the form, e.g. the link to the other entry. */
   footer?: ReactNode;
+  /** Points in the brand panel; defaults to the shop promises. */
+  highlights?: readonly AuthHighlight[];
 }) {
   return (
     <div className="flex min-h-dvh flex-col bg-surface-subtle desktop:grid desktop:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
-      <BrandPanel />
+      <BrandPanel highlights={highlights} />
       <main className="flex flex-1 flex-col items-center px-4 py-8 desktop:justify-center desktop:py-16">
         <div className="reveal flex w-full max-w-form flex-col gap-6">
           {aside}
@@ -60,7 +68,7 @@ export function AuthLayout({
   );
 }
 
-function BrandPanel() {
+function BrandPanel({ highlights }: { highlights: readonly AuthHighlight[] }) {
   return (
     <aside className="relative isolate overflow-hidden bg-linear-to-br from-brand-primary to-brand-primary-strong px-4 py-5 text-surface-default desktop:flex desktop:flex-col desktop:justify-between desktop:px-12 desktop:py-12">
       <div aria-hidden="true" className="absolute inset-0 -z-10">
@@ -90,7 +98,7 @@ function BrandPanel() {
           </span>
         </p>
         <ul className="flex flex-col gap-4">
-          {PROMISES.map((item) => (
+          {highlights.map((item) => (
             <li
               key={item.text}
               className="flex items-center gap-3 text-body-large text-brand-primary-soft"

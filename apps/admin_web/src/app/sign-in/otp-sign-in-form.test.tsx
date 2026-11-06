@@ -144,4 +144,56 @@ describe('OtpSignInForm', () => {
     const resend = screen.getByRole('button', { name: 'Resend code' });
     expect(resend.hasAttribute('disabled')).toBe(false);
   });
+
+  it('restarts the wait for every new code, not for errors', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    let sentAt = 1;
+    const action = vi.fn(
+      (previous: OtpFormState, formData: FormData): Promise<OtpFormState> => {
+        const intent = formData.get('intent');
+        if (intent === 'verify' && previous.step === 'code') {
+          return Promise.resolve({
+            step: 'code',
+            phone: '+919999900001',
+            error: 'That code is incorrect or has expired.',
+            sentAt: previous.sentAt,
+          });
+        }
+        sentAt += 1;
+        return Promise.resolve({
+          step: 'code',
+          phone: '+919999900001',
+          notice: 'We sent a new code to +91 99999 00001.',
+          sentAt,
+        });
+      },
+    );
+    render(<OtpSignInForm action={action} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Send code' }));
+    await screen.findByRole('button', { name: /^Resend code in / });
+
+    // Two resends in a row: each restarts the 60 s wait.
+    for (let round = 0; round < 2; round += 1) {
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(61_000);
+      });
+      fireEvent.click(screen.getByRole('button', { name: 'Resend code' }));
+      const waiting = await screen.findByRole('button', {
+        name: 'Resend code in 1:00',
+      });
+      expect(waiting.hasAttribute('disabled')).toBe(true);
+    }
+
+    // A wrong code does not restart it.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10_000);
+    });
+    fireEvent.change(screen.getByLabelText('6-digit code'), {
+      target: { value: '000000' },
+    });
+    await screen.findByText('That code is incorrect or has expired.');
+    expect(
+      screen.getByRole('button', { name: /^Resend code in 0:5/ }),
+    ).toBeDefined();
+  });
 });

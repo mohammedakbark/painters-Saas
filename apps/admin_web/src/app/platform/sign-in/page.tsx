@@ -1,32 +1,26 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { Card } from '@/components/ui/card';
+import { AuthLayout, type AuthHighlight } from '@/components/auth/auth-layout';
 import { signInToPlatform } from './actions';
 import { SignInForm } from './sign-in-form';
 
-export const metadata: Metadata = { title: 'Platform sign-in' };
+export const metadata: Metadata = { title: 'Platform Admin sign-in' };
 
+const PLATFORM_HIGHLIGHTS: readonly AuthHighlight[] = [
+  { icon: 'store', text: 'Review and approve shops' },
+  { icon: 'notebook', text: 'Manage the brand catalogues' },
+  { icon: 'shield', text: 'Every platform action is audited' },
+];
+
+// Reached by typing the address; the public site does not link here
+// (WEB-001). Every console page authorizes on the server.
 export default function PlatformSignInPage() {
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-form flex-col justify-center gap-6 px-4 py-12">
-      <div className="flex flex-col gap-2">
-        <p className="text-caption font-medium tracking-wide text-text-secondary uppercase">
-          Platform admin
-        </p>
-        <h1 className="text-heading1 font-bold">Sign in</h1>
-        <p className="text-body-large text-text-secondary">
-          For platform administrators.
-        </p>
-      </div>
-      <Card className="p-6">
-        <SignInForm action={signInToPlatform} />
-      </Card>
-      <Link
-        href="/"
-        className="text-body font-medium text-brand-primary hover:underline"
-      >
-        Back to portal home
-      </Link>
-    </main>
+    <AuthLayout
+      title="Platform Admin sign-in"
+      description="For the platform team. Use your email and password."
+      highlights={PLATFORM_HIGHLIGHTS}
+    >
+      <SignInForm action={signInToPlatform} />
+    </AuthLayout>
   );
 }

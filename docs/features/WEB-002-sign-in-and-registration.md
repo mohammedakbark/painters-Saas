@@ -33,7 +33,7 @@ After WEB-001 the home page offered **Sign in** and **Register your shop**, but 
   - **Code field:** large, spaced and numeric. It **submits itself on the sixth digit** (typed or pasted; `requestSubmit` through the Verify button), and the button stays.
   - **Verify button:** reads "Sign in" or "Verify and continue" (register).
   - **Change number:** a quiet tertiary action.
-  - **Resend code:** disabled for **60 s** ("Resend code in 0:42"), matching the API's "Wait a minute" rate-limit message. The step remounts for each new code, which restarts the countdown.
+  - **Resend code:** disabled for **60 s** ("Resend code in 0:42"), matching the API's "Wait a minute" rate-limit message. The server stamps `sentAt` whenever a code is actually sent, and error states keep the previous stamp. The step is keyed on `sentAt`, so every new code restarts the countdown and errors don't.
 - Errors stay next to the field; loading labels ("Sending code…", "Checking…") are unchanged.
 
 ## 4. Components added (D-039)
@@ -65,11 +65,11 @@ After WEB-001 the home page offered **Sign in** and **Register your shop**, but 
 | `pnpm ui:check`, `pnpm tokens:check` | Passed |
 | admin_web build (`/sign-in`, `/register` partly prerendered) | Passed |
 | Real flow in headless Chrome over CDP against the local API and Supabase (test numbers, code 123456), 1280 px: register → code submitted itself → `/shops/new` with step 2; signed in `/sign-in` → `/shops`, `/register` → `/shops/new`; signed out wrong code → error next to the field; sign in → `/shops`; countdown "Resend code in 0:58" | Verified |
-| Phone width 518 px: compact brand bar, steps, +91 field | Verified (layout); the code step is covered at 1280 px |
+| Phone width 518 px, full real flow (the script waits for hydration): register → `/shops/new`, two resends in a row each restart the countdown (0:58 again), signed-in redirects, wrong code error, sign in → `/shops`; "Change number" and "Resend" side by side | Verified (2026-11-06) |
+| `/platform/sign-in` in the shared layout with platform highlights: wrong password shows "Email or password is incorrect" | Verified (2026-11-06) |
 | Flutter | Not affected |
 
 ## 7. Limitations and next
 
-- The platform admin sign-in (`/platform/sign-in`) keeps its own page.
-- Resending twice within the same session shows the same notice, so the countdown does not restart a second time. The server's rate limit still applies.
-- Next: the product owner chose a new name and logo (DS-003 rebrand), and the My shops screen gets the same treatment.
+- The gaps found at merge are closed (2026-11-06): the platform admin sign-in uses `AuthLayout` with its own highlights (`highlights` prop) and no links to the shop pages; the countdown restarts for every code sent; the phone-width flow is verified.
+- Next: the DS-003 rebrand to SevenPalette, then the My shops screen in the same style.
