@@ -74,7 +74,7 @@ export function FinalCta() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <ButtonLink href="/sign-in" variant="secondary" className="group">
+            <ButtonLink href="/register" variant="secondary" className="group">
               Register your shop
               <Icon
                 name="arrowRight"

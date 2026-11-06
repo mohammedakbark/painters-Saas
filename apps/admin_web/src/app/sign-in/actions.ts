@@ -2,11 +2,13 @@
 
 import { redirect } from 'next/navigation';
 import {
+  afterVerifyPath,
   isOtpCode,
   OTP_MESSAGES,
   type OtpFormState,
   otpRequestErrorMessage,
   otpVerifyErrorMessage,
+  parseAuthMode,
 } from '@/lib/auth/otp';
 import { formatIndianMobile, parseIndianMobile } from '@/lib/phone';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
@@ -15,6 +17,8 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
  * Two-step mobile OTP sign-in for shop owners and staff. The account is
  * created on first sign-in (shops self-register, D-024). Intents:
  * `request` (send a code), `verify`, `resend` and `change` (edit the number).
+ * `mode` (`sign-in` | `register`, WEB-002) only chooses where to go after
+ * the code is verified; it is mapped to a fixed path, never used as a URL.
  */
 export async function otpSignIn(
   _previous: OtpFormState,
@@ -68,7 +72,7 @@ export async function otpSignIn(
   if (error || !data.session) {
     return { step: 'code', phone, error: otpVerifyErrorMessage(error) };
   }
-  redirect('/shops');
+  redirect(afterVerifyPath(parseAuthMode(formData.get('mode'))));
 }
 
 async function sendCode(phone: string): Promise<string | undefined> {

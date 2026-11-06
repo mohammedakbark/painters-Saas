@@ -50,7 +50,7 @@ export function Hero() {
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <ButtonLink
-              href="/sign-in"
+              href="/register"
               variant="secondary"
               className="group shadow-lg shadow-brand-primary-strong/40"
             >

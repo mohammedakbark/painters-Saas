@@ -12,6 +12,8 @@ export interface FieldProps extends Omit<
   description?: string;
   /** Validation message; marks the input invalid. */
   error?: string;
+  /** Fixed text shown before the value inside the control, e.g. "+91". */
+  prefix?: string;
 }
 
 /** Labelled text input with helper text and an accessible error message. */
@@ -20,6 +22,7 @@ export function Field({
   name,
   description,
   error,
+  prefix,
   className,
   ...input
 }: FieldProps) {
@@ -39,20 +42,52 @@ export function Field({
           {description}
         </p>
       ) : null}
-      <input
-        id={id}
-        name={name}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={describedBy}
-        className={cn(
-          'min-h-control rounded-control border bg-control-background px-4 text-body-large text-text-primary',
-          'placeholder:text-text-disabled disabled:bg-surface-subtle disabled:text-text-disabled',
-          'focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-brand-primary',
-          error ? 'border-control-border-error' : 'border-control-border',
-          className,
-        )}
-        {...input}
-      />
+      {prefix ? (
+        <div
+          className={cn(
+            'flex min-h-control items-stretch overflow-hidden rounded-control border bg-control-background',
+            'focus-within:outline-2 focus-within:outline-offset-0 focus-within:outline-brand-primary',
+            error ? 'border-control-border-error' : 'border-control-border',
+          )}
+        >
+          <span
+            id={`${id}-prefix`}
+            className="flex items-center border-r border-control-border bg-surface-subtle px-4 text-body-large font-medium text-text-secondary"
+          >
+            {prefix}
+          </span>
+          <input
+            id={id}
+            name={name}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={
+              [`${id}-prefix`, describedBy].filter(Boolean).join(' ') ||
+              undefined
+            }
+            className={cn(
+              'min-w-0 flex-1 bg-transparent px-4 text-body-large text-text-primary outline-none',
+              'placeholder:text-text-disabled disabled:text-text-disabled',
+              className,
+            )}
+            {...input}
+          />
+        </div>
+      ) : (
+        <input
+          id={id}
+          name={name}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={describedBy}
+          className={cn(
+            'min-h-control rounded-control border bg-control-background px-4 text-body-large text-text-primary',
+            'placeholder:text-text-disabled disabled:bg-surface-subtle disabled:text-text-disabled',
+            'focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-brand-primary',
+            error ? 'border-control-border-error' : 'border-control-border',
+            className,
+          )}
+          {...input}
+        />
+      )}
       {error ? (
         <p id={errorId} className="text-body text-status-error">
           {error}

@@ -1,8 +1,8 @@
-import type { ButtonHTMLAttributes } from 'react';
+import type { ButtonHTMLAttributes, Ref } from 'react';
 import { cn } from '@/lib/cn';
 import { Spinner } from './spinner';
 
-export type ButtonVariant = 'primary' | 'secondary';
+export type ButtonVariant = 'primary' | 'secondary' | 'tertiary';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
@@ -10,6 +10,8 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   pending?: boolean;
   /** Label shown while pending, e.g. "Signing in…". */
   pendingLabel?: string;
+  /** For forms that submit through this button, e.g. `requestSubmit`. */
+  ref?: Ref<HTMLButtonElement>;
 }
 
 const BASE =
@@ -22,6 +24,9 @@ const VARIANTS: Record<ButtonVariant, string> = {
     'bg-button-primary-background text-button-primary-foreground hover:bg-button-primary-background-hover',
   secondary:
     'border border-button-secondary-border bg-button-secondary-background text-button-secondary-foreground hover:bg-button-secondary-background-hover',
+  /** Quiet text action, e.g. "Change number". */
+  tertiary:
+    'text-button-tertiary-foreground hover:bg-button-tertiary-background-hover',
 };
 
 /** Button styles, shared with ButtonLink so links that act as actions look the same. */

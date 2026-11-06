@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
+  afterVerifyPath,
   isOtpCode,
   OTP_MESSAGES,
   otpRequestErrorMessage,
   otpVerifyErrorMessage,
+  parseAuthMode,
 } from './otp';
 
 describe('otpRequestErrorMessage', () => {
@@ -55,5 +57,27 @@ describe('isOtpCode', () => {
     ['12a456', false],
   ])('%s → %s', (value, expected) => {
     expect(isOtpCode(value)).toBe(expected);
+  });
+});
+
+describe('parseAuthMode', () => {
+  it.each([
+    ['register', 'register'],
+    ['sign-in', 'sign-in'],
+    ['/shops/new', 'sign-in'],
+    [null, 'sign-in'],
+    [undefined, 'sign-in'],
+  ])('%s → %s', (value, expected) => {
+    expect(parseAuthMode(value)).toBe(expected);
+  });
+});
+
+describe('afterVerifyPath', () => {
+  it('continues registration with the shop details', () => {
+    expect(afterVerifyPath('register')).toBe('/shops/new');
+  });
+
+  it('opens the shop list after signing in', () => {
+    expect(afterVerifyPath('sign-in')).toBe('/shops');
   });
 });

@@ -242,3 +242,23 @@ describe('StoreButton', () => {
     expect(placeholder.textContent).toContain('Coming soon to');
   });
 });
+
+describe('Field prefix', () => {
+  it('shows the prefix and links it to the input', () => {
+    render(<Field label="Mobile number" name="phone" prefix="+91" />);
+
+    const input = screen.getByLabelText('Mobile number');
+    expect(screen.getByText('+91').id).toBe('field-phone-prefix');
+    expect(input.getAttribute('aria-describedby')).toBe('field-phone-prefix');
+  });
+});
+
+describe('Button tertiary', () => {
+  it('uses the tertiary button tokens', () => {
+    render(<Button variant="tertiary">Change number</Button>);
+
+    expect(
+      screen.getByRole('button', { name: 'Change number' }).className,
+    ).toContain('text-button-tertiary-foreground');
+  });
+});

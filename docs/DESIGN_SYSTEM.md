@@ -136,13 +136,14 @@ Web utilities: `rounded-control`, `min-h-control`, `rounded-card`, `border-card-
 
 | Component | Use |
 |---|---|
-| `Button`, `SubmitButton`, `ButtonLink` | actions (primary, secondary); pending state |
-| `Field`, `SelectField`, `TextareaField`, `FileField` | labelled inputs with helper text and errors linked through `aria-describedby`; file errors are announced |
+| `Button`, `SubmitButton`, `ButtonLink` | actions (primary, secondary, tertiary for quiet text actions such as "Change number"); pending state |
+| `Field` (optional `prefix`, e.g. "+91"), `SelectField`, `TextareaField`, `FileField` | labelled inputs with helper text and errors linked through `aria-describedby`; file errors are announced |
 | `CheckboxField`, `CheckboxGroupField`, `RadioGroupField` | single checkbox; groups with a legend, hint and error |
 | `SearchForm` | GET search with a labelled field, optional filters and hidden values |
 | `Card`, `CardList`, `CardLink`, `Panel` (`cardClasses` where an element can't be a component) | surfaces |
 | `Alert`, `Badge`, `StateMessage`, `Spinner`, `PageHeader` | messages, status, empty states, loading, page titles |
 | `Icon`, `IconTile` | the project's icon set (line icons, `currentColor`; store glyphs); a new icon is added here first (WEB-001) |
+| `AuthLayout`, `AuthSteps` (`components/auth`) | sign-in and registration frame and the 2-step indicator (WEB-002) |
 | `StoreButton` | App Store / Google Play button; a link when the store URL exists, otherwise a disabled "Coming soon" (WEB-001) |
 
 **Motion (public site only):** CSS scroll-driven reveal, header elevation and progress bar in `globals.css`, always inside `prefers-reduced-motion: no-preference` and `@supports`; content is never hidden without them. Console screens stay static. The public home page builds its sections from these components in `components/marketing` (illustrations are inline SVG with token classes only). No dialog or toast exists on the web yet; the first screen that needs one adds `Dialog`/`Toast` here first.

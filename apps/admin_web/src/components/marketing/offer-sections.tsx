@@ -59,7 +59,7 @@ export function ProductsSection() {
               ))}
             </ul>
             {product.id === 'shop-portal' ? (
-              <ButtonLink href="/sign-in" className="mt-auto">
+              <ButtonLink href="/register" className="mt-auto">
                 Register your shop
                 <Icon name="arrowRight" />
               </ButtonLink>

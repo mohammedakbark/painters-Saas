@@ -33,7 +33,7 @@ export function SiteHeader() {
               Sign in
             </ButtonLink>
           </div>
-          <ButtonLink href="/sign-in" className="px-4">
+          <ButtonLink href="/register" className="px-4">
             <span>
               Register
               <span className="hidden medium:inline"> your shop</span>

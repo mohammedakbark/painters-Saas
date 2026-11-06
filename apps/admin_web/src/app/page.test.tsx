@@ -35,7 +35,7 @@ describe('Home page', () => {
       within(header)
         .getByRole('link', { name: /^Register/ })
         .getAttribute('href'),
-    ).toBe('/sign-in');
+    ).toBe('/register');
   });
 
   it('links every header section to a section on the page', () => {
@@ -98,5 +98,15 @@ describe('Home page', () => {
     const logo = within(footer).getByRole('img', { name: BRAND.companyName });
     expect(logo.getAttribute('src')).toContain('zerobyt-logo-light');
     expect(within(footer).getByText(BRAND.companyHandle)).toBeDefined();
+  });
+
+  it('sends every Register button to /register', () => {
+    render(<Home />);
+
+    const registers = screen.getAllByRole('link', { name: /^Register/ });
+    expect(registers.length).toBeGreaterThan(1);
+    for (const link of registers) {
+      expect(link.getAttribute('href')).toBe('/register');
+    }
   });
 });

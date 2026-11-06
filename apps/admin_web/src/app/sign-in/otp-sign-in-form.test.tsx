@@ -1,9 +1,13 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { OtpFormState } from '@/lib/auth/otp';
 import { OtpSignInForm } from './otp-sign-in-form';
 
 describe('OtpSignInForm', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('starts with the mobile number step', () => {
     render(<OtpSignInForm action={vi.fn()} />);
 
@@ -35,9 +39,7 @@ describe('OtpSignInForm', () => {
     const code = await screen.findByLabelText('6-digit code');
     expect(code.getAttribute('autocomplete')).toBe('one-time-code');
     expect(screen.getByRole('status').textContent).toContain('+91 99999 00001');
-    expect(
-      screen.getByRole('button', { name: 'Use a different number' }),
-    ).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Change number' })).toBeDefined();
   });
 
   it('shows the phone error next to the field', async () => {
@@ -60,7 +62,7 @@ describe('OtpSignInForm', () => {
     ).toBe('true');
   });
 
-  it('keeps the number in a hidden field and shows code errors', async () => {
+  it('submits the code on the sixth digit and shows code errors', async () => {
     let calls = 0;
     const action = vi.fn(
       (_previous: OtpFormState, formData: FormData): Promise<OtpFormState> => {
@@ -83,11 +85,63 @@ describe('OtpSignInForm', () => {
     fireEvent.change(await screen.findByLabelText('6-digit code'), {
       target: { value: '000000' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
 
     expect(
       await screen.findByText('That code is incorrect or has expired.'),
     ).toBeDefined();
     expect(action).toHaveBeenCalledTimes(2);
+  });
+
+  it('sends the mode with every step and words the button for registering', async () => {
+    const modes: unknown[] = [];
+    const action = vi.fn(
+      (_previous: OtpFormState, formData: FormData): Promise<OtpFormState> => {
+        modes.push(formData.get('mode'));
+        return Promise.resolve({ step: 'code', phone: '+919999900001' });
+      },
+    );
+    render(<OtpSignInForm action={action} mode="register" />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Send code' }));
+
+    expect(
+      await screen.findByRole('button', { name: 'Verify and continue' }),
+    ).toBeDefined();
+    expect(modes).toEqual(['register']);
+  });
+
+  it('shows +91 before the mobile number', () => {
+    render(<OtpSignInForm action={vi.fn()} />);
+
+    expect(screen.getByText('+91')).toBeDefined();
+    expect(
+      screen.getByLabelText('Mobile number').getAttribute('aria-describedby'),
+    ).toContain('field-phone-prefix');
+  });
+
+  it('lets people resend a code only after the wait', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const action = vi.fn((): Promise<OtpFormState> =>
+      Promise.resolve({
+        step: 'code',
+        phone: '+919999900001',
+        notice: 'We sent a 6-digit code to +91 99999 00001.',
+      }),
+    );
+    render(<OtpSignInForm action={action} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Send code' }));
+
+    const waiting = await screen.findByRole('button', {
+      name: /^Resend code in /,
+    });
+    expect(waiting.hasAttribute('disabled')).toBe(true);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(61_000);
+    });
+
+    const resend = screen.getByRole('button', { name: 'Resend code' });
+    expect(resend.hasAttribute('disabled')).toBe(false);
   });
 });

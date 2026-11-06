@@ -50,3 +50,20 @@ export function otpVerifyErrorMessage(error: AuthErrorLike): string {
 export function isOtpCode(value: string): boolean {
   return /^\d{6}$/.test(value);
 }
+
+/** Which entry the visitor came from: `/sign-in` or `/register` (WEB-002). */
+export type AuthMode = 'sign-in' | 'register';
+
+/** Reads the form's mode. Anything unexpected counts as signing in. */
+export function parseAuthMode(value: unknown): AuthMode {
+  return value === 'register' ? 'register' : 'sign-in';
+}
+
+/**
+ * Where to go once the code is verified: registering continues to the shop
+ * details; signing in opens the shop list (which offers registration when
+ * the account has no shop yet). Fixed paths only, never from the form.
+ */
+export function afterVerifyPath(mode: AuthMode): '/shops' | '/shops/new' {
+  return mode === 'register' ? '/shops/new' : '/shops';
+}
