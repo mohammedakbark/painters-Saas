@@ -11,7 +11,11 @@ Arguments: `$ARGUMENTS`. The first word is the format, `reel` or `post`, and is 
 Paths are relative to the repository root:
 - Settings: `marketing/instagram/brand.json`
 - Calendar: `marketing/instagram/CONTENT_PLAN_30_DAYS.md`
-- Output: `marketing/instagram/output/day-XX-<reel|post>/` (XX = two digits)
+- **Media folder (finished posts, product owner 2026-11-06):** `brand.json` → `mediaDir` (`C:\Users\faiza\Downloads\New folder`, override with env `INSTAGRAM_MEDIA_DIR`).
+  - Final PNG/MP4 go to `<mediaDir>/day-XX/`, with copies of `caption.md` (and `script.md` / `voiceover.txt` for reels).
+  - Review and work files (zoom checks, stills, sample frames, voice clips) go to `<mediaDir>/_archive/work/day-XX/`.
+  - After each day, run `node .claude/skills/instagram/scripts/media-index.mjs` to refresh `<mediaDir>/README.md`.
+- **Sources in the repo:** `marketing/instagram/output/day-XX-<reel|post>/` (XX = two digits) keeps only HTML, `caption.md`, `script.md` and `voiceover.txt`. PNG/MP4 are git-ignored there; never commit media.
 - Templates: `.claude/skills/instagram/templates/` · References: `.claude/skills/instagram/references/`
 - Renderer: `node .claude/skills/instagram/scripts/render.mjs <html> <png> <width> <height>`
 
@@ -52,7 +56,7 @@ Act as a senior graphic designer. These are ads people should stop for and engag
 For each poster:
 1. Copy the format's template to `output/day-XX-post/poster-a.html` (`poster-b.html`). The header comment in each template says what to change and what to keep.
 2. Rewrite only the content for the day: badge, headline (≤ 8 words), cards, steps, options or tip, the **phone screen** (the feature of the day), and the CTA. Keep layout, palette, fonts, decorations and the `.zb` lockup.
-3. Render: `node .claude/skills/instagram/scripts/render.mjs output/.../poster-a.html output/.../poster-a.png 1080 1350` (fonts load from Google Fonts, so a network connection is needed).
+3. Render straight into the media folder: `node .claude/skills/instagram/scripts/render.mjs marketing/instagram/output/day-XX-post/poster-a.html "<mediaDir>/day-XX/poster-a.png" 1080 1350`. Keep the HTML in the repo so its relative asset paths work (fonts load from Google Fonts, so a network connection is needed).
 4. **Look at the PNG** with Read and critique it like an art director: is the hierarchy clear in 2 seconds, is it legible on a phone, is anything clipped or overlapping? Then check the footer and edges at **2× zoom**. Fix and re-render, **at least twice**, until it's ad-quality.
 5. References: `output/day-01-post/` (F1) and the sample posts made with each format template.
 
@@ -67,7 +71,7 @@ Write `output/day-XX-reel/script.md` with:
 5. **On-screen text** per beat (≤ 7 words) and **voice-over** in English.
 6. **Video (MP4)**: after the owner approves the script and sample frame, build the reel as a fully animated video (no real footage). Write `output/day-XX-reel/reel.html`: one page, 1080×1920, scenes in the approved A style, and a deterministic `window.render(t)` that draws the exact frame for time `t` in seconds. Use `output/day-02-reel/reel.html` as the reference (POV tag, progress bar, caption, cards, subtitle bar, lockup).
    - Check stills first: `node .claude/skills/instagram/scripts/reel-capture.mjs <reel.html> <prefix> 0 30 --stills 2.5,6,10` and look at each one.
-   - Then encode: `node .claude/skills/instagram/scripts/reel-capture.mjs <reel.html> output/day-XX-reel/day-XX-reel.mp4 <seconds> 30`. This needs ffmpeg (`winget install Gyan.FFmpeg`); set `FFMPEG` to its path if it isn't on PATH yet.
+   - Then encode: `node .claude/skills/instagram/scripts/reel-capture.mjs <reel.html> "<mediaDir>/day-XX/day-XX-reel.mp4" <seconds> 30`. This needs ffmpeg (`winget install Gyan.FFmpeg`); set `FFMPEG` to its path if it isn't on PATH yet.
    - Verify with an ffmpeg contact sheet (`-vf fps=1,scale=270:480,tile=7x3`).
    - **Voice-over (required; product owner, 2026-11-06):** use an AI voice. The default is male Indian English `en-IN-PrabhatNeural`, made with `python -m edge_tts --voice en-IN-PrabhatNeural --rate=+8% --text "<line>" --write-media lN.mp3` (install with `pip install --user edge-tts`; it sends the public script lines to Microsoft's TTS service).
      - Trim silence from each line with ffmpeg `silenceremove`, then **re-time the scenes to the voice**: each scene starts 0.4 s before its line, with about 0.5 s of tail.
@@ -104,5 +108,5 @@ Then run every check in `references/caption-lint.md` and fix anything that fails
 
 ## 6. Finish
 
-1. In the calendar, set the row's status to `ready`.
-2. Reply with: the files created (full paths), the winning hook, anything that needs human attention (screens to record, copy to approve), and the next `todo` day.
+1. In the calendar, set the row's status to `ready`. Copy the caption (and script/voice-over) into `<mediaDir>/day-XX/` and run `scripts/media-index.mjs`.
+2. Reply with: the media folder path for the day (`<mediaDir>\day-XX`), the winning hook, anything that needs human attention (screens to record, copy to approve), and the next `todo` day.

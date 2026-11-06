@@ -53,3 +53,7 @@ Thumbs.db
 
 # Local Claude settings may contain machine-specific configuration
 .claude/settings.local.json
+
+# Instagram media (PNG/MP4) lives in the marketing folder (brand.json mediaDir), not in git
+marketing/instagram/output/**/*.png
+marketing/instagram/output/**/*.mp4

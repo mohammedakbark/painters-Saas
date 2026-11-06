@@ -1,5 +1,7 @@
 {
   "$comment": "Settings for the /instagram skill. The software has no public name yet: productName stays null and is never shown. Posts go out on the zero.byt page and credit it as 'Powered by zero.byt'. Styles chosen by the product owner on 2026-11-05: A first, then D, then C (B was rejected).",
+  "mediaDir": "C:\\Users\\faiza\\Downloads\\New folder",
+  "mediaDirNote": "Finished posts/reels (PNG, MP4, caption, script) go to <mediaDir>/day-XX/. Override with env INSTAGRAM_MEDIA_DIR. The repo keeps only sources (HTML, captions, scripts). Work files go to <mediaDir>/_archive/work/.",
   "productName": null,
   "productDescriptor": "a new app for Kerala paint shops, painters and customers",
   "page": "zero.byt",
