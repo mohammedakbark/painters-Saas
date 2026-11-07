@@ -36,12 +36,18 @@ import {
   IMPORT_LIMITS,
 } from './catalogue-import.service.js';
 import {
-  type BrandPage,
-  BrandPageSchema,
   type BrandResponse,
   BrandSchema,
   type CatalogueListQuery,
   CatalogueListQuerySchema,
+  type PlatformBrandListQuery,
+  PlatformBrandListQuerySchema,
+  type PlatformBrandPage,
+  PlatformBrandPageSchema,
+  type PlatformProductListQuery,
+  PlatformProductListQuerySchema,
+  type PlatformProductPage,
+  PlatformProductPageSchema,
   type Category,
   type CategoryList,
   CategoryListSchema,
@@ -58,10 +64,6 @@ import {
   ImportQuerySchema,
   type ImportResult,
   ImportResultSchema,
-  type ProductListQuery,
-  ProductListQuerySchema,
-  type ProductPage,
-  ProductPageSchema,
   type ProductResponse,
   ProductSchema,
   type ShadePage,
@@ -143,11 +145,12 @@ export class PlatformCatalogueController {
 
   @Get('brands')
   @ApiOperation({ summary: 'All brands by name, including archived ones.' })
-  @ApiOkResponse({ standardSchema: BrandPageSchema })
+  @ApiOkResponse({ standardSchema: PlatformBrandPageSchema })
   @ApiBadRequestResponse(PROBLEM)
   listBrands(
-    @Query({ schema: CatalogueListQuerySchema }) query: CatalogueListQuery,
-  ): Promise<BrandPage> {
+    @Query({ schema: PlatformBrandListQuerySchema })
+    query: PlatformBrandListQuery,
+  ): Promise<PlatformBrandPage> {
     return this.catalogue.listBrands(query);
   }
 
@@ -194,13 +197,14 @@ export class PlatformCatalogueController {
   @ApiOperation({
     summary: "A brand's products by name, including archived ones.",
   })
-  @ApiOkResponse({ standardSchema: ProductPageSchema })
+  @ApiOkResponse({ standardSchema: PlatformProductPageSchema })
   @ApiBadRequestResponse(PROBLEM)
   @ApiNotFoundResponse(PROBLEM)
   listProducts(
     @Param('brandId') brandId: string,
-    @Query({ schema: ProductListQuerySchema }) query: ProductListQuery,
-  ): Promise<ProductPage> {
+    @Query({ schema: PlatformProductListQuerySchema })
+    query: PlatformProductListQuery,
+  ): Promise<PlatformProductPage> {
     return this.catalogue.listProducts(brandId, query);
   }
 

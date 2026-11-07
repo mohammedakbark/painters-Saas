@@ -1,7 +1,7 @@
 # Feature: Platform admin lists as tables
 
 - **Feature ID:** PLT-003
-- **Status:** Part 1 (shops and reviews) complete; Part 2 (brand catalogue) next
+- **Status:** Complete (local; see §5)
 - **Last updated:** 2026-11-07
 - **Related modules:**
   - API `platform-shops` (registry query, `ImageStore` for the photo), `shop-review` (`platform-reviews.service.ts` queue);
@@ -26,6 +26,18 @@ The platform lists were cards with "Next page" links and no search. They grow wi
   - the empty state "No shops are waiting".
 - **Paging text:** "Showing 1–1 of 1 shop" (singular when one); nothing when the list is empty.
 
+### Part 2: brand catalogue
+
+- **Brands** (`/platform/catalogue`):
+  - tabs All / Active / Archived; search;
+  - a table with brand, products and shades counts, status and **Open**;
+  - the Add brand form above; **Manage categories** in the header.
+- **A brand's products:**
+  - tabs All / Active / Archived; search and category;
+  - a table with photo, name and category ("with shades"), pack sizes as chips, status and **Edit**;
+  - **Add product** beside the tabs, and the Products / Shades / Import CSV tabs unchanged.
+- **Back link:** "All brands" now uses the standard back link.
+
 ## 3. API
 
 - **`GET /v1/platform/shops`:**
@@ -38,7 +50,8 @@ The platform lists were cards with "Next page" links and no search. They grow wi
   - query `q`, `sort` (oldest, newest), `page`, `pageSize`;
   - returns `total`;
   - entries add `photoThumbUrl`, `ownerName`, `ownerPhone`.
-- Both are paged in the database (`count`, `skip`/`take`) and are platform admins only, as before.
+- **`GET /v1/platform/catalogue/brands` and `.../brands/{brandId}/products`:** query `q`, `status` (all, active, archived; products also `categoryId`), `page`, `pageSize`; they return `total`. These are platform-only query shapes; the shop-side brand browse keeps its cursor.
+- All are paged in the database (`count`, `skip`/`take`) and are platform admins only, as before.
 
 ## 4. Local test admin
 
@@ -51,3 +64,4 @@ The browser checks use a **local-only** platform admin, `admin@sevenpalette.test
 | API typecheck, lint; e2e `platform-shops` and `shop-review` (19, including search by name, owner and mobile, status filter and counts, sort, paging, validation, 403 for shop owners, queue search and total); OpenAPI exported | Passed |
 | admin_web lint, typecheck, tests (including `list-params`, `daysSince`), build; `ui:check` | Passed |
 | Chrome as the local test admin at 1280 px: tabs and counts, search by "sree" and by mobile, Live tab, name sort, reviews empty state; no horizontal scroll, no console errors | Verified |
+| Part 2: API e2e `catalogue` and `shop-catalogue` (35: pages, search, status, category, validation); Chrome at 1280 px and 518 px: brands (the new "Asian Paints" listed), archived tab, search, a brand's 12 products, search, page 2 at 10 per page; no console errors | Passed / Verified |

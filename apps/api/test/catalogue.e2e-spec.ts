@@ -221,7 +221,7 @@ describe('Brand catalogue (e2e, real Postgres)', () => {
       expect(event.metadata).toEqual({ fields: ['name', 'packs'] });
     });
 
-    it('lists products by name with a cursor and search', async () => {
+    it('lists products and brands by name with pages, search and status', async () => {
       const categoryId = await category();
       const brandId = await brand();
       for (const name of [
@@ -234,20 +234,19 @@ describe('Brand catalogue (e2e, real Postgres)', () => {
       }
 
       const first = await get(
-        `/platform/catalogue/brands/${brandId}/products?limit=3`,
+        `/platform/catalogue/brands/${brandId}/products?pageSize=10`,
       ).expect(200);
       expect(first.body.items.map((p: { name: string }) => p.name)).toEqual([
         'Alpha Matt',
         'Bravo Primer',
         'Charlie Satin',
+        'Delta Gloss',
       ]);
+      expect(first.body).toMatchObject({ total: 4, page: 1, pageSize: 10 });
       const second = await get(
-        `/platform/catalogue/brands/${brandId}/products?limit=3&cursor=${first.body.nextCursor}`,
+        `/platform/catalogue/brands/${brandId}/products?pageSize=10&page=2`,
       ).expect(200);
-      expect(second.body).toMatchObject({
-        items: [{ name: 'Delta Gloss' }],
-        nextCursor: null,
-      });
+      expect(second.body).toMatchObject({ items: [], total: 4 });
 
       const search = await get(
         `/platform/catalogue/brands/${brandId}/products?q=SATIN`,
@@ -255,11 +254,34 @@ describe('Brand catalogue (e2e, real Postgres)', () => {
       expect(search.body.items.map((p: { name: string }) => p.name)).toEqual([
         'Charlie Satin',
       ]);
+      expect(
+        (
+          await get(
+            `/platform/catalogue/brands/${brandId}/products?status=archived`,
+          ).expect(200)
+        ).body.total,
+      ).toBe(0);
+      expect(
+        (
+          await get(
+            `/platform/catalogue/brands/${brandId}/products?categoryId=${categoryId}`,
+          ).expect(200)
+        ).body.total,
+      ).toBe(4);
 
-      const bad = await get(
-        `/platform/catalogue/brands/${brandId}/products?cursor=garbage`,
+      const brands = await get('/platform/catalogue/brands?q=sample').expect(
+        200,
+      );
+      expect(brands.body).toMatchObject({ page: 1, pageSize: 25 });
+      expect(
+        (await get('/platform/catalogue/brands?status=archived').expect(200))
+          .body.total,
+      ).toBe(0);
+
+      await get(
+        `/platform/catalogue/brands/${brandId}/products?pageSize=7`,
       ).expect(400);
-      expect(bad.body.code).toBe('invalid_cursor');
+      await get('/platform/catalogue/brands?status=old').expect(400);
     });
 
     it('manages shades with upper-case codes and indicative colours', async () => {

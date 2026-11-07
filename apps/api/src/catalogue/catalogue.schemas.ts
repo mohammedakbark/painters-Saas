@@ -322,3 +322,70 @@ export type BrandPage = z.infer<typeof BrandPageSchema>;
 export type ProductPage = z.infer<typeof ProductPageSchema>;
 export type ShadePage = z.infer<typeof ShadePageSchema>;
 export type ImportResult = z.infer<typeof ImportResultSchema>;
+
+// --- Platform lists (PLT-003): numbered pages with totals ---------------------
+
+const listStatus = z
+  .enum(['active', 'archived', 'all'], {
+    error: 'status must be active, archived or all.',
+  })
+  .default('all');
+const listPage = z.coerce
+  .number({ error: 'page must be a number.' })
+  .int({ error: 'page must be a whole number.' })
+  .min(1, { error: 'page must be at least 1.' })
+  .default(1);
+const listPageSize = z.coerce
+  .number({ error: 'pageSize must be 10, 25 or 50.' })
+  .refine((value) => [10, 25, 50].includes(value), {
+    error: 'pageSize must be 10, 25 or 50.',
+  })
+  .default(25);
+
+export const PlatformBrandListQuerySchema = z
+  .object({
+    q: search,
+    status: listStatus,
+    page: listPage,
+    pageSize: listPageSize,
+  })
+  .meta({ id: 'PlatformBrandListQuery' });
+
+export const PlatformProductListQuerySchema = z
+  .object({
+    q: search,
+    categoryId: z
+      .uuid({ error: 'categoryId must be a category id.' })
+      .optional(),
+    status: listStatus,
+    page: listPage,
+    pageSize: listPageSize,
+  })
+  .meta({ id: 'PlatformProductListQuery' });
+
+export const PlatformBrandPageSchema = z
+  .object({
+    items: z.array(BrandSchema),
+    total: z.int(),
+    page: z.int(),
+    pageSize: z.int(),
+  })
+  .meta({ id: 'PlatformBrandPage' });
+
+export const PlatformProductPageSchema = z
+  .object({
+    items: z.array(ProductSchema),
+    total: z.int(),
+    page: z.int(),
+    pageSize: z.int(),
+  })
+  .meta({ id: 'PlatformProductPage' });
+
+export type PlatformBrandListQuery = z.infer<
+  typeof PlatformBrandListQuerySchema
+>;
+export type PlatformProductListQuery = z.infer<
+  typeof PlatformProductListQuerySchema
+>;
+export type PlatformBrandPage = z.infer<typeof PlatformBrandPageSchema>;
+export type PlatformProductPage = z.infer<typeof PlatformProductPageSchema>;

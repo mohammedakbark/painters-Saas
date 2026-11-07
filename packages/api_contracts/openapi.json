@@ -963,7 +963,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BrandPage"
+                  "$ref": "#/components/schemas/PlatformBrandPage"
                 }
               }
             }
@@ -1264,7 +1264,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CatalogueProductPage"
+                  "$ref": "#/components/schemas/PlatformProductPage"
                 }
               }
             }
@@ -5229,26 +5229,35 @@
           }
         }
       },
-      "CatalogueListQuery": {
+      "PlatformBrandListQuery": {
         "type": "object",
         "properties": {
           "q": {
             "type": "string",
             "maxLength": 60
           },
-          "cursor": {
+          "status": {
+            "default": "all",
             "type": "string",
-            "maxLength": 400
+            "enum": [
+              "active",
+              "archived",
+              "all"
+            ]
           },
-          "limit": {
-            "default": 20,
+          "page": {
+            "default": 1,
             "type": "integer",
             "minimum": 1,
-            "maximum": 50
+            "maximum": 9007199254740991
+          },
+          "pageSize": {
+            "default": 25,
+            "type": "number"
           }
         }
       },
-      "BrandPage": {
+      "PlatformBrandPage": {
         "type": "object",
         "properties": {
           "items": {
@@ -5257,15 +5266,27 @@
               "$ref": "#/components/schemas/Brand"
             }
           },
-          "nextCursor": {
-            "nullable": true,
-            "description": "Pass as `cursor` for the next page; null on the last page.",
-            "type": "string"
+          "total": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "page": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
           }
         },
         "required": [
           "items",
-          "nextCursor"
+          "total",
+          "page",
+          "pageSize"
         ],
         "additionalProperties": false
       },
@@ -5331,7 +5352,7 @@
           }
         }
       },
-      "CatalogueProductListQuery": {
+      "PlatformProductListQuery": {
         "type": "object",
         "properties": {
           "q": {
@@ -5343,19 +5364,28 @@
             "format": "uuid",
             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
           },
-          "cursor": {
+          "status": {
+            "default": "all",
             "type": "string",
-            "maxLength": 400
+            "enum": [
+              "active",
+              "archived",
+              "all"
+            ]
           },
-          "limit": {
-            "default": 20,
+          "page": {
+            "default": 1,
             "type": "integer",
             "minimum": 1,
-            "maximum": 50
+            "maximum": 9007199254740991
+          },
+          "pageSize": {
+            "default": 25,
+            "type": "number"
           }
         }
       },
-      "CatalogueProductPage": {
+      "PlatformProductPage": {
         "type": "object",
         "properties": {
           "items": {
@@ -5364,15 +5394,27 @@
               "$ref": "#/components/schemas/CatalogueProduct"
             }
           },
-          "nextCursor": {
-            "nullable": true,
-            "description": "Pass as `cursor` for the next page; null on the last page.",
-            "type": "string"
+          "total": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "page": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
           }
         },
         "required": [
           "items",
-          "nextCursor"
+          "total",
+          "page",
+          "pageSize"
         ],
         "additionalProperties": false
       },
@@ -5609,6 +5651,25 @@
           }
         }
       },
+      "CatalogueListQuery": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "maxLength": 60
+          },
+          "cursor": {
+            "type": "string",
+            "maxLength": 400
+          },
+          "limit": {
+            "default": 20,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50
+          }
+        }
+      },
       "ShadePage": {
         "type": "object",
         "properties": {
@@ -5802,6 +5863,72 @@
           "unchanged",
           "errors",
           "errorCount"
+        ],
+        "additionalProperties": false
+      },
+      "BrandPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Brand"
+            }
+          },
+          "nextCursor": {
+            "nullable": true,
+            "description": "Pass as `cursor` for the next page; null on the last page.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "additionalProperties": false
+      },
+      "CatalogueProductListQuery": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "maxLength": 60
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "cursor": {
+            "type": "string",
+            "maxLength": 400
+          },
+          "limit": {
+            "default": 20,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50
+          }
+        }
+      },
+      "CatalogueProductPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogueProduct"
+            }
+          },
+          "nextCursor": {
+            "nullable": true,
+            "description": "Pass as `cursor` for the next page; null on the last page.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
         ],
         "additionalProperties": false
       },

@@ -25,7 +25,6 @@ import {
   toShade,
 } from './catalogue-mapping.js';
 import type {
-  BrandPage,
   BrandResponse,
   CatalogueListQuery,
   Category,
@@ -35,8 +34,10 @@ import type {
   CreateProductRequest,
   CreateShadeRequest,
   PackInput,
-  ProductListQuery,
-  ProductPage,
+  PlatformBrandListQuery,
+  PlatformBrandPage,
+  PlatformProductListQuery,
+  PlatformProductPage,
   ProductResponse,
   ShadePage,
   ShadeResponse,
@@ -141,21 +142,28 @@ export class CatalogueAdminService {
   // --- Brands ----------------------------------------------------------------
 
   /** All brands (including archived), by name. */
-  async listBrands(query: CatalogueListQuery): Promise<BrandPage> {
-    const after = query.cursor ? decodeCursor(query.cursor) : undefined;
-    const rows = await this.prisma.brand.findMany({
-      where: {
-        ...(query.q
-          ? { name: { contains: query.q, mode: 'insensitive' } }
-          : {}),
-        ...(after ? afterName(after) : {}),
-      },
-      orderBy: [{ name: 'asc' }, { id: 'asc' }],
-      take: query.limit + 1,
-      select: BRAND_SELECT,
-    });
-    const page = pageOf(rows, query.limit, (row) => row.name);
-    return { items: page.items.map(toBrand), nextCursor: page.nextCursor };
+  /** Brands for the platform table (PLT-003): search, status, numbered pages. */
+  async listBrands(query: PlatformBrandListQuery): Promise<PlatformBrandPage> {
+    const where: Prisma.BrandWhereInput = {
+      ...(query.q ? { name: { contains: query.q, mode: 'insensitive' } } : {}),
+      ...(query.status === 'all' ? {} : { active: query.status === 'active' }),
+    };
+    const [rows, total] = await Promise.all([
+      this.prisma.brand.findMany({
+        where,
+        orderBy: [{ name: 'asc' }, { id: 'asc' }],
+        skip: (query.page - 1) * query.pageSize,
+        take: query.pageSize,
+        select: BRAND_SELECT,
+      }),
+      this.prisma.brand.count({ where }),
+    ]);
+    return {
+      items: rows.map(toBrand),
+      total,
+      page: query.page,
+      pageSize: query.pageSize,
+    };
   }
 
   async getBrand(brandId: string): Promise<BrandResponse> {
@@ -217,29 +225,33 @@ export class CatalogueAdminService {
   // --- Products --------------------------------------------------------------
 
   /** A brand's products (including archived), by name. */
+  /** A brand's products for the platform table (PLT-003). */
   async listProducts(
     brandId: string,
-    query: ProductListQuery,
-  ): Promise<ProductPage> {
+    query: PlatformProductListQuery,
+  ): Promise<PlatformProductPage> {
     await this.requireBrand(this.prisma, brandId);
-    const after = query.cursor ? decodeCursor(query.cursor) : undefined;
-    const rows = await this.prisma.catalogueProduct.findMany({
-      where: {
-        brandId,
-        ...(query.categoryId ? { categoryId: query.categoryId } : {}),
-        ...(query.q
-          ? { name: { contains: query.q, mode: 'insensitive' } }
-          : {}),
-        ...(after ? afterName(after) : {}),
-      },
-      orderBy: [{ name: 'asc' }, { id: 'asc' }],
-      take: query.limit + 1,
-      select: PRODUCT_SELECT,
-    });
-    const page = pageOf(rows, query.limit, (row) => row.name);
+    const where: Prisma.CatalogueProductWhereInput = {
+      brandId,
+      ...(query.categoryId ? { categoryId: query.categoryId } : {}),
+      ...(query.q ? { name: { contains: query.q, mode: 'insensitive' } } : {}),
+      ...(query.status === 'all' ? {} : { active: query.status === 'active' }),
+    };
+    const [rows, total] = await Promise.all([
+      this.prisma.catalogueProduct.findMany({
+        where,
+        orderBy: [{ name: 'asc' }, { id: 'asc' }],
+        skip: (query.page - 1) * query.pageSize,
+        take: query.pageSize,
+        select: PRODUCT_SELECT,
+      }),
+      this.prisma.catalogueProduct.count({ where }),
+    ]);
     return {
-      items: page.items.map((row) => toProduct(row, this.images)),
-      nextCursor: page.nextCursor,
+      items: rows.map((row) => toProduct(row, this.images)),
+      total,
+      page: query.page,
+      pageSize: query.pageSize,
     };
   }
 

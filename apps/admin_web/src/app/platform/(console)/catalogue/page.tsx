@@ -4,19 +4,37 @@ import { Suspense } from 'react';
 import { BrandCreateForm } from '@/components/catalogue/brand-forms';
 import { PageLoading } from '@/components/layout/page-loading';
 import { ButtonLink } from '@/components/ui/button-link';
-import { Card, CardList } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
+import { ColumnSearchFilter } from '@/components/ui/column-filter';
+import { type Column, DataTable } from '@/components/ui/data-table';
+import { FilterForm } from '@/components/ui/filter-form';
 import { PageHeader } from '@/components/ui/page-header';
-import { SearchForm } from '@/components/ui/search-form';
+import { Pagination } from '@/components/ui/pagination';
+import { SegmentedLinks } from '@/components/ui/segmented-links';
 import { StateMessage } from '@/components/ui/state-message';
-import { listBrands } from '@/lib/api/platform-catalogue';
+import {
+  type Brand,
+  type ListStatus,
+  listBrands,
+} from '@/lib/api/platform-catalogue';
 import { requirePlatformAdmin } from '@/lib/auth/platform-access';
-import { countLabel } from '@/lib/format';
+import { listLink, oneOf, readPaging, text } from '@/lib/list-params';
 import { createBrandAction } from './actions';
 import { ActiveBadge } from './catalogue-parts';
 
 export const metadata: Metadata = { title: 'Catalogue' };
 
-/** Brands of the shared catalogue (CAT-001, D-030). */
+const BASE = '/platform/catalogue';
+const FORM = 'brand-filters';
+const STATUSES = ['all', 'active', 'archived'] as const;
+const STATUS_LABELS: Record<ListStatus, string> = {
+  all: 'All',
+  active: 'Active',
+  archived: 'Archived',
+};
+const DEFAULTS = { status: 'all', page: '1', pageSize: '25' };
+
+/** Brands of the shared catalogue (CAT-001, D-030; table PLT-003). */
 export default function CatalogueBrandsPage(
   props: PageProps<'/platform/catalogue'>,
 ) {
@@ -25,6 +43,11 @@ export default function CatalogueBrandsPage(
       <PageHeader
         title="Catalogue"
         description="Brands, products and shades that every shop can use. Fill them from official shade cards and price lists, by hand or by CSV import."
+        actions={
+          <ButtonLink href={`${BASE}/categories`} variant="secondary">
+            Manage categories
+          </ButtonLink>
+        }
       />
       <Suspense fallback={<PageLoading label="Loading brands…" />}>
         <Brands {...props} />
@@ -35,73 +58,136 @@ export default function CatalogueBrandsPage(
 
 async function Brands({ searchParams }: PageProps<'/platform/catalogue'>) {
   const { token } = await requirePlatformAdmin();
-  const params = await searchParams;
-  const q = typeof params.q === 'string' ? params.q.trim() : '';
-  const cursor = typeof params.cursor === 'string' ? params.cursor : undefined;
-  const page = await listBrands(token, { q: q || undefined, cursor });
+  const search = await searchParams;
+  const state = {
+    q: text(search.q)?.slice(0, 60),
+    status: oneOf(STATUSES, text(search.status), 'all') as ListStatus,
+    ...readPaging(search),
+  };
+  const data = await listBrands(token, state);
+  const link = (next: Partial<typeof state>) =>
+    listLink(BASE, { ...state, ...next }, DEFAULTS);
+
+  const columns: Column<Brand>[] = [
+    {
+      key: 'brand',
+      header: 'Brand',
+      cell: (brand) => (
+        <Link
+          href={`${BASE}/brands/${brand.id}`}
+          className="rounded-nav-item text-body-large font-semibold text-text-primary hover:text-brand-primary hover:underline focus-visible:outline-2 focus-visible:outline-brand-primary"
+        >
+          {brand.name}
+        </Link>
+      ),
+    },
+    {
+      key: 'products',
+      header: 'Products',
+      align: 'end',
+      width: 'w-32',
+      cellClassName: 'tabular-nums',
+      cell: (brand) => brand.productCount,
+    },
+    {
+      key: 'shades',
+      header: 'Shades',
+      align: 'end',
+      width: 'w-32',
+      cellClassName: 'tabular-nums',
+      cell: (brand) => brand.shadeCount,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      width: 'w-36',
+      cell: (brand) => <ActiveBadge active={brand.active} />,
+    },
+    {
+      key: 'action',
+      header: 'Action',
+      align: 'end',
+      width: 'w-32',
+      cell: (brand) => (
+        <ButtonLink href={`${BASE}/brands/${brand.id}`} variant="tertiary">
+          Open
+        </ButtonLink>
+      ),
+    },
+  ];
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <Card as="section" className="flex flex-col gap-4 p-6">
         <BrandCreateForm action={createBrandAction} />
       </Card>
 
       <section aria-labelledby="brands-heading" className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <h2 id="brands-heading" className="text-heading3 font-semibold">
-            Brands
-          </h2>
-          <Link
-            href="/platform/catalogue/categories"
-            className="text-body font-semibold text-brand-primary underline underline-offset-4"
-          >
-            Manage categories
-          </Link>
-        </div>
-        <SearchForm label="Search brands" defaultValue={q} fill />
-
-        {page.items.length === 0 ? (
-          <StateMessage
-            title={q ? 'No brands match' : 'No brands yet'}
-            description={
-              q
-                ? `Nothing matches "${q}".`
-                : 'Add the first brand above, then its products and shades.'
-            }
+        <h2 id="brands-heading" className="text-heading3 font-semibold">
+          Brands
+        </h2>
+        <div className="flex flex-col gap-3 medium:flex-row medium:items-center medium:justify-between">
+          <SegmentedLinks
+            label="Brand status"
+            segments={STATUSES.map((status) => ({
+              href: link({ status, page: 1 }),
+              label: STATUS_LABELS[status],
+              current: state.status === status,
+            }))}
           />
-        ) : (
-          <CardList>
-            {page.items.map((brand) => (
-              <li key={brand.id}>
-                <Link
-                  href={`/platform/catalogue/brands/${brand.id}`}
-                  className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-brand-primary"
-                >
-                  <span className="flex flex-col gap-1">
-                    <span className="text-title font-semibold text-text-primary">
-                      {brand.name}
-                    </span>
-                    <span className="text-body text-text-secondary">
-                      {countLabel(brand.productCount, 'product')} ·{' '}
-                      {countLabel(brand.shadeCount, 'shade')}
-                    </span>
-                  </span>
-                  <ActiveBadge active={brand.active} />
-                </Link>
-              </li>
-            ))}
-          </CardList>
-        )}
-        {page.nextCursor ? (
-          <div>
-            <ButtonLink
-              href={`/platform/catalogue?${new URLSearchParams({ ...(q ? { q } : {}), cursor: page.nextCursor })}`}
-              variant="secondary"
-            >
-              Next brands
-            </ButtonLink>
-          </div>
-        ) : null}
+          <FilterForm
+            id={FORM}
+            action={BASE}
+            className="w-full medium:max-w-narrow"
+          >
+            {state.status !== 'all' ? (
+              <input type="hidden" name="status" value={state.status} />
+            ) : null}
+            <ColumnSearchFilter
+              form={FORM}
+              name="q"
+              label="Search brands"
+              placeholder="Search brands, then press Enter"
+              value={state.q}
+            />
+          </FilterForm>
+        </div>
+        <DataTable
+          caption="Brands"
+          columns={columns}
+          rows={data.items}
+          rowKey={(brand) => brand.id}
+          empty={
+            <StateMessage
+              icon="notebook"
+              title={
+                state.q
+                  ? 'No brands match'
+                  : state.status === 'archived'
+                    ? 'No archived brands'
+                    : state.status === 'active'
+                      ? 'No active brands'
+                      : 'No brands yet'
+              }
+              description={
+                state.q
+                  ? `Nothing matches "${state.q}".`
+                  : state.status === 'all'
+                    ? 'Add the first brand above, then its products and shades.'
+                    : undefined
+              }
+            />
+          }
+        />
+        <Pagination
+          page={data.page}
+          pageSize={data.pageSize}
+          total={data.total}
+          href={(page) => link({ page })}
+          form={FORM}
+          pageSizes={[10, 25, 50]}
+          noun="brands"
+        />
       </section>
     </div>
   );

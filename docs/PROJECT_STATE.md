@@ -36,7 +36,7 @@
 | CAT-004: Quick add: prices for many brand products in one form, progress toward 10 products | **Complete (local; Chrome)** | `docs/features/CAT-004-quick-add-products.md` |
 | CAT-005: One Add product flow (search every brand, locked brand details, new product with "Sold by", optional photo) | **Complete (local; Chrome)** | `docs/features/CAT-005-add-product.md` |
 | CAT-006: Product list: one row per product with photo, pack-size chips, availability summary, toolbar filters and "mark all" actions | **Complete (local; Chrome)** | `docs/features/CAT-006-product-list.md` |
-| PLT-003: Platform admin lists as tables (Part 1: shops and reviews; Part 2: brand catalogue) | **Part 1 complete (local; Chrome)** | `docs/features/PLT-003-platform-tables.md` |
+| PLT-003: Platform admin lists as tables (Part 1: shops and reviews; Part 2: brand catalogue) | **Complete (local; Chrome)** | `docs/features/PLT-003-platform-tables.md` |
 | DS-003: SevenPalette name and shade-card fan logo (D-040): names, logo files, web and Flutter brand mark, favicon, launcher icons | **Complete (local)**; Android emulator not run | `docs/features/DS-003-product-name-and-logo.md` |
 
 **Git (D-035):** every feature above is in `dev` (fast-forward merged and pushed on 2026-11-04; one commit per feature, `3697e4f` … `9c7885b`); the local per-feature branches were deleted. The first GitHub Actions run on `dev` (`8497b81`) passed all three jobs (TypeScript, Flutter, repository checks). The old remote branch `feat/shp-002-shop-app-sign-in` is still on GitHub (its commits are in `dev`); the product owner can delete it. From now on each finished feature is merged into `dev` and pushed the same way. `main` still holds only `c56f614` (project setup) until a release.
@@ -356,7 +356,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 
 ## 7. Next actions
 
-1. **UI/UX pass (product owner, 2026-11-05):** WEB-001 to WEB-004, DS-003, DS-004, SHP-006 and CAT-003 (shop catalogue table) done. Next, in the owner's order: shop web items planned on 2026-11-06 (FEATURE_CATALOG §4: dashboard with orders; navigation v2, row menu and guided first products done in WEB-005 and CAT-004), platform admin web tables, then Shop App mobile list patterns, then the Customer App. Owner: domains, trademark check, bundle IDs (question 41).
+1. **UI/UX pass (product owner, 2026-11-05):** shop admin web (WEB-001 to WEB-005, CAT-003 to CAT-006, DS-003, DS-004, SHP-006) and platform admin tables (PLT-003) done. Next, in the owner's order: Shop App mobile patterns (product list with search, filter sheet and load more), then the Customer App; the business dashboard comes with orders. Owner: domains, trademark check, bundle IDs (question 41).
 2. **Next phase: plan the Customer App foundation** with the product owner: CUS-001 sign-up and profile (customer type, D-036), CUS-002 Find shops and My Shops (D-037, D-038), CUS-003 shop storefront. Open before ordering: questions 30–32 (order approval, pickup/delivery, fulfilment).
 3. **Product owner checks:** try the platform **Reviews** decision form in Chrome as the platform admin; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
 4. **Hardening before any hosted environment:** questions 49 and 51.
@@ -450,3 +450,4 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-06 | CAT-005 (D-043): one Add product flow with a cross-brand search; new products choose "Sold by" (unit group enforced by the API); Quick start kept for shops under 10 products. |
 | 2026-11-07 | CAT-006: Products page shows one row per product (photo, chips, availability summary) with a filter toolbar; `product-rows` API replaces `pack-rows`; new `Thumbnail` and `PackChip`. |
 | 2026-11-07 | PLT-003 Part 1: platform shops and review queue as tables (search by shop, owner or mobile; status tabs with counts; sort; pages; wait badge). Local-only test platform admin created for browser checks (password in gitignored .env.local). |
+| 2026-11-07 | PLT-003 Part 2: platform brands and a brand's products as tables (status tabs, search, category, pages, photos, pack chips). |

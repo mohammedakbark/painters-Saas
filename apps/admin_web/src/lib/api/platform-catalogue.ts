@@ -125,14 +125,37 @@ export function updateCategory(
 
 // --- Brands ------------------------------------------------------------------
 
+/** A numbered page with its total (PLT-003). */
+const numberedPage = <T extends z.ZodTypeAny>(item: T) =>
+  z.object({
+    items: z.array(item),
+    total: z.number().int(),
+    page: z.number().int(),
+    pageSize: z.number().int(),
+  });
+
+export type NumberedPage<T> = {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+};
+
+export type ListStatus = 'active' | 'archived' | 'all';
+
 export function listBrands(
   token: string,
-  params: { q?: string; cursor?: string },
-): Promise<Page<Brand>> {
-  return apiRequest(`${base}/brands${query({ ...params, limit: '50' })}`, {
-    token,
-    schema: page(brandSchema),
-  });
+  params: { q?: string; status: ListStatus; page: number; pageSize: number },
+): Promise<NumberedPage<Brand>> {
+  return apiRequest(
+    `${base}/brands${query({
+      q: params.q,
+      status: params.status,
+      page: String(params.page),
+      pageSize: String(params.pageSize),
+    })}`,
+    { token, schema: numberedPage(brandSchema) },
+  );
 }
 
 export function getBrand(token: string, brandId: string): Promise<Brand> {
@@ -181,11 +204,23 @@ export interface ProductBody {
 export function listProducts(
   token: string,
   brandId: string,
-  params: { q?: string; categoryId?: string; cursor?: string },
-): Promise<Page<CatalogueProduct>> {
+  params: {
+    q?: string;
+    categoryId?: string;
+    status: ListStatus;
+    page: number;
+    pageSize: number;
+  },
+): Promise<NumberedPage<CatalogueProduct>> {
   return apiRequest(
-    `${base}/brands/${enc(brandId)}/products${query({ ...params, limit: '50' })}`,
-    { token, schema: page(productSchema) },
+    `${base}/brands/${enc(brandId)}/products${query({
+      q: params.q,
+      categoryId: params.categoryId,
+      status: params.status,
+      page: String(params.page),
+      pageSize: String(params.pageSize),
+    })}`,
+    { token, schema: numberedPage(productSchema) },
   );
 }
 
