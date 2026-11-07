@@ -359,7 +359,7 @@ async function Products({
           <FilterForm
             id={FORM}
             action={base}
-            className="grid gap-3 rounded-card border border-card-border bg-card-background p-4 medium:grid-cols-2 desktop:grid-cols-[minmax(0,2fr)_repeat(5,minmax(0,1fr))] desktop:items-end"
+            className="grid gap-3 rounded-card border border-card-border bg-card-background p-4 medium:grid-cols-2 desktop:grid-cols-5 desktop:items-end"
           >
             {state.tab !== 'ALL' ? (
               <input type="hidden" name="tab" value={state.tab} />
@@ -367,7 +367,7 @@ async function Products({
             {state.status !== 'ACTIVE' ? (
               <input type="hidden" name="status" value={state.status} />
             ) : null}
-            <div className="medium:col-span-2 desktop:col-span-1">
+            <div className="medium:col-span-2 desktop:col-span-5">
               <ColumnSearchFilter
                 form={FORM}
                 name="q"

@@ -46,4 +46,4 @@ The Litres · Kilograms · Pieces tabs count products, and Selling / Archived st
 |---|---|
 | API typecheck, lint; e2e `shop-catalogue` (20, including each filter, `show`, tabs, sort, paging, validation and isolation for `product-rows`); OpenAPI exported | Passed |
 | admin_web lint, typecheck, tests (216, including Thumbnail, PackChip, the row menu's "mark all"), build; `ui:check` | Passed |
-| Chrome | See PROJECT_STATE log |
+| Chrome (production build of the portal, because the dev server was broken by low memory), test owner with 10 products: photos and placeholders, every filter, tabs, price sort, "Mark all sizes not available" moves the product to Not available, a page past the end, 1280 px and 518 px; no horizontal scroll, no console errors | Verified |

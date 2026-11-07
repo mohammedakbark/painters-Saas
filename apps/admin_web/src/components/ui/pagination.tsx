@@ -41,8 +41,10 @@ export function Pagination({
   noun?: string;
 }) {
   const pages = Math.max(1, Math.ceil(total / pageSize));
-  const first = total === 0 ? 0 : (page - 1) * pageSize + 1;
-  const last = Math.min(total, page * pageSize);
+  const start = (page - 1) * pageSize + 1;
+  // A page past the end (e.g. after filtering) shows nothing.
+  const first = total === 0 || start > total ? 0 : start;
+  const last = first === 0 ? 0 : Math.min(total, page * pageSize);
   return (
     <div className="flex flex-col gap-4 desktop:flex-row desktop:items-center desktop:justify-between">
       <p className="text-body text-text-secondary" aria-live="polite">
