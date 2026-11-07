@@ -56,7 +56,9 @@ async function AddFromCatalogue({
           title="The brand catalogue is empty"
           description="The platform team has not added brands yet. You can add your own products meanwhile."
           action={
-            <ButtonLink href={`${base}/new`}>Add your own product</ButtonLink>
+            <ButtonLink href={`${base}?add=product`}>
+              Add your own product
+            </ButtonLink>
           }
         />
       </div>
@@ -140,7 +142,7 @@ async function AddFromCatalogue({
           }
           description="Products you don't find here can be added as your own."
           action={
-            <ButtonLink href={`${base}/new`} variant="secondary">
+            <ButtonLink href={`${base}?add=product`} variant="secondary">
               Add your own product
             </ButtonLink>
           }

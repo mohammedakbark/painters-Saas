@@ -64,6 +64,45 @@
   }
 }
 
+/*
+ * Side sheet and toast (WEB-007): they slide in, unless the device asks for
+ * reduced motion.
+ */
+@layer components {
+  @media (prefers-reduced-motion: no-preference) {
+    .side-sheet-enter[open] {
+      animation: side-sheet-in 220ms ease-out;
+    }
+
+    .side-sheet-enter[open]::backdrop {
+      animation: fade-in 220ms ease-out;
+    }
+
+    .toast-enter {
+      animation: toast-in 200ms ease-out;
+    }
+  }
+}
+
+@keyframes side-sheet-in {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+}
+
 @keyframes reveal-up {
   from {
     opacity: 0;

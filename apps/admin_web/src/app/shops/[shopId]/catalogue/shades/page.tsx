@@ -6,7 +6,6 @@ import {
   OwnShadeForm,
 } from '@/components/shop-catalogue/shop-catalogue-forms';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
 import {
   ColumnSearchFilter,
   ColumnSelectFilter,
@@ -17,6 +16,7 @@ import { PageHeader } from '@/components/ui/page-header';
 import { Pagination } from '@/components/ui/pagination';
 import { SectionLoading } from '@/components/ui/section-loading';
 import { SegmentedLinks } from '@/components/ui/segmented-links';
+import { SideSheet, SideSheetButton } from '@/components/ui/side-sheet';
 import { StateMessage } from '@/components/ui/state-message';
 import {
   type BrandShadeItem,
@@ -142,23 +142,19 @@ function Toolbar({
   q,
   placeholder,
   children,
+  aside,
 }: {
   base: string;
   view: View;
   q: string | undefined;
   placeholder: string;
+  /** Filters next to the search. */
   children?: React.ReactNode;
+  /** A button at the end of the toolbar, e.g. Add shade. */
+  aside?: React.ReactNode;
 }) {
   return (
-    <FilterForm
-      id={FORM}
-      action={base}
-      className={
-        children
-          ? 'grid gap-3 rounded-card border border-card-border bg-card-background p-4 medium:grid-cols-[minmax(0,1fr)_16rem] medium:items-end'
-          : 'grid gap-3 rounded-card border border-card-border bg-card-background p-4'
-      }
-    >
+    <FilterForm id={FORM} action={base} className={cnToolbar(children, aside)}>
       {view !== 'favourites' ? (
         <input type="hidden" name="view" value={view} />
       ) : null}
@@ -170,9 +166,22 @@ function Toolbar({
         value={q}
       />
       {children}
+      {aside}
     </FilterForm>
   );
 }
+
+const TOOLBAR =
+  'grid gap-3 rounded-card border border-card-border bg-card-background p-4 medium:items-end';
+
+function cnToolbar(filters: React.ReactNode, aside: React.ReactNode) {
+  if (filters) {
+    return `${TOOLBAR} medium:grid-cols-[minmax(0,1fr)_16rem]`;
+  }
+  return aside ? `${TOOLBAR} medium:grid-cols-[minmax(0,1fr)_auto]` : TOOLBAR;
+}
+
+const SHADE_SHEET = 'add-shade';
 
 const swatchColumn = <T,>(
   shade: (row: T) => { code: string; name: string; previewHex: string | null },
@@ -428,28 +437,29 @@ async function OwnShades({ shopId, base, search, canEdit }: SectionProps) {
   return (
     <>
       {canEdit ? (
-        <Card
-          as="section"
-          aria-labelledby="new-shade-heading"
-          className="flex flex-col gap-4 p-6"
+        <SideSheet
+          id={SHADE_SHEET}
+          title="Add a shade"
+          description="Codes you mix or use in the shop that are not on a brand shade card."
         >
-          <h2 id="new-shade-heading" className="text-heading3 font-semibold">
-            Add a shade of your own
-          </h2>
-          <p className="text-body text-text-secondary">
-            Codes you mix or use in the shop that are not on a brand shade card.
-          </p>
           <OwnShadeForm
             action={createOwnShadeAction.bind(null, shopId)}
             brands={brands}
           />
-        </Card>
+        </SideSheet>
       ) : null}
       <Toolbar
         base={base}
         view="own"
         q={state.q}
         placeholder="Code or name, then press Enter"
+        aside={
+          canEdit ? (
+            <SideSheetButton sheet={SHADE_SHEET} icon="plus">
+              Add shade
+            </SideSheetButton>
+          ) : null
+        }
       />
       <DataTable
         caption="Your own shades"
@@ -460,6 +470,11 @@ async function OwnShades({ shopId, base, search, canEdit }: SectionProps) {
           <StateMessage
             icon="palette"
             title={state.q ? 'No shades match' : 'No shades of your own yet'}
+            description={
+              state.q
+                ? 'Try another code or name.'
+                : 'Add the codes you mix or use that are not on a brand shade card.'
+            }
           />
         }
       />

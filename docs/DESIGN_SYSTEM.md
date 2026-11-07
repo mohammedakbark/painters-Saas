@@ -154,6 +154,7 @@ Web utilities: `rounded-control`, `min-h-control`, `rounded-card`, `border-card-
 | `DataTable` (`Column`: header, cell, `filter`, `align`, `width`, `sorted`, `cellClassName`; stacks into cards below `desktop`), `SortHeader`, `ColumnSelectFilter`, `ColumnSearchFilter`, `FilterForm`, `Pagination` (CAT-003) | data lists that can grow: per-column filters in the URL, sorting, pages and rows per page |
 | `Menu` (`MenuLink`, `MenuButton`, `MenuSeparator`, `MenuLabel`), `ConfirmDialog`, `IconButton`, `Button` `destructive` (WEB-005) | dropdown and row action menus, confirming destructive actions, icon-only buttons |
 | `Thumbnail`, `PackChip` (CAT-006) | product photos in lists (with a placeholder), pack size with price and availability dot; lists show one row per thing, details as chips |
+| `SideSheet`, `SideSheetButton`, `useSideSheet`, `useCloseSheetOnSave`, `Toast` (WEB-007, D-051) | small add and edit forms in a panel from the right over a blurred page (native modal dialog: Escape, outside click and Close shut it; the draft survives closing); after a save the sheet closes, the form clears and a toast confirms, with an optional link. Records with their own lists or many sections stay full pages |
 | `Combobox` (CAT-005) | search with suggestions and a "create new" option, ARIA combobox |
 | `SegmentedLinks` | switching a list between views (e.g. Selling and Archived), links with `aria-current` |
 | `AppShell` (`area` with caption, name and switch link; icon `nav`), `NavLinks` (`vertical`, `horizontal`, `tabs`; optional `icon`), `PageLoading` (placeholder skeleton) | console frame, navigation, page loading |
@@ -161,7 +162,7 @@ Web utilities: `rounded-control`, `min-h-control`, `rounded-card`, `border-card-
 | `AuthLayout`, `AuthSteps` (`components/auth`) | sign-in and registration frame and the 2-step indicator (WEB-002) |
 | `StoreButton` | App Store / Google Play button; a link when the store URL exists, otherwise a disabled "Coming soon" (WEB-001) |
 
-**Motion (public site only):** CSS scroll-driven reveal, header elevation and progress bar in `globals.css`, always inside `prefers-reduced-motion: no-preference` and `@supports`; content is never hidden without them. Console screens stay static. The public home page builds its sections from these components in `components/marketing` (illustrations are inline SVG with token classes only). No dialog or toast exists on the web yet; the first screen that needs one adds `Dialog`/`Toast` here first.
+**Motion (public site only):** CSS scroll-driven reveal, header elevation and progress bar in `globals.css`, always inside `prefers-reduced-motion: no-preference` and `@supports`; content is never hidden without them. Console screens stay static, except the side sheet and toast sliding in (WEB-007), also only with `prefers-reduced-motion: no-preference`. The public home page builds its sections from these components in `components/marketing` (illustrations are inline SVG with token classes only). Overlays on the web are `ConfirmDialog`, `SideSheet` and `Toast`; the side sheet uses the `sheet` component tokens.
 
 ### Flutter components (`flutter_shared`)
 

@@ -64,6 +64,7 @@ Lists and status (product owner, 2026-11-06; details in `.claude/skills/ui-imple
 - Web lists that can pass about 20 rows use `DataTable` with server-side pagination and a filter per column kept in the URL. Mobile apps use mobile patterns (search, filter sheet, load more), never tables.
 - Each status has its own token colour; opposite states (Available / Not available) must never look alike.
 - UI rollout order: shop admin web, platform admin web, Shop App, Customer App.
+- Small add/edit forms on the web open in a side sheet from the right over a blurred page, never an inline card or a separate page (D-051); mobile uses bottom sheets.
 
 Loading and updates (product owner, 2026-11-07, D-044): follow `.claude/skills/data-loading`. One change never reloads the whole page: static text renders at once, each data section loads on its own, search and filters use `UrlForm` (never a raw GET form), and a save shows its busy state on its own button and then updates only what changed.
 - Work efficiently: small fixes need no plan or long report.

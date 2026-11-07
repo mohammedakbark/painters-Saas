@@ -9,14 +9,13 @@ import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ButtonLink } from '@/components/ui/button-link';
-import { Card } from '@/components/ui/card';
 import { Combobox } from '@/components/ui/combobox';
 import type { BrandSearchResult } from '@/lib/api/shop-catalogue';
 import {
   addCatalogueProductAction,
   addOwnProductAction,
   searchBrandProductsAction,
-} from '../actions';
+} from './actions';
 
 type Choice =
   | { kind: 'catalogue'; product: BrandSearchResult }
@@ -45,7 +44,7 @@ export function AddProductFlow({
 
   if (!choice) {
     return (
-      <Card as="section" className="flex flex-col gap-4 p-6 medium:p-8">
+      <div className="flex flex-col gap-4">
         <Combobox
           label="Find the product"
           description="Search products from every brand. Can't find it? Add it as a new product."
@@ -73,7 +72,7 @@ export function AddProductFlow({
           onCreate={(name) => setChoice({ kind: 'new', name })}
           createLabel={(text) => `Add "${text}" as a new product`}
         />
-      </Card>
+      </div>
     );
   }
 
@@ -86,17 +85,17 @@ export function AddProductFlow({
   if (choice.kind === 'catalogue') {
     const { product } = choice;
     return (
-      <Card as="section" className="flex flex-col gap-6 p-6 medium:p-8">
+      <div className="flex flex-col gap-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex flex-col gap-2">
             <Badge tone="info">From the brand catalogue</Badge>
-            <h2 className="text-heading2 font-bold tracking-tight text-text-primary">
+            <h3 className="text-heading3 font-semibold text-text-primary">
               {product.name}
-            </h2>
+            </h3>
           </div>
           {change}
         </div>
-        <dl className="grid gap-4 rounded-panel bg-surface-subtle p-4 medium:grid-cols-3">
+        <dl className="grid gap-4 rounded-panel bg-surface-subtle p-4">
           <Detail term="Brand">{product.brandName}</Detail>
           <Detail term="Category">{product.categoryName}</Detail>
           <Detail term="Pack sizes">
@@ -135,18 +134,18 @@ export function AddProductFlow({
             />
           </>
         )}
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card as="section" className="flex flex-col gap-6 p-6 medium:p-8">
+    <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex flex-col gap-2">
           <Badge tone="neutral">New product</Badge>
-          <h2 className="text-heading2 font-bold tracking-tight text-text-primary">
+          <h3 className="text-heading3 font-semibold text-text-primary">
             {choice.name}
-          </h2>
+          </h3>
         </div>
         {change}
       </div>
@@ -167,7 +166,7 @@ export function AddProductFlow({
         submitLabel="Save product"
         cancelHref={base}
       />
-    </Card>
+    </div>
   );
 }
 

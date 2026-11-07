@@ -54,6 +54,9 @@ This document prevents assumptions from silently becoming requirements.
 | D-046 | **Pickup and delivery at launch.** Each shop sets delivery in its settings: on or off, a flat charge, free delivery above an order amount, and where it delivers (areas or a distance). The customer chooses pickup or delivery at checkout. | Confirmed (product owner, 2026-11-07); answers question 31 (zone format to confirm when built) |
 | D-047 | **Order changes.** The customer can cancel until the order is ready for pickup or dispatched. The shop can mark items not available (partial fulfilment) and suggest substitutes. Returns after pickup are supported at launch: returned items are recorded and the order total adjusted, with an audit trail; money records follow with billing (Phase 3). | Confirmed (product owner, 2026-11-07); answers question 32 |
 | D-048 | **Shops can add their own product categories**, next to the platform's categories. A shop's own categories are visible only in that shop; platform categories stay shared. | Confirmed (product owner, 2026-11-07); answers question 54 |
+| D-049 | **Delivery locations are accurate map points.** A painter orders only for a site, and a site has an accurate location (current location or entered by hand, with house or business name, owner name and place). A normal customer enters a delivery location at checkout, as large shopping apps do. A shop's delivery area is therefore a **distance in km from the shop's map pin**; PIN-code lists are not needed. | Confirmed (product owner, 2026-11-07); distance-based area agreed with the WEB-007 plan |
+| D-050 | **Credit needs a verified mobile number and a submitted ID document** (Aadhaar or similar) before any shop can give a user credit. Each shop still approves credit itself (no automatic approval). Built with credit in Phase 3; the document rules come first (question 57). | Confirmed (product owner, 2026-11-07) |
+| D-051 | **Small forms open in a side sheet on the web.** Adding or editing a small record from a list (about 8 fields or fewer, no list inside it) opens a panel from the right over a blurred page, with a toast after saving; records with their own lists or many sections stay full pages. The mobile apps use bottom sheets. | Confirmed (product owner, 2026-11-07); WEB-007 |
 
 ## 2. Proposed technical decisions — require approval
 
@@ -175,6 +178,7 @@ Do not treat proposals as approved until the product owner confirms them.
 54. ~~Can a shop create its own product categories, or only use the platform's categories (today: platform only)?~~ **Resolved (D-048).**
 55. Should "Delete" on a shop product mean archive (today: products are archived, pack sizes can be removed) or permanent removal?
 56. What does the planned "Mobile Apps" section of the shop console manage: staff app access, signed-in devices, app registrations?
+57. For the credit ID document (D-050): which documents are accepted, how consent is taken, how long they are kept, who can view them, and must Aadhaar numbers be masked or stored only as a verification result? Needed before any upload is built (CLAUDE.md §5).
 51. Public email sign-up is technically possible because Supabase has one global sign-up switch; such accounts get no access. For the hosted project, which mitigation is preferred: email confirmations + CAPTCHA, or a before-user-created hook that only allows phone sign-ups?
 
 ## 3a. Temporary assumptions (foundation)

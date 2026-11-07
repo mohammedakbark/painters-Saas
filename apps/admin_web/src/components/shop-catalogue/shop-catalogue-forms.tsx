@@ -16,6 +16,7 @@ import { RadioGroupField } from '@/components/ui/choice-group-fields';
 import { FileField } from '@/components/ui/file-field';
 import { Field } from '@/components/ui/field';
 import { SelectField } from '@/components/ui/select-field';
+import { useCloseSheetOnSave, useSideSheet } from '@/components/ui/side-sheet';
 import { TextareaField } from '@/components/ui/textarea-field';
 import type { CatalogueFormState } from '@/lib/catalogue/form-state';
 import { IMAGE_ACCEPT } from '@/lib/media/image-file';
@@ -48,7 +49,25 @@ function useTransitionSubmit(action: FormAction) {
     const data = new FormData(event.currentTarget);
     startTransition(() => formAction(data));
   }
+  useCloseSheetOnSave(state);
   return { state, formAction, pending, onSubmit };
+}
+
+/** Cancel: closes the side sheet, or goes back to `href` on a page. */
+function CancelControl({ href }: { href?: string }) {
+  const sheet = useSideSheet();
+  if (sheet) {
+    return (
+      <Button variant="secondary" onClick={sheet.close}>
+        Cancel
+      </Button>
+    );
+  }
+  return href ? (
+    <ButtonLink href={href} variant="secondary">
+      Cancel
+    </ButtonLink>
+  ) : null;
 }
 
 /** "Add from brand catalogue": tick the pack sizes you sell and price them. */
@@ -60,7 +79,7 @@ export function CatalogueListingForm({
 }: {
   action: FormAction;
   packs: readonly { id: string; label: string }[];
-  cancelHref: string;
+  cancelHref?: string;
   /** Offers the shop's own photo (the Add product page, CAT-005). */
   withPhoto?: boolean;
 }) {
@@ -108,9 +127,7 @@ export function CatalogueListingForm({
         <Button type="submit" pending={pending} pendingLabel="Adding…">
           {withPhoto ? 'Save product' : 'Add to my catalogue'}
         </Button>
-        <ButtonLink href={cancelHref} variant="secondary">
-          Cancel
-        </ButtonLink>
+        <CancelControl href={cancelHref} />
       </div>
     </form>
   );
@@ -295,11 +312,7 @@ export function OwnProductForm({
           >
             {submitLabel}
           </Button>
-          {cancelHref ? (
-            <ButtonLink href={cancelHref} variant="secondary">
-              Cancel
-            </ButtonLink>
-          ) : null}
+          <CancelControl href={cancelHref} />
         </div>
       )}
     </form>
@@ -505,7 +518,7 @@ export function OwnShadeForm({
     >
       <FormStatus state={state} />
       <RequiredFieldsNote />
-      <div className="grid gap-3 medium:grid-cols-2 medium:items-start">
+      <div className="flex flex-col gap-4">
         <Field
           label="Shade code"
           name="code"
@@ -544,10 +557,11 @@ export function OwnShadeForm({
           error={errors.brandId}
         />
       </div>
-      <div>
+      <div className="flex flex-wrap gap-3">
         <Button type="submit" pending={pending} pendingLabel="Adding…">
           Add shade
         </Button>
+        <CancelControl />
       </div>
     </form>
   );

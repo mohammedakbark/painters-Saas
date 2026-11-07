@@ -112,8 +112,7 @@ export async function addCatalogueProductAction(
   } catch (error) {
     return failure(error, values, { packs: 'form' });
   }
-  const photo = await uploadOptionalPhoto(token, shopId, productId, formData);
-  redirect(`${productPath(shopId, productId)}?added=1${photo}`);
+  return productAdded(token, shopId, productId, formData);
 }
 
 /**
@@ -165,6 +164,29 @@ export async function addCatalogueProductsAction(
  * The optional photo chosen while adding a product (CAT-005), uploaded once
  * the product exists. Returns a query suffix: "" or "&photo=failed".
  */
+/**
+ * After Add product (WEB-007): uploads the optional photo, refreshes the list
+ * behind the side sheet and reports success with a link to the product.
+ */
+async function productAdded(
+  token: string,
+  shopId: string,
+  productId: string,
+  formData: FormData,
+  name?: string,
+): Promise<CatalogueFormState> {
+  const photoFailed =
+    (await uploadOptionalPhoto(token, shopId, productId, formData)) !== '';
+  refresh();
+  const added = name ? `${name.trim()} added.` : 'Product added.';
+  return {
+    saved: photoFailed
+      ? `${added} The photo was not saved; add it on the product page.`
+      : added,
+    savedLink: { href: productPath(shopId, productId), label: 'Open product' },
+  };
+}
+
 async function uploadOptionalPhoto(
   token: string,
   shopId: string,
@@ -279,8 +301,7 @@ export async function addOwnProductAction(
   } catch (error) {
     return failure(error, values, { packs: 'form' });
   }
-  const photo = await uploadOptionalPhoto(token, shopId, productId, formData);
-  redirect(`${productPath(shopId, productId)}?added=1${photo}`);
+  return productAdded(token, shopId, productId, formData, details.name);
 }
 
 export async function updateOwnProductAction(

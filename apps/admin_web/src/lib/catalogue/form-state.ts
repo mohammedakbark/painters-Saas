@@ -6,6 +6,8 @@ export interface CatalogueFormState {
   error?: string;
   /** Shown as a success status. */
   saved?: string;
+  /** A follow-up link for the success toast, e.g. "Open product" (WEB-007). */
+  savedLink?: { href: string; label: string };
   /** Field errors keyed by form field name. */
   fieldErrors?: Record<string, string>;
   /** Submitted values, so the form keeps them after an error. */

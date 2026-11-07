@@ -11,11 +11,11 @@ import {
 } from '@/components/ui/column-filter';
 import { type Column, DataTable } from '@/components/ui/data-table';
 import { FilterForm } from '@/components/ui/filter-form';
-import { Icon } from '@/components/ui/icon';
 import { PackChip } from '@/components/ui/pack-chip';
 import { PageHeader } from '@/components/ui/page-header';
 import { Pagination } from '@/components/ui/pagination';
 import { SegmentedLinks } from '@/components/ui/segmented-links';
+import { SideSheet, SideSheetButton } from '@/components/ui/side-sheet';
 import { StateMessage } from '@/components/ui/state-message';
 import { Thumbnail } from '@/components/ui/thumbnail';
 import {
@@ -26,6 +26,8 @@ import {
   ROW_PAGE_SIZES,
   ROW_SHOWS,
   ROW_SORTS,
+  listCatalogueBrands,
+  listCatalogueCategories,
 } from '@/lib/api/shop-catalogue';
 import { getShopOnboarding } from '@/lib/api/shop-profile';
 import { requireShopAccess, requireShopSession } from '@/lib/auth/shop-access';
@@ -35,6 +37,7 @@ import {
   setShopProductStatusAction,
 } from './actions';
 import { catalogueBase } from './catalogue-parts';
+import { AddProductFlow } from './add-product-flow';
 import { RowActions } from './row-actions';
 
 export const metadata: Metadata = { title: 'Products' };
@@ -111,6 +114,8 @@ const DEFAULTS: Partial<Record<keyof ProductRowParams, string>> = {
   pageSize: '25',
 };
 
+const ADD_SHEET = 'add-product';
+
 async function Products({
   params,
   searchParams,
@@ -121,9 +126,13 @@ async function Products({
   const search = await searchParams;
   const state = readParams(search);
   const added = Number(text(search.added));
-  const [data, onboarding] = await Promise.all([
+  const canEdit = shop.myRole === 'MASTER';
+  const [data, onboarding, categories, brands] = await Promise.all([
     listProductRows(token, shopId, state),
     getShopOnboarding(token, shopId),
+    // Only the owner gets the Add product sheet, which needs these lists.
+    canEdit ? listCatalogueCategories(token) : [],
+    canEdit ? listCatalogueBrands(token) : [],
   ]);
   const productsNeeded = onboarding.items.find(
     (item) => item.key === 'products',
@@ -132,8 +141,8 @@ async function Products({
   const quickStart = Boolean(
     productsNeeded && productsNeeded.current < productsNeeded.required,
   );
-  const canEdit = shop.myRole === 'MASTER';
   const base = catalogueBase(shopId);
+  const canAdd = canEdit && categories.length > 0;
 
   /** The current URL with some values changed; defaults are left out. */
   const link = (next: Partial<ProductRowParams>) => {
@@ -291,6 +300,21 @@ async function Products({
 
   return (
     <div className="flex flex-col gap-6">
+      {canAdd ? (
+        <SideSheet
+          id={ADD_SHEET}
+          title="Add product"
+          description="Find it in the brand catalogue, or add it as a new product. Then set your prices."
+          defaultOpen={text(search.add) === 'product'}
+        >
+          <AddProductFlow
+            shopId={shopId}
+            base={base}
+            categories={categories}
+            brands={brands}
+          />
+        </SideSheet>
+      ) : null}
       {Number.isInteger(added) && added > 0 ? (
         <Alert
           tone="success"
@@ -310,10 +334,11 @@ async function Products({
                   Quick start
                 </ButtonLink>
               ) : null}
-              <ButtonLink href={`${base}/new`}>
-                <Icon name="plus" className="size-5" />
-                Add product
-              </ButtonLink>
+              {canAdd ? (
+                <SideSheetButton sheet={ADD_SHEET} icon="plus">
+                  Add product
+                </SideSheetButton>
+              ) : null}
             </>
           ) : undefined
         }
@@ -327,7 +352,11 @@ async function Products({
           action={
             canEdit ? (
               <>
-                <ButtonLink href={`${base}/new`}>Add product</ButtonLink>
+                {canAdd ? (
+                  <SideSheetButton sheet={ADD_SHEET}>
+                    Add product
+                  </SideSheetButton>
+                ) : null}
                 <ButtonLink href={`${base}/add`} variant="secondary">
                   Quick start: add several products
                 </ButtonLink>
