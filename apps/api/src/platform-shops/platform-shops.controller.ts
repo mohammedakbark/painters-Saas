@@ -30,7 +30,8 @@ export class PlatformShopsController {
 
   @Get()
   @ApiOperation({
-    summary: 'Registered shops, newest first (platform admins).',
+    summary:
+      'Registered shops with search, status filter, sort and pages (platform admins).',
   })
   @ApiOkResponse({ standardSchema: ShopRegistryPageSchema })
   @ApiBadRequestResponse({ standardSchema: ProblemDetailsSchema })

@@ -100,16 +100,27 @@ export type ReviewDecisionResult = z.infer<typeof ReviewDecisionResultSchema>;
 
 export const ReviewQueueQuerySchema = z
   .object({
-    cursor: z
+    q: z
       .string()
-      .max(400, { error: 'cursor must be the nextCursor of a previous page.' })
-      .optional(),
-    limit: z.coerce
-      .number({ error: 'limit must be a whole number from 1 to 50.' })
-      .int({ error: 'limit must be a whole number from 1 to 50.' })
-      .min(1, { error: 'limit must be a whole number from 1 to 50.' })
-      .max(50, { error: 'limit must be a whole number from 1 to 50.' })
-      .default(20),
+      .trim()
+      .max(60, { error: 'Search for at most 60 characters.' })
+      .optional()
+      .meta({ description: 'Shop name, owner name or owner mobile.' }),
+    sort: z
+      .enum(['oldest', 'newest'], { error: 'sort must be oldest or newest.' })
+      .default('oldest')
+      .meta({ description: 'Oldest first is fair: shops wait the least.' }),
+    page: z.coerce
+      .number({ error: 'page must be a number.' })
+      .int({ error: 'page must be a whole number.' })
+      .min(1, { error: 'page must be at least 1.' })
+      .default(1),
+    pageSize: z.coerce
+      .number({ error: 'pageSize must be 10, 25 or 50.' })
+      .refine((value) => [10, 25, 50].includes(value), {
+        error: 'pageSize must be 10, 25 or 50.',
+      })
+      .default(25),
   })
   .meta({ id: 'ShopReviewQueueQuery' });
 
@@ -122,13 +133,18 @@ export const ReviewQueuePageSchema = z
         reviewId: z.uuid(),
         shopId: z.uuid(),
         shopName: z.string(),
+        photoThumbUrl: z.url().nullable(),
+        ownerName: z.string().nullable(),
+        ownerPhone: z.string().nullable(),
         submittedAt: z.iso.datetime(),
         resubmission: z.boolean().meta({
           description: 'Submitted again after a change request.',
         }),
       }),
     ),
-    nextCursor: z.string().nullable(),
+    total: z.int(),
+    page: z.int(),
+    pageSize: z.int(),
   })
   .meta({ id: 'ShopReviewQueuePage' });
 

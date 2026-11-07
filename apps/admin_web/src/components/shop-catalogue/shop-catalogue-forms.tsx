@@ -520,6 +520,7 @@ export function OwnShadeForm({
           name="name"
           maxLength={80}
           required
+          description="Shown next to the code, for example Ivory white."
           defaultValue={values?.name}
           error={errors.name}
         />
@@ -534,6 +535,7 @@ export function OwnShadeForm({
         <SelectField
           label="Brand (optional)"
           name="brandId"
+          description="The brand this shade is mixed from, if any."
           options={[
             { value: '', label: 'No brand' },
             ...brands.map((b) => ({ value: b.id, label: b.name })),

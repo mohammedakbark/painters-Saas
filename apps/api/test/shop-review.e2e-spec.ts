@@ -237,6 +237,19 @@ describe('Shop review (e2e, real Postgres)', () => {
         resubmission: false,
       }),
     ]);
+    expect(queue.body).toMatchObject({ total: 1, page: 1, pageSize: 25 });
+    expect(queue.body.items[0]).toMatchObject({
+      ownerName: expect.any(String),
+      ownerPhone: '+919999900001',
+      photoThumbUrl: expect.any(String),
+    });
+    expect(
+      (await platformCall('get', '/reviews?q=lakshmi').expect(200)).body.total,
+    ).toBe(1);
+    expect(
+      (await platformCall('get', '/reviews?q=nobody').expect(200)).body.total,
+    ).toBe(0);
+    await platformCall('get', '/reviews?sort=random').expect(400);
 
     const snapshot = await platformCall(
       'get',

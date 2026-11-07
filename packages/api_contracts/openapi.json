@@ -143,7 +143,7 @@
             "bearer": []
           }
         ],
-        "summary": "Registered shops, newest first (platform admins).",
+        "summary": "Registered shops with search, status filter, sort and pages (platform admins).",
         "tags": [
           "platform"
         ]
@@ -4572,16 +4572,38 @@
       "ShopRegistryQuery": {
         "type": "object",
         "properties": {
-          "limit": {
-            "default": 20,
+          "q": {
+            "description": "Shop name, owner name or owner mobile.",
+            "type": "string",
+            "maxLength": 60
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "PENDING_REVIEW",
+              "CHANGES_REQUESTED",
+              "ACTIVE"
+            ]
+          },
+          "sort": {
+            "default": "newest",
+            "type": "string",
+            "enum": [
+              "newest",
+              "oldest",
+              "name"
+            ]
+          },
+          "page": {
+            "default": 1,
             "type": "integer",
             "minimum": 1,
-            "maximum": 50
+            "maximum": 9007199254740991
           },
-          "cursor": {
-            "type": "string",
-            "format": "uuid",
-            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          "pageSize": {
+            "default": 25,
+            "type": "number"
           }
         }
       },
@@ -4594,17 +4616,67 @@
               "$ref": "#/components/schemas/ShopRegistryEntry"
             }
           },
-          "nextCursor": {
-            "nullable": true,
-            "description": "Pass as `cursor` for the next page; null on the last page.",
-            "type": "string",
-            "format": "uuid",
-            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          "total": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "page": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "statusCounts": {
+            "type": "object",
+            "properties": {
+              "ALL": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "DRAFT": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "PENDING_REVIEW": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "CHANGES_REQUESTED": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "ACTIVE": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "ALL",
+              "DRAFT",
+              "PENDING_REVIEW",
+              "CHANGES_REQUESTED",
+              "ACTIVE"
+            ],
+            "additionalProperties": false,
+            "description": "Shops per status for the current search."
           }
         },
         "required": [
           "items",
-          "nextCursor"
+          "total",
+          "page",
+          "pageSize",
+          "statusCounts"
         ],
         "additionalProperties": false
       },
@@ -4638,6 +4710,12 @@
             "format": "date-time",
             "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
           },
+          "photoThumbUrl": {
+            "nullable": true,
+            "description": "The public shop photo, if any.",
+            "type": "string",
+            "format": "uri"
+          },
           "master": {
             "nullable": true,
             "type": "object",
@@ -4665,6 +4743,7 @@
           "status",
           "createdAt",
           "updatedAt",
+          "photoThumbUrl",
           "master"
         ],
         "additionalProperties": false
@@ -7023,15 +7102,29 @@
       "ShopReviewQueueQuery": {
         "type": "object",
         "properties": {
-          "cursor": {
+          "q": {
+            "description": "Shop name, owner name or owner mobile.",
             "type": "string",
-            "maxLength": 400
+            "maxLength": 60
           },
-          "limit": {
-            "default": 20,
+          "sort": {
+            "default": "oldest",
+            "description": "Oldest first is fair: shops wait the least.",
+            "type": "string",
+            "enum": [
+              "oldest",
+              "newest"
+            ]
+          },
+          "page": {
+            "default": 1,
             "type": "integer",
             "minimum": 1,
-            "maximum": 50
+            "maximum": 9007199254740991
+          },
+          "pageSize": {
+            "default": 25,
+            "type": "number"
           }
         }
       },
@@ -7056,6 +7149,19 @@
                 "shopName": {
                   "type": "string"
                 },
+                "photoThumbUrl": {
+                  "nullable": true,
+                  "type": "string",
+                  "format": "uri"
+                },
+                "ownerName": {
+                  "nullable": true,
+                  "type": "string"
+                },
+                "ownerPhone": {
+                  "nullable": true,
+                  "type": "string"
+                },
                 "submittedAt": {
                   "type": "string",
                   "format": "date-time",
@@ -7070,20 +7176,36 @@
                 "reviewId",
                 "shopId",
                 "shopName",
+                "photoThumbUrl",
+                "ownerName",
+                "ownerPhone",
                 "submittedAt",
                 "resubmission"
               ],
               "additionalProperties": false
             }
           },
-          "nextCursor": {
-            "nullable": true,
-            "type": "string"
+          "total": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "page": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
           }
         },
         "required": [
           "items",
-          "nextCursor"
+          "total",
+          "page",
+          "pageSize"
         ],
         "additionalProperties": false
       },

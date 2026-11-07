@@ -28,3 +28,8 @@ export function countLabel(
 ): string {
   return `${count} ${count === 1 ? singular : plural}`;
 }
+
+/** Whole days since an ISO time (0 on the same day), e.g. a review's wait. */
+export function daysSince(iso: string, now: number = Date.now()): number {
+  return Math.max(0, Math.floor((now - Date.parse(iso)) / 86_400_000));
+}

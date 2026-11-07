@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { z } from 'zod';
+import type { Prisma } from '../generated/prisma/client.js';
+import { ImageStore } from '../media/image-store.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { shopNotFound } from '../shop-access/shop-access.guard.js';
 import type {
@@ -18,6 +20,8 @@ const REGISTRY_SELECT = {
   status: true,
   createdAt: true,
   updatedAt: true,
+  photoKey: true,
+  photoUpdatedAt: true,
   memberships: {
     where: { role: 'MASTER' },
     take: 1,
@@ -31,6 +35,8 @@ type RegistryRow = {
   status: ShopRegistryEntry['status'];
   createdAt: Date;
   updatedAt: Date;
+  photoKey: string | null;
+  photoUpdatedAt: Date | null;
   memberships: { user: { displayName: string | null; phone: string | null } }[];
 };
 
@@ -39,21 +45,78 @@ const shopIdSchema = z.uuid();
 /** Read-only shop registry for platform admins (PLT-001). */
 @Injectable()
 export class PlatformShopsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly images: ImageStore,
+  ) {}
 
-  /** Newest first. Keyset pagination on the UUIDv7 id (time-ordered). */
+  /**
+   * Registered shops (PLT-003): search, a status filter, sort and numbered
+   * pages, with counts per status for the tabs. Paged in the database.
+   */
   async list(query: ShopRegistryQuery): Promise<ShopRegistryPage> {
-    const rows = await this.prisma.shop.findMany({
-      where: query.cursor ? { id: { lt: query.cursor } } : undefined,
-      orderBy: { id: 'desc' },
-      take: query.limit + 1,
-      select: REGISTRY_SELECT,
-    });
-    const page = rows.slice(0, query.limit);
-    const hasMore = rows.length > query.limit;
+    const search: Prisma.ShopWhereInput = query.q
+      ? {
+          OR: [
+            { name: { contains: query.q, mode: 'insensitive' } },
+            {
+              memberships: {
+                some: {
+                  role: 'MASTER',
+                  user: {
+                    OR: [
+                      {
+                        displayName: { contains: query.q, mode: 'insensitive' },
+                      },
+                      { phone: { contains: query.q.replace(/[\s+-]/g, '') } },
+                    ],
+                  },
+                },
+              },
+            },
+          ],
+        }
+      : {};
+    const where: Prisma.ShopWhereInput = {
+      ...search,
+      ...(query.status ? { status: query.status } : {}),
+    };
+    const orderBy: Prisma.ShopOrderByWithRelationInput[] =
+      query.sort === 'name'
+        ? [{ name: 'asc' }, { id: 'asc' }]
+        : [{ id: query.sort === 'oldest' ? 'asc' : 'desc' }];
+    const [rows, total, grouped] = await Promise.all([
+      this.prisma.shop.findMany({
+        where,
+        orderBy,
+        skip: (query.page - 1) * query.pageSize,
+        take: query.pageSize,
+        select: REGISTRY_SELECT,
+      }),
+      this.prisma.shop.count({ where }),
+      this.prisma.shop.groupBy({
+        by: ['status'],
+        where: search,
+        _count: { _all: true },
+      }),
+    ]);
+    const statusCounts = {
+      ALL: 0,
+      DRAFT: 0,
+      PENDING_REVIEW: 0,
+      CHANGES_REQUESTED: 0,
+      ACTIVE: 0,
+    };
+    for (const group of grouped) {
+      statusCounts[group.status] = group._count._all;
+      statusCounts.ALL += group._count._all;
+    }
     return {
-      items: page.map(toEntry),
-      nextCursor: hasMore ? (page.at(-1)?.id ?? null) : null,
+      items: rows.map((row) => toEntry(row, this.images)),
+      total,
+      page: query.page,
+      pageSize: query.pageSize,
+      statusCounts,
     };
   }
 
@@ -68,16 +131,18 @@ export class PlatformShopsService {
     if (!row) {
       throw shopNotFound();
     }
-    return toEntry(row);
+    return toEntry(row, this.images);
   }
 }
 
-function toEntry(row: RegistryRow): ShopRegistryEntry {
+function toEntry(row: RegistryRow, images: ImageStore): ShopRegistryEntry {
   const master = row.memberships[0]?.user;
   return {
     id: row.id,
     name: row.name,
     status: row.status,
+    photoThumbUrl:
+      images.urls(row.photoKey, row.photoUpdatedAt)?.thumbUrl ?? null,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
     master: master ? { name: master.displayName, phone: master.phone } : null,

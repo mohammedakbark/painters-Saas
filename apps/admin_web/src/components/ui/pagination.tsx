@@ -48,15 +48,19 @@ export function Pagination({
   return (
     <div className="flex flex-col gap-4 desktop:flex-row desktop:items-center desktop:justify-between">
       <p className="text-body text-text-secondary" aria-live="polite">
-        Showing{' '}
-        <span className="font-semibold text-text-primary tabular-nums">
-          {first}–{last}
-        </span>{' '}
-        of{' '}
-        <span className="font-semibold text-text-primary tabular-nums">
-          {total}
-        </span>{' '}
-        {noun}
+        {total === 0 ? null : (
+          <>
+            Showing{' '}
+            <span className="font-semibold text-text-primary tabular-nums">
+              {first}–{last}
+            </span>{' '}
+            of{' '}
+            <span className="font-semibold text-text-primary tabular-nums">
+              {total}
+            </span>{' '}
+            {total === 1 ? noun.replace(/s$/, '') : noun}
+          </>
+        )}
       </p>
       <div className="flex flex-wrap items-center gap-4">
         <div className="w-36">

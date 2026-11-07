@@ -3,15 +3,31 @@ import { ShopStatus } from '../generated/prisma/enums.js';
 
 export const ShopRegistryQuerySchema = z
   .object({
-    limit: z.coerce
-      .number({ error: 'limit must be a whole number from 1 to 50.' })
-      .int({ error: 'limit must be a whole number from 1 to 50.' })
-      .min(1, { error: 'limit must be a whole number from 1 to 50.' })
-      .max(50, { error: 'limit must be a whole number from 1 to 50.' })
-      .default(20),
-    cursor: z
-      .uuid({ error: 'cursor must be the nextCursor of a previous page.' })
+    q: z
+      .string()
+      .trim()
+      .max(60, { error: 'Search for at most 60 characters.' })
+      .optional()
+      .meta({ description: 'Shop name, owner name or owner mobile.' }),
+    status: z
+      .enum(ShopStatus, { error: 'status must be a shop status.' })
       .optional(),
+    sort: z
+      .enum(['newest', 'oldest', 'name'], {
+        error: 'sort must be newest, oldest or name.',
+      })
+      .default('newest'),
+    page: z.coerce
+      .number({ error: 'page must be a number.' })
+      .int({ error: 'page must be a whole number.' })
+      .min(1, { error: 'page must be at least 1.' })
+      .default(1),
+    pageSize: z.coerce
+      .number({ error: 'pageSize must be 10, 25 or 50.' })
+      .refine((value) => [10, 25, 50].includes(value), {
+        error: 'pageSize must be 10, 25 or 50.',
+      })
+      .default(25),
   })
   .meta({ id: 'ShopRegistryQuery' });
 
@@ -24,6 +40,10 @@ export const ShopRegistryEntrySchema = z
     status: z.enum(ShopStatus),
     createdAt: z.iso.datetime(),
     updatedAt: z.iso.datetime(),
+    photoThumbUrl: z
+      .url()
+      .nullable()
+      .meta({ description: 'The public shop photo, if any.' }),
     master: z
       .object({
         name: z.string().nullable(),
@@ -41,9 +61,18 @@ export type ShopRegistryEntry = z.infer<typeof ShopRegistryEntrySchema>;
 export const ShopRegistryPageSchema = z
   .object({
     items: z.array(ShopRegistryEntrySchema),
-    nextCursor: z.uuid().nullable().meta({
-      description: 'Pass as `cursor` for the next page; null on the last page.',
-    }),
+    total: z.int(),
+    page: z.int(),
+    pageSize: z.int(),
+    statusCounts: z
+      .object({
+        ALL: z.int(),
+        DRAFT: z.int(),
+        PENDING_REVIEW: z.int(),
+        CHANGES_REQUESTED: z.int(),
+        ACTIVE: z.int(),
+      })
+      .meta({ description: 'Shops per status for the current search.' }),
   })
   .meta({ id: 'ShopRegistryPage' });
 

@@ -49,47 +49,93 @@ describe('Platform shop registry (e2e, real Postgres)', () => {
     return { id: (response.body as { id: string }).id, owner };
   }
 
-  it('lists shops newest first with cursor pagination and master contact', async () => {
+  const list = async (query = '') =>
+    (
+      await request(server())
+        .get(`/v1/platform/shops${query}`)
+        .set('Authorization', admin)
+        .expect(200)
+    ).body as {
+      items: { id: string; name: string }[];
+      total: number;
+      page: number;
+      pageSize: number;
+      statusCounts: Record<string, number>;
+    };
+
+  it('lists shops newest first with pages, counts and master contact', async () => {
     const first = await registerShop('919999900001', 'Alpha Paints', 'Anil');
     const second = await registerShop('919999900002', 'Beta Colours', 'Beena');
     const third = await registerShop('919999900003', 'Gamma Hardware', 'Gopi');
 
-    const page1 = await request(server())
-      .get('/v1/platform/shops?limit=2')
-      .set('Authorization', admin)
-      .expect(200);
-
-    expect(page1.body.items.map((s: { id: string }) => s.id)).toEqual([
+    const page1 = await list('?pageSize=10');
+    expect(page1.items.map((s) => s.id)).toEqual([
       third.id,
       second.id,
+      first.id,
     ]);
-    expect(page1.body.items[0]).toEqual({
+    expect(page1.items[0]).toEqual({
       id: third.id,
       name: 'Gamma Hardware',
       status: 'DRAFT',
+      photoThumbUrl: null,
       createdAt: expect.any(String),
       updatedAt: expect.any(String),
       master: { name: 'Gopi', phone: '+919999900003' },
     });
-    expect(page1.body.nextCursor).toBe(second.id);
-
-    const page2 = await request(server())
-      .get(`/v1/platform/shops?limit=2&cursor=${page1.body.nextCursor}`)
-      .set('Authorization', admin)
-      .expect(200);
-
-    expect(page2.body).toEqual({
-      items: [expect.objectContaining({ id: first.id, name: 'Alpha Paints' })],
-      nextCursor: null,
+    expect(page1).toMatchObject({ total: 3, page: 1, pageSize: 10 });
+    expect(page1.statusCounts).toEqual({
+      ALL: 3,
+      DRAFT: 3,
+      PENDING_REVIEW: 0,
+      CHANGES_REQUESTED: 0,
+      ACTIVE: 0,
     });
+    expect(await list('?pageSize=10&page=2')).toMatchObject({
+      items: [],
+      total: 3,
+    });
+    expect((await list('?sort=oldest')).items[0].id).toBe(first.id);
+    expect((await list('?sort=name')).items.map((s) => s.name)).toEqual([
+      'Alpha Paints',
+      'Beta Colours',
+      'Gamma Hardware',
+    ]);
   });
 
-  it('defaults to 20 per page and returns an empty page when there are no shops', async () => {
-    await request(server())
-      .get('/v1/platform/shops')
-      .set('Authorization', admin)
-      .expect(200)
-      .expect({ items: [], nextCursor: null });
+  it('searches shop names, owner names and mobiles, and filters by status', async () => {
+    await registerShop('919999900001', 'Alpha Paints', 'Anil');
+    await registerShop('919999900002', 'Beta Colours', 'Beena');
+
+    expect((await list('?q=alpha')).items.map((s) => s.name)).toEqual([
+      'Alpha Paints',
+    ]);
+    expect((await list('?q=beena')).items.map((s) => s.name)).toEqual([
+      'Beta Colours',
+    ]);
+    expect((await list('?q=99999%2000002')).items.map((s) => s.name)).toEqual([
+      'Beta Colours',
+    ]);
+    const search = await list('?q=paints');
+    expect(search.statusCounts.ALL).toBe(1);
+    expect((await list('?status=ACTIVE')).total).toBe(0);
+    expect((await list('?status=DRAFT')).total).toBe(2);
+  });
+
+  it('returns an empty page when there are no shops', async () => {
+    expect(await list()).toEqual({
+      items: [],
+      total: 0,
+      page: 1,
+      pageSize: 25,
+      statusCounts: {
+        ALL: 0,
+        DRAFT: 0,
+        PENDING_REVIEW: 0,
+        CHANGES_REQUESTED: 0,
+        ACTIVE: 0,
+      },
+    });
   });
 
   it('returns one registry entry', async () => {
@@ -121,11 +167,11 @@ describe('Platform shop registry (e2e, real Postgres)', () => {
   });
 
   it.each([
-    ['limit=0', 'limit'],
-    ['limit=51', 'limit'],
-    ['limit=abc', 'limit'],
-    ['limit=2.5', 'limit'],
-    ['cursor=not-a-uuid', 'cursor'],
+    ['page=0', 'page'],
+    ['page=abc', 'page'],
+    ['pageSize=7', 'pageSize'],
+    ['status=OPEN', 'status'],
+    ['sort=random', 'sort'],
   ])('answers 400 for %s', async (query, field) => {
     const response = await request(server())
       .get(`/v1/platform/shops?${query}`)

@@ -8,6 +8,7 @@ export const shopRegistryEntrySchema = z.object({
   id: z.string(),
   name: z.string(),
   status: z.enum(SHOP_STATUSES),
+  photoThumbUrl: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),
   master: z
@@ -17,21 +18,46 @@ export const shopRegistryEntrySchema = z.object({
 
 const registryPageSchema = z.object({
   items: z.array(shopRegistryEntrySchema),
-  nextCursor: z.string().nullable(),
+  total: z.number().int(),
+  page: z.number().int(),
+  pageSize: z.number().int(),
+  statusCounts: z.object({
+    ALL: z.number().int(),
+    DRAFT: z.number().int(),
+    PENDING_REVIEW: z.number().int(),
+    CHANGES_REQUESTED: z.number().int(),
+    ACTIVE: z.number().int(),
+  }),
 });
 
 export type ShopRegistryEntry = z.infer<typeof shopRegistryEntrySchema>;
 export type ShopRegistryPage = z.infer<typeof registryPageSchema>;
 
-export const REGISTRY_PAGE_SIZE = 20;
+export const LIST_PAGE_SIZES = [10, 25, 50] as const;
+export const REGISTRY_SORTS = ['newest', 'oldest', 'name'] as const;
+
+export interface RegistryParams {
+  q?: string;
+  status?: (typeof SHOP_STATUSES)[number];
+  sort: (typeof REGISTRY_SORTS)[number];
+  page: number;
+  pageSize: number;
+}
 
 export function listRegisteredShops(
   token: string,
-  cursor?: string,
+  params: RegistryParams,
 ): Promise<ShopRegistryPage> {
-  const query = new URLSearchParams({ limit: String(REGISTRY_PAGE_SIZE) });
-  if (cursor) {
-    query.set('cursor', cursor);
+  const query = new URLSearchParams({
+    sort: params.sort,
+    page: String(params.page),
+    pageSize: String(params.pageSize),
+  });
+  if (params.q) {
+    query.set('q', params.q);
+  }
+  if (params.status) {
+    query.set('status', params.status);
   }
   return apiRequest(`/v1/platform/shops?${query.toString()}`, {
     token,

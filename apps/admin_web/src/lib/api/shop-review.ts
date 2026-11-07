@@ -32,11 +32,16 @@ const queueSchema = z.object({
       reviewId: z.string(),
       shopId: z.string(),
       shopName: z.string(),
+      photoThumbUrl: z.string().nullable(),
+      ownerName: z.string().nullable(),
+      ownerPhone: z.string().nullable(),
       submittedAt: z.string(),
       resubmission: z.boolean(),
     }),
   ),
-  nextCursor: z.string().nullable(),
+  total: z.number().int(),
+  page: z.number().int(),
+  pageSize: z.number().int(),
 });
 
 export type ReviewQueuePage = z.infer<typeof queueSchema>;
@@ -104,12 +109,26 @@ export function withdrawShopReview(
 
 // --- Platform ----------------------------------------------------------------
 
+export interface ReviewQueueParams {
+  q?: string;
+  sort: 'oldest' | 'newest';
+  page: number;
+  pageSize: number;
+}
+
 export function listReviewQueue(
   token: string,
-  cursor?: string,
+  params: ReviewQueueParams,
 ): Promise<ReviewQueuePage> {
-  const query = cursor ? `?cursor=${enc(cursor)}` : '';
-  return apiRequest(`/v1/platform/reviews${query}`, {
+  const search = new URLSearchParams({
+    sort: params.sort,
+    page: String(params.page),
+    pageSize: String(params.pageSize),
+  });
+  if (params.q) {
+    search.set('q', params.q);
+  }
+  return apiRequest(`/v1/platform/reviews?${search.toString()}`, {
     token,
     schema: queueSchema,
   });

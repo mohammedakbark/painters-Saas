@@ -3,11 +3,9 @@ import { z } from 'zod';
 import { AuditAction, recordAuditEvent } from '../audit/audit.js';
 import type { CurrentUserContext } from '../auth/current-user.js';
 import { ProblemException } from '../common/http/problem-details.js';
-import {
-  decodeCursor,
-  encodeCursor,
-} from '../common/pagination/keyset-cursor.js';
 import { PlatformShopsService } from '../platform-shops/platform-shops.service.js';
+import type { Prisma } from '../generated/prisma/client.js';
+import { ImageStore } from '../media/image-store.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { shopNotFound } from '../shop-access/shop-access.guard.js';
 import { ShopProductsService } from '../shop-catalogue/shop-products.service.js';
@@ -45,53 +43,95 @@ export class PlatformReviewsService {
     private readonly registry: PlatformShopsService,
     private readonly profiles: ShopProfileService,
     private readonly products: ShopProductsService,
+    private readonly images: ImageStore,
   ) {}
 
-  /** Open submissions, oldest first. */
+  /**
+   * Open submissions (PLT-003): oldest first by default, with search and
+   * numbered pages. Paged in the database.
+   */
   async queue(query: ReviewQueueQuery): Promise<ReviewQueuePage> {
-    const after = query.cursor ? decodeCursor(query.cursor) : undefined;
-    const afterDate = after ? new Date(after.sortValue) : undefined;
-    if (afterDate && Number.isNaN(afterDate.getTime())) {
-      throw new ProblemException(HttpStatus.BAD_REQUEST, {
-        detail: 'cursor must be the nextCursor of a previous page.',
-        code: 'invalid_cursor',
-      });
-    }
-    const rows = await this.prisma.shopReview.findMany({
-      where: {
-        openShopId: { not: null },
-        ...(after && afterDate
-          ? {
+    const where: Prisma.ShopReviewWhereInput = {
+      openShopId: { not: null },
+      ...(query.q
+        ? {
+            shop: {
               OR: [
-                { submittedAt: { gt: afterDate } },
-                { submittedAt: afterDate, id: { gt: after.id } },
+                { name: { contains: query.q, mode: 'insensitive' } },
+                {
+                  memberships: {
+                    some: {
+                      role: 'MASTER',
+                      user: {
+                        OR: [
+                          {
+                            displayName: {
+                              contains: query.q,
+                              mode: 'insensitive',
+                            },
+                          },
+                          {
+                            phone: { contains: query.q.replace(/[\s+-]/g, '') },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                },
               ],
-            }
-          : {}),
-      },
-      orderBy: [{ submittedAt: 'asc' }, { id: 'asc' }],
-      take: query.limit + 1,
-      select: {
-        id: true,
-        submittedAt: true,
-        submittedFrom: true,
-        shop: { select: { id: true, name: true } },
-      },
-    });
-    const items = rows.slice(0, query.limit);
-    const last = items.at(-1);
+            },
+          }
+        : {}),
+    };
+    const direction = query.sort === 'newest' ? 'desc' : 'asc';
+    const [rows, total] = await Promise.all([
+      this.prisma.shopReview.findMany({
+        where,
+        orderBy: [{ submittedAt: direction }, { id: direction }],
+        skip: (query.page - 1) * query.pageSize,
+        take: query.pageSize,
+        select: {
+          id: true,
+          submittedAt: true,
+          submittedFrom: true,
+          shop: {
+            select: {
+              id: true,
+              name: true,
+              photoKey: true,
+              photoUpdatedAt: true,
+              memberships: {
+                where: { role: 'MASTER' },
+                take: 1,
+                select: {
+                  user: { select: { displayName: true, phone: true } },
+                },
+              },
+            },
+          },
+        },
+      }),
+      this.prisma.shopReview.count({ where }),
+    ]);
     return {
-      items: items.map((row) => ({
-        reviewId: row.id,
-        shopId: row.shop.id,
-        shopName: row.shop.name,
-        submittedAt: row.submittedAt.toISOString(),
-        resubmission: row.submittedFrom === 'CHANGES_REQUESTED',
-      })),
-      nextCursor:
-        rows.length > query.limit && last
-          ? encodeCursor(last.submittedAt.toISOString(), last.id)
-          : null,
+      items: rows.map((row) => {
+        const owner = row.shop.memberships[0]?.user;
+        return {
+          reviewId: row.id,
+          shopId: row.shop.id,
+          shopName: row.shop.name,
+          photoThumbUrl:
+            this.images.urls(row.shop.photoKey, row.shop.photoUpdatedAt)
+              ?.thumbUrl ?? null,
+          ownerName: owner?.displayName ?? null,
+          ownerPhone: owner?.phone ?? null,
+          submittedAt: row.submittedAt.toISOString(),
+          resubmission: row.submittedFrom === 'CHANGES_REQUESTED',
+        };
+      }),
+      total,
+      page: query.page,
+      pageSize: query.pageSize,
     };
   }
 
