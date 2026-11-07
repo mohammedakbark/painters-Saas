@@ -36,6 +36,7 @@
 | CAT-004: Quick add: prices for many brand products in one form, progress toward 10 products | **Complete (local; Chrome)** | `docs/features/CAT-004-quick-add-products.md` |
 | CAT-005: One Add product flow (search every brand, locked brand details, new product with "Sold by", optional photo) | **Complete (local; Chrome)** | `docs/features/CAT-005-add-product.md` |
 | CAT-006: Product list: one row per product with photo, pack-size chips, availability summary, toolbar filters and "mark all" actions | **Complete (local; Chrome)** | `docs/features/CAT-006-product-list.md` |
+| WEB-006: Shades as tables (Favourites, Brand shades, My shades; search and pages) | **Complete (local; Chrome)** | `docs/features/WEB-006-shades-table.md` |
 | PLT-003: Platform admin lists as tables (Part 1: shops and reviews; Part 2: brand catalogue) | **Complete (local; Chrome)** | `docs/features/PLT-003-platform-tables.md` |
 | PERF-001: Partial updates: search and filters without page reloads (`UrlForm`), per-section loading on Shades, project-wide loading rules (D-044, `data-loading` skill) | **Complete (local; Chrome, production build)** | `docs/features/PERF-001-partial-updates.md` |
 | DS-003: SevenPalette name and shade-card fan logo (D-040): names, logo files, web and Flutter brand mark, favicon, launcher icons | **Complete (local)**; Android emulator not run | `docs/features/DS-003-product-name-and-logo.md` |
@@ -358,7 +359,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 ## 7. Next actions
 
 1. **Web first, then mobile (product owner, 2026-11-07).** The web shop admin and platform admin UI pass is complete (WEB-001 to WEB-005, CAT-003 to CAT-006, DS-003, DS-004, SHP-006, PLT-003, PERF-001). The web and server are finished before the mobile apps:
-   - **Step A (shop web, no new decisions):** Shades as a table; Shop settings (details and photo, delivery D-046, order messages); shop categories (D-048); Overview dashboard v1.
+   - **Step A (shop web, no new decisions):** ~~Shades as a table~~ (done, WEB-006); Shop settings (details and photo, delivery D-046, order messages); shop categories (D-048); Overview dashboard v1.
    - **Step B (Phase 2 ordering, server and shop web):** ORD-001 orders API (D-045 to D-047, seed script for test orders), ORD-002 shop Orders page, ORD-003 dashboard with order KPIs.
    - **Then mobile:** Shop App (orders and products; SHP-007), then the Customer App on the same APIs.
    - Owner: domains, trademark check, bundle IDs (question 41).
@@ -458,3 +459,4 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-07 | PLT-003 Part 2: platform brands and a brand's products as tables (status tabs, search, category, pages, photos, pack chips). |
 | 2026-11-07 | PERF-001 (D-044): GET search and filters go through the client router (`UrlForm`), so they no longer reload the page; Shades page split into a static shell and per-section loading; new `data-loading` skill with web and Flutter rules, linked from CLAUDE.md, ui-implementation and code-review. |
 | 2026-11-07 | Owner: web first, then mobile. Ordering decided: automatic acceptance with not-available notices and substitutes (D-045), pickup and delivery with shop delivery settings (D-046), cancel until ready or dispatched, partial fulfilment and returns at launch (D-047), shop categories (D-048). Roadmap Step A (shop web) and Step B (ordering) recorded. |
+| 2026-11-07 | WEB-006: Shades page as three tabs with tables, search and numbered pages; shade list APIs switched from cursors to pages. |

@@ -798,11 +798,33 @@ describe('Shop catalogue (e2e, real Postgres)', () => {
         ['SP-2', 'Sample Paints'],
       ]);
 
+      expect(list.body).toMatchObject({ total: 2, page: 1, pageSize: 25 });
+      expect(
+        (await call(owner, 'get', '/favourite-shades?q=sp-2').expect(200)).body
+          .total,
+      ).toBe(1);
+
       const browse = await call(
         owner,
         'get',
         `/brand-shades?brandId=${brandId}`,
       ).expect(200);
+      expect(browse.body).toMatchObject({ page: 1, pageSize: 25 });
+      expect(browse.body.total).toBe(browse.body.items.length);
+      expect(
+        (
+          await call(
+            owner,
+            'get',
+            `/brand-shades?brandId=${brandId}&pageSize=10&page=99`,
+          ).expect(200)
+        ).body.items,
+      ).toEqual([]);
+      await call(
+        owner,
+        'get',
+        `/brand-shades?brandId=${brandId}&pageSize=7`,
+      ).expect(400);
       expect(
         browse.body.items.map(
           (i: { shade: { code: string }; favourite: boolean }) => [

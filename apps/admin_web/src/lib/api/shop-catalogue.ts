@@ -404,27 +404,56 @@ export function browseBrandProducts(
 
 // --- Shades ------------------------------------------------------------------
 
+/** A numbered page with its total (shade lists, WEB-006). */
+const numbered = <T extends z.ZodTypeAny>(item: T) =>
+  z.object({
+    items: z.array(item),
+    total: z.number().int(),
+    page: z.number().int(),
+    pageSize: z.number().int(),
+  });
+
+export interface NumberedPage<T> {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface ShadeListParams {
+  q?: string;
+  page: number;
+  pageSize: number;
+}
+
+const shadeQuery = (params: ShadeListParams & { brandId?: string }) =>
+  query({
+    brandId: params.brandId,
+    q: params.q,
+    page: String(params.page),
+    pageSize: String(params.pageSize),
+  });
+
 export function browseBrandShades(
   token: string,
   shopId: string,
-  /** Without brandId, searches every brand (q of at least 2 characters). */
-  params: { brandId?: string; q?: string; cursor?: string },
-): Promise<Page<BrandShadeItem>> {
-  return apiRequest(`${base(shopId)}/brand-shades${query(params)}`, {
+  params: ShadeListParams & { brandId: string },
+): Promise<NumberedPage<BrandShadeItem>> {
+  return apiRequest(`${base(shopId)}/brand-shades${shadeQuery(params)}`, {
     token,
-    schema: page(z.object({ shade: shadeSchema, favourite: z.boolean() })),
+    schema: numbered(z.object({ shade: shadeSchema, favourite: z.boolean() })),
   });
 }
 
 export function listFavouriteShades(
   token: string,
   shopId: string,
-  params: { q?: string; cursor?: string } = {},
-): Promise<Page<FavouriteShade>> {
-  return apiRequest(
-    `${base(shopId)}/favourite-shades${query({ ...params, limit: '100' })}`,
-    { token, schema: page(favouriteSchema) },
-  );
+  params: ShadeListParams,
+): Promise<NumberedPage<FavouriteShade>> {
+  return apiRequest(`${base(shopId)}/favourite-shades${shadeQuery(params)}`, {
+    token,
+    schema: numbered(favouriteSchema),
+  });
 }
 
 export function addFavouriteShade(
@@ -454,12 +483,12 @@ export function removeFavouriteShade(
 export function listOwnShades(
   token: string,
   shopId: string,
-  params: { q?: string; cursor?: string } = {},
-): Promise<Page<ShopShade>> {
-  return apiRequest(
-    `${base(shopId)}/shades${query({ ...params, limit: '100' })}`,
-    { token, schema: page(shopShadeSchema) },
-  );
+  params: ShadeListParams,
+): Promise<NumberedPage<ShopShade>> {
+  return apiRequest(`${base(shopId)}/shades${shadeQuery(params)}`, {
+    token,
+    schema: numbered(shopShadeSchema),
+  });
 }
 
 export function createOwnShade(

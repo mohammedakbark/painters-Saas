@@ -308,13 +308,35 @@ export const BrandShadeBrowseQuerySchema = z
   .object({
     brandId: z.uuid({ error: 'Choose a brand.' }),
     q: search,
-    cursor,
-    limit,
+    page: z.coerce
+      .number({ error: 'page must be a number.' })
+      .int({ error: 'page must be a whole number.' })
+      .min(1, { error: 'page must be at least 1.' })
+      .default(1),
+    pageSize: z.coerce
+      .number({ error: 'pageSize must be 10, 25 or 50.' })
+      .refine((value) => [10, 25, 50].includes(value), {
+        error: 'pageSize must be 10, 25 or 50.',
+      })
+      .default(25),
   })
   .meta({ id: 'ShopBrandShadeBrowseQuery' });
 
 export const ShopShadeListQuerySchema = z
-  .object({ q: search, cursor, limit })
+  .object({
+    q: search,
+    page: z.coerce
+      .number({ error: 'page must be a number.' })
+      .int({ error: 'page must be a whole number.' })
+      .min(1, { error: 'page must be at least 1.' })
+      .default(1),
+    pageSize: z.coerce
+      .number({ error: 'pageSize must be 10, 25 or 50.' })
+      .refine((value) => [10, 25, 50].includes(value), {
+        error: 'pageSize must be 10, 25 or 50.',
+      })
+      .default(25),
+  })
   .meta({ id: 'ShopShadeListQuery' });
 
 export type ShopProductListQuery = z.infer<typeof ShopProductListQuerySchema>;
@@ -395,7 +417,9 @@ export const BrandBrowsePageSchema = z
 export const BrandShadeBrowsePageSchema = z
   .object({
     items: z.array(z.object({ shade: ShadeSchema, favourite: z.boolean() })),
-    nextCursor,
+    total: z.int(),
+    page: z.int(),
+    pageSize: z.int(),
   })
   .meta({ id: 'ShopBrandShadePage' });
 
@@ -408,7 +432,12 @@ export const FavouriteShadeSchema = z
   .meta({ id: 'ShopFavouriteShade' });
 
 export const FavouriteShadePageSchema = z
-  .object({ items: z.array(FavouriteShadeSchema), nextCursor })
+  .object({
+    items: z.array(FavouriteShadeSchema),
+    total: z.int(),
+    page: z.int(),
+    pageSize: z.int(),
+  })
   .meta({ id: 'ShopFavouriteShadePage' });
 
 export const ShopShadeSchema = z
@@ -422,7 +451,12 @@ export const ShopShadeSchema = z
   .meta({ id: 'ShopShade' });
 
 export const ShopShadePageSchema = z
-  .object({ items: z.array(ShopShadeSchema), nextCursor })
+  .object({
+    items: z.array(ShopShadeSchema),
+    total: z.int(),
+    page: z.int(),
+    pageSize: z.int(),
+  })
   .meta({ id: 'ShopShadePage' });
 
 export type ShopPack = z.infer<typeof ShopPackSchema>;

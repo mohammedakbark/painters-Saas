@@ -5,20 +5,36 @@ import {
   ActionButtonForm,
   OwnShadeForm,
 } from '@/components/shop-catalogue/shop-catalogue-forms';
-import { cardClasses, Panel } from '@/components/ui/card';
-import { Field } from '@/components/ui/field';
-import { PageHeader } from '@/components/ui/page-header';
-import { SectionLoading } from '@/components/ui/section-loading';
-import { SelectField } from '@/components/ui/select-field';
-import { StateMessage } from '@/components/ui/state-message';
-import { UrlForm, UrlFormSubmit } from '@/components/ui/url-form';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 import {
+  ColumnSearchFilter,
+  ColumnSelectFilter,
+} from '@/components/ui/column-filter';
+import { type Column, DataTable } from '@/components/ui/data-table';
+import { FilterForm } from '@/components/ui/filter-form';
+import { PageHeader } from '@/components/ui/page-header';
+import { Pagination } from '@/components/ui/pagination';
+import { SectionLoading } from '@/components/ui/section-loading';
+import { SegmentedLinks } from '@/components/ui/segmented-links';
+import { StateMessage } from '@/components/ui/state-message';
+import {
+  type BrandShadeItem,
   browseBrandShades,
+  type FavouriteShade,
   listCatalogueBrands,
   listFavouriteShades,
   listOwnShades,
+  type ShopShade,
 } from '@/lib/api/shop-catalogue';
 import { requireShopAccess, requireShopSession } from '@/lib/auth/shop-access';
+import {
+  listLink,
+  oneOf,
+  readPaging,
+  type SearchParams,
+  text,
+} from '@/lib/list-params';
 import {
   createOwnShadeAction,
   removeOwnShadeAction,
@@ -30,23 +46,27 @@ export const metadata: Metadata = { title: 'Shades' };
 
 type Props = PageProps<'/shops/[shopId]/catalogue/shades'>;
 
-const text = (value: string | string[] | undefined) =>
-  typeof value === 'string' && value.trim() !== '' ? value.trim() : undefined;
+const VIEWS = ['favourites', 'brand', 'own'] as const;
+type View = (typeof VIEWS)[number];
+const VIEW_LABELS: Record<View, string> = {
+  favourites: 'Favourites',
+  brand: 'Brand shades',
+  own: 'My shades',
+};
+const FORM = 'shade-filters';
+const DEFAULTS = { view: 'favourites', page: '1', pageSize: '25' };
 
-const card = cardClasses('flex flex-col gap-4 p-6');
-
-/** The brand list, fetched once per request for both sections that use it. */
+/** The brand list, fetched once per request for the sections that use it. */
 const loadBrands = cache(async () =>
   listCatalogueBrands(await requireShopSession()),
 );
 
 /**
- * The page title, intro and section headings render at once (static shell,
- * PERF-001); each section loads its own data behind its own Suspense, so a
- * new search reloads only the brand shades and an action refreshes the
- * lists without a page-wide skeleton.
+ * Shades (WEB-006): favourite brand shades, a brand's shade card and the
+ * shop's own shades, each as a searchable, paged table. The title and note
+ * are a static shell (PERF-001); the tab content loads behind Suspense.
  */
-export default function ShadesPage({ params, searchParams }: Props) {
+export default function ShadesPage(props: Props) {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
@@ -57,248 +77,401 @@ export default function ShadesPage({ params, searchParams }: Props) {
         Colours on screen are indicative only. Customers and staff should always
         go by the shade code and the printed shade card.
       </p>
-
-      <section aria-labelledby="favourites-heading" className={card}>
-        <h2 id="favourites-heading" className="text-heading3 font-semibold">
-          Favourite shades
-        </h2>
-        <Suspense fallback={<SectionLoading label="Loading favourites…" />}>
-          <Favourites params={params} />
-        </Suspense>
-      </section>
-
-      <section aria-labelledby="brand-shades-heading" className={card}>
-        <h2 id="brand-shades-heading" className="text-heading3 font-semibold">
-          Brand shades
-        </h2>
-        <Suspense fallback={<SectionLoading label="Loading brand shades…" />}>
-          <BrandShades params={params} searchParams={searchParams} />
-        </Suspense>
-      </section>
-
-      <section aria-labelledby="own-shades-heading" className={card}>
-        <h2 id="own-shades-heading" className="text-heading3 font-semibold">
-          Your own shades
-        </h2>
-        <p className="text-body text-text-secondary">
-          Codes you mix or use in the shop that are not on a brand shade card.
-        </p>
-        <Suspense fallback={<SectionLoading label="Loading your shades…" />}>
-          <OwnShades params={params} />
-        </Suspense>
-      </section>
+      <Suspense fallback={<SectionLoading label="Loading shades…" />}>
+        <Shades {...props} />
+      </Suspense>
     </div>
   );
 }
 
-async function Favourites({ params }: Pick<Props, 'params'>) {
+async function Shades({ params, searchParams }: Props) {
   const { shopId } = await params;
   const shop = await requireShopAccess(shopId);
-  const favourites = await listFavouriteShades(
-    await requireShopSession(),
-    shopId,
-  );
+  const search = await searchParams;
+  const view = oneOf(VIEWS, text(search.view), 'favourites');
+  const base = `${catalogueBase(shopId)}/shades`;
   const canEdit = shop.myRole === 'MASTER';
 
-  if (favourites.items.length === 0) {
-    return (
-      <p className="text-body text-text-secondary">
-        No favourites yet. Find a brand&apos;s shades below and add the ones you
-        use most.
-      </p>
-    );
-  }
   return (
-    <>
-      <p className="text-body text-text-secondary">
-        {favourites.items.length}
-        {favourites.nextCursor ? '+' : ''}{' '}
-        {favourites.items.length === 1 ? 'favourite' : 'favourites'}
-      </p>
-      <ul className="grid gap-3 medium:grid-cols-2">
-        {favourites.items.map((favourite) => (
-          <Panel
-            as="li"
-            key={favourite.shade.id}
-            className="flex items-center justify-between gap-3 p-3"
-          >
-            <div className="flex flex-col gap-1">
-              <ShadeSwatch shade={favourite.shade} />
-              <span className="text-caption text-text-secondary">
-                {favourite.brand.name}
-              </span>
-            </div>
-            {canEdit ? (
+    <div className="flex flex-col gap-6">
+      <SegmentedLinks
+        label="Shade lists"
+        segments={VIEWS.map((value) => ({
+          href: listLink(base, { view: value }, DEFAULTS),
+          label: VIEW_LABELS[value],
+          current: view === value,
+        }))}
+      />
+      {view === 'favourites' ? (
+        <Favourites
+          shopId={shopId}
+          base={base}
+          search={search}
+          canEdit={canEdit}
+        />
+      ) : view === 'brand' ? (
+        <BrandShades
+          shopId={shopId}
+          base={base}
+          search={search}
+          canEdit={canEdit}
+        />
+      ) : (
+        <OwnShades
+          shopId={shopId}
+          base={base}
+          search={search}
+          canEdit={canEdit}
+        />
+      )}
+    </div>
+  );
+}
+
+interface SectionProps {
+  shopId: string;
+  base: string;
+  search: SearchParams;
+  canEdit: boolean;
+}
+
+/** Search box shared by the three lists; brand shades add a brand filter. */
+function Toolbar({
+  base,
+  view,
+  q,
+  placeholder,
+  children,
+}: {
+  base: string;
+  view: View;
+  q: string | undefined;
+  placeholder: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <FilterForm
+      id={FORM}
+      action={base}
+      className={
+        children
+          ? 'grid gap-3 rounded-card border border-card-border bg-card-background p-4 medium:grid-cols-[minmax(0,1fr)_16rem] medium:items-end'
+          : 'grid gap-3 rounded-card border border-card-border bg-card-background p-4'
+      }
+    >
+      {view !== 'favourites' ? (
+        <input type="hidden" name="view" value={view} />
+      ) : null}
+      <ColumnSearchFilter
+        form={FORM}
+        name="q"
+        label="Search shades"
+        placeholder={placeholder}
+        value={q}
+      />
+      {children}
+    </FilterForm>
+  );
+}
+
+const swatchColumn = <T,>(
+  shade: (row: T) => { code: string; name: string; previewHex: string | null },
+): Column<T> => ({
+  key: 'shade',
+  header: 'Shade',
+  cell: (row) => <ShadeSwatch shade={shade(row)} />,
+});
+
+async function Favourites({ shopId, base, search, canEdit }: SectionProps) {
+  const state = {
+    view: 'favourites',
+    q: text(search.q)?.slice(0, 60),
+    ...readPaging(search),
+  };
+  const data = await listFavouriteShades(
+    await requireShopSession(),
+    shopId,
+    state,
+  );
+  const link = (next: Partial<typeof state>) =>
+    listLink(base, { ...state, ...next }, DEFAULTS);
+
+  const columns: Column<FavouriteShade>[] = [
+    swatchColumn((row) => row.shade),
+    {
+      key: 'brand',
+      header: 'Brand',
+      width: 'w-56',
+      cell: (row) => row.brand.name,
+    },
+    ...(canEdit
+      ? [
+          {
+            key: 'action',
+            header: 'Action',
+            align: 'end' as const,
+            width: 'w-48',
+            cellClassName: 'whitespace-nowrap',
+            cell: (row: FavouriteShade) => (
               <ActionButtonForm
                 action={setFavouriteShadeAction.bind(
                   null,
                   shopId,
-                  favourite.shade.id,
+                  row.shade.id,
                   false,
                 )}
-                label="Remove"
+                label="Remove favourite"
                 pendingLabel="Removing…"
-                accessibleLabel={`Remove ${favourite.shade.code} from favourites`}
+                variant="tertiary"
+                accessibleLabel={`Remove ${row.shade.code} from favourites`}
               />
-            ) : null}
-          </Panel>
-        ))}
-      </ul>
+            ),
+          },
+        ]
+      : []),
+  ];
+
+  return (
+    <>
+      <Toolbar
+        base={base}
+        view="favourites"
+        q={state.q}
+        placeholder="Code or name, then press Enter"
+      />
+      <DataTable
+        caption="Favourite shades"
+        columns={columns}
+        rows={data.items}
+        rowKey={(row) => row.shade.id}
+        empty={
+          <StateMessage
+            icon="palette"
+            title={state.q ? 'No favourites match' : 'No favourites yet'}
+            description={
+              state.q
+                ? 'Try another code or name.'
+                : 'Open Brand shades and add the ones you use most.'
+            }
+          />
+        }
+      />
+      <Pagination
+        page={data.page}
+        pageSize={data.pageSize}
+        total={data.total}
+        href={(page) => link({ page })}
+        form={FORM}
+        pageSizes={[10, 25, 50]}
+        noun="favourites"
+      />
     </>
   );
 }
 
-async function BrandShades({ params, searchParams }: Props) {
-  const { shopId } = await params;
-  const shop = await requireShopAccess(shopId);
-  const search = await searchParams;
+async function BrandShades({ shopId, base, search, canEdit }: SectionProps) {
   const brands = await loadBrands();
   const requested = text(search.brandId);
   const brand = brands.find((b) => b.id === requested) ?? brands.at(0);
   if (!brand) {
     return (
       <StateMessage
+        icon="palette"
         title="The brand catalogue is empty"
         description="The platform team has not added brands yet."
       />
     );
   }
-  const q = text(search.q)?.slice(0, 60);
-  const results = await browseBrandShades(await requireShopSession(), shopId, {
+  const state = {
+    view: 'brand',
     brandId: brand.id,
-    q,
-  });
-  const canEdit = shop.myRole === 'MASTER';
+    q: text(search.q)?.slice(0, 60),
+    ...readPaging(search),
+  };
+  const data = await browseBrandShades(
+    await requireShopSession(),
+    shopId,
+    state,
+  );
+  const link = (next: Partial<typeof state>) =>
+    listLink(base, { ...state, ...next }, DEFAULTS);
+
+  const columns: Column<BrandShadeItem>[] = [
+    swatchColumn((row) => row.shade),
+    {
+      key: 'favourite',
+      header: 'Favourite',
+      width: 'w-40',
+      cell: (row) =>
+        row.favourite ? <Badge tone="success">Favourite</Badge> : null,
+    },
+    ...(canEdit
+      ? [
+          {
+            key: 'action',
+            header: 'Action',
+            align: 'end' as const,
+            width: 'w-48',
+            cellClassName: 'whitespace-nowrap',
+            cell: (row: BrandShadeItem) => (
+              <ActionButtonForm
+                action={setFavouriteShadeAction.bind(
+                  null,
+                  shopId,
+                  row.shade.id,
+                  !row.favourite,
+                )}
+                label={row.favourite ? 'Remove favourite' : 'Add to favourites'}
+                pendingLabel="Saving…"
+                variant="tertiary"
+                accessibleLabel={
+                  row.favourite
+                    ? `Remove ${row.shade.code} from favourites`
+                    : `Add ${row.shade.code} to favourites`
+                }
+              />
+            ),
+          },
+        ]
+      : []),
+  ];
 
   return (
     <>
-      <UrlForm
-        action={`${catalogueBase(shopId)}/shades`}
-        role="search"
-        className="flex flex-col gap-3 medium:flex-row medium:items-end"
+      <Toolbar
+        base={base}
+        view="brand"
+        q={state.q}
+        placeholder="Code or name, then press Enter"
       >
-        <div className="w-full medium:max-w-form">
-          <SelectField
-            key={brand.id}
-            label="Brand"
-            name="brandId"
-            options={brands.map((b) => ({ value: b.id, label: b.name }))}
-            defaultValue={brand.id}
+        <ColumnSelectFilter
+          form={FORM}
+          name="brandId"
+          label="Brand"
+          allLabel={null}
+          value={brand.id}
+          options={brands.map((b) => ({ value: b.id, label: b.name }))}
+        />
+      </Toolbar>
+      <DataTable
+        caption={`${brand.name} shades`}
+        columns={columns}
+        rows={data.items}
+        rowKey={(row) => row.shade.id}
+        empty={
+          <StateMessage
+            icon="palette"
+            title={state.q ? 'No shades match' : `No ${brand.name} shades yet`}
           />
-        </div>
-        <div className="w-full medium:max-w-form">
-          <Field
-            key={q ?? ''}
-            label="Code or name (optional)"
-            name="q"
-            type="search"
-            maxLength={60}
-            defaultValue={q}
-          />
-        </div>
-        <UrlFormSubmit
-          variant="secondary"
-          className="shrink-0"
-          pendingLabel="Finding…"
-        >
-          Find shades
-        </UrlFormSubmit>
-      </UrlForm>
-      {results.items.length === 0 ? (
-        <p className="text-body text-text-secondary">
-          No {brand.name} shades match.
-        </p>
-      ) : (
-        <ul className="grid gap-3 medium:grid-cols-2">
-          {results.items.map(({ shade, favourite }) => (
-            <Panel
-              as="li"
-              key={shade.id}
-              className="flex items-center justify-between gap-3 p-3"
-            >
-              <ShadeSwatch shade={shade} />
-              {canEdit ? (
-                <ActionButtonForm
-                  action={setFavouriteShadeAction.bind(
-                    null,
-                    shopId,
-                    shade.id,
-                    !favourite,
-                  )}
-                  label={favourite ? 'Remove favourite' : 'Add to favourites'}
-                  pendingLabel="Saving…"
-                  accessibleLabel={
-                    favourite
-                      ? `Remove ${shade.code} from favourites`
-                      : `Add ${shade.code} to favourites`
-                  }
-                />
-              ) : favourite ? (
-                <span className="text-body text-text-secondary">Favourite</span>
-              ) : null}
-            </Panel>
-          ))}
-        </ul>
-      )}
-      {results.nextCursor ? (
-        <p className="text-body text-text-secondary">
-          Showing the first {results.items.length} shades. Search by code or
-          name to find others.
-        </p>
-      ) : null}
+        }
+      />
+      <Pagination
+        page={data.page}
+        pageSize={data.pageSize}
+        total={data.total}
+        href={(page) => link({ page })}
+        form={FORM}
+        pageSizes={[10, 25, 50]}
+        noun="shades"
+      />
     </>
   );
 }
 
-async function OwnShades({ params }: Pick<Props, 'params'>) {
-  const { shopId } = await params;
-  const shop = await requireShopAccess(shopId);
-  const [brands, own] = await Promise.all([
+async function OwnShades({ shopId, base, search, canEdit }: SectionProps) {
+  const state = {
+    view: 'own',
+    q: text(search.q)?.slice(0, 60),
+    ...readPaging(search),
+  };
+  const [brands, data] = await Promise.all([
     loadBrands(),
-    listOwnShades(await requireShopSession(), shopId),
+    listOwnShades(await requireShopSession(), shopId, state),
   ]);
-  const canEdit = shop.myRole === 'MASTER';
+  const link = (next: Partial<typeof state>) =>
+    listLink(base, { ...state, ...next }, DEFAULTS);
+
+  const columns: Column<ShopShade>[] = [
+    swatchColumn((row) => row),
+    {
+      key: 'brand',
+      header: 'Brand',
+      width: 'w-56',
+      cell: (row) =>
+        row.brand ? (
+          row.brand.name
+        ) : (
+          <span className="text-text-secondary">No brand</span>
+        ),
+    },
+    ...(canEdit
+      ? [
+          {
+            key: 'action',
+            header: 'Action',
+            align: 'end' as const,
+            width: 'w-40',
+            cell: (row: ShopShade) => (
+              <ActionButtonForm
+                action={removeOwnShadeAction.bind(null, shopId, row.id)}
+                label="Remove"
+                pendingLabel="Removing…"
+                variant="tertiary"
+                accessibleLabel={`Remove shade ${row.code}`}
+              />
+            ),
+          },
+        ]
+      : []),
+  ];
 
   return (
     <>
       {canEdit ? (
-        <OwnShadeForm
-          action={createOwnShadeAction.bind(null, shopId)}
-          brands={brands}
-        />
+        <Card
+          as="section"
+          aria-labelledby="new-shade-heading"
+          className="flex flex-col gap-4 p-6"
+        >
+          <h2 id="new-shade-heading" className="text-heading3 font-semibold">
+            Add a shade of your own
+          </h2>
+          <p className="text-body text-text-secondary">
+            Codes you mix or use in the shop that are not on a brand shade card.
+          </p>
+          <OwnShadeForm
+            action={createOwnShadeAction.bind(null, shopId)}
+            brands={brands}
+          />
+        </Card>
       ) : null}
-      {own.items.length === 0 ? (
-        <p className="text-body text-text-secondary">
-          No shades of your own yet.
-        </p>
-      ) : (
-        <ul className="grid gap-3 medium:grid-cols-2">
-          {own.items.map((shade) => (
-            <Panel
-              as="li"
-              key={shade.id}
-              className="flex items-center justify-between gap-3 p-3"
-            >
-              <div className="flex flex-col gap-1">
-                <ShadeSwatch shade={shade} />
-                {shade.brand ? (
-                  <span className="text-caption text-text-secondary">
-                    {shade.brand.name}
-                  </span>
-                ) : null}
-              </div>
-              {canEdit ? (
-                <ActionButtonForm
-                  action={removeOwnShadeAction.bind(null, shopId, shade.id)}
-                  label="Remove"
-                  pendingLabel="Removing…"
-                  accessibleLabel={`Remove shade ${shade.code}`}
-                />
-              ) : null}
-            </Panel>
-          ))}
-        </ul>
-      )}
+      <Toolbar
+        base={base}
+        view="own"
+        q={state.q}
+        placeholder="Code or name, then press Enter"
+      />
+      <DataTable
+        caption="Your own shades"
+        columns={columns}
+        rows={data.items}
+        rowKey={(row) => row.id}
+        empty={
+          <StateMessage
+            icon="palette"
+            title={state.q ? 'No shades match' : 'No shades of your own yet'}
+          />
+        }
+      />
+      <Pagination
+        page={data.page}
+        pageSize={data.pageSize}
+        total={data.total}
+        href={(page) => link({ page })}
+        form={FORM}
+        pageSizes={[10, 25, 50]}
+        noun="shades"
+      />
     </>
   );
 }

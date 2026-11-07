@@ -13,11 +13,6 @@ import {
   normaliseShadeCode,
   normaliseText,
 } from '../catalogue/catalogue-text.js';
-import {
-  decodeCursor,
-  encodeCursor,
-  pageOf,
-} from '../common/pagination/keyset-cursor.js';
 import type { Prisma } from '../generated/prisma/client.js';
 import { isUniqueViolation } from '../prisma/prisma-errors.js';
 import { PrismaService } from '../prisma/prisma.service.js';
@@ -90,66 +85,74 @@ export class ShopShadesService {
     private readonly catalogue: CatalogueReadService,
   ) {}
 
-  /** A brand's active shades, each marked when it is a favourite. */
+  /**
+   * A brand's active shades, each marked when it is a favourite, by code with
+   * numbered pages (PLT-003 pattern; shade cards can hold thousands).
+   */
   async browseBrand(
     shop: ShopContext,
     brandId: string,
     query: ShopShadeListQuery,
   ): Promise<BrandShadeBrowsePage> {
-    const page = await this.catalogue.shades(brandId, query);
+    await this.catalogue.brand(brandId);
+    const where: Prisma.ShadeWhereInput = {
+      brandId,
+      active: true,
+      ...codeSearch(query.q),
+    };
+    const [rows, total] = await Promise.all([
+      this.prisma.shade.findMany({
+        where,
+        orderBy: [{ code: 'asc' }, { id: 'asc' }],
+        skip: (query.page - 1) * query.pageSize,
+        take: query.pageSize,
+        select: SHADE_SELECT,
+      }),
+      this.prisma.shade.count({ where }),
+    ]);
     const favourites = await this.prisma.shopFavouriteShade.findMany({
       where: {
         shopId: shop.shopId,
-        shadeId: { in: page.items.map((shade) => shade.id) },
+        shadeId: { in: rows.map((row) => row.id) },
       },
       select: { shadeId: true },
     });
     const ids = new Set(favourites.map((row) => row.shadeId));
     return {
-      items: page.items.map((shade) => ({
-        shade,
-        favourite: ids.has(shade.id),
+      items: rows.map((row) => ({
+        shade: toShade(row),
+        favourite: ids.has(row.id),
       })),
-      nextCursor: page.nextCursor,
+      total,
+      page: query.page,
+      pageSize: query.pageSize,
     };
   }
 
-  /** Favourites by shade code (then id), across brands. */
+  /** Favourites by shade code, across brands, with numbered pages. */
   async favourites(
     shop: ShopContext,
     query: ShopShadeListQuery,
   ): Promise<FavouriteShadePage> {
-    const after = query.cursor ? decodeCursor(query.cursor) : undefined;
-    const rows = await this.prisma.shopFavouriteShade.findMany({
-      where: {
-        shopId: shop.shopId,
-        AND: [
-          query.q ? { shade: codeSearch(query.q) } : {},
-          after
-            ? {
-                OR: [
-                  { shade: { code: { gt: after.sortValue } } },
-                  {
-                    shade: { code: after.sortValue },
-                    shadeId: { gt: after.id },
-                  },
-                ],
-              }
-            : {},
-        ],
-      },
-      orderBy: [{ shade: { code: 'asc' } }, { shadeId: 'asc' }],
-      take: query.limit + 1,
-      select: FAVOURITE_SELECT,
-    });
-    const items = rows.slice(0, query.limit);
-    const last = items.at(-1);
+    const where: Prisma.ShopFavouriteShadeWhereInput = {
+      shopId: shop.shopId,
+      ...(query.q ? { shade: codeSearch(query.q) } : {}),
+    };
+    const [rows, total] = await Promise.all([
+      this.prisma.shopFavouriteShade.findMany({
+        where,
+        orderBy: [{ shade: { code: 'asc' } }, { shadeId: 'asc' }],
+        skip: (query.page - 1) * query.pageSize,
+        take: query.pageSize,
+        select: FAVOURITE_SELECT,
+      }),
+      this.prisma.shopFavouriteShade.count({ where }),
+    ]);
     return {
-      items: items.map(toFavourite),
-      nextCursor:
-        rows.length > query.limit && last
-          ? encodeCursor(last.shade.code, last.shade.id)
-          : null,
+      items: rows.map(toFavourite),
+      total,
+      page: query.page,
+      pageSize: query.pageSize,
     };
   }
 
@@ -253,28 +256,26 @@ export class ShopShadesService {
     shop: ShopContext,
     query: ShopShadeListQuery,
   ): Promise<ShopShadePage> {
-    const after = query.cursor ? decodeCursor(query.cursor) : undefined;
-    const rows = await this.prisma.shopShade.findMany({
-      where: {
-        shopId: shop.shopId,
-        AND: [
-          codeSearch(query.q),
-          after
-            ? {
-                OR: [
-                  { code: { gt: after.sortValue } },
-                  { code: after.sortValue, id: { gt: after.id } },
-                ],
-              }
-            : {},
-        ],
-      },
-      orderBy: [{ code: 'asc' }, { id: 'asc' }],
-      take: query.limit + 1,
-      select: SHOP_SHADE_SELECT,
-    });
-    const page = pageOf(rows, query.limit, (row) => row.code);
-    return { items: page.items.map(toShopShade), nextCursor: page.nextCursor };
+    const where: Prisma.ShopShadeWhereInput = {
+      shopId: shop.shopId,
+      ...codeSearch(query.q),
+    };
+    const [rows, total] = await Promise.all([
+      this.prisma.shopShade.findMany({
+        where,
+        orderBy: [{ code: 'asc' }, { id: 'asc' }],
+        skip: (query.page - 1) * query.pageSize,
+        take: query.pageSize,
+        select: SHOP_SHADE_SELECT,
+      }),
+      this.prisma.shopShade.count({ where }),
+    ]);
+    return {
+      items: rows.map(toShopShade),
+      total,
+      page: query.page,
+      pageSize: query.pageSize,
+    };
   }
 
   async createOwn(
