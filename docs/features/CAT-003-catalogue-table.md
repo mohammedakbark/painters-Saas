@@ -10,6 +10,8 @@
   - Flutter: `AppBadge`.
 - **Decisions:** D-029 (availability per pack), D-039 (shared components); owner request 2026-11-06
 
+> **Replaced by CAT-006 (2026-11-07):** the list now shows one row per product (`product-rows`); `pack-rows` was removed. See `docs/features/CAT-006-product-list.md`.
+
 ## 1. Why
 
 The catalogue listed products as tall cards with every pack inside. That doesn't work for 100+ products. Also, "Available" and "Unavailable" looked alike. The owner asked for:

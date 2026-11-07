@@ -389,6 +389,28 @@ export async function updatePackAction(
 }
 
 /** The quick availability switch of one pack size. */
+/**
+ * "Mark all available / not available" in the product list (CAT-006): every
+ * pack size of the product in the current view, one API call each.
+ */
+export async function setProductAvailabilityAction(
+  shopId: string,
+  productId: string,
+  packIds: string[],
+  available: boolean,
+): Promise<CatalogueFormState> {
+  const token = await requireShopSession();
+  try {
+    for (const packId of packIds) {
+      await updateShopPack(token, shopId, productId, packId, { available });
+    }
+  } catch (error) {
+    return failure(error);
+  }
+  refresh();
+  return {};
+}
+
 export async function setPackAvailableAction(
   shopId: string,
   productId: string,

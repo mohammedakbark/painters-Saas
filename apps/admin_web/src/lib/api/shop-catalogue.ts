@@ -197,33 +197,41 @@ export function listShopProducts(
   );
 }
 
-// --- Pack rows (CAT-003): the catalogue table ---------------------------------
+// --- Product rows (CAT-006): the product list --------------------------------
 
 export const PACK_TABS = ['ALL', 'VOLUME', 'WEIGHT', 'PIECE'] as const;
 export type PackTab = (typeof PACK_TABS)[number];
-export const PACK_ROW_SORTS = ['name', '-name', 'price', '-price'] as const;
-export type PackRowSort = (typeof PACK_ROW_SORTS)[number];
-export const PACK_ROW_PAGE_SIZES = [10, 25, 50] as const;
+export const ROW_SORTS = ['name', 'price', '-price'] as const;
+export type RowSort = (typeof ROW_SORTS)[number];
+export const ROW_SHOWS = ['all', 'available', 'partly', 'none'] as const;
+export type RowShow = (typeof ROW_SHOWS)[number];
+export const ROW_PAGE_SIZES = [10, 25, 50] as const;
 
 const optionSchema = z.object({ value: z.string(), label: z.string() });
 
-const packRowPageSchema = z.object({
+const productRowPageSchema = z.object({
   items: z.array(
     z.object({
-      packId: z.string(),
       productId: z.string(),
-      productName: z.string(),
+      name: z.string(),
       source: z.enum(['catalogue', 'own']),
       productStatus: z.enum(['ACTIVE', 'ARCHIVED']),
       catalogueActive: z.boolean(),
       brandName: z.string().nullable(),
       categoryName: z.string(),
-      sizeLabel: z.string(),
-      quantity: z.number(),
-      unit: z.enum(PACK_UNITS),
-      pricePaise: z.number().int(),
-      mrpPaise: z.number().int().nullable(),
-      available: z.boolean(),
+      thumbUrl: z.string().nullable(),
+      packs: z.array(
+        z.object({
+          id: z.string(),
+          label: z.string(),
+          pricePaise: z.number().int(),
+          mrpPaise: z.number().int().nullable(),
+          available: z.boolean(),
+        }),
+      ),
+      availableCount: z.number().int(),
+      packCount: z.number().int(),
+      minPricePaise: z.number().int(),
     }),
   ),
   total: z.number().int(),
@@ -242,41 +250,41 @@ const packRowPageSchema = z.object({
   }),
 });
 
-export type PackRowPage = z.infer<typeof packRowPageSchema>;
-export type PackRow = PackRowPage['items'][number];
+export type ProductRowPage = z.infer<typeof productRowPageSchema>;
+export type ProductRow = ProductRowPage['items'][number];
 
-export interface PackRowParams {
+export interface ProductRowParams {
   tab: PackTab;
   status: 'ACTIVE' | 'ARCHIVED';
   q?: string;
   brand?: string;
   categoryId?: string;
   size?: string;
-  available?: 'true' | 'false';
-  sort: PackRowSort;
+  show: RowShow;
+  sort: RowSort;
   page: number;
   pageSize: number;
 }
 
-export function listPackRows(
+export function listProductRows(
   token: string,
   shopId: string,
-  params: PackRowParams,
-): Promise<PackRowPage> {
+  params: ProductRowParams,
+): Promise<ProductRowPage> {
   return apiRequest(
-    `${base(shopId)}/pack-rows${query({
+    `${base(shopId)}/product-rows${query({
       tab: params.tab,
       status: params.status,
       q: params.q,
       brand: params.brand,
       categoryId: params.categoryId,
       size: params.size,
-      available: params.available,
+      show: params.show,
       sort: params.sort,
       page: String(params.page),
       pageSize: String(params.pageSize),
     })}`,
-    { token, schema: packRowPageSchema },
+    { token, schema: productRowPageSchema },
   );
 }
 

@@ -435,12 +435,12 @@ export type FavouriteShadePage = z.infer<typeof FavouriteShadePageSchema>;
 export type ShopShadeResponse = z.infer<typeof ShopShadeSchema>;
 export type ShopShadePage = z.infer<typeof ShopShadePageSchema>;
 
-// --- Pack rows (CAT-003): one row per pack, for the catalogue table --------
+// --- Product rows (CAT-006): one row per product, for the product list ------
 
 export const PACK_TABS = ['ALL', 'VOLUME', 'WEIGHT', 'PIECE'] as const;
-export const PACK_ROW_PAGE_SIZES = [10, 25, 50] as const;
+export const ROW_PAGE_SIZES = [10, 25, 50] as const;
 
-export const ShopPackRowQuerySchema = z
+export const ShopProductRowQuerySchema = z
   .object({
     tab: z
       .enum(PACK_TABS, { error: 'tab must be ALL, VOLUME, WEIGHT or PIECE.' })
@@ -464,13 +464,20 @@ export const ShopPackRowQuerySchema = z
       .regex(/^\d+(\.\d+)?:(LITRE|MILLILITRE|KILOGRAM|GRAM|PIECE)$/, {
         error: 'size must look like 4:LITRE.',
       })
-      .optional(),
-    available: z
-      .enum(['true', 'false'], { error: 'available must be true or false.' })
-      .optional(),
+      .optional()
+      .meta({ description: 'Products that have this pack size.' }),
+    show: z
+      .enum(['all', 'available', 'partly', 'none'], {
+        error: 'show must be all, available, partly or none.',
+      })
+      .default('all')
+      .meta({
+        description:
+          'available: every size available; partly: some not available; none: no size available.',
+      }),
     sort: z
-      .enum(['name', '-name', 'price', '-price'], {
-        error: 'sort must be name, -name, price or -price.',
+      .enum(['name', 'price', '-price'], {
+        error: 'sort must be name, price or -price.',
       })
       .default('name'),
     page: z.coerce
@@ -481,35 +488,45 @@ export const ShopPackRowQuerySchema = z
     pageSize: z.coerce
       .number({ error: 'pageSize must be a number.' })
       .refine(
-        (value) => (PACK_ROW_PAGE_SIZES as readonly number[]).includes(value),
+        (value) => (ROW_PAGE_SIZES as readonly number[]).includes(value),
         {
           error: 'pageSize must be 10, 25 or 50.',
         },
       )
       .default(25),
   })
-  .meta({ id: 'ShopPackRowQuery' });
+  .meta({ id: 'ShopProductRowQuery' });
 
 const option = z.object({ value: z.string(), label: z.string() });
 
-export const ShopPackRowPageSchema = z
+export const ShopProductRowPageSchema = z
   .object({
     items: z.array(
       z.object({
-        packId: z.uuid(),
         productId: z.uuid(),
-        productName: z.string(),
+        name: z.string(),
         source: z.enum(['catalogue', 'own']),
         productStatus: z.enum(['ACTIVE', 'ARCHIVED']),
         catalogueActive: z.boolean(),
         brandName: z.string().nullable(),
         categoryName: z.string(),
-        sizeLabel: z.string(),
-        quantity: z.number(),
-        unit: z.enum(PackUnit),
-        pricePaise: z.int(),
-        mrpPaise: z.int().nullable(),
-        available: z.boolean(),
+        thumbUrl: z.url().nullable(),
+        packs: z
+          .array(
+            z.object({
+              id: z.uuid(),
+              label: z.string(),
+              pricePaise: z.int(),
+              mrpPaise: z.int().nullable(),
+              available: z.boolean(),
+            }),
+          )
+          .meta({
+            description: 'Pack sizes in the current tab, smallest first.',
+          }),
+        availableCount: z.int(),
+        packCount: z.int(),
+        minPricePaise: z.int(),
       }),
     ),
     total: z.int(),
@@ -532,7 +549,7 @@ export const ShopPackRowPageSchema = z
           'Filter values that exist in this shop for the current tab and status.',
       }),
   })
-  .meta({ id: 'ShopPackRowPage' });
+  .meta({ id: 'ShopProductRowPage' });
 
-export type ShopPackRowQuery = z.infer<typeof ShopPackRowQuerySchema>;
-export type ShopPackRowPage = z.infer<typeof ShopPackRowPageSchema>;
+export type ShopProductRowQuery = z.infer<typeof ShopProductRowQuerySchema>;
+export type ShopProductRowPage = z.infer<typeof ShopProductRowPageSchema>;

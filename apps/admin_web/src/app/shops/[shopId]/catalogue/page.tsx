@@ -9,50 +9,63 @@ import {
   ColumnSearchFilter,
   ColumnSelectFilter,
 } from '@/components/ui/column-filter';
-import { type Column, DataTable, SortHeader } from '@/components/ui/data-table';
-import { Icon } from '@/components/ui/icon';
-import { PageHeader } from '@/components/ui/page-header';
+import { type Column, DataTable } from '@/components/ui/data-table';
 import { FilterForm } from '@/components/ui/filter-form';
+import { Icon } from '@/components/ui/icon';
+import { PackChip } from '@/components/ui/pack-chip';
+import { PageHeader } from '@/components/ui/page-header';
 import { Pagination } from '@/components/ui/pagination';
 import { SegmentedLinks } from '@/components/ui/segmented-links';
 import { StateMessage } from '@/components/ui/state-message';
+import { Thumbnail } from '@/components/ui/thumbnail';
 import {
-  listPackRows,
-  PACK_ROW_PAGE_SIZES,
-  PACK_ROW_SORTS,
+  listProductRows,
   PACK_TABS,
-  type PackRow,
-  type PackRowParams,
+  type ProductRow,
+  type ProductRowParams,
+  ROW_PAGE_SIZES,
+  ROW_SHOWS,
+  ROW_SORTS,
 } from '@/lib/api/shop-catalogue';
 import { getShopOnboarding } from '@/lib/api/shop-profile';
 import { requireShopAccess, requireShopSession } from '@/lib/auth/shop-access';
 import { formatRupees } from '@/lib/money';
-import { setPackAvailableAction, setShopProductStatusAction } from './actions';
-import { RowActions } from './row-actions';
+import {
+  setProductAvailabilityAction,
+  setShopProductStatusAction,
+} from './actions';
 import { catalogueBase } from './catalogue-parts';
+import { RowActions } from './row-actions';
 
 export const metadata: Metadata = { title: 'Products' };
 
-const FORM = 'catalogue-filters';
+const FORM = 'product-filters';
+const VISIBLE_PACKS = 4;
 
-const TAB_LABELS: Record<PackRowParams['tab'], string> = {
+const TAB_LABELS: Record<ProductRowParams['tab'], string> = {
   ALL: 'All',
   VOLUME: 'Litres',
   WEIGHT: 'Kilograms',
   PIECE: 'Pieces',
 };
 
-const AVAILABILITY = [
-  { value: 'true', label: 'Available' },
-  { value: 'false', label: 'Not available' },
+const SHOW_OPTIONS = [
+  { value: 'available', label: 'Fully available' },
+  { value: 'partly', label: 'Some sizes not available' },
+  { value: 'none', label: 'Not available' },
 ];
 
-export default function CataloguePage(
+const SORT_OPTIONS = [
+  { value: 'price', label: 'Lowest price' },
+  { value: '-price', label: 'Highest price' },
+];
+
+export default function ProductsPage(
   props: PageProps<'/shops/[shopId]/catalogue'>,
 ) {
   return (
-    <Suspense fallback={<PageLoading label="Loading your catalogue…" />}>
-      <Catalogue {...props} />
+    <Suspense fallback={<PageLoading label="Loading your products…" />}>
+      <Products {...props} />
     </Suspense>
   );
 }
@@ -69,11 +82,10 @@ const oneOf = <T extends string>(
 ): T =>
   (list as readonly string[]).includes(value ?? '') ? (value as T) : fallback;
 
-/** Reads the table state from the URL; unknown values fall back to defaults. */
-function readParams(search: Search): PackRowParams {
+/** Reads the list state from the URL; unknown values fall back to defaults. */
+function readParams(search: Search): ProductRowParams {
   const page = Number(text(search.page));
   const pageSize = Number(text(search.pageSize));
-  const available = text(search.available);
   return {
     tab: oneOf(PACK_TABS, text(search.tab), 'ALL'),
     status: text(search.status) === 'ARCHIVED' ? 'ARCHIVED' : 'ACTIVE',
@@ -81,17 +93,25 @@ function readParams(search: Search): PackRowParams {
     brand: text(search.brand),
     categoryId: text(search.categoryId),
     size: text(search.size),
-    available:
-      available === 'true' || available === 'false' ? available : undefined,
-    sort: oneOf(PACK_ROW_SORTS, text(search.sort), 'name'),
+    show: oneOf(ROW_SHOWS, text(search.show), 'all'),
+    sort: oneOf(ROW_SORTS, text(search.sort), 'name'),
     page: Number.isInteger(page) && page > 0 ? page : 1,
-    pageSize: (PACK_ROW_PAGE_SIZES as readonly number[]).includes(pageSize)
+    pageSize: (ROW_PAGE_SIZES as readonly number[]).includes(pageSize)
       ? pageSize
       : 25,
   };
 }
 
-async function Catalogue({
+const DEFAULTS: Partial<Record<keyof ProductRowParams, string>> = {
+  tab: 'ALL',
+  status: 'ACTIVE',
+  show: 'all',
+  sort: 'name',
+  page: '1',
+  pageSize: '25',
+};
+
+async function Products({
   params,
   searchParams,
 }: PageProps<'/shops/[shopId]/catalogue'>) {
@@ -102,7 +122,7 @@ async function Catalogue({
   const state = readParams(search);
   const added = Number(text(search.added));
   const [data, onboarding] = await Promise.all([
-    listPackRows(token, shopId, state),
+    listProductRows(token, shopId, state),
     getShopOnboarding(token, shopId),
   ]);
   const productsNeeded = onboarding.items.find(
@@ -116,20 +136,12 @@ async function Catalogue({
   const base = catalogueBase(shopId);
 
   /** The current URL with some values changed; defaults are left out. */
-  const link = (next: Partial<PackRowParams>) => {
-    const merged = { ...state, ...next };
+  const link = (next: Partial<ProductRowParams>) => {
     const query = new URLSearchParams();
-    const defaults: Partial<Record<keyof PackRowParams, string>> = {
-      tab: 'ALL',
-      status: 'ACTIVE',
-      sort: 'name',
-      page: '1',
-      pageSize: '25',
-    };
-    for (const [key, value] of Object.entries(merged)) {
+    for (const [key, value] of Object.entries({ ...state, ...next })) {
       if (
         value !== undefined &&
-        String(value) !== defaults[key as keyof PackRowParams]
+        String(value) !== DEFAULTS[key as keyof ProductRowParams]
       ) {
         query.set(key, String(value));
       }
@@ -138,61 +150,44 @@ async function Catalogue({
     return qs ? `${base}?${qs}` : base;
   };
   const filtered = Boolean(
-    state.q || state.brand || state.categoryId || state.size || state.available,
+    state.q ||
+    state.brand ||
+    state.categoryId ||
+    state.size ||
+    state.show !== 'all',
   );
   const clearFilters = link({
     q: undefined,
     brand: undefined,
     categoryId: undefined,
     size: undefined,
-    available: undefined,
+    show: 'all',
     page: 1,
   });
-  const sortHeader = (label: string, key: 'name' | 'price', end = false) => {
-    const direction: 'ascending' | 'descending' | null =
-      state.sort === key
-        ? 'ascending'
-        : state.sort === `-${key}`
-          ? 'descending'
-          : null;
-    return {
-      sorted: direction ?? undefined,
-      headerContent: (
-        <SortHeader
-          label={label}
-          align={end ? 'end' : 'start'}
-          direction={direction}
-          href={link({
-            sort: direction === 'ascending' ? `-${key}` : key,
-            page: 1,
-          })}
-        />
-      ),
-    };
-  };
 
-  const columns: Column<PackRow>[] = [
+  const columns: Column<ProductRow>[] = [
+    {
+      key: 'photo',
+      header: 'Photo',
+      width: 'w-20',
+      cell: (row) => (
+        <Thumbnail src={row.thumbUrl} alt={`Photo of ${row.name}`} />
+      ),
+    },
     {
       key: 'product',
       header: 'Product',
-      ...sortHeader('Product', 'name'),
-      filter: (
-        <ColumnSearchFilter
-          form={FORM}
-          name="q"
-          label="Search products"
-          placeholder="Search"
-          value={state.q}
-        />
-      ),
       cell: (row) => (
         <span className="flex min-w-0 flex-col items-end gap-1 desktop:items-start">
           <Link
             href={`${base}/products/${row.productId}`}
-            className="rounded-nav-item font-semibold text-text-primary hover:text-brand-primary hover:underline focus-visible:outline-2 focus-visible:outline-brand-primary"
+            className="rounded-nav-item text-body-large font-semibold text-text-primary hover:text-brand-primary hover:underline focus-visible:outline-2 focus-visible:outline-brand-primary"
           >
-            {row.productName}
+            {row.name}
           </Link>
+          <span className="text-caption text-text-secondary">
+            {[row.brandName, row.categoryName].filter(Boolean).join(' · ')}
+          </span>
           {row.source === 'own' || !row.catalogueActive ? (
             <span className="flex flex-wrap gap-1">
               {row.source === 'own' ? (
@@ -207,119 +202,86 @@ async function Catalogue({
       ),
     },
     {
-      key: 'brand',
-      header: 'Brand',
-      width: 'w-28',
-      filter: (
-        <ColumnSelectFilter
-          form={FORM}
-          name="brand"
-          label="Filter by brand"
-          value={state.brand}
-          options={data.options.brands}
-        />
-      ),
-      cell: (row) =>
-        row.brandName ?? <span className="text-text-secondary">No brand</span>,
-    },
-    {
-      key: 'category',
-      header: 'Category',
-      width: 'w-32',
-      filter: (
-        <ColumnSelectFilter
-          form={FORM}
-          name="categoryId"
-          label="Filter by category"
-          value={state.categoryId}
-          options={data.options.categories}
-        />
-      ),
-      cell: (row) => row.categoryName,
-    },
-    {
-      key: 'size',
-      header: 'Pack size',
-      width: 'w-24',
-      filter: (
-        <ColumnSelectFilter
-          form={FORM}
-          name="size"
-          label="Filter by pack size"
-          value={state.size}
-          options={data.options.sizes}
-        />
-      ),
-      cell: (row) => <span className="font-semibold">{row.sizeLabel}</span>,
-    },
-    {
-      key: 'price',
-      header: 'Price',
-      align: 'end',
-      width: 'w-24',
-      cellClassName: 'whitespace-nowrap',
-      ...sortHeader('Price', 'price', true),
+      key: 'packs',
+      header: 'Pack sizes and prices',
       cell: (row) => (
-        <span className="flex flex-col items-end tabular-nums">
-          <span className="font-semibold">{formatRupees(row.pricePaise)}</span>
-          {row.mrpPaise === null ? null : (
-            <span className="text-caption text-text-secondary">
-              MRP {formatRupees(row.mrpPaise)}
-            </span>
-          )}
+        <span className="flex flex-wrap justify-end gap-1.5 desktop:justify-start">
+          {row.packs.slice(0, VISIBLE_PACKS).map((pack) => (
+            <PackChip
+              key={pack.id}
+              label={pack.label}
+              price={formatRupees(pack.pricePaise)}
+              available={pack.available}
+            />
+          ))}
+          {row.packs.length > VISIBLE_PACKS ? (
+            <Link
+              href={`${base}/products/${row.productId}`}
+              className="self-center text-caption font-semibold text-brand-primary hover:underline"
+            >
+              +{row.packs.length - VISIBLE_PACKS} more
+            </Link>
+          ) : null}
         </span>
       ),
     },
     {
       key: 'availability',
       header: 'Availability',
-      width: 'w-36',
+      width: 'w-44',
       cellClassName: 'whitespace-nowrap',
-      filter: (
-        <ColumnSelectFilter
-          form={FORM}
-          name="available"
-          label="Filter by availability"
-          value={state.available}
-          options={AVAILABILITY}
-        />
-      ),
       cell: (row) =>
-        row.available ? (
-          <Badge tone="success">Available</Badge>
-        ) : (
+        row.availableCount === row.packCount ? (
+          <Badge tone="success">
+            {row.packCount === 1 ? 'Available' : 'All available'}
+          </Badge>
+        ) : row.availableCount === 0 ? (
           <Badge tone="warning">Not available</Badge>
+        ) : (
+          <Badge tone="warning">
+            {row.availableCount} of {row.packCount} available
+          </Badge>
         ),
     },
     ...(canEdit
       ? [
           {
-            key: 'action',
+            key: 'actions',
             header: 'Actions',
             align: 'end' as const,
-            width: 'w-24',
-            cell: (row: PackRow) => (
-              <RowActions
-                productName={row.productName}
-                sizeLabel={row.sizeLabel}
-                editHref={`${base}/products/${row.productId}`}
-                available={row.available}
-                archived={row.productStatus === 'ARCHIVED'}
-                toggleAvailable={setPackAvailableAction.bind(
-                  null,
-                  shopId,
-                  row.productId,
-                  row.packId,
-                  !row.available,
-                )}
-                setArchived={setShopProductStatusAction.bind(
-                  null,
-                  shopId,
-                  row.productId,
-                  row.productStatus === 'ARCHIVED' ? 'ACTIVE' : 'ARCHIVED',
-                )}
-              />
-            ),
+            width: 'w-20',
+            cell: (row: ProductRow) => {
+              const packIds = row.packs.map((pack) => pack.id);
+              return (
+                <RowActions
+                  productName={row.name}
+                  editHref={`${base}/products/${row.productId}`}
+                  availableCount={row.availableCount}
+                  packCount={row.packCount}
+                  archived={row.productStatus === 'ARCHIVED'}
+                  markAllAvailable={setProductAvailabilityAction.bind(
+                    null,
+                    shopId,
+                    row.productId,
+                    packIds,
+                    true,
+                  )}
+                  markAllNotAvailable={setProductAvailabilityAction.bind(
+                    null,
+                    shopId,
+                    row.productId,
+                    packIds,
+                    false,
+                  )}
+                  setArchived={setShopProductStatusAction.bind(
+                    null,
+                    shopId,
+                    row.productId,
+                    row.productStatus === 'ARCHIVED' ? 'ACTIVE' : 'ARCHIVED',
+                  )}
+                />
+              );
+            },
           },
         ]
       : []),
@@ -334,13 +296,12 @@ async function Catalogue({
           tone="success"
           title={added === 1 ? '1 product added' : `${added} products added`}
         >
-          They are on sale with the prices you entered. Change availability or
-          prices from the table.
+          They are on sale with the prices you entered.
         </Alert>
       ) : null}
       <PageHeader
         title="Products"
-        description="The products you sell, with a price and availability for each pack size."
+        description="Everything your shop sells, with prices and availability for each pack size."
         actions={
           canEdit ? (
             <>
@@ -349,7 +310,7 @@ async function Catalogue({
                   Quick start
                 </ButtonLink>
               ) : null}
-              <ButtonLink href={`${base}/new`} className="group">
+              <ButtonLink href={`${base}/new`}>
                 <Icon name="plus" className="size-5" />
                 Add product
               </ButtonLink>
@@ -362,7 +323,7 @@ async function Catalogue({
         <StateMessage
           icon="tag"
           title="No products yet"
-          description="Add products from the brand catalogue, or add your own. Your shop needs at least 10 products before it can be reviewed."
+          description="Add the products you sell. Your shop needs at least 10 products before it can be reviewed."
           action={
             canEdit ? (
               <>
@@ -378,13 +339,9 @@ async function Catalogue({
         <>
           <div className="flex flex-col gap-3 desktop:flex-row desktop:items-center desktop:justify-between">
             <SegmentedLinks
-              label="Pack type"
+              label="Product type"
               segments={PACK_TABS.map((tab) => ({
-                href: link({
-                  tab,
-                  size: undefined,
-                  page: 1,
-                }),
+                href: link({ tab, size: undefined, page: 1 }),
                 label: `${TAB_LABELS[tab]} (${data.tabCounts[tab]})`,
                 current: state.tab === tab,
               }))}
@@ -399,11 +356,10 @@ async function Catalogue({
             />
           </div>
 
-          {/* The column filters submit this form (see ColumnFilter). */}
           <FilterForm
             id={FORM}
             action={base}
-            className="flex flex-wrap items-center justify-between gap-3"
+            className="grid gap-3 rounded-card border border-card-border bg-card-background p-4 medium:grid-cols-2 desktop:grid-cols-[minmax(0,2fr)_repeat(5,minmax(0,1fr))] desktop:items-end"
           >
             {state.tab !== 'ALL' ? (
               <input type="hidden" name="tab" value={state.tab} />
@@ -411,33 +367,78 @@ async function Catalogue({
             {state.status !== 'ACTIVE' ? (
               <input type="hidden" name="status" value={state.status} />
             ) : null}
-            {state.sort !== 'name' ? (
-              <input type="hidden" name="sort" value={state.sort} />
-            ) : null}
-            <p className="text-body text-text-secondary">
-              Filter by any column; press Enter to search by name.
-            </p>
-            {filtered ? (
+            <div className="medium:col-span-2 desktop:col-span-1">
+              <ColumnSearchFilter
+                form={FORM}
+                name="q"
+                label="Search products"
+                placeholder="Search by name or brand, then press Enter"
+                value={state.q}
+              />
+            </div>
+            <ColumnSelectFilter
+              form={FORM}
+              name="brand"
+              label="Brand"
+              allLabel="All brands"
+              value={state.brand}
+              options={data.options.brands}
+            />
+            <ColumnSelectFilter
+              form={FORM}
+              name="categoryId"
+              label="Category"
+              allLabel="All categories"
+              value={state.categoryId}
+              options={data.options.categories}
+            />
+            <ColumnSelectFilter
+              form={FORM}
+              name="size"
+              label="Pack size"
+              allLabel="All sizes"
+              value={state.size}
+              options={data.options.sizes}
+            />
+            <ColumnSelectFilter
+              form={FORM}
+              name="show"
+              label="Availability"
+              allLabel="All availability"
+              value={state.show === 'all' ? undefined : state.show}
+              options={SHOW_OPTIONS}
+            />
+            <ColumnSelectFilter
+              form={FORM}
+              name="sort"
+              label="Sort"
+              allLabel="Name A–Z"
+              value={state.sort === 'name' ? undefined : state.sort}
+              options={SORT_OPTIONS}
+            />
+          </FilterForm>
+          {filtered ? (
+            <div className="-mt-3 flex justify-end">
               <ButtonLink href={clearFilters} variant="tertiary">
                 Clear filters
               </ButtonLink>
-            ) : null}
-          </FilterForm>
+            </div>
+          ) : null}
 
           <DataTable
-            caption={`Pack sizes in your catalogue, ${TAB_LABELS[state.tab].toLowerCase()}`}
+            caption={`Your products, ${TAB_LABELS[state.tab].toLowerCase()}`}
             columns={columns}
             rows={data.items}
-            rowKey={(row) => row.packId}
+            rowKey={(row) => row.productId}
             empty={
               <StateMessage
                 icon="search"
                 title={
                   filtered
-                    ? 'No pack sizes match these filters'
+                    ? 'No products match these filters'
                     : state.status === 'ARCHIVED'
                       ? 'No archived products'
-                      : 'No pack sizes here'
+                      : 'No products here'
                 }
                 action={
                   filtered ? (
@@ -456,8 +457,8 @@ async function Catalogue({
             total={data.total}
             href={(page) => link({ page })}
             form={FORM}
-            pageSizes={PACK_ROW_PAGE_SIZES}
-            noun="pack sizes"
+            pageSizes={ROW_PAGE_SIZES}
+            noun="products"
           />
         </>
       )}

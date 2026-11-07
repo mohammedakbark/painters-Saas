@@ -57,10 +57,10 @@ import {
   type FavouriteShadePage,
   FavouriteShadePageSchema,
   FavouriteShadeSchema,
-  type ShopPackRowPage,
-  ShopPackRowPageSchema,
-  type ShopPackRowQuery,
-  ShopPackRowQuerySchema,
+  type ShopProductRowPage,
+  ShopProductRowPageSchema,
+  type ShopProductRowQuery,
+  ShopProductRowQuerySchema,
   type ShopProductListQuery,
   ShopProductListQuerySchema,
   type ShopProductPage,
@@ -123,19 +123,19 @@ export class ShopCatalogueController {
     return this.products.list(shop, query);
   }
 
-  @Get('pack-rows')
+  @Get('product-rows')
   @ShopScoped()
   @ApiOperation({
     summary:
-      'One row per pack for the catalogue table: filtered, sorted and paged, with the filter options.',
+      'One row per product for the product list: pack sizes as chips, filtered, sorted and paged, with the filter options.',
   })
-  @ApiOkResponse({ standardSchema: ShopPackRowPageSchema })
+  @ApiOkResponse({ standardSchema: ShopProductRowPageSchema })
   @ApiBadRequestResponse(PROBLEM)
-  listPackRows(
+  listProductRows(
     @CurrentShop() shop: ShopContext,
-    @Query({ schema: ShopPackRowQuerySchema }) query: ShopPackRowQuery,
-  ): Promise<ShopPackRowPage> {
-    return this.products.packRows(shop, query);
+    @Query({ schema: ShopProductRowQuerySchema }) query: ShopProductRowQuery,
+  ): Promise<ShopProductRowPage> {
+    return this.products.productRows(shop, query);
   }
 
   @Post('products')

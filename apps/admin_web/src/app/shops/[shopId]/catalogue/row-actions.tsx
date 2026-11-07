@@ -20,26 +20,28 @@ type Action = () => Promise<CatalogueFormState>;
  */
 export function RowActions({
   productName,
-  sizeLabel,
   editHref,
-  available,
+  availableCount,
+  packCount,
   archived,
-  toggleAvailable,
+  markAllAvailable,
+  markAllNotAvailable,
   setArchived,
 }: {
   productName: string;
-  sizeLabel: string;
   editHref: string;
-  available: boolean;
+  availableCount: number;
+  packCount: number;
   archived: boolean;
-  toggleAvailable: Action;
+  markAllAvailable: Action;
+  markAllNotAvailable: Action;
   setArchived: Action;
 }) {
   const [pending, startTransition] = useTransition();
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const name = `${productName} ${sizeLabel}`;
+  const name = productName;
   const run = (action: Action, after?: () => void) =>
     startTransition(async () => {
       const result = await action();
@@ -69,10 +71,21 @@ export function RowActions({
           <Icon name="notebook" className="size-4" />
           Edit prices and details
         </MenuLink>
-        {archived ? null : (
-          <MenuButton disabled={pending} onSelect={() => run(toggleAvailable)}>
-            <Icon name={available ? 'eyeOff' : 'eye'} className="size-4" />
-            {available ? 'Mark not available' : 'Mark available'}
+        {archived || availableCount === packCount ? null : (
+          <MenuButton disabled={pending} onSelect={() => run(markAllAvailable)}>
+            <Icon name="eye" className="size-4" />
+            {packCount === 1 ? 'Mark available' : 'Mark all sizes available'}
+          </MenuButton>
+        )}
+        {archived || availableCount === 0 ? null : (
+          <MenuButton
+            disabled={pending}
+            onSelect={() => run(markAllNotAvailable)}
+          >
+            <Icon name="eyeOff" className="size-4" />
+            {packCount === 1
+              ? 'Mark not available'
+              : 'Mark all sizes not available'}
           </MenuButton>
         )}
         <MenuSeparator />

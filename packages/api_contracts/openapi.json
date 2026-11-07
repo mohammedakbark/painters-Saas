@@ -2614,9 +2614,9 @@
         ]
       }
     },
-    "/v1/shops/{shopId}/catalogue/pack-rows": {
+    "/v1/shops/{shopId}/catalogue/product-rows": {
       "get": {
-        "operationId": "ShopCatalogueController_listPackRows",
+        "operationId": "ShopCatalogueController_listProductRows",
         "parameters": [
           {
             "name": "shopId",
@@ -2633,7 +2633,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ShopPackRowPage"
+                  "$ref": "#/components/schemas/ShopProductRowPage"
                 }
               }
             }
@@ -2674,7 +2674,7 @@
             "bearer": []
           }
         ],
-        "summary": "One row per pack for the catalogue table: filtered, sorted and paged, with the filter options.",
+        "summary": "One row per product for the product list: pack sizes as chips, filtered, sorted and paged, with the filter options.",
         "tags": [
           "shop catalogue"
         ]
@@ -5995,7 +5995,7 @@
         ],
         "additionalProperties": false
       },
-      "ShopPackRowQuery": {
+      "ShopProductRowQuery": {
         "type": "object",
         "properties": {
           "tab": {
@@ -6031,14 +6031,19 @@
             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
           },
           "size": {
+            "description": "Products that have this pack size.",
             "type": "string",
             "pattern": "^\\d+(\\.\\d+)?:(LITRE|MILLILITRE|KILOGRAM|GRAM|PIECE)$"
           },
-          "available": {
+          "show": {
+            "default": "all",
+            "description": "available: every size available; partly: some not available; none: no size available.",
             "type": "string",
             "enum": [
-              "true",
-              "false"
+              "all",
+              "available",
+              "partly",
+              "none"
             ]
           },
           "sort": {
@@ -6046,7 +6051,6 @@
             "type": "string",
             "enum": [
               "name",
-              "-name",
               "price",
               "-price"
             ]
@@ -6063,7 +6067,7 @@
           }
         }
       },
-      "ShopPackRowPage": {
+      "ShopProductRowPage": {
         "type": "object",
         "properties": {
           "items": {
@@ -6071,17 +6075,12 @@
             "items": {
               "type": "object",
               "properties": {
-                "packId": {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                },
                 "productId": {
                   "type": "string",
                   "format": "uuid",
                   "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                 },
-                "productName": {
+                "name": {
                   "type": "string"
                 },
                 "source": {
@@ -6108,52 +6107,79 @@
                 "categoryName": {
                   "type": "string"
                 },
-                "sizeLabel": {
-                  "type": "string"
-                },
-                "quantity": {
-                  "type": "number"
-                },
-                "unit": {
-                  "type": "string",
-                  "enum": [
-                    "LITRE",
-                    "MILLILITRE",
-                    "KILOGRAM",
-                    "GRAM",
-                    "PIECE"
-                  ]
-                },
-                "pricePaise": {
-                  "type": "integer",
-                  "minimum": -9007199254740991,
-                  "maximum": 9007199254740991
-                },
-                "mrpPaise": {
+                "thumbUrl": {
                   "nullable": true,
+                  "type": "string",
+                  "format": "uri"
+                },
+                "packs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "label": {
+                        "type": "string"
+                      },
+                      "pricePaise": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      "mrpPaise": {
+                        "nullable": true,
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      "available": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "label",
+                      "pricePaise",
+                      "mrpPaise",
+                      "available"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "description": "Pack sizes in the current tab, smallest first."
+                },
+                "availableCount": {
                   "type": "integer",
                   "minimum": -9007199254740991,
                   "maximum": 9007199254740991
                 },
-                "available": {
-                  "type": "boolean"
+                "packCount": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "minPricePaise": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
                 }
               },
               "required": [
-                "packId",
                 "productId",
-                "productName",
+                "name",
                 "source",
                 "productStatus",
                 "catalogueActive",
                 "brandName",
                 "categoryName",
-                "sizeLabel",
-                "quantity",
-                "unit",
-                "pricePaise",
-                "mrpPaise",
-                "available"
+                "thumbUrl",
+                "packs",
+                "availableCount",
+                "packCount",
+                "minPricePaise"
               ],
               "additionalProperties": false
             }
