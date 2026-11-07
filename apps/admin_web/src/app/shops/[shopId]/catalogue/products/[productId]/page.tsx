@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { categoryChoices, listShopCategories } from '@/lib/api/shop-categories';
 import { Suspense } from 'react';
 import { PageLoading } from '@/components/layout/page-loading';
 import { ImageUploadForm } from '@/components/media/image-upload-form';
@@ -13,11 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { orNotFound } from '@/lib/api/or-not-found';
-import {
-  getShopProduct,
-  listCatalogueBrands,
-  listCatalogueCategories,
-} from '@/lib/api/shop-catalogue';
+import { getShopProduct, listCatalogueBrands } from '@/lib/api/shop-catalogue';
 import { requireShopAccess, requireShopSession } from '@/lib/auth/shop-access';
 import { paiseToInput } from '@/lib/money';
 import {
@@ -62,7 +59,9 @@ async function ShopProductView({
   const own = product.source === 'own';
   const [categories, brands] = own
     ? await Promise.all([
-        listCatalogueCategories(token),
+        listShopCategories(token, shopId).then((all) =>
+          categoryChoices(all, product.category.id),
+        ),
         listCatalogueBrands(token),
       ])
     : [[], []];

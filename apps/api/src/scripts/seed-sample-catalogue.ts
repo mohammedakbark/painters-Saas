@@ -156,8 +156,8 @@ async function main(): Promise<void> {
         let created = 0;
         const categoryIds = new Map<string, string>();
         for (const [index, name] of CATEGORIES.entries()) {
-          const existing = await tx.catalogueCategory.findUnique({
-            where: { nameKey: nameKey(name) },
+          const existing = await tx.catalogueCategory.findFirst({
+            where: { nameKey: nameKey(name), shopId: null },
           });
           const row =
             existing ??

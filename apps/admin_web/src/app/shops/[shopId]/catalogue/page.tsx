@@ -27,8 +27,8 @@ import {
   ROW_SHOWS,
   ROW_SORTS,
   listCatalogueBrands,
-  listCatalogueCategories,
 } from '@/lib/api/shop-catalogue';
+import { categoryChoices, listShopCategories } from '@/lib/api/shop-categories';
 import { getShopOnboarding } from '@/lib/api/shop-profile';
 import { requireShopAccess, requireShopSession } from '@/lib/auth/shop-access';
 import { formatRupees } from '@/lib/money';
@@ -131,7 +131,9 @@ async function Products({
     listProductRows(token, shopId, state),
     getShopOnboarding(token, shopId),
     // Only the owner gets the Add product sheet, which needs these lists.
-    canEdit ? listCatalogueCategories(token) : [],
+    canEdit
+      ? listShopCategories(token, shopId).then((all) => categoryChoices(all))
+      : [],
     canEdit ? listCatalogueBrands(token) : [],
   ]);
   const productsNeeded = onboarding.items.find(

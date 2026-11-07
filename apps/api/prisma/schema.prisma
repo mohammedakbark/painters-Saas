@@ -204,6 +204,7 @@ model Shop {
   shades          ShopShade[]
   favouriteShades ShopFavouriteShade[]
   reviews         ShopReview[]
+  categories      CatalogueCategory[]
 
   @@map("shops")
 }
@@ -253,16 +254,22 @@ model CatalogueCategory {
   id        String   @id @default(uuid(7)) @db.Uuid
   /// Trimmed, 2–60 characters.
   name      String
-  /// lower(name): names are unique regardless of case.
-  nameKey   String   @unique @map("name_key")
+  /// lower(name): unique regardless of case among the platform's categories
+  /// and within one shop (partial unique indexes in the CAT-007 migration).
+  nameKey   String   @map("name_key")
+  /// Null: a platform category shared by everyone. Set: a category that only
+  /// this shop sees and uses for its own products (D-048, CAT-007).
+  shopId    String?  @map("shop_id") @db.Uuid
   sortOrder Int      @default(0) @map("sort_order")
   active    Boolean  @default(true)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
+  shop         Shop?              @relation(fields: [shopId], references: [id], onDelete: Restrict)
   products     CatalogueProduct[]
   shopProducts ShopProduct[]
 
+  @@index([shopId])
   @@map("catalogue_categories")
 }
 

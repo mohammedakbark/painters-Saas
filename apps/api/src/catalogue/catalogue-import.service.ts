@@ -180,7 +180,7 @@ export class CatalogueImportService {
     const categories = new Map(
       (
         await this.prisma.catalogueCategory.findMany({
-          where: { active: true },
+          where: { active: true, shopId: null },
           select: { id: true, nameKey: true },
         })
       ).map((category) => [category.nameKey, category.id]),

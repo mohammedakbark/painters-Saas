@@ -941,4 +941,129 @@ describe('Shop catalogue (e2e, real Postgres)', () => {
       progress: { current: 9 },
     });
   });
+
+  describe('shop categories (CAT-007, D-048)', () => {
+    it('lists platform and own categories and keeps own ones to their shop', async () => {
+      const first = await shopOwner('919999900001', 'Lakshmi Paints');
+      const second = await shopOwner('919999900002', 'Sree Colours');
+
+      const created = await call(first, 'post', '/categories', {
+        name: '  Waterproofing   kits ',
+      }).expect(201);
+      expect(created.body).toMatchObject({
+        name: 'Waterproofing kits',
+        own: true,
+        active: true,
+        productCount: 0,
+      });
+      const ownId = created.body.id as string;
+
+      // Same name as a platform category or an own one: refused.
+      const platformName = await call(first, 'post', '/categories', {
+        name: 'interior EMULSION',
+      }).expect(409);
+      expect(platformName.body.code).toBe('category_name_taken');
+      await call(first, 'post', '/categories', {
+        name: 'Waterproofing Kits',
+      }).expect(409);
+      // Another shop may use the same name for its own category.
+      await call(second, 'post', '/categories', {
+        name: 'Waterproofing kits',
+      }).expect(201);
+
+      const list = await call(first, 'get', '/categories').expect(200);
+      expect(
+        (list.body.items as { name: string; own: boolean }[]).map((c) => [
+          c.name,
+          c.own,
+        ]),
+      ).toEqual([
+        ['Interior emulsion', false],
+        ['Waterproofing kits', true],
+      ]);
+
+      // The platform's lists never show shop categories.
+      const platformList = await request(server())
+        .get('/v1/platform/catalogue/categories')
+        .set('Authorization', admin)
+        .expect(200);
+      expect(
+        (platformList.body.items as { name: string }[]).map((c) => c.name),
+      ).toEqual(['Interior emulsion']);
+      const publicList = await request(server())
+        .get('/v1/catalogue/categories')
+        .set('Authorization', first.auth)
+        .expect(200);
+      expect(publicList.body.items).toHaveLength(1);
+      await platform('patch', `/categories/${categoryId}`, {
+        sortOrder: 5,
+      });
+      await request(server())
+        .patch(`/v1/platform/catalogue/categories/${ownId}`)
+        .set('Authorization', admin)
+        .send({ name: 'Taken over' })
+        .expect(404);
+
+      // Another shop can't see, change or use it.
+      await call(second, 'patch', `/categories/${ownId}`, {
+        name: 'Mine now',
+      }).expect(404);
+      const used = await ownProduct(second, 'Roof Seal', {
+        categoryId: ownId,
+      }).expect(400);
+      expect(used.body.code).toBe('category_unavailable');
+      await call(second, 'get', '/categories', undefined, first.shopId).expect(
+        404,
+      );
+      // A platform category can't be changed by a shop.
+      await call(first, 'patch', `/categories/${categoryId}`, {
+        name: 'Renamed',
+      }).expect(404);
+    });
+
+    it('lets own products use own categories until they are archived', async () => {
+      const owner = await shopOwner('919999900001', 'Lakshmi Paints');
+      const ownId = (
+        await call(owner, 'post', '/categories', { name: 'Tools' }).expect(201)
+      ).body.id as string;
+
+      const product = await ownProduct(owner, 'Roller 9 inch', {
+        categoryId: ownId,
+      }).expect(201);
+      expect(product.body.category).toMatchObject({ id: ownId, name: 'Tools' });
+
+      const renamed = await call(owner, 'patch', `/categories/${ownId}`, {
+        name: 'Painting tools',
+      }).expect(200);
+      expect(renamed.body).toMatchObject({
+        name: 'Painting tools',
+        productCount: 1,
+      });
+
+      await call(owner, 'patch', `/categories/${ownId}`, {
+        active: false,
+      }).expect(200);
+      const refused = await ownProduct(owner, 'Brush 2 inch', {
+        categoryId: ownId,
+      }).expect(400);
+      expect(refused.body.code).toBe('category_unavailable');
+      // Archived own categories stay listed so they can be restored.
+      const list = await call(owner, 'get', '/categories').expect(200);
+      expect(
+        (list.body.items as { id: string; active: boolean }[]).find(
+          (c) => c.id === ownId,
+        )?.active,
+      ).toBe(false);
+
+      const actions = await testApp.prisma.auditEvent.findMany({
+        where: { shopId: owner.shopId, entityType: 'catalogue_category' },
+        orderBy: { occurredAt: 'asc' },
+      });
+      expect(actions.map((event) => event.action)).toEqual([
+        'shop_catalogue.category_created',
+        'shop_catalogue.category_updated',
+        'shop_catalogue.category_updated',
+      ]);
+    });
+  });
 });

@@ -61,6 +61,7 @@ async function ShopConsole({
           exclude: `${base}/catalogue/shades`,
         },
         { href: `${base}/catalogue/shades`, label: 'Shades', icon: 'palette' },
+        { href: `${base}/categories`, label: 'Categories', icon: 'notebook' },
       ]}
       accountLinks={[
         {

@@ -35,6 +35,8 @@ export const AuditAction = {
   ShopShadeAdded: 'shop_catalogue.shade_added',
   ShopShadeUpdated: 'shop_catalogue.shade_updated',
   ShopShadeRemoved: 'shop_catalogue.shade_removed',
+  ShopCategoryCreated: 'shop_catalogue.category_created',
+  ShopCategoryUpdated: 'shop_catalogue.category_updated',
 } as const;
 
 export type AuditAction = (typeof AuditAction)[keyof typeof AuditAction];

@@ -260,7 +260,7 @@ export class ShopProductsService {
           data.customNameKey = nameKey(input.name);
         }
         if (input.categoryId !== undefined) {
-          await requireActiveCategory(tx, input.categoryId);
+          await requireActiveCategory(tx, shop.shopId, input.categoryId);
           data.categoryId = input.categoryId;
         }
         if (input.brandId !== undefined || input.brandName !== undefined) {
@@ -668,7 +668,7 @@ export class ShopProductsService {
     shop: ShopContext,
     input: Extract<AddShopProductRequest, { source: 'own' }>,
   ): Promise<Prisma.ShopProductUncheckedCreateInput> {
-    await requireActiveCategory(tx, input.categoryId);
+    await requireActiveCategory(tx, shop.shopId, input.categoryId);
     if (input.brandId) {
       await requireActiveBrand(tx, input.brandId);
     }
@@ -730,9 +730,18 @@ async function requirePacksOfProduct(
   }
 }
 
-async function requireActiveCategory(tx: Tx, categoryId: string) {
+/** An active platform category or one of this shop's own (D-048). */
+async function requireActiveCategory(
+  tx: Tx,
+  shopId: string,
+  categoryId: string,
+) {
   const found = await tx.catalogueCategory.count({
-    where: { id: categoryId, active: true },
+    where: {
+      id: categoryId,
+      active: true,
+      OR: [{ shopId: null }, { shopId }],
+    },
   });
   if (found === 0) {
     throw problem(

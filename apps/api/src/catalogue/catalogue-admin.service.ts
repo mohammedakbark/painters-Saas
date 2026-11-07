@@ -70,8 +70,10 @@ export class CatalogueAdminService {
 
   // --- Categories ------------------------------------------------------------
 
+  /** The platform's categories (shops' own categories are not shown). */
   async listCategories(): Promise<CategoryList> {
     const rows = await this.prisma.catalogueCategory.findMany({
+      where: { shopId: null },
       orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
       select: CATEGORY_SELECT,
     });
@@ -583,8 +585,9 @@ export class CatalogueAdminService {
 
   private async requireCategory(db: Tx, categoryId: string) {
     const row = idSchema.safeParse(categoryId).success
-      ? await db.catalogueCategory.findUnique({
-          where: { id: categoryId },
+      ? await db.catalogueCategory.findFirst({
+          // Platform categories only: shop categories belong to their shop.
+          where: { id: categoryId, shopId: null },
           select: CATEGORY_SELECT,
         })
       : null;

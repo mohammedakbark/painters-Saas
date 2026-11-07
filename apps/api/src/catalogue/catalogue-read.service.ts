@@ -40,7 +40,7 @@ export class CatalogueReadService {
 
   async categories(): Promise<CategoryList> {
     const rows = await this.prisma.catalogueCategory.findMany({
-      where: { active: true },
+      where: { active: true, shopId: null },
       orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
       select: CATEGORY_SELECT,
     });
