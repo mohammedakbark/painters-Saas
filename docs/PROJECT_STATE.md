@@ -357,8 +357,12 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 
 ## 7. Next actions
 
-1. **UI/UX pass (product owner, 2026-11-05):** shop admin web (WEB-001 to WEB-005, CAT-003 to CAT-006, DS-003, DS-004, SHP-006) and platform admin tables (PLT-003) done. Next, in the owner's order: Shop App mobile patterns (product list with search, filter sheet and load more), then the Customer App; the business dashboard comes with orders. Owner: domains, trademark check, bundle IDs (question 41).
-2. **Next phase: plan the Customer App foundation** with the product owner: CUS-001 sign-up and profile (customer type, D-036), CUS-002 Find shops and My Shops (D-037, D-038), CUS-003 shop storefront. Open before ordering: questions 30–32 (order approval, pickup/delivery, fulfilment).
+1. **Web first, then mobile (product owner, 2026-11-07).** The web shop admin and platform admin UI pass is complete (WEB-001 to WEB-005, CAT-003 to CAT-006, DS-003, DS-004, SHP-006, PLT-003, PERF-001). The web and server are finished before the mobile apps:
+   - **Step A (shop web, no new decisions):** Shades as a table; Shop settings (details and photo, delivery D-046, order messages); shop categories (D-048); Overview dashboard v1.
+   - **Step B (Phase 2 ordering, server and shop web):** ORD-001 orders API (D-045 to D-047, seed script for test orders), ORD-002 shop Orders page, ORD-003 dashboard with order KPIs.
+   - **Then mobile:** Shop App (orders and products; SHP-007), then the Customer App on the same APIs.
+   - Owner: domains, trademark check, bundle IDs (question 41).
+2. **Next phase: plan the Customer App foundation** with the product owner: CUS-001 sign-up and profile (customer type, D-036), CUS-002 Find shops and My Shops (D-037, D-038), CUS-003 shop storefront. Ordering questions 30–32 answered (D-045 to D-047).
 3. **Product owner checks:** try the platform **Reviews** decision form in Chrome as the platform admin; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
 4. **Hardening before any hosted environment:** questions 49 and 51.
 5. **Product owner:** real brand catalogue data; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
@@ -453,3 +457,4 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-07 | PLT-003 Part 1: platform shops and review queue as tables (search by shop, owner or mobile; status tabs with counts; sort; pages; wait badge). Local-only test platform admin created for browser checks (password in gitignored .env.local). |
 | 2026-11-07 | PLT-003 Part 2: platform brands and a brand's products as tables (status tabs, search, category, pages, photos, pack chips). |
 | 2026-11-07 | PERF-001 (D-044): GET search and filters go through the client router (`UrlForm`), so they no longer reload the page; Shades page split into a static shell and per-section loading; new `data-loading` skill with web and Flutter rules, linked from CLAUDE.md, ui-implementation and code-review. |
+| 2026-11-07 | Owner: web first, then mobile. Ordering decided: automatic acceptance with not-available notices and substitutes (D-045), pickup and delivery with shop delivery settings (D-046), cancel until ready or dispatched, partial fulfilment and returns at launch (D-047), shop categories (D-048). Roadmap Step A (shop web) and Step B (ordering) recorded. |

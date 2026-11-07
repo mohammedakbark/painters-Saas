@@ -50,6 +50,10 @@ This document prevents assumptions from silently becoming requirements.
 | D-042 | The Admin Web keeps one consistent design system. The mobile apps may have their own fonts, colours and visual identity where appropriate (still built from shared tokens and components). Every Admin Web screen supports desktop, tablet and phone from the start. | Confirmed (product owner, 2026-11-06) |
 | D-043 | Products are added through one **Add product** flow: search every brand's catalogue; a picked brand product keeps its catalogue name, brand, category and pack sizes (the shop sets which sizes it sells, prices and its own photo); a product that is not found is added as the shop's own product. An own product is **sold by** one unit group (litres, kilograms or pieces) for all its pack sizes. Interior/exterior stays part of the category. The bulk quick add stays as a "Quick start" while a shop has fewer than 10 products. | Confirmed (product owner, 2026-11-06); implemented in CAT-005 |
 | D-044 | **No whole-page reloads for one change** (all platforms): static text renders in the prerendered shell; each data section loads behind its own Suspense; GET search and filters go through the client router (`UrlForm`), never a document reload; mutations show busy state on their own control and refresh in a transition. Data that does not change is not refetched: shared data is deduplicated per request with React `cache()`; API responses carry the user's token and are never put in a shared cache. The owner chose per-user caching (`'use cache: private'`), but Next.js 16 does not keep private-cache data between requests in production, so it would not save a fetch and is not used; revisit if a cross-request per-user cache becomes available. Flutter: per-item busy state, patch from the response, reference data kept per session. Rules in `.claude/skills/data-loading`. | Confirmed (product owner, 2026-11-07); implemented in PERF-001 |
+| D-045 | **Orders are accepted automatically.** If an item turns out to be out of stock, the shop marks it **Not available** and presses **Notify customer** with a ready message (for example "Stock not available", "Stock we can arrange for tomorrow morning") or its own text. The shop can **suggest a substitute** (another pack size, shade or product); the customer accepts or declines it. | Confirmed (product owner, 2026-11-07); answers question 30 |
+| D-046 | **Pickup and delivery at launch.** Each shop sets delivery in its settings: on or off, a flat charge, free delivery above an order amount, and where it delivers (areas or a distance). The customer chooses pickup or delivery at checkout. | Confirmed (product owner, 2026-11-07); answers question 31 (zone format to confirm when built) |
+| D-047 | **Order changes.** The customer can cancel until the order is ready for pickup or dispatched. The shop can mark items not available (partial fulfilment) and suggest substitutes. Returns after pickup are supported at launch: returned items are recorded and the order total adjusted, with an audit trail; money records follow with billing (Phase 3). | Confirmed (product owner, 2026-11-07); answers question 32 |
+| D-048 | **Shops can add their own product categories**, next to the platform's categories. A shop's own categories are visible only in that shop; platform categories stay shared. | Confirmed (product owner, 2026-11-07); answers question 54 |
 
 ## 2. Proposed technical decisions — require approval
 
@@ -141,9 +145,9 @@ Do not treat proposals as approved until the product owner confirms them.
 29. How can a shop change a credit limit, and what approval/audit process is required?
 
 ### Orders, billing and payments
-30. Does the shop approve every order before it is accepted?
-31. Is pickup, delivery or both required at launch? What delivery zones/charges apply?
-32. Are partial fulfilment, substitutions, cancellations and returns supported?
+30. ~~Does the shop approve every order before it is accepted?~~ **Resolved (D-045).**
+31. ~~Is pickup, delivery or both required at launch? What delivery zones/charges apply?~~ **Resolved (D-046).**
+32. ~~Are partial fulfilment, substitutions, cancellations and returns supported?~~ **Resolved (D-047).**
 33. Can a bill be paid in multiple partial payments?
 34. What is the running-bill and final-bill workflow?
 35. What GST/tax invoice, numbering, rounding and credit-note rules apply?
@@ -168,7 +172,7 @@ Do not treat proposals as approved until the product owner confirms them.
 50. ~~What does a platform admin do with a shop it does not approve?~~ **Resolved (D-032):** request changes with reasons; the owner fixes and resubmits.
 52. What is the tinting/mixing workflow: does the shop record the base and colorant, or only the chosen shade code? (Raised with D-030.)
 53. Through which channel is the shop owner notified of a customer's product request and of review decisions: in-app only, push notification or SMS? (Raised with D-029 and D-032.)
-54. Can a shop create its own product categories, or only use the platform's categories (today: platform only)?
+54. ~~Can a shop create its own product categories, or only use the platform's categories (today: platform only)?~~ **Resolved (D-048).**
 55. Should "Delete" on a shop product mean archive (today: products are archived, pack sizes can be removed) or permanent removal?
 56. What does the planned "Mobile Apps" section of the shop console manage: staff app access, signed-in devices, app registrations?
 51. Public email sign-up is technically possible because Supabase has one global sign-up switch; such accounts get no access. For the hosted project, which mitigation is preferred: email confirmations + CAPTCHA, or a before-user-created hook that only allows phone sign-ups?
