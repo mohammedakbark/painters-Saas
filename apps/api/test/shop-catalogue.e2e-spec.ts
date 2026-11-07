@@ -1066,4 +1066,54 @@ describe('Shop catalogue (e2e, real Postgres)', () => {
       ]);
     });
   });
+
+  describe('overview summary (WEB-008)', () => {
+    it("counts only the shop's own products, by status and availability", async () => {
+      const owner = await shopOwner('919999900001', 'Lakshmi Paints');
+      const other = await shopOwner('919999900002', 'Sree Colours');
+
+      // Catalogue product with two packs: one available, one not → partly.
+      const listed = await listCatalogueProduct(owner).expect(201);
+      const [firstPack] = listed.body.packs as { id: string }[];
+      await call(
+        owner,
+        'patch',
+        `/products/${listed.body.id}/packs/${firstPack.id}`,
+        { available: false },
+      ).expect(200);
+      // Own product without a photo, all available.
+      await ownProduct(owner, 'Wall Putty Premium').expect(201);
+      // Own product with no pack available.
+      const none = await ownProduct(owner, 'Crack Filler').expect(201);
+      await call(
+        owner,
+        'patch',
+        `/products/${none.body.id}/packs/${none.body.packs[0].id}`,
+        { available: false },
+      ).expect(200);
+      // Archived own product.
+      const archived = await ownProduct(owner, 'Old Primer').expect(201);
+      await call(owner, 'patch', `/products/${archived.body.id}`, {
+        status: 'ARCHIVED',
+      }).expect(200);
+      // The other shop's data never counts.
+      await ownProduct(other, 'Wall Putty Premium').expect(201);
+
+      const summary = await call(owner, 'get', '/summary').expect(200);
+      expect(summary.body).toEqual({
+        products: {
+          active: 3,
+          archived: 1,
+          allAvailable: 1,
+          partlyAvailable: 1,
+          noneAvailable: 1,
+          ownWithoutPhoto: 2,
+        },
+        shades: { favourites: 0, own: 0 },
+        ownCategories: 0,
+      });
+
+      await call(other, 'get', '/summary', undefined, owner.shopId).expect(404);
+    });
+  });
 });

@@ -4433,6 +4433,62 @@
         ]
       }
     },
+    "/v1/shops/{shopId}/catalogue/summary": {
+      "get": {
+        "operationId": "ShopSummaryController_get",
+        "parameters": [
+          {
+            "name": "shopId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopCatalogueSummary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown shop, or the caller is not a member.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Counts for the overview: products by status and availability, products without a photo, shades and own categories.",
+        "tags": [
+          "shop catalogue"
+        ]
+      }
+    },
     "/v1/shops/{shopId}/review": {
       "get": {
         "operationId": "ShopReviewController_state",
@@ -7919,6 +7975,87 @@
             "type": "boolean"
           }
         }
+      },
+      "ShopCatalogueSummary": {
+        "type": "object",
+        "properties": {
+          "products": {
+            "type": "object",
+            "properties": {
+              "active": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "archived": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "allAvailable": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "partlyAvailable": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "noneAvailable": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "ownWithoutPhoto": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "active",
+              "archived",
+              "allAvailable",
+              "partlyAvailable",
+              "noneAvailable",
+              "ownWithoutPhoto"
+            ],
+            "additionalProperties": false
+          },
+          "shades": {
+            "type": "object",
+            "properties": {
+              "favourites": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "own": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "favourites",
+              "own"
+            ],
+            "additionalProperties": false
+          },
+          "ownCategories": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991,
+            "description": "Active own categories."
+          }
+        },
+        "required": [
+          "products",
+          "shades",
+          "ownCategories"
+        ],
+        "additionalProperties": false
       },
       "ShopReviewState": {
         "type": "object",

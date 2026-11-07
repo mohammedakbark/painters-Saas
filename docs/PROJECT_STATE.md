@@ -40,6 +40,7 @@
 | WEB-007: Side sheet for small forms (D-051): shop Add product and Add shade; platform Add brand, categories, brand shades table and Add product | **Complete (local; Chrome)** | `docs/features/WEB-007-side-sheet.md` |
 | SHP-008: Shop settings: pickup and delivery (charge, free-above, km distance) and order messages | **Complete (local; Chrome)** | `docs/features/SHP-008-shop-settings.md` |
 | CAT-007: Shop categories (D-048): own categories next to the platform's, used by own products | **Complete (local; Chrome)** | `docs/features/CAT-007-shop-categories.md` |
+| WEB-008: Overview dashboard v1: status, product stat tiles, to-dos, pickup and delivery | **Complete (local; Chrome)** | `docs/features/WEB-008-overview-dashboard.md` |
 | INFRA-001: Free test hosting (D-052, ADR 0009): Render API from `render.yaml`, Vercel web, Supabase Free, deploy on merge to `main`, keep-alive workflow | **Config in repo**; provider dashboards set up by the owner following `docs/guides/DEPLOYMENT.md`; first hosted deploy not yet verified | `docs/guides/DEPLOYMENT.md`, ADR 0009 |
 | PLT-003: Platform admin lists as tables (Part 1: shops and reviews; Part 2: brand catalogue) | **Complete (local; Chrome)** | `docs/features/PLT-003-platform-tables.md` |
 | PERF-001: Partial updates: search and filters without page reloads (`UrlForm`), per-section loading on Shades, project-wide loading rules (D-044, `data-loading` skill) | **Complete (local; Chrome, production build)** | `docs/features/PERF-001-partial-updates.md` |
@@ -363,7 +364,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 ## 7. Next actions
 
 1. **Web first, then mobile (product owner, 2026-11-07).** The web shop admin and platform admin UI pass is complete (WEB-001 to WEB-005, CAT-003 to CAT-006, DS-003, DS-004, SHP-006, PLT-003, PERF-001). The web and server are finished before the mobile apps:
-   - **Step A (shop web, no new decisions):** ~~Shades as a table~~ (done, WEB-006); ~~side sheet for small forms~~ (done, WEB-007, D-051); ~~Shop settings~~ (done, SHP-008); ~~shop categories~~ (done, CAT-007, D-048); Overview dashboard v1.
+   - **Step A (shop web, no new decisions):** ~~Shades as a table~~ (done, WEB-006); ~~side sheet for small forms~~ (done, WEB-007, D-051); ~~Shop settings~~ (done, SHP-008); ~~shop categories~~ (done, CAT-007, D-048); ~~Overview dashboard v1~~ (done, WEB-008). Step A is complete; next is Step B (ORD-001).
    - **Step B (Phase 2 ordering, server and shop web):** ORD-001 orders API (D-045 to D-047, seed script for test orders), ORD-002 shop Orders page, ORD-003 dashboard with order KPIs.
    - **Then mobile:** Shop App (orders and products; SHP-007), then the Customer App on the same APIs.
    - Owner: domains, trademark check, bundle IDs (question 41).
@@ -468,4 +469,5 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-07 | WEB-007 Part 2: platform Add brand, categories table with add and edit sheets, brand shades as a paged table (API: page-based platform shade list), Add product for a brand in a sheet. |
 | 2026-11-07 | SHP-008: Shop settings page (account menu): delivery on/off with flat charge, free-above amount and km distance (needs the map location), and editable order messages in side sheets; new `shops` columns with CHECK constraints; one toast at a time. Assumptions to confirm: pickup always on, limits ₹10,000 / 50 km / 10 messages. |
 | 2026-11-07 | CAT-007: shop categories (D-048) in `catalogue_categories.shop_id` with partial unique indexes; shop Categories page (table, add/edit/archive in sheets); own products may use own categories; platform and public lists exclude them. Assumptions to confirm: 50 per shop, no name shared with a platform category. |
+| 2026-11-08 | WEB-008: Overview dashboard v1 with `StatTile` KPI row (on sale, all/some/no sizes available) linking to filtered products, to-dos (setup checklist until Live), pickup and delivery and shades/categories cards; `catalogue/summary` API. Step A (shop web) complete. |
 | 2026-11-07 | Owner: free test hosting (D-052, ADR 0009). INFRA-001: `render.yaml` (Render Free API, deploys after CI on `main`, migrations at start), `apps/admin_web/vercel.json` (Vercel Hobby, `main` only), `keep-alive.yml`, `docs/guides/DEPLOYMENT.md`. |

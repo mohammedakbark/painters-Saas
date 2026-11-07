@@ -155,6 +155,7 @@ Web utilities: `rounded-control`, `min-h-control`, `rounded-card`, `border-card-
 | `Menu` (`MenuLink`, `MenuButton`, `MenuSeparator`, `MenuLabel`), `ConfirmDialog`, `IconButton`, `Button` `destructive` (WEB-005) | dropdown and row action menus, confirming destructive actions, icon-only buttons |
 | `Thumbnail`, `PackChip` (CAT-006) | product photos in lists (with a placeholder), pack size with price and availability dot; lists show one row per thing, details as chips |
 | `SideSheet`, `SideSheetButton`, `useSideSheet`, `useCloseSheetOnSave`, `Toast` (WEB-007, D-051) | small add and edit forms in a panel from the right over a blurred page (native modal dialog: Escape, outside click and Close shut it; the draft survives closing); after a save the sheet closes, the form clears and a toast confirms, with an optional link. Records with their own lists or many sections stay full pages |
+| `StatTile` (WEB-008) | one headline number: label, value in text colours, optional context, status badge (word + tone) and link to the list behind it; KPI rows are 2 per row on phones, 4 from `wide` |
 | `Combobox` (CAT-005) | search with suggestions and a "create new" option, ARIA combobox |
 | `SegmentedLinks` | switching a list between views (e.g. Selling and Archived), links with `aria-current` |
 | `AppShell` (`area` with caption, name and switch link; icon `nav`), `NavLinks` (`vertical`, `horizontal`, `tabs`; optional `icon`), `PageLoading` (placeholder skeleton) | console frame, navigation, page loading |
