@@ -38,8 +38,6 @@ import {
 import {
   type BrandResponse,
   BrandSchema,
-  type CatalogueListQuery,
-  CatalogueListQuerySchema,
   type PlatformBrandListQuery,
   PlatformBrandListQuerySchema,
   type PlatformBrandPage,
@@ -48,6 +46,10 @@ import {
   PlatformProductListQuerySchema,
   type PlatformProductPage,
   PlatformProductPageSchema,
+  type PlatformShadeListQuery,
+  PlatformShadeListQuerySchema,
+  type PlatformShadePage,
+  PlatformShadePageSchema,
   type Category,
   type CategoryList,
   CategoryListSchema,
@@ -66,8 +68,6 @@ import {
   ImportResultSchema,
   type ProductResponse,
   ProductSchema,
-  type ShadePage,
-  ShadePageSchema,
   type ShadeResponse,
   ShadeSchema,
   type UpdateBrandRequest,
@@ -276,13 +276,14 @@ export class PlatformCatalogueController {
   @ApiOperation({
     summary: "A brand's shades by code, including archived ones.",
   })
-  @ApiOkResponse({ standardSchema: ShadePageSchema })
+  @ApiOkResponse({ standardSchema: PlatformShadePageSchema })
   @ApiBadRequestResponse(PROBLEM)
   @ApiNotFoundResponse(PROBLEM)
   listShades(
     @Param('brandId') brandId: string,
-    @Query({ schema: CatalogueListQuerySchema }) query: CatalogueListQuery,
-  ): Promise<ShadePage> {
+    @Query({ schema: PlatformShadeListQuerySchema })
+    query: PlatformShadeListQuery,
+  ): Promise<PlatformShadePage> {
     return this.catalogue.listShades(brandId, query);
   }
 

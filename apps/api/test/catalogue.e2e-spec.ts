@@ -356,6 +356,35 @@ describe('Brand catalogue (e2e, real Postgres)', () => {
         'G-3',
       ]);
       expect(second.body.nextCursor).toBeNull();
+
+      // Platform list (WEB-007): numbered pages, search and status filter.
+      const hidden = await get(
+        `/platform/catalogue/brands/${brandId}/shades?q=G-2`,
+      ).expect(200);
+      await patch(`/shades/${hidden.body.items[0].id}`, {
+        active: false,
+      }).expect(200);
+      const page2 = await get(
+        `/platform/catalogue/brands/${brandId}/shades?q=grey&page=2&pageSize=10`,
+      ).expect(200);
+      expect(page2.body).toMatchObject({ items: [], total: 3, page: 2 });
+      const active = await get(
+        `/platform/catalogue/brands/${brandId}/shades?q=grey&status=active`,
+      ).expect(200);
+      expect(active.body.total).toBe(2);
+      expect(active.body.items.map((s: { code: string }) => s.code)).toEqual([
+        'G-1',
+        'G-3',
+      ]);
+      const archived = await get(
+        `/platform/catalogue/brands/${brandId}/shades?status=archived`,
+      ).expect(200);
+      expect(archived.body.items.map((s: { code: string }) => s.code)).toEqual([
+        'G-2',
+      ]);
+      await get(
+        `/platform/catalogue/brands/${brandId}/shades?pageSize=7`,
+      ).expect(400);
     });
 
     it('stores a product image through the photo pipeline', async () => {

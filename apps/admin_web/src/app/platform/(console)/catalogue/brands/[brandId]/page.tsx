@@ -9,9 +9,9 @@ import {
 } from '@/components/ui/column-filter';
 import { type Column, DataTable } from '@/components/ui/data-table';
 import { FilterForm } from '@/components/ui/filter-form';
-import { Icon } from '@/components/ui/icon';
 import { Pagination } from '@/components/ui/pagination';
 import { SegmentedLinks } from '@/components/ui/segmented-links';
+import { SideSheet, SideSheetButton } from '@/components/ui/side-sheet';
 import { StateMessage } from '@/components/ui/state-message';
 import { Thumbnail } from '@/components/ui/thumbnail';
 import {
@@ -24,6 +24,8 @@ import {
 import { requirePlatformAdmin } from '@/lib/auth/platform-access';
 import { listLink, oneOf, readPaging, text } from '@/lib/list-params';
 import { ActiveBadge, orNotFound } from '../../catalogue-parts';
+import { ProductForm } from '@/components/catalogue/product-form';
+import { createProductAction } from '../../actions';
 import { BrandHeader } from './brand-header';
 
 export const metadata: Metadata = { title: 'Brand · Catalogue' };
@@ -36,6 +38,7 @@ const STATUS_LABELS: Record<ListStatus, string> = {
   archived: 'Archived',
 };
 const DEFAULTS = { status: 'all', page: '1', pageSize: '25' };
+const PRODUCT_SHEET = 'add-product';
 
 /** A brand's products (CAT-001; table PLT-003). */
 export default function BrandProductsPage(
@@ -143,6 +146,25 @@ async function BrandProducts({
   return (
     <div className="flex flex-col gap-6">
       <BrandHeader brand={brand} />
+      <SideSheet
+        id={PRODUCT_SHEET}
+        title="Add a product"
+        description={`For ${brand.name}. Add its photo on the product page.`}
+        defaultOpen={text(search.add) === 'product'}
+      >
+        <ProductForm
+          action={createProductAction.bind(null, brand.id)}
+          categories={categories}
+          initial={{
+            name: '',
+            categoryId: '',
+            description: '',
+            packs: '',
+            supportsShades: false,
+          }}
+          submitLabel="Add product"
+        />
+      </SideSheet>
 
       <div className="flex flex-col gap-3 medium:flex-row medium:items-center medium:justify-between">
         <SegmentedLinks
@@ -153,12 +175,9 @@ async function BrandProducts({
             current: state.status === status,
           }))}
         />
-        <div className="flex flex-wrap gap-3">
-          <ButtonLink href={`${base}/products/new`}>
-            <Icon name="plus" className="size-5" />
-            Add product
-          </ButtonLink>
-        </div>
+        <SideSheetButton sheet={PRODUCT_SHEET} icon="plus">
+          Add product
+        </SideSheetButton>
       </div>
 
       <FilterForm

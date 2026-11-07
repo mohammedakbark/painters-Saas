@@ -38,6 +38,8 @@ import type {
   PlatformBrandPage,
   PlatformProductListQuery,
   PlatformProductPage,
+  PlatformShadeListQuery,
+  PlatformShadePage,
   ProductResponse,
   ShadePage,
   ShadeResponse,
@@ -392,13 +394,43 @@ export class CatalogueAdminService {
 
   // --- Shades ----------------------------------------------------------------
 
-  /** A brand's shades (including archived), by code. */
+  /**
+   * A brand's shades by code, with numbered pages and a status filter
+   * (WEB-007; shade cards can hold thousands).
+   */
   async listShades(
     brandId: string,
-    query: CatalogueListQuery,
-  ): Promise<ShadePage> {
+    query: PlatformShadeListQuery,
+  ): Promise<PlatformShadePage> {
     await this.requireBrand(this.prisma, brandId);
-    return listShadePage(this.prisma, brandId, query, false);
+    const where: Prisma.ShadeWhereInput = {
+      brandId,
+      ...(query.status === 'all' ? {} : { active: query.status === 'active' }),
+      ...(query.q
+        ? {
+            OR: [
+              { code: { contains: query.q, mode: 'insensitive' } },
+              { name: { contains: query.q, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+    };
+    const [rows, total] = await Promise.all([
+      this.prisma.shade.findMany({
+        where,
+        orderBy: [{ code: 'asc' }, { id: 'asc' }],
+        skip: (query.page - 1) * query.pageSize,
+        take: query.pageSize,
+        select: SHADE_SELECT,
+      }),
+      this.prisma.shade.count({ where }),
+    ]);
+    return {
+      items: rows.map(toShade),
+      total,
+      page: query.page,
+      pageSize: query.pageSize,
+    };
   }
 
   async createShade(

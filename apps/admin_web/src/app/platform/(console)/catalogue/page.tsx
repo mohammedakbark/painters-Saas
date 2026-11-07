@@ -4,13 +4,13 @@ import { Suspense } from 'react';
 import { BrandCreateForm } from '@/components/catalogue/brand-forms';
 import { PageLoading } from '@/components/layout/page-loading';
 import { ButtonLink } from '@/components/ui/button-link';
-import { Card } from '@/components/ui/card';
 import { ColumnSearchFilter } from '@/components/ui/column-filter';
 import { type Column, DataTable } from '@/components/ui/data-table';
 import { FilterForm } from '@/components/ui/filter-form';
 import { PageHeader } from '@/components/ui/page-header';
 import { Pagination } from '@/components/ui/pagination';
 import { SegmentedLinks } from '@/components/ui/segmented-links';
+import { SideSheet, SideSheetButton } from '@/components/ui/side-sheet';
 import { StateMessage } from '@/components/ui/state-message';
 import {
   type Brand,
@@ -35,6 +35,8 @@ const STATUS_LABELS: Record<ListStatus, string> = {
 const DEFAULTS = { status: 'all', page: '1', pageSize: '25' };
 
 /** Brands of the shared catalogue (CAT-001, D-030; table PLT-003). */
+const BRAND_SHEET = 'add-brand';
+
 export default function CatalogueBrandsPage(
   props: PageProps<'/platform/catalogue'>,
 ) {
@@ -44,11 +46,23 @@ export default function CatalogueBrandsPage(
         title="Catalogue"
         description="Brands, products and shades that every shop can use. Fill them from official shade cards and price lists, by hand or by CSV import."
         actions={
-          <ButtonLink href={`${BASE}/categories`} variant="secondary">
-            Manage categories
-          </ButtonLink>
+          <>
+            <ButtonLink href={`${BASE}/categories`} variant="secondary">
+              Manage categories
+            </ButtonLink>
+            <SideSheetButton sheet={BRAND_SHEET} icon="plus">
+              Add brand
+            </SideSheetButton>
+          </>
         }
       />
+      <SideSheet
+        id={BRAND_SHEET}
+        title="Add a brand"
+        description="Then add its products and shades, by hand or by CSV import."
+      >
+        <BrandCreateForm action={createBrandAction} />
+      </SideSheet>
       <Suspense fallback={<PageLoading label="Loading brands…" />}>
         <Brands {...props} />
       </Suspense>
@@ -118,10 +132,6 @@ async function Brands({ searchParams }: PageProps<'/platform/catalogue'>) {
 
   return (
     <div className="flex flex-col gap-6">
-      <Card as="section" className="flex flex-col gap-4 p-6">
-        <BrandCreateForm action={createBrandAction} />
-      </Card>
-
       <section aria-labelledby="brands-heading" className="flex flex-col gap-4">
         <h2 id="brands-heading" className="text-heading3 font-semibold">
           Brands

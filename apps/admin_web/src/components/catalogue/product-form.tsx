@@ -2,7 +2,7 @@
 
 import { type FormEvent, startTransition, useActionState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ButtonLink } from '@/components/ui/button-link';
+import { SheetCancel, useCloseSheetOnSave } from '@/components/ui/side-sheet';
 import { CheckboxField } from '@/components/ui/checkbox-field';
 import { Field } from '@/components/ui/field';
 import { SelectField } from '@/components/ui/select-field';
@@ -32,12 +32,14 @@ export function ProductForm({
   categories: readonly { id: string; name: string; active: boolean }[];
   initial: ProductFormValues;
   submitLabel: string;
-  cancelHref: string;
+  /** Where Cancel goes on a page; in a side sheet Cancel closes it. */
+  cancelHref?: string;
 }) {
   const [state, formAction, pending] = useActionState<
     CatalogueFormState,
     FormData
   >(action, {});
+  useCloseSheetOnSave(state);
   const values = state.values;
   const errors = state.fieldErrors ?? {};
   const options = [
@@ -112,9 +114,7 @@ export function ProductForm({
         <Button type="submit" pending={pending} pendingLabel="Saving…">
           {submitLabel}
         </Button>
-        <ButtonLink href={cancelHref} variant="secondary">
-          Cancel
-        </ButtonLink>
+        <SheetCancel href={cancelHref} />
       </div>
     </form>
   );

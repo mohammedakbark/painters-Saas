@@ -277,14 +277,20 @@ export function uploadProductImage(
 
 // --- Shades ------------------------------------------------------------------
 
+/** A brand's shades with numbered pages (WEB-007). */
 export function listShades(
   token: string,
   brandId: string,
-  params: { q?: string; cursor?: string },
-): Promise<Page<Shade>> {
+  params: { q?: string; status: ListStatus; page: number; pageSize: number },
+): Promise<NumberedPage<Shade>> {
   return apiRequest(
-    `${base}/brands/${enc(brandId)}/shades${query({ ...params, limit: '50' })}`,
-    { token, schema: page(shadeSchema) },
+    `${base}/brands/${enc(brandId)}/shades${query({
+      q: params.q,
+      status: params.status,
+      page: String(params.page),
+      pageSize: String(params.pageSize),
+    })}`,
+    { token, schema: numberedPage(shadeSchema) },
   );
 }
 

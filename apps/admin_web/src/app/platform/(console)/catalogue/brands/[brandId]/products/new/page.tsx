@@ -1,54 +1,11 @@
-import type { Metadata } from 'next';
-import { Suspense } from 'react';
-import { ProductForm } from '@/components/catalogue/product-form';
-import { PageLoading } from '@/components/layout/page-loading';
-import { Card } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
-import { getBrand, listCategories } from '@/lib/api/platform-catalogue';
-import { requirePlatformAdmin } from '@/lib/auth/platform-access';
-import { createProductAction } from '../../../../actions';
-import { orNotFound } from '../../../../catalogue-parts';
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = { title: 'New product · Catalogue' };
-
-export default function NewProductPage(
-  props: PageProps<'/platform/catalogue/brands/[brandId]/products/new'>,
-) {
-  return (
-    <Suspense fallback={<PageLoading />}>
-      <NewProduct {...props} />
-    </Suspense>
-  );
-}
-
-async function NewProduct({
+/** Add product opens as a side sheet on the brand page (WEB-007). */
+export default async function NewProductPage({
   params,
 }: PageProps<'/platform/catalogue/brands/[brandId]/products/new'>) {
-  const { token } = await requirePlatformAdmin();
   const { brandId } = await params;
-  const [brand, categories] = await Promise.all([
-    orNotFound(getBrand(token, brandId)),
-    listCategories(token),
-  ]);
-
-  return (
-    <>
-      <PageHeader title="New product" description={`For ${brand.name}.`} />
-      <Card className="max-w-content p-6">
-        <ProductForm
-          action={createProductAction.bind(null, brand.id)}
-          categories={categories}
-          initial={{
-            name: '',
-            categoryId: '',
-            description: '',
-            packs: '',
-            supportsShades: false,
-          }}
-          submitLabel="Add product"
-          cancelHref={`/platform/catalogue/brands/${brand.id}`}
-        />
-      </Card>
-    </>
+  redirect(
+    `/platform/catalogue/brands/${encodeURIComponent(brandId)}?add=product`,
   );
 }

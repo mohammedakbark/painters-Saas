@@ -60,7 +60,9 @@ export function Button({
       {...rest}
     >
       {pending ? <Spinner className="size-4" /> : null}
-      <span>{pending && pendingLabel ? pendingLabel : children}</span>
+      <span className="inline-flex items-center gap-2">
+        {pending && pendingLabel ? pendingLabel : children}
+      </span>
     </button>
   );
 }

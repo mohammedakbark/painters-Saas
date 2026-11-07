@@ -87,7 +87,14 @@ export async function createBrandAction(
   } catch (error) {
     return failure(error, values);
   }
-  redirect(`/platform/catalogue/brands/${brandId}`);
+  refresh();
+  return {
+    saved: `Brand "${String(formData.get('name') ?? '').trim()}" added.`,
+    savedLink: {
+      href: `/platform/catalogue/brands/${brandId}`,
+      label: 'Open brand',
+    },
+  };
 }
 
 export async function updateBrandAction(
@@ -234,7 +241,14 @@ export async function createProductAction(
   } catch (error) {
     return failure(error, values);
   }
-  redirect(`/platform/catalogue/products/${productId}?created=1`);
+  refresh();
+  return {
+    saved: `Product "${String(formData.get('name') ?? '').trim()}" added.`,
+    savedLink: {
+      href: `/platform/catalogue/products/${productId}`,
+      label: 'Open product',
+    },
+  };
 }
 
 export async function updateProductAction(

@@ -12,6 +12,7 @@ import {
   useState,
 } from 'react';
 import { Button, type ButtonProps } from './button';
+import { ButtonLink } from './button-link';
 import { Icon, type IconName } from './icon';
 import { IconButton } from './icon-button';
 import { Toast, type ToastMessage } from './toast';
@@ -156,6 +157,26 @@ export function SideSheet({
       {toast ? <Toast message={toast} onDismiss={dismissToast} /> : null}
     </SideSheetContext>
   );
+}
+
+/**
+ * Cancel for forms that may sit in a side sheet: closes the sheet there, or
+ * goes back to `href` on a page.
+ */
+export function SheetCancel({ href }: { href?: string }) {
+  const sheet = useSideSheet();
+  if (sheet) {
+    return (
+      <Button variant="secondary" onClick={sheet.close}>
+        Cancel
+      </Button>
+    );
+  }
+  return href ? (
+    <ButtonLink href={href} variant="secondary">
+      Cancel
+    </ButtonLink>
+  ) : null;
 }
 
 /** A button that opens the side sheet with this id. */

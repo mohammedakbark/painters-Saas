@@ -43,7 +43,7 @@ describe('BrandCreateForm', () => {
       values: { name: 'Demo' },
     }));
     render(<BrandCreateForm action={action} />);
-    fireEvent.change(screen.getByLabelText('New brand'), {
+    fireEvent.change(screen.getByLabelText(/Brand name/), {
       target: { value: 'Demo' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Add brand' }));
@@ -51,7 +51,7 @@ describe('BrandCreateForm', () => {
     expect(
       await screen.findByText('A brand named "Demo" already exists.'),
     ).toBeTruthy();
-    expect(screen.getByLabelText('New brand')).toHaveProperty('value', 'Demo');
+    expect(screen.getByLabelText(/Brand name/)).toHaveProperty('value', 'Demo');
   });
 });
 

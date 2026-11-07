@@ -363,6 +363,15 @@ export const PlatformProductListQuerySchema = z
   })
   .meta({ id: 'PlatformProductListQuery' });
 
+export const PlatformShadeListQuerySchema = z
+  .object({
+    q: search,
+    status: listStatus,
+    page: listPage,
+    pageSize: listPageSize,
+  })
+  .meta({ id: 'PlatformShadeListQuery' });
+
 export const PlatformBrandPageSchema = z
   .object({
     items: z.array(BrandSchema),
@@ -381,6 +390,19 @@ export const PlatformProductPageSchema = z
   })
   .meta({ id: 'PlatformProductPage' });
 
+export const PlatformShadePageSchema = z
+  .object({
+    items: z.array(ShadeSchema),
+    total: z.int(),
+    page: z.int(),
+    pageSize: z.int(),
+  })
+  .meta({ id: 'PlatformShadePage' });
+
+export type PlatformShadeListQuery = z.infer<
+  typeof PlatformShadeListQuerySchema
+>;
+export type PlatformShadePage = z.infer<typeof PlatformShadePageSchema>;
 export type PlatformBrandListQuery = z.infer<
   typeof PlatformBrandListQuerySchema
 >;

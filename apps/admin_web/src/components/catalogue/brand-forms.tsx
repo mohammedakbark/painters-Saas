@@ -3,6 +3,8 @@
 import { useActionState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
+import { RequiredFieldsNote } from '@/components/ui/field-label';
+import { SheetCancel, useCloseSheetOnSave } from '@/components/ui/side-sheet';
 import type { CatalogueFormState } from '@/lib/catalogue/form-state';
 import { FormStatus } from './form-status';
 
@@ -11,27 +13,28 @@ export type CatalogueAction = (
   formData: FormData,
 ) => Promise<CatalogueFormState>;
 
-/** "Add a brand" (platform catalogue). */
+/** "Add brand" (platform catalogue; in a side sheet, WEB-007). */
 export function BrandCreateForm({ action }: { action: CatalogueAction }) {
   const [state, formAction, pending] = useActionState(action, {});
+  useCloseSheetOnSave(state);
   return (
     <form action={formAction} noValidate className="flex flex-col gap-4">
       <FormStatus state={state} />
-      <div className="flex flex-col gap-3 medium:flex-row medium:items-end">
-        <div className="flex-1">
-          <Field
-            label="New brand"
-            name="name"
-            maxLength={80}
-            required
-            description="As printed on the shade cards, for example the manufacturer's name."
-            defaultValue={state.values?.name}
-            error={state.fieldErrors?.name}
-          />
-        </div>
+      <RequiredFieldsNote />
+      <Field
+        label="Brand name"
+        name="name"
+        maxLength={80}
+        required
+        description="As printed on the shade cards, for example the manufacturer's name."
+        defaultValue={state.values?.name}
+        error={state.fieldErrors?.name}
+      />
+      <div className="flex flex-wrap gap-3">
         <Button type="submit" pending={pending} pendingLabel="Adding…">
           Add brand
         </Button>
+        <SheetCancel />
       </div>
     </form>
   );
@@ -88,15 +91,17 @@ export function BrandSettingsForm({
   );
 }
 
-/** "Add a category". */
+/** "Add category" (in a side sheet, WEB-007). */
 export function CategoryCreateForm({ action }: { action: CatalogueAction }) {
   const [state, formAction, pending] = useActionState(action, {});
+  useCloseSheetOnSave(state);
   return (
     <form action={formAction} noValidate className="flex flex-col gap-4">
       <FormStatus state={state} />
-      <div className="grid gap-3 medium:grid-cols-[minmax(0,1fr)_var(--container-sidebar)_auto] medium:items-end">
+      <RequiredFieldsNote />
+      <div className="flex flex-col gap-4">
         <Field
-          label="New category"
+          label="Category name"
           name="name"
           maxLength={60}
           required
@@ -112,15 +117,18 @@ export function CategoryCreateForm({ action }: { action: CatalogueAction }) {
           defaultValue={state.values?.sortOrder}
           error={state.fieldErrors?.sortOrder}
         />
-        <Button type="submit" pending={pending} pendingLabel="Adding…">
-          Add category
-        </Button>
+        <div className="flex flex-wrap gap-3">
+          <Button type="submit" pending={pending} pendingLabel="Adding…">
+            Add category
+          </Button>
+          <SheetCancel />
+        </div>
       </div>
     </form>
   );
 }
 
-/** One category: rename and reorder, archive or restore. */
+/** One category: rename and reorder, archive or restore (side sheet). */
 export function CategoryRowForm({
   action,
   id,
@@ -135,15 +143,17 @@ export function CategoryRowForm({
   active: boolean;
 }) {
   const [state, formAction, pending] = useActionState(action, {});
+  useCloseSheetOnSave(state);
   return (
     <form
       action={formAction}
       noValidate
-      className="flex flex-col gap-3 py-4"
+      className="flex flex-col gap-4"
       aria-label={`Category ${name}`}
     >
       <FormStatus state={state} />
-      <div className="grid gap-3 medium:grid-cols-[minmax(0,1fr)_var(--container-sidebar)_auto] medium:items-end">
+      <RequiredFieldsNote />
+      <div className="flex flex-col gap-4">
         <Field
           label="Name"
           required
@@ -178,6 +188,7 @@ export function CategoryRowForm({
           >
             {active ? 'Archive' : 'Restore'}
           </Button>
+          <SheetCancel />
         </div>
       </div>
     </form>

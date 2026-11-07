@@ -9,14 +9,13 @@ import {
 import { FormStatus } from '@/components/catalogue/form-status';
 import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { ButtonLink } from '@/components/ui/button-link';
 import { Panel } from '@/components/ui/card';
 import { CheckboxField } from '@/components/ui/checkbox-field';
 import { RadioGroupField } from '@/components/ui/choice-group-fields';
 import { FileField } from '@/components/ui/file-field';
 import { Field } from '@/components/ui/field';
 import { SelectField } from '@/components/ui/select-field';
-import { useCloseSheetOnSave, useSideSheet } from '@/components/ui/side-sheet';
+import { SheetCancel, useCloseSheetOnSave } from '@/components/ui/side-sheet';
 import { TextareaField } from '@/components/ui/textarea-field';
 import type { CatalogueFormState } from '@/lib/catalogue/form-state';
 import { IMAGE_ACCEPT } from '@/lib/media/image-file';
@@ -51,23 +50,6 @@ function useTransitionSubmit(action: FormAction) {
   }
   useCloseSheetOnSave(state);
   return { state, formAction, pending, onSubmit };
-}
-
-/** Cancel: closes the side sheet, or goes back to `href` on a page. */
-function CancelControl({ href }: { href?: string }) {
-  const sheet = useSideSheet();
-  if (sheet) {
-    return (
-      <Button variant="secondary" onClick={sheet.close}>
-        Cancel
-      </Button>
-    );
-  }
-  return href ? (
-    <ButtonLink href={href} variant="secondary">
-      Cancel
-    </ButtonLink>
-  ) : null;
 }
 
 /** "Add from brand catalogue": tick the pack sizes you sell and price them. */
@@ -127,7 +109,7 @@ export function CatalogueListingForm({
         <Button type="submit" pending={pending} pendingLabel="Adding…">
           {withPhoto ? 'Save product' : 'Add to my catalogue'}
         </Button>
-        <CancelControl href={cancelHref} />
+        <SheetCancel href={cancelHref} />
       </div>
     </form>
   );
@@ -312,7 +294,7 @@ export function OwnProductForm({
           >
             {submitLabel}
           </Button>
-          <CancelControl href={cancelHref} />
+          <SheetCancel href={cancelHref} />
         </div>
       )}
     </form>
@@ -561,7 +543,7 @@ export function OwnShadeForm({
         <Button type="submit" pending={pending} pendingLabel="Adding…">
           Add shade
         </Button>
-        <CancelControl />
+        <SheetCancel />
       </div>
     </form>
   );

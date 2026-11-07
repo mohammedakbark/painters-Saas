@@ -7,16 +7,18 @@ import type { CatalogueFormState } from '@/lib/catalogue/form-state';
 import type { CatalogueAction } from './brand-forms';
 import { FormStatus } from './form-status';
 import { RequiredFieldsNote } from '@/components/ui/field-label';
+import { SheetCancel, useCloseSheetOnSave } from '@/components/ui/side-sheet';
 
 /** "Add a shade": code, name and an optional indicative colour. */
 export function ShadeCreateForm({ action }: { action: CatalogueAction }) {
   const [state, formAction, pending] = useActionState(action, {});
+  useCloseSheetOnSave(state);
   const errors = state.fieldErrors ?? {};
   return (
     <form action={formAction} noValidate className="flex flex-col gap-4">
       <FormStatus state={state} />
       <RequiredFieldsNote />
-      <div className="grid gap-3 medium:grid-cols-3 medium:items-start">
+      <div className="flex flex-col gap-4">
         <Field
           label="Shade code"
           name="code"
@@ -43,10 +45,11 @@ export function ShadeCreateForm({ action }: { action: CatalogueAction }) {
           error={errors.previewHex}
         />
       </div>
-      <div>
+      <div className="flex flex-wrap gap-3">
         <Button type="submit" pending={pending} pendingLabel="Adding…">
           Add shade
         </Button>
+        <SheetCancel />
       </div>
     </form>
   );

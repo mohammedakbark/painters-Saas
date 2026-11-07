@@ -5,7 +5,6 @@ import { ProductForm } from '@/components/catalogue/product-form';
 import { ActiveToggleForm } from '@/components/catalogue/shade-forms';
 import { PageLoading } from '@/components/layout/page-loading';
 import { ImageUploadForm } from '@/components/media/image-upload-form';
-import { Alert } from '@/components/ui/alert';
 import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { getProduct, listCategories } from '@/lib/api/platform-catalogue';
@@ -32,11 +31,9 @@ export default function ProductPage(
 
 async function Product({
   params,
-  searchParams,
 }: PageProps<'/platform/catalogue/products/[productId]'>) {
   const { token } = await requirePlatformAdmin();
   const { productId } = await params;
-  const created = (await searchParams).created === '1';
   const [product, categories] = await Promise.all([
     orNotFound(getProduct(token, productId)),
     listCategories(token),
@@ -50,11 +47,6 @@ async function Product({
       >
         {product.brand.name} products
       </Link>
-      {created ? (
-        <Alert tone="success" title="Product added">
-          Add an image below if you have one.
-        </Alert>
-      ) : null}
       <div className="flex flex-wrap items-center gap-3">
         <PageHeader title={product.name} description={product.brand.name} />
         <ActiveBadge active={product.active} />
