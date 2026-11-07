@@ -81,6 +81,10 @@ const ICONS = {
     viewBox: LINE,
     d: 'M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6zM9 3v18M12.5 8h3.5M12.5 12h3.5',
   },
+  settings: {
+    viewBox: LINE,
+    d: 'M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1M15 4v4M9 10v4M17 16v4',
+  },
   tag: {
     viewBox: LINE,
     d: 'M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9zM7.5 7.5h.01',

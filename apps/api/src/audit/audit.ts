@@ -8,6 +8,8 @@ export const AuditAction = {
   ShopProfileUpdated: 'shop.profile_updated',
   ShopLocationUpdated: 'shop.location_updated',
   ShopPhotoUpdated: 'shop.photo_updated',
+  ShopDeliveryUpdated: 'shop.delivery_updated',
+  ShopOrderMessagesUpdated: 'shop.order_messages_updated',
   ShopReviewSubmitted: 'shop.review_submitted',
   ShopReviewWithdrawn: 'shop.review_withdrawn',
   ShopReviewDecided: 'shop.review_decided',

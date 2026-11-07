@@ -183,6 +183,21 @@ model Shop {
   photoKey       String?   @map("photo_key")
   photoUpdatedAt DateTime? @map("photo_updated_at") @db.Timestamptz(3)
 
+  // Settings (SHP-008). Pickup is always offered; delivery is optional
+  // (D-046). The area is a distance from the map location (D-049). The
+  // charge and distance stay stored while delivery is off. CHECKs in the
+  // migration.
+  deliveryEnabled        Boolean   @default(false) @map("delivery_enabled")
+  /// Flat delivery charge in paise; 0 means free delivery.
+  deliveryChargePaise    Int?      @map("delivery_charge_paise")
+  /// Orders of at least this amount (paise) get free delivery.
+  freeDeliveryAbovePaise Int?      @map("free_delivery_above_paise")
+  /// Delivers within this many km of the shop's map location.
+  deliveryRadiusKm       Int?      @map("delivery_radius_km")
+  /// Ready-made notes for "not available" items (D-045), in display order.
+  orderMessages          String[]  @default(["Stock not available.", "Stock can be arranged by tomorrow morning."]) @map("order_messages")
+  settingsUpdatedAt      DateTime? @map("settings_updated_at") @db.Timestamptz(3)
+
   memberships     ShopMembership[]
   auditEvents     AuditEvent[]
   products        ShopProduct[]

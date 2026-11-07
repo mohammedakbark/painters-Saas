@@ -68,6 +68,7 @@ async function ShopConsole({
           label: 'Shop details and photo',
           icon: 'store',
         },
+        { href: `${base}/settings`, label: 'Shop settings', icon: 'settings' },
         { href: '/shops', label: 'My shops', icon: 'home' },
       ]}
       account={account}

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useId } from 'react';
 import { IconButton } from './icon-button';
 
 export interface ToastMessage {
@@ -11,6 +11,7 @@ export interface ToastMessage {
 }
 
 const SHOW_FOR_MS = 8000;
+const SHOWN_EVENT = 'sevenpalette:toast-shown';
 
 /**
  * A short confirmation at the bottom of the screen (WEB-007), for example
@@ -23,10 +24,24 @@ export function Toast({
   message: ToastMessage;
   onDismiss: () => void;
 }) {
+  const id = useId();
+
   useEffect(() => {
     const timer = window.setTimeout(onDismiss, SHOW_FOR_MS);
     return () => window.clearTimeout(timer);
   }, [message, onDismiss]);
+
+  // One toast at a time: a newer one (from another sheet) replaces this one.
+  useEffect(() => {
+    const onShown = (event: Event) => {
+      if ((event as CustomEvent<string>).detail !== id) {
+        onDismiss();
+      }
+    };
+    window.dispatchEvent(new CustomEvent(SHOWN_EVENT, { detail: id }));
+    window.addEventListener(SHOWN_EVENT, onShown);
+    return () => window.removeEventListener(SHOWN_EVENT, onShown);
+  }, [id, message, onDismiss]);
 
   return (
     <div
