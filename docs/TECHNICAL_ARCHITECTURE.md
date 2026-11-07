@@ -1,6 +1,6 @@
 # Technical Architecture
 
-**Status:** Foundation (M0) implemented for Flutter, Next.js, NestJS, PostgreSQL and Prisma (ADR 0004). Supabase Auth accepted and implemented locally (ADR 0005); API conventions in ADR 0006. Hosting (Supabase Postgres/Storage, Render, Vercel), the SMS vendor and Riverpod remain proposals.  
+**Status:** Foundation (M0) implemented for Flutter, Next.js, NestJS, PostgreSQL and Prisma (ADR 0004). Supabase Auth accepted and implemented locally (ADR 0005); API conventions in ADR 0006. Production hosting (paid Supabase, Render, Vercel plans; the free test environment is ADR 0009), the SMS vendor and Riverpod remain proposals.  
 **Last updated:** 2026-11-03
 
 The architecture should be practical for a small team and AI-assisted development. Prefer a modular monolith and managed services over microservices and infrastructure that the project does not yet need.
@@ -39,6 +39,10 @@ Check current stable versions and compatibility at implementation time. Do not c
 - Render and Vercel provide managed deployment without directly operating virtual machines.
 
 ## 3. Hosting and cost approach
+
+### Test environment (now, free)
+
+Until there are paying shops, a free test environment runs on Supabase Free, Render Free (API, `render.yaml`) and Vercel Hobby (web, `apps/admin_web/vercel.json`), all in Singapore, deployed automatically from `main` (ADR 0009, D-052). Setup, variables and limits: `docs/guides/DEPLOYMENT.md`.
 
 ### Proposed production starting point
 
@@ -163,6 +167,8 @@ Tooling in place (M0): Flutter `flutter_test`; API Vitest unit tests plus Vitest
 ## 12. Environments and deployment
 
 Maintain local, staging and production environments. Never use production customer data in development. Use separate databases/storage buckets and credentials per environment. Store secrets in provider secret managers. Run migrations through controlled deployment steps. Back up production data and test restore procedures. Add health checks, structured logs, error reporting and basic uptime monitoring before public launch.
+
+- **Test environment (ADR 0009):** `main` deploys to Render (API, after CI passes; migrations run at API start) and Vercel (web). `dev` stays the integration branch; a release is a fast-forward of `main` to `dev`. A scheduled workflow (`keep-alive.yml`) keeps the free API warm and the free database active. Production will need its own Supabase project, a separate migration step and backups.
 
 ## 13. Decisions still open
 

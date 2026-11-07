@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "regions": ["sin1"],
+  "installCommand": "npx --yes pnpm@12.16.1 install --frozen-lockfile --filter admin_web...",
+  "buildCommand": "npx --yes pnpm@12.16.1 run build",
+  "ignoreCommand": "[ \"$VERCEL_GIT_COMMIT_REF\" != \"main\" ]"
+}
