@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 import { Alert } from './alert';
 import { Button } from './button';
 import { Card, CardList, Panel } from './card';
@@ -8,6 +8,12 @@ import { Field } from './field';
 import { FileField } from './file-field';
 import { SearchForm } from './search-form';
 import { StoreButton } from './store-button';
+
+const push = vi.fn();
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/current',
+  useRouter: () => ({ push }),
+}));
 
 describe('Field', () => {
   it('associates the label, description and error with the input', () => {
@@ -136,6 +142,34 @@ describe('SearchForm', () => {
     ).toBe('ARCHIVED');
     expect(screen.getByText('Extra filter')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Filter' })).toBeTruthy();
+  });
+
+  it('opens the results through the client router, leaving out empty values', () => {
+    push.mockClear();
+    render(
+      <SearchForm
+        action="/catalogue"
+        label="Search products"
+        defaultValue="white emulsion"
+        hidden={{ status: 'ARCHIVED', brand: '' }}
+      />,
+    );
+
+    fireEvent.submit(screen.getByRole('search'));
+
+    expect(push).toHaveBeenCalledWith(
+      '/catalogue?status=ARCHIVED&q=white+emulsion',
+      { scroll: false },
+    );
+  });
+
+  it('stays on the current page without an action', () => {
+    push.mockClear();
+    render(<SearchForm label="Search" defaultValue="" />);
+
+    fireEvent.submit(screen.getByRole('search'));
+
+    expect(push).toHaveBeenCalledWith('/current', { scroll: false });
   });
 });
 

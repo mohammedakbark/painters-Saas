@@ -1,12 +1,13 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';
-import { Button } from './button';
 import { Field } from './field';
+import { UrlForm, UrlFormSubmit } from './url-form';
 
 /**
  * A GET search form: a labelled search field, optional filters (children) and
  * a submit button. Hidden values (for example a selected tab) are kept when
- * searching. Without `action` it submits to the current page.
+ * searching. Without `action` it submits to the current page. Searches run
+ * through the client router (PERF-001), so the page is not reloaded.
  */
 export function SearchForm({
   action,
@@ -32,8 +33,7 @@ export function SearchForm({
   children?: ReactNode;
 }) {
   return (
-    <form
-      method="get"
+    <UrlForm
       action={action}
       role="search"
       className="flex flex-wrap items-end gap-3"
@@ -43,6 +43,8 @@ export function SearchForm({
       ))}
       <div className={cn(fill && 'min-w-0 flex-1')}>
         <Field
+          // Remount when the URL changes, so the box shows the current search.
+          key={defaultValue ?? ''}
           label={label}
           name={name}
           type="search"
@@ -51,9 +53,13 @@ export function SearchForm({
         />
       </div>
       {children}
-      <Button type="submit" variant="secondary" className="shrink-0">
+      <UrlFormSubmit
+        variant="secondary"
+        className="shrink-0"
+        pendingLabel="Searching…"
+      >
         {submitLabel}
-      </Button>
-    </form>
+      </UrlFormSubmit>
+    </UrlForm>
   );
 }

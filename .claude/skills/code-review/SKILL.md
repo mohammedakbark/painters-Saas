@@ -16,6 +16,6 @@ Review order:
 6. UI consistency and accessibility.
 7. Test coverage and reliability.
 8. Documentation accuracy.
-9. Dependency and performance impact.
+9. Dependency and performance impact, including the loading rules in `.claude/skills/data-loading` (no whole-page reload or skeleton for one change, no raw GET forms, no token-bearing fetch in a shared cache).
 
 Report critical findings first. For each finding include severity, file/area, problem, realistic impact and recommended fix. Then list missing tests/docs and what was/was not run. Do not report personal style preferences as bugs.

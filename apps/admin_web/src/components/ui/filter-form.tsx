@@ -1,10 +1,12 @@
-'use client';
-
 import type { ReactNode } from 'react';
+import { cn } from '@/lib/cn';
+import { UrlForm, UrlFormStatus } from './url-form';
 
 /**
  * The GET form behind `ColumnFilter`s (CAT-003). Empty filters are left out
  * of the URL, so links stay short ("?available=false", not "?q=&brand=…").
+ * Filters apply through the client router (PERF-001): the list stays on
+ * screen with an "Updating…" note until the new rows arrive.
  */
 export function FilterForm({
   id,
@@ -18,25 +20,9 @@ export function FilterForm({
   children?: ReactNode;
 }) {
   return (
-    <form
-      id={id}
-      method="get"
-      action={action}
-      className={className}
-      onSubmit={(event) => {
-        for (const element of event.currentTarget.elements) {
-          if (
-            (element instanceof HTMLInputElement ||
-              element instanceof HTMLSelectElement) &&
-            element.name &&
-            element.value === ''
-          ) {
-            element.disabled = true;
-          }
-        }
-      }}
-    >
+    <UrlForm id={id} action={action} className={cn('relative', className)}>
+      <UrlFormStatus />
       {children}
-    </form>
+    </UrlForm>
   );
 }

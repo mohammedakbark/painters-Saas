@@ -39,6 +39,7 @@ Use for Customer App, Shop App and admin web UI work.
 - **Status colours:** every state has its own token colour (filled soft badge with a dot: green success, amber warning, red error, blue info, grey neutral). Opposite states (Available / Not available, Live / Draft) must never look alike. Always keep the words.
 - **Copy:** follow DESIGN_SYSTEM §9a (sentence case, "Not available", "Sign in").
 - **Rollout order for UI work:** shop admin web, then platform admin web, then the Shop App, then the Customer App. One area at a time, each verified in a browser or emulator.
+- **Loading and updates:** follow `.claude/skills/data-loading` (D-044): static shell, per-section Suspense, `UrlForm` for search and filters, busy state on the button, no whole-page reload for one change.
 - **Efficiency:** small fixes go straight to the change and a short check; plans, screenshots and long reports are for features.
 
 Review small mobile widths, larger phones and responsive web. Verify accessibility labels, keyboard behavior, contrast and readable text. Update the design-system document if tokens change.

@@ -274,6 +274,11 @@ The two toolchains are independent. pnpm manages `apps/api`, `apps/admin_web` an
   - The **Shop App** has mobile OTP sign-in (login-only), the user's shops, a shop home and a shop profile screen with the map and "Use my current location" (SHP-003; Android uses the system location provider). Riverpod providers, go_router redirects on auth state, and a Dio client with a bearer token and problem `code` parsing. The session is stored in the keystore.
   - The Customer App is still a placeholder.
   - Both use `AppTheme.light()` from `flutter_shared`. `flutter_shared` holds the tokens, the Material 3 theme and the Inter 4.1 static fonts (OFL 1.1).
+- **Data loading (PERF-001, D-044; rules in `.claude/skills/data-loading`):**
+  - Web pages are partially prerendered (Cache Components). Static text sits outside `<Suspense>` and comes from the prerendered shell; request data streams per section (`SectionLoading`).
+  - GET search and filters use `UrlForm` (`components/ui/url-form.tsx`, under `SearchForm` and `FilterForm`). The URL changes through the client router in a transition, so the document is never reloaded and the old results stay until the new ones arrive.
+  - Mutations are Server Actions with `useActionState`. The busy state shows on the control that started the action, and `refresh()` re-renders inside the transition.
+  - API responses are fetched per request with the user's token (`no-store`), deduplicated within a request with React `cache()`, and never shared between users.
 
 ### 14.4 Local development
 

@@ -1,13 +1,13 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { PageLoading } from '@/components/layout/page-loading';
-import { Button } from '@/components/ui/button';
 import { ButtonLink } from '@/components/ui/button-link';
 import { Card } from '@/components/ui/card';
 import { Field } from '@/components/ui/field';
 import { PageHeader } from '@/components/ui/page-header';
 import { SelectField } from '@/components/ui/select-field';
 import { StateMessage } from '@/components/ui/state-message';
+import { UrlForm, UrlFormSubmit } from '@/components/ui/url-form';
 import {
   browseBrandProducts,
   listCatalogueBrands,
@@ -98,14 +98,14 @@ async function AddFromCatalogue({
           required={products.required}
         />
       ) : null}
-      <form
-        method="get"
+      <UrlForm
         action={`${base}/add`}
         role="search"
         className="flex flex-col gap-3 medium:flex-row medium:items-end"
       >
         <div className="w-full medium:max-w-form">
           <SelectField
+            key={brand.id}
             label="Brand"
             name="brandId"
             options={brands.map((b) => ({ value: b.id, label: b.name }))}
@@ -114,6 +114,7 @@ async function AddFromCatalogue({
         </div>
         <div className="w-full medium:max-w-form">
           <Field
+            key={q ?? ''}
             label="Product name (optional)"
             name="q"
             type="search"
@@ -121,10 +122,14 @@ async function AddFromCatalogue({
             defaultValue={q}
           />
         </div>
-        <Button type="submit" variant="secondary" className="shrink-0">
+        <UrlFormSubmit
+          variant="secondary"
+          className="shrink-0"
+          pendingLabel="Loading…"
+        >
           Show products
-        </Button>
-      </form>
+        </UrlFormSubmit>
+      </UrlForm>
 
       {page.items.length === 0 ? (
         <StateMessage
@@ -144,6 +149,9 @@ async function AddFromCatalogue({
         <>
           {unlisted.length > 0 ? (
             <QuickAddForm
+              // A new brand or search starts a fresh form (no prices carried
+              // over from the previous list).
+              key={`${brand.id}:${q ?? ''}`}
               action={addCatalogueProductsAction.bind(
                 null,
                 shopId,

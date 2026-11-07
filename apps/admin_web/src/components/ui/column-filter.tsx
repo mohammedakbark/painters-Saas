@@ -6,7 +6,8 @@ import { Icon } from './icon';
 // Column filters for `DataTable` (CAT-003). Each control belongs to a GET
 // form by id (`form`), so the filters live in the URL, survive reloads and
 // work without JavaScript. A select applies as soon as it changes; a search
-// applies on Enter.
+// applies on Enter. With JavaScript the form updates the list through the
+// client router (`FilterForm`, PERF-001) instead of reloading the page.
 
 const CONTROL =
   'min-h-11 w-full rounded-control border border-control-border bg-control-background text-body text-text-primary focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-brand-primary';
@@ -43,6 +44,9 @@ export function ColumnSelectFilter({
         {label}
       </label>
       <select
+        // Remount when the URL changes (for example "Clear filters"), so the
+        // control shows the current filter after a client navigation.
+        key={value ?? ''}
         id={id}
         name={name}
         form={form}
@@ -90,6 +94,7 @@ export function ColumnSearchFilter({
           className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-text-secondary"
         />
         <input
+          key={value ?? ''}
           id={id}
           name={name}
           form={form}
