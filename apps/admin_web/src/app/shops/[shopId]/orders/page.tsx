@@ -17,7 +17,6 @@ import { Pagination } from '@/components/ui/pagination';
 import { SectionLoading } from '@/components/ui/section-loading';
 import { SegmentedLinks } from '@/components/ui/segmented-links';
 import { StateMessage } from '@/components/ui/state-message';
-import { ToastHost } from '@/components/ui/toast';
 import {
   type Fulfilment,
   listOrders,
@@ -86,7 +85,6 @@ export default function OrdersPage(props: Props) {
       <Suspense fallback={<SectionLoading label="Loading orders…" />}>
         <Orders {...props} />
       </Suspense>
-      <ToastHost />
     </div>
   );
 }

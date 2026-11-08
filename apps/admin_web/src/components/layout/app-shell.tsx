@@ -5,6 +5,7 @@ import { BrandMark } from '@/components/brand/brand-mark';
 import { LogoMark } from '@/components/brand/logo-mark';
 import { Icon, type IconName } from '@/components/ui/icon';
 import { IconButton } from '@/components/ui/icon-button';
+import { ToastHost } from '@/components/ui/toast';
 import {
   Menu,
   MenuButton,
@@ -158,6 +159,8 @@ export function AppShell({
           {children}
         </main>
       </div>
+      {/* Page-level toasts for actions anywhere in the console (UX-001). */}
+      <ToastHost />
     </div>
   );
 }

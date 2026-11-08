@@ -13,7 +13,6 @@ import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
-import { ToastHost } from '@/components/ui/toast';
 import { orNotFound } from '@/lib/api/or-not-found';
 import { getOrder, type OrderDetail } from '@/lib/api/orders';
 import { getShopSettings } from '@/lib/api/shop-settings';
@@ -52,7 +51,6 @@ export default function OrderPage(props: Props) {
       <Suspense fallback={<PageLoading label="Loading the order…" />}>
         <OrderView {...props} />
       </Suspense>
-      <ToastHost />
     </>
   );
 }

@@ -156,6 +156,11 @@ Web utilities: `rounded-control`, `min-h-control`, `rounded-card`, `border-card-
 | `Thumbnail`, `PackChip` (CAT-006) | product photos in lists (with a placeholder), pack size with price and availability dot; lists show one row per thing, details as chips |
 | `SideSheet`, `SideSheetButton`, `useSideSheet`, `useCloseSheetOnSave`, `Toast` (WEB-007, D-051) | small add and edit forms in a panel from the right over a blurred page (native modal dialog: Escape, outside click and Close shut it; the draft survives closing); after a save the sheet closes, the form clears and a toast confirms, with an optional link. Records with their own lists or many sections stay full pages |
 | `StatTile` (WEB-008) | one headline number: label, value in text colours, optional context, status badge (word + tone) and link to the list behind it; KPI rows are 2 per row on phones, 4 from `wide` |
+| `Section`, `DetailList` (UX-001) | every titled card on a page: one padding (`p-5 medium:p-6` main, `p-5` side) and heading (`heading3` main, `title` side), `aria-labelledby` built in; facts as label/value pairs in one style |
+| `Skeleton`, `TableSkeleton`, `DetailSkeleton`, `TilesSkeleton`, `LinesSkeleton` (UX-001) | loading placeholders shaped like the content (no layout jump); pulse only with motion allowed; one screen-reader label |
+| `SectionBoundary` (UX-001) | wraps a data section: if it fails, only that section shows "We couldn’t load …" with Try again (refreshes server data); redirects and not-found pass through |
+| `ConfirmActionButton` (UX-001) | remove/archive and other hard-to-undo actions: asks in `ConfirmDialog`, then reports with a page toast |
+| `StateMessage variant="plain"` (UX-001) | empty states inside a card or table (no second border) |
 | `Combobox` (CAT-005) | search with suggestions and a "create new" option, ARIA combobox |
 | `SegmentedLinks` | switching a list between views (e.g. Selling and Archived), links with `aria-current`; scrolls sideways inside itself when the segments don't fit |
 | `Button` size `compact` (ORD-002) | a quiet action inside a table row (e.g. the order's next step); everywhere else the default size |
@@ -230,3 +235,13 @@ Token implementations (generated since DS-001, 2026-11-04):
 - Flutter shared widget added in SHP-003: `ShopLocationMap` (a static OpenStreetMap preview with the shop pin and the attribution since SHP-006, or a bordered panel with the coordinates when maps are turned off); the only place the apps use a map provider.
 - Flutter shared widgets (since SHP-002, `packages/flutter_shared`): `LoadingView` (spinner with a visible message), `MessageView` (title, explanation and action for empty, access and not-found states) and `ErrorView` (with "Try again"). The Shop App shows status as text (a badge since DS-002), uses 48 px minimum touch targets, and lets error text wrap instead of truncating.
 - DS-002 (D-039): component tokens and the component library in §8. The web and Flutter now share one definition per component: the Flutter secondary button uses dark text like the web (it was brand blue), buttons use the body-large semibold label on both, the shop status is a pill badge (was a chip), and location messages in the Shop App sit in an inline message box (were coloured text).
+
+## 12. States and page anatomy (UX-001, 2026-11-08)
+
+Learned from Shopify Admin, Stripe Dashboard, Linear and GOV.UK patterns:
+- **Page anatomy:** `PageHeader` (back link on detail pages, status badges in the description, one primary action on the right), then `gap-6` content. Detail pages: main column plus a `22rem` aside, all sections built with `Section`.
+- **Loading:** the header and section titles render at once (static shell); each data section shows the skeleton shaped like its content.
+- **Errors:** a failing section shows `SectionBoundary`'s inline message; a failing page keeps the console menu (`error.tsx` inside each console) with Try again and a way back. API calls time out after 12 s (uploads 45 s) so nothing loads forever.
+- **Not found:** each record type has its own message inside the console ("Order not found", "Customer not found", "Review not found").
+- **Empty:** every list and section says what is missing and offers the next action; inside cards use `StateMessage variant="plain"`.
+- **Feedback:** every change confirms with a toast (`ToastHost` lives in the console shell); destructive changes ask first (`ConfirmActionButton`). No success banners kept in the URL.

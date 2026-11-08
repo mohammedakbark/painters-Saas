@@ -12,6 +12,7 @@ export function StateMessage({
   action,
   role,
   icon,
+  variant = 'card',
   className,
 }: {
   title: string;
@@ -20,13 +21,18 @@ export function StateMessage({
   role?: 'alert' | 'status';
   /** Icon tile above the title, e.g. `tag` for an empty catalogue. */
   icon?: IconName;
+  /** `plain` inside a card or table cell (no second border), UX-001. */
+  variant?: 'card' | 'plain';
   className?: string;
 }) {
   return (
     <section
       role={role}
       className={cn(
-        'mx-auto flex w-full max-w-form flex-col items-center gap-3 rounded-card border border-card-border bg-card-background px-6 py-10 text-center',
+        'mx-auto flex w-full max-w-form flex-col items-center gap-3 text-center',
+        variant === 'card'
+          ? 'rounded-card border border-card-border bg-card-background px-6 py-10'
+          : 'px-2 py-6',
         className,
       )}
     >

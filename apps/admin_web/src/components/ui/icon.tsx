@@ -28,6 +28,10 @@ const ICONS = {
   },
   archive: { viewBox: LINE, d: 'M3 4h18v4H3zM5 8v12h14V8M10 12h4' },
   plus: { viewBox: LINE, d: 'M12 5v14M5 12h14' },
+  alertCircle: {
+    viewBox: LINE,
+    d: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 8v5M12 16h.01',
+  },
   panelLeft: { viewBox: LINE, d: 'M4 4h16v16H4zM9 4v16' },
   home: {
     viewBox: LINE,

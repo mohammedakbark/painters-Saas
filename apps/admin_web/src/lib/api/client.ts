@@ -3,6 +3,10 @@ import type { z } from 'zod';
 import { serverEnv } from '@/lib/env';
 import { ApiError, ApiUnavailableError, parseProblem } from './problem';
 
+/** Longest wait for an API answer (UX-001). */
+export const TIMEOUT_MS = 12_000;
+const UPLOAD_TIMEOUT_MS = 45_000;
+
 export interface ApiRequest<T> {
   /** Supabase access token of the signed-in user. */
   token: string;
@@ -40,11 +44,19 @@ export async function apiRequest<T>(
             ? request.body
             : JSON.stringify(request.body),
       cache: 'no-store',
+      // A slow or stuck API shows the error state instead of an endless
+      // skeleton (UX-001). Uploads get longer.
+      signal: AbortSignal.timeout(
+        request.body instanceof FormData ? UPLOAD_TIMEOUT_MS : TIMEOUT_MS,
+      ),
     });
   } catch (error) {
-    throw new ApiUnavailableError('The API could not be reached.', {
-      cause: error,
-    });
+    throw new ApiUnavailableError(
+      error instanceof DOMException && error.name === 'TimeoutError'
+        ? 'The API did not answer in time.'
+        : 'The API could not be reached.',
+      { cause: error },
+    );
   }
 
   if (!response.ok) {
