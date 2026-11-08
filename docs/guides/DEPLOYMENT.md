@@ -1,12 +1,12 @@
 # Test environment hosting (free tier)
 
-**Status:** set up 2026-11-07 (ADR 0009, D-052). This is the **test/demo environment** for trying SevenPalette with prospective shops. It is not production: no backups, cold starts, and the limits below.
+**Status:** live since 2026-11-08 (ADR 0009, D-052). The Supabase Data API (PostgREST) is turned off: the app reads the database only through the API (ADR 0007). Test phone numbers `+91 99999 00001` to `00005` have fixed codes valid until 2027-02-28; the codes are kept out of the repository (ask the product owner). This is the **test/demo environment** for trying SevenPalette with prospective shops. It is not production: no backups, cold starts, and the limits below.
 
 | Piece | Service, free plan | URL (fill in) |
 |---|---|---|
-| Postgres, Auth, Storage | Supabase Free, region **Southeast Asia (Singapore)** | `https://<ref>.supabase.co` |
-| API (`apps/api`) | Render Free web service, region Singapore, from `render.yaml` | `https://sevenpalette-api.onrender.com` |
-| Web portal (`apps/admin_web`): home page, Shop Admin, Platform Admin | Vercel Hobby, region `sin1`, from `apps/admin_web/vercel.json` | `https://<project>.vercel.app` |
+| Postgres, Auth, Storage | Supabase Free, region **Southeast Asia (Singapore)**, org `zero.byt`, project `sevenpalette-test` | `https://dngjfvryagnwnjlodufj.supabase.co` |
+| API (`apps/api`) | Render Free web service, region Singapore, from `render.yaml` | https://sevenpalette-api.onrender.com |
+| Web portal (`apps/admin_web`): home page, Shop Admin, Platform Admin | Vercel Hobby, region `sin1`, from `apps/admin_web/vercel.json` | https://sevenpalette-test.vercel.app (project `sevenpalette-test`) |
 | Mobile | APK built locally against the test API | — |
 
 Keep all three in the same region: each API request makes several database queries.
