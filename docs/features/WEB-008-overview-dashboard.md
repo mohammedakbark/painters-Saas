@@ -1,6 +1,6 @@
 # WEB-008: Overview dashboard v1
 
-Status: **Complete (local; Chrome)**. Step A4 of the "Web first" roadmap. Order figures follow in ORD-003.
+Status: **Complete (local; Chrome)**. Step A4 of the "Web first" roadmap. Order figures (new, to pack, ready, today's sales, unpaid) were added in ORD-003 (`docs/features/ORD-003-order-kpis.md`).
 
 ## Goal
 The shop's first page shows its state at a glance: status, product availability, what needs attention, and how customers get orders.

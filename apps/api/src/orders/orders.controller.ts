@@ -40,6 +40,8 @@ import {
   OrderListPageSchema,
   type OrderListQuery,
   OrderListQuerySchema,
+  type OrderSummary,
+  OrderSummarySchema,
   type RecordPaymentRequest,
   RecordPaymentRequestSchema,
   type ReturnItemRequest,
@@ -98,6 +100,18 @@ export class OrdersController {
     @Query({ schema: OrderListQuerySchema }) query: OrderListQuery,
   ): Promise<OrderListPage> {
     return this.orders.list(shop, query);
+  }
+
+  // Declared before ':orderId' so "summary" is not read as an order id.
+  @Get('summary')
+  @ShopScoped()
+  @ApiOperation({
+    summary:
+      'Order figures for the overview: new, packing, ready, unpaid, and today (Indian time).',
+  })
+  @ApiOkResponse({ standardSchema: OrderSummarySchema })
+  summary(@CurrentShop() shop: ShopContext): Promise<OrderSummary> {
+    return this.orders.summary(shop);
   }
 
   @Get(':orderId')

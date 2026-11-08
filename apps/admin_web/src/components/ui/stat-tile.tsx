@@ -26,7 +26,8 @@ export function StatTile({
   href,
 }: {
   label: string;
-  value: number;
+  /** A count (formatted here) or ready text such as an amount, "₹2,450". */
+  value: number | string;
   context?: string;
   status?: { tone: BadgeTone; label: string };
   href?: string;
@@ -44,8 +45,8 @@ export function StatTile({
           />
         ) : null}
       </span>
-      <span className="text-display font-semibold tracking-tight text-text-primary tabular-nums">
-        {formatCount(value)}
+      <span className="text-display font-semibold tracking-tight break-words text-text-primary tabular-nums">
+        {typeof value === 'number' ? formatCount(value) : value}
       </span>
       {status || context ? (
         <span className="flex flex-wrap items-center gap-2">

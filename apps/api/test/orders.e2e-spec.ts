@@ -617,6 +617,74 @@ describe('Orders (ORD-001, e2e, real Postgres)', () => {
     });
   });
 
+  describe('overview summary (ORD-003)', () => {
+    it('counts steps, unpaid and today in Indian time, for this shop only', async () => {
+      const shop = await liveShop('919999900001', 'Lakshmi Paints');
+      const other = await liveShop('919999900002', 'Other Paints');
+      const ravi = await customer('+919000000001');
+      const step = (id: string, to: string, extra: object = {}) =>
+        call(shop, 'post', `/${id}/status`, { to, ...extra }).expect(200);
+
+      await place(shop, ravi.id); // stays NEW
+      const packing = await place(shop, ravi.id);
+      await step(packing.id, 'PACKING');
+      const ready = await place(shop, ravi.id); // 130000
+      await step(ready.id, 'PACKING');
+      await step(ready.id, 'READY_FOR_PICKUP');
+      // Completed today with one item not available and one unit returned.
+      const done = await place(shop, ravi.id);
+      const putty = (await detail(shop, done.id)).items[1];
+      await call(shop, 'post', `/${done.id}/items/${putty.id}/not-available`, {
+        message: 'Stock not available.',
+      }).expect(200);
+      await step(done.id, 'PACKING');
+      await step(done.id, 'READY_FOR_PICKUP');
+      await call(shop, 'post', `/${done.id}/payment`, {
+        method: 'CASH',
+      }).expect(200);
+      await step(done.id, 'COMPLETED');
+      const primer = (await detail(shop, done.id)).items[0];
+      await call(shop, 'post', `/${done.id}/items/${primer.id}/return`, {
+        quantity: 1,
+        reason: 'Dented',
+      }).expect(200); // 100000 - 50000 = 50000
+      // Completed two days ago: not today's sales, still unpaid.
+      const old = await place(shop, ravi.id);
+      await step(old.id, 'PACKING');
+      await step(old.id, 'READY_FOR_PICKUP');
+      await step(old.id, 'COMPLETED');
+      const twoDaysAgo = new Date(Date.now() - 2 * 86_400_000);
+      await testApp.prisma.order.update({
+        where: { id: old.id },
+        data: { completedAt: twoDaysAgo, placedAt: twoDaysAgo },
+      });
+      const cancelled = await place(shop, ravi.id);
+      await step(cancelled.id, 'CANCELLED', { reason: 'Duplicate' });
+      await place(other, ravi.id);
+
+      const summary = (await call(shop, 'get', '/summary').expect(200)).body;
+      expect(summary).toEqual({
+        new: 1,
+        packing: 1,
+        ready: 1,
+        unpaid: { count: 2, totalPaise: 130000 + 130000 },
+        today: { placed: 5, completed: 1, salesPaise: 50000 },
+      });
+
+      const foreign = await call(
+        other,
+        'get',
+        '/summary',
+        undefined,
+        shop.shopId,
+      );
+      expect(foreign.status).toBe(404);
+      const theirs = (await call(other, 'get', '/summary').expect(200)).body;
+      expect(theirs.new).toBe(1);
+      expect(theirs.today.salesPaise).toBe(0);
+    });
+  });
+
   describe('tenant isolation', () => {
     it('hides one shop’s orders from another shop on every route', async () => {
       const shop = await liveShop('919999900001', 'Lakshmi Paints');

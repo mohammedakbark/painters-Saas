@@ -25,4 +25,9 @@ describe('StatTile', () => {
     expect(screen.getByText('12.9K')).toBeTruthy();
     expect(formatCount(1284)).toBe('1,284');
   });
+
+  it('shows a ready amount as it is', () => {
+    render(<StatTile label="Today's sales" value="₹2,450" />);
+    expect(screen.getByText('₹2,450')).toBeTruthy();
+  });
 });

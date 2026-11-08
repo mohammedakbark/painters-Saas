@@ -250,6 +250,25 @@ export const ReturnItemRequestSchema = z
   .object({ quantity, reason })
   .meta({ id: 'ReturnItemRequest' });
 
+export const OrderSummarySchema = z
+  .object({
+    new: z.int(),
+    packing: z.int(),
+    /** Ready for pickup plus out for delivery. */
+    ready: z.int(),
+    /** Ready, out for delivery or completed orders not yet paid. */
+    unpaid: z.object({ count: z.int(), totalPaise: z.int() }),
+    /** The Indian calendar day (Asia/Kolkata). */
+    today: z.object({
+      placed: z.int(),
+      completed: z.int(),
+      /** Totals of orders completed today (D-053, owner 2026-11-08). */
+      salesPaise: z.int(),
+    }),
+  })
+  .meta({ id: 'OrderSummary' });
+
+export type OrderSummary = z.infer<typeof OrderSummarySchema>;
 export type OrderListQuery = z.infer<typeof OrderListQuerySchema>;
 export type OrderListPage = z.infer<typeof OrderListPageSchema>;
 export type OrderDetail = z.infer<typeof OrderDetailSchema>;

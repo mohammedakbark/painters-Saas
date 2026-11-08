@@ -13,18 +13,21 @@ import { StatTile } from '@/components/ui/stat-tile';
 import { getShopOnboarding } from '@/lib/api/shop-profile';
 import { getShopReview } from '@/lib/api/shop-review';
 import { getShopSettings } from '@/lib/api/shop-settings';
+import { getOrderSummary } from '@/lib/api/orders';
 import { getCatalogueSummary } from '@/lib/api/shop-summary';
 import { requireShopAccess, requireShopSession } from '@/lib/auth/shop-access';
+import { countLabel } from '@/lib/format';
 import { formatRupees } from '@/lib/money';
+import { ordersBase } from '@/lib/orders/labels';
 import { shopStatusLabel } from '@/lib/shops/labels';
 import { submitForReviewAction, withdrawReviewAction } from './review-actions';
 
 type Props = PageProps<'/shops/[shopId]'>;
 
 /*
- * Overview dashboard v1 (WEB-008). The heading is a static shell; status,
- * product counts and to-dos each load on their own (PERF-001). Order
- * figures join in ORD-003.
+ * Overview dashboard (WEB-008, ORD-003). The heading is a static shell;
+ * status, order figures, product counts and to-dos each load on their own
+ * (PERF-001).
  */
 
 const base = (shopId: string) => `/shops/${encodeURIComponent(shopId)}`;
@@ -41,6 +44,10 @@ const loadOnboarding = cache(async (shopId: string) => {
   const { token } = await loadShop(shopId);
   return getShopOnboarding(token, shopId);
 });
+const loadOrders = cache(async (shopId: string) => {
+  const { token } = await loadShop(shopId);
+  return getOrderSummary(token, shopId);
+});
 const loadSummary = cache(async (shopId: string) => {
   const { token } = await loadShop(shopId);
   return getCatalogueSummary(token, shopId);
@@ -52,11 +59,19 @@ export default function ShopOverviewPage(props: Props) {
       <PageHeader
         eyebrow="Overview"
         title="Your shop at a glance"
-        description="Status, products and anything that needs your attention."
+        description="Status, orders, products and anything that needs your attention."
       />
       <Suspense fallback={<SectionLoading label="Loading the status…" />}>
         <Status {...props} />
       </Suspense>
+      <section aria-labelledby="orders-heading" className="flex flex-col gap-3">
+        <h2 id="orders-heading" className="text-heading3 font-semibold">
+          Orders
+        </h2>
+        <Suspense fallback={<SectionLoading label="Loading orders…" />}>
+          <OrderTiles {...props} />
+        </Suspense>
+      </section>
       <section
         aria-labelledby="products-heading"
         className="flex flex-col gap-3"
@@ -124,6 +139,57 @@ async function Status({ params, searchParams }: Props) {
   );
 }
 
+async function OrderTiles({ params }: Props) {
+  const { shopId } = await params;
+  const orders = await loadOrders(shopId);
+  const list = ordersBase(shopId);
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-2 gap-4 wide:grid-cols-4">
+        <StatTile
+          label="New orders"
+          value={orders.new}
+          status={
+            orders.new > 0
+              ? { tone: 'info', label: 'Needs attention' }
+              : undefined
+          }
+          href={`${list}?status=NEW`}
+        />
+        <StatTile
+          label="To pack"
+          value={orders.packing}
+          href={`${list}?status=PACKING`}
+        />
+        <StatTile
+          label="Ready or on the way"
+          value={orders.ready}
+          href={`${list}?status=ready`}
+        />
+        <StatTile
+          label="Today’s sales"
+          value={formatRupees(orders.today.salesPaise)}
+          context={`${countLabel(orders.today.completed, 'order')} completed today`}
+          href={`${list}?status=COMPLETED`}
+        />
+      </div>
+      {orders.unpaid.count > 0 ? (
+        <p className="text-body text-text-secondary">
+          {formatRupees(orders.unpaid.totalPaise)} not yet paid on{' '}
+          {countLabel(orders.unpaid.count, 'order')}.{' '}
+          <Link
+            href={`${list}?status=all&payment=UNPAID`}
+            className="rounded-nav-item font-semibold text-brand-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-brand-primary"
+          >
+            See unpaid orders
+          </Link>
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 async function ProductTiles({ params }: Props) {
   const { shopId } = await params;
   const { products } = await loadSummary(shopId);
@@ -178,10 +244,11 @@ interface ToDo {
 async function ToDos({ params }: Props) {
   const { shopId } = await params;
   const { shop, token } = await loadShop(shopId);
-  const [onboarding, summary, settings] = await Promise.all([
+  const [onboarding, summary, settings, orders] = await Promise.all([
     loadOnboarding(shopId),
     loadSummary(shopId),
     getShopSettings(token, shopId),
+    loadOrders(shopId),
   ]);
   const setupDone = onboarding.items.every((item) => item.done);
 
@@ -191,6 +258,14 @@ async function ToDos({ params }: Props) {
   }
 
   const todos: ToDo[] = [];
+  if (orders.new > 0) {
+    todos.push({
+      icon: 'receipt',
+      text: `${orders.new} new ${orders.new === 1 ? 'order is' : 'orders are'} waiting.`,
+      href: `${ordersBase(shopId)}?status=NEW`,
+      action: 'Open orders',
+    });
+  }
   const { products } = summary;
   if (products.noneAvailable > 0) {
     todos.push({

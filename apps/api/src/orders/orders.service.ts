@@ -27,6 +27,7 @@ import type {
   OrderDetail,
   OrderListPage,
   OrderListQuery,
+  OrderSummary,
   RecordPaymentRequest,
   ReturnItemRequest,
   UpdateOrderStatusRequest,
@@ -178,6 +179,55 @@ export class OrdersService {
           0,
         ),
         ...byStatus,
+      },
+    };
+  }
+
+  /**
+   * Order figures for the Overview (ORD-003). "Today" is the Indian calendar
+   * day; sales are the totals of orders completed today (owner, 2026-11-08).
+   */
+  async summary(shop: ShopContext): Promise<OrderSummary> {
+    requireShopRole(shop, ORDER_ROLES);
+    const [row] = await this.prisma.$queryRaw<
+      {
+        new: bigint;
+        packing: bigint;
+        ready: bigint;
+        unpaid_count: bigint;
+        unpaid_paise: bigint | null;
+        placed_today: bigint;
+        completed_today: bigint;
+        sales_today: bigint | null;
+      }[]
+    >`
+      WITH day AS (
+        SELECT (date_trunc('day', now() AT TIME ZONE 'Asia/Kolkata')
+                AT TIME ZONE 'Asia/Kolkata') AS starts
+      )
+      SELECT
+        count(*) FILTER (WHERE o.status = 'NEW') AS new,
+        count(*) FILTER (WHERE o.status = 'PACKING') AS packing,
+        count(*) FILTER (WHERE o.status IN ('READY_FOR_PICKUP', 'OUT_FOR_DELIVERY')) AS ready,
+        count(*) FILTER (WHERE o.payment_status = 'UNPAID'
+          AND o.status IN ('READY_FOR_PICKUP', 'OUT_FOR_DELIVERY', 'COMPLETED')) AS unpaid_count,
+        sum(o.total_paise) FILTER (WHERE o.payment_status = 'UNPAID'
+          AND o.status IN ('READY_FOR_PICKUP', 'OUT_FOR_DELIVERY', 'COMPLETED')) AS unpaid_paise,
+        count(*) FILTER (WHERE o.placed_at >= day.starts) AS placed_today,
+        count(*) FILTER (WHERE o.status = 'COMPLETED' AND o.completed_at >= day.starts) AS completed_today,
+        sum(o.total_paise) FILTER (WHERE o.status = 'COMPLETED' AND o.completed_at >= day.starts) AS sales_today
+      FROM orders o CROSS JOIN day
+      WHERE o.shop_id = ${shop.shopId}::uuid`;
+    const n = (value: bigint | null | undefined) => Number(value ?? 0);
+    return {
+      new: n(row?.new),
+      packing: n(row?.packing),
+      ready: n(row?.ready),
+      unpaid: { count: n(row?.unpaid_count), totalPaise: n(row?.unpaid_paise) },
+      today: {
+        placed: n(row?.placed_today),
+        completed: n(row?.completed_today),
+        salesPaise: n(row?.sales_today),
       },
     };
   }

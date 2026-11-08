@@ -134,6 +134,19 @@ const detailSchema = z.object({
   ),
 });
 
+const summarySchema = z.object({
+  new: z.number().int(),
+  packing: z.number().int(),
+  ready: z.number().int(),
+  unpaid: z.object({ count: z.number().int(), totalPaise: z.number().int() }),
+  today: z.object({
+    placed: z.number().int(),
+    completed: z.number().int(),
+    salesPaise: z.number().int(),
+  }),
+});
+
+export type OrderSummary = z.infer<typeof summarySchema>;
 export type OrderListPage = z.infer<typeof listPageSchema>;
 export type OrderRow = OrderListPage['items'][number];
 export type OrderDetail = z.infer<typeof detailSchema>;
@@ -187,6 +200,17 @@ export function listOrders(
   return apiRequest(`${base(shopId)}?${search.toString()}`, {
     token,
     schema: listPageSchema,
+  });
+}
+
+/** Order figures for the Overview (ORD-003). */
+export function getOrderSummary(
+  token: string,
+  shopId: string,
+): Promise<OrderSummary> {
+  return apiRequest(`${base(shopId)}/summary`, {
+    token,
+    schema: summarySchema,
   });
 }
 
