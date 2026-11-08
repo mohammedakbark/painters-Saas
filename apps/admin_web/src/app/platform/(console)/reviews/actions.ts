@@ -20,6 +20,8 @@ import {
  */
 export async function decideReviewAction(
   shopId: string,
+  /** Named in the confirmation toast on the queue (UX-003). */
+  shopName: string,
   _previous: CatalogueFormState,
   formData: FormData,
 ): Promise<CatalogueFormState> {
@@ -69,6 +71,9 @@ export async function decideReviewAction(
     return { values, error: CATALOGUE_MESSAGES.unavailable };
   }
   redirect(
-    `/platform/reviews?decided=${decision === 'APPROVED' ? 'approved' : 'changes'}`,
+    `/platform/reviews?${new URLSearchParams({
+      decided: decision === 'APPROVED' ? 'approved' : 'changes',
+      shop: shopName,
+    }).toString()}`,
   );
 }

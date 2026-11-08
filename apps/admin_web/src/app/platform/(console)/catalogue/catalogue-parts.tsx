@@ -1,5 +1,3 @@
-import Link from 'next/link';
-import { Icon } from '@/components/ui/icon';
 import { NavLinks } from '@/components/layout/nav-links';
 import { Badge } from '@/components/ui/badge';
 
@@ -26,21 +24,6 @@ export function BrandTabs({ brandId }: { brandId: string }) {
         { href: `${base}/import`, label: 'Import CSV' },
       ]}
     />
-  );
-}
-
-export function BackToCatalogue() {
-  return (
-    <Link
-      href="/platform/catalogue"
-      className="group inline-flex min-h-11 w-fit items-center gap-2 rounded-nav-item text-body font-semibold text-brand-primary hover:text-brand-primary-strong focus-visible:outline-2 focus-visible:outline-brand-primary"
-    >
-      <Icon
-        name="arrowLeft"
-        className="size-4 transition-transform group-hover:-translate-x-0.5"
-      />
-      All brands
-    </Link>
   );
 }
 

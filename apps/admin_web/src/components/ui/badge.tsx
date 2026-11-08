@@ -7,7 +7,8 @@ export type BadgeTone = 'neutral' | 'info' | 'success' | 'warning' | 'error';
 // state has its own colour, so opposite states never look alike.
 const TONES: Record<BadgeTone, { badge: string; dot: string }> = {
   neutral: {
-    badge: 'bg-surface-subtle text-text-secondary',
+    // White with a border, so it reads on cards and on the cream page (UX-003).
+    badge: 'border border-border-strong bg-surface-default text-text-secondary',
     dot: 'bg-text-secondary',
   },
   info: {

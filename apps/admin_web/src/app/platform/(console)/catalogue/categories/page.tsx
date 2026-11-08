@@ -4,15 +4,15 @@ import {
   CategoryCreateForm,
   CategoryRowForm,
 } from '@/components/catalogue/brand-forms';
-import { PageLoading } from '@/components/layout/page-loading';
 import { type Column, DataTable } from '@/components/ui/data-table';
+import { TableSkeleton } from '@/components/ui/skeleton';
 import { PageHeader } from '@/components/ui/page-header';
 import { SideSheet, SideSheetButton } from '@/components/ui/side-sheet';
 import { StateMessage } from '@/components/ui/state-message';
 import { listCategories } from '@/lib/api/platform-catalogue';
 import { requirePlatformAdmin } from '@/lib/auth/platform-access';
 import { createCategoryAction, updateCategoryAction } from '../actions';
-import { ActiveBadge, BackToCatalogue } from '../catalogue-parts';
+import { ActiveBadge } from '../catalogue-parts';
 
 export const metadata: Metadata = { title: 'Categories · Catalogue' };
 
@@ -28,8 +28,8 @@ type Category = Awaited<ReturnType<typeof listCategories>>[number];
 export default function CategoriesPage() {
   return (
     <>
-      <BackToCatalogue />
       <PageHeader
+        back={{ href: '/platform/catalogue', label: 'Catalogue' }}
         title="Categories"
         description="Every catalogue and shop product belongs to one category. Archived categories are hidden from shops."
         actions={
@@ -45,7 +45,7 @@ export default function CategoriesPage() {
       >
         <CategoryCreateForm action={createCategoryAction} />
       </SideSheet>
-      <Suspense fallback={<PageLoading label="Loading categories…" />}>
+      <Suspense fallback={<TableSkeleton label="Loading categories…" />}>
         <Categories />
       </Suspense>
     </>
@@ -67,8 +67,11 @@ async function Categories() {
     {
       key: 'order',
       header: 'Order',
+      align: 'end',
       width: 'w-28',
-      cell: (category) => category.sortOrder,
+      cell: (category) => (
+        <span className="tabular-nums">{category.sortOrder}</span>
+      ),
     },
     {
       key: 'status',

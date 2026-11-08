@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { Spinner } from '@/components/ui/spinner';
+import { ButtonLink } from '@/components/ui/button-link';
 import { StateMessage } from '@/components/ui/state-message';
 import { SubmitButton } from '@/components/ui/submit-button';
 import { getPlatformAccess } from '@/lib/auth/platform-access';
@@ -35,6 +36,7 @@ async function NoAccessMessage() {
     redirect('/platform');
   }
   return (
+    // A shop owner who landed here can go to their shops (UX-003).
     <StateMessage
       role="alert"
       title="No platform access"
@@ -45,9 +47,14 @@ async function NoAccessMessage() {
         </>
       }
       action={
-        <form action={signOutOfPlatform}>
-          <SubmitButton pendingLabel="Signing out…">Sign out</SubmitButton>
-        </form>
+        <>
+          <ButtonLink href="/shops" variant="secondary">
+            Go to your shops
+          </ButtonLink>
+          <form action={signOutOfPlatform}>
+            <SubmitButton pendingLabel="Signing out…">Sign out</SubmitButton>
+          </form>
+        </>
       }
     />
   );

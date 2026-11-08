@@ -215,6 +215,53 @@
         ]
       }
     },
+    "/v1/platform/summary": {
+      "get": {
+        "operationId": "PlatformSummaryController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlatformSummary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Counts for the platform overview: reviews waiting, shops by status, active catalogue.",
+        "tags": [
+          "platform"
+        ]
+      }
+    },
     "/v1/shops": {
       "post": {
         "operationId": "ShopsController_register",
@@ -6589,6 +6636,96 @@
           "updatedAt",
           "photoThumbUrl",
           "master"
+        ],
+        "additionalProperties": false
+      },
+      "PlatformSummary": {
+        "type": "object",
+        "properties": {
+          "reviews": {
+            "type": "object",
+            "properties": {
+              "waiting": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "oldestSubmittedAt": {
+                "nullable": true,
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              }
+            },
+            "required": [
+              "waiting",
+              "oldestSubmittedAt"
+            ],
+            "additionalProperties": false
+          },
+          "shops": {
+            "type": "object",
+            "properties": {
+              "live": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "inReview": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "changesRequested": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "draft": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "live",
+              "inReview",
+              "changesRequested",
+              "draft"
+            ],
+            "additionalProperties": false
+          },
+          "catalogue": {
+            "type": "object",
+            "properties": {
+              "brands": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "products": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "shades": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "brands",
+              "products",
+              "shades"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "reviews",
+          "shops",
+          "catalogue"
         ],
         "additionalProperties": false
       },

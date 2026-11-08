@@ -32,8 +32,8 @@ async function BrandImport({
   return (
     <div className="flex flex-col gap-6">
       <BrandHeader brand={brand} />
-      <div className="grid gap-8 desktop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <Card as="section" className="p-6">
+      <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-6 desktop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <Card as="section" className="min-w-0 p-5 medium:p-6">
           <ImportForm action={importCatalogueAction.bind(null, brand.id)} />
         </Card>
         <aside className="flex flex-col gap-3 text-body text-text-secondary">

@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { Suspense } from 'react';
 import { PageLoading } from '@/components/layout/page-loading';
 import { ReviewDecisionForm } from '@/components/platform/review-decision-form';
 import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { cardClasses } from '@/components/ui/card';
+import { StateMessage } from '@/components/ui/state-message';
 import { PageHeader } from '@/components/ui/page-header';
 import { orNotFound } from '@/lib/api/or-not-found';
 import {
@@ -43,30 +43,27 @@ async function ShopReview({ params }: PageProps<'/platform/reviews/[shopId]'>) {
 
   return (
     <div className="flex flex-col gap-6">
-      <Link
-        href="/platform/reviews"
-        className="text-body font-semibold text-brand-primary underline underline-offset-4"
-      >
-        All reviews
-      </Link>
-      <div className="flex flex-wrap items-center gap-3">
-        <PageHeader
-          title={review.shop.name}
-          description={
-            review.open
-              ? `Submitted ${formatDateTime(review.open.submittedAt)}`
-              : undefined
-          }
-        />
-        <Badge tone={status.tone}>{status.label}</Badge>
-        {review.open?.resubmission ? (
-          <Badge tone="info">Submitted again</Badge>
-        ) : null}
-      </div>
-      <p className="text-body text-text-secondary">
-        This page shows the shop&apos;s private details. Each view is recorded
-        in the audit trail.
-      </p>
+      <PageHeader
+        back={{ href: '/platform/reviews', label: 'All reviews' }}
+        title={review.shop.name}
+        description={
+          <span className="flex flex-col gap-2">
+            <span className="flex flex-wrap items-center gap-3">
+              <Badge tone={status.tone}>{status.label}</Badge>
+              {review.open?.resubmission ? (
+                <Badge tone="neutral">Submitted again</Badge>
+              ) : null}
+              {review.open ? (
+                <span>Submitted {formatDateTime(review.open.submittedAt)}</span>
+              ) : null}
+            </span>
+            <span className="text-body">
+              This page shows the shop&apos;s private details. Each view is
+              recorded in the audit trail.
+            </span>
+          </span>
+        }
+      />
 
       <div className="grid gap-6 desktop:grid-cols-2">
         <div className="flex flex-col gap-6">
@@ -80,7 +77,11 @@ async function ShopReview({ params }: PageProps<'/platform/reviews/[shopId]'>) {
             </h2>
             {review.open ? (
               <ReviewDecisionForm
-                action={decideReviewAction.bind(null, review.shop.id)}
+                action={decideReviewAction.bind(
+                  null,
+                  review.shop.id,
+                  review.shop.name,
+                )}
               />
             ) : (
               <Alert tone="info" title="Not waiting for review">
@@ -115,7 +116,12 @@ function ProfileSection({ review }: { review: ShopReviewSnapshot }) {
           className="aspect-video w-full rounded-image object-cover"
         />
       ) : (
-        <p className="text-body text-status-error">No shop photo.</p>
+        <StateMessage
+          variant="plain"
+          icon="alertCircle"
+          title="No shop photo"
+          description="The shop must add a photo before it can be approved."
+        />
       )}
       <dl className="grid gap-3">
         <Detail label="Owner">
@@ -230,7 +236,7 @@ function HistorySection({ review }: { review: ShopReviewSnapshot }) {
         Earlier submissions
       </h2>
       {review.history.length === 0 ? (
-        <p className="text-body text-text-secondary">None.</p>
+        <p className="text-body text-text-secondary">No earlier submissions.</p>
       ) : (
         <ul className="flex flex-col gap-4">
           {review.history.map((entry) => (
@@ -278,7 +284,12 @@ function ProductsSection({ review }: { review: ShopReviewSnapshot }) {
         </p>
       ) : null}
       {items.length === 0 ? (
-        <p className="text-body text-text-secondary">No products.</p>
+        <StateMessage
+          variant="plain"
+          icon="tag"
+          title="No products yet"
+          description="The shop has not listed any products."
+        />
       ) : (
         <ul className="grid gap-3 desktop:grid-cols-2">
           {items.map((product) => (

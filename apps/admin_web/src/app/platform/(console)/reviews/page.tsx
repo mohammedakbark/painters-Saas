@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { PageLoading } from '@/components/layout/page-loading';
-import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { ButtonLink } from '@/components/ui/button-link';
 import {
@@ -11,6 +10,7 @@ import {
 } from '@/components/ui/column-filter';
 import { type Column, DataTable } from '@/components/ui/data-table';
 import { FilterForm } from '@/components/ui/filter-form';
+import { FlashToast } from '@/components/ui/flash-toast';
 import { PageHeader } from '@/components/ui/page-header';
 import { Pagination } from '@/components/ui/pagination';
 import { StateMessage } from '@/components/ui/state-message';
@@ -52,6 +52,8 @@ async function ReviewQueue({ searchParams }: PageProps<'/platform/reviews'>) {
   const { token } = await requirePlatformAdmin();
   const search = await searchParams;
   const decided = search.decided;
+  const shopName =
+    typeof search.shop === 'string' ? search.shop.slice(0, 120) : null;
   const state: ReviewQueueParams = {
     q: text(search.q)?.slice(0, 60),
     sort: oneOf(['oldest', 'newest'] as const, text(search.sort), 'oldest'),
@@ -137,13 +139,15 @@ async function ReviewQueue({ searchParams }: PageProps<'/platform/reviews'>) {
   return (
     <div className="flex flex-col gap-6">
       {decided === 'approved' ? (
-        <Alert tone="success" title="Shop approved">
-          The shop is live.
-        </Alert>
+        <FlashToast
+          param="decided"
+          message={`${shopName ?? 'The shop'} is approved and now live.`}
+        />
       ) : decided === 'changes' ? (
-        <Alert tone="success" title="Changes requested">
-          The owner sees your reasons and can submit the shop again.
-        </Alert>
+        <FlashToast
+          param="decided"
+          message={`Changes requested from ${shopName ?? 'the shop'}. The owner sees your reasons and can submit again.`}
+        />
       ) : null}
       <PageHeader
         title="Reviews"

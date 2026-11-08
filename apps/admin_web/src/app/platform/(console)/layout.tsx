@@ -3,6 +3,7 @@ import { type ReactNode, Suspense } from 'react';
 import { AppShell } from '@/components/layout/app-shell';
 import type { NavItem } from '@/components/layout/nav-links';
 import { Spinner } from '@/components/ui/spinner';
+import { getPlatformSummary } from '@/lib/api/platform-shops';
 import { requirePlatformAdmin } from '@/lib/auth/platform-access';
 import { BRAND } from '@/lib/brand';
 import { signOutOfPlatform } from '../actions';
@@ -16,12 +17,21 @@ export const metadata: Metadata = {
   },
 };
 
-const PLATFORM_NAV: readonly NavItem[] = [
-  { href: '/platform', label: 'Overview', exact: true, icon: 'home' },
-  { href: '/platform/reviews', label: 'Reviews', icon: 'shield' },
-  { href: '/platform/shops', label: 'Shops', icon: 'store' },
-  { href: '/platform/catalogue', label: 'Catalogue', icon: 'notebook' },
-];
+/** The menu, with the number of shops waiting for review (UX-003). */
+function platformNav(waiting: number): NavItem[] {
+  return [
+    { href: '/platform', label: 'Overview', exact: true, icon: 'home' },
+    {
+      href: '/platform/reviews',
+      label: 'Reviews',
+      icon: 'shield',
+      count: waiting,
+      countLabel: 'shops waiting',
+    },
+    { href: '/platform/shops', label: 'Shops', icon: 'store' },
+    { href: '/platform/catalogue', label: 'Catalogue', icon: 'notebook' },
+  ];
+}
 
 /**
  * Console chrome. The session is read behind a Suspense boundary (required
@@ -42,10 +52,14 @@ export default function PlatformConsoleLayout({
 
 async function PlatformConsole({ children }: { children: ReactNode }) {
   const admin = await requirePlatformAdmin();
+  // A missing count never blocks the console.
+  const waiting = await getPlatformSummary(admin.token)
+    .then((summary) => summary.reviews.waiting)
+    .catch(() => 0);
   return (
     <AppShell
       area={{ caption: 'Admin area', name: 'Platform Admin' }}
-      nav={PLATFORM_NAV}
+      nav={platformNav(waiting)}
       account={admin.email ?? 'Platform Admin'}
       signOutAction={signOutOfPlatform}
     >

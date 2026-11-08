@@ -38,17 +38,22 @@ async function PlatformShop({ params }: PageProps<'/platform/shops/[shopId]'>) {
   return (
     <>
       <PageHeader
+        back={{ href: '/platform/shops', label: 'All shops' }}
         title={shop.name}
-        description={status.description}
+        description={
+          <span className="flex flex-wrap items-center gap-3">
+            <Badge tone={status.tone}>{status.label}</Badge>
+            <span>{status.description}</span>
+          </span>
+        }
         actions={
-          <>
-            <ButtonLink href={`/platform/reviews/${shop.id}`}>
-              Review details
-            </ButtonLink>
-            <ButtonLink href="/platform/shops" variant="secondary">
-              All shops
-            </ButtonLink>
-          </>
+          // Reviewing is the main job only while the shop waits (UX-003).
+          <ButtonLink
+            href={`/platform/reviews/${shop.id}`}
+            variant={shop.status === 'PENDING_REVIEW' ? 'primary' : 'secondary'}
+          >
+            {shop.status === 'PENDING_REVIEW' ? 'Review now' : 'Review history'}
+          </ButtonLink>
         }
       />
       <Card as="section" className="p-6">

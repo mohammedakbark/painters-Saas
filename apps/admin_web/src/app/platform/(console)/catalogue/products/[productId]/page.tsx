@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { Suspense } from 'react';
 import { ProductForm } from '@/components/catalogue/product-form';
 import { ActiveToggleForm } from '@/components/catalogue/shade-forms';
@@ -41,18 +40,21 @@ async function Product({
 
   return (
     <div className="flex flex-col gap-6">
-      <Link
-        href={`/platform/catalogue/brands/${product.brand.id}`}
-        className="text-body font-semibold text-brand-primary underline underline-offset-4"
-      >
-        {product.brand.name} products
-      </Link>
-      <div className="flex flex-wrap items-center gap-3">
-        <PageHeader title={product.name} description={product.brand.name} />
-        <ActiveBadge active={product.active} />
-      </div>
+      <PageHeader
+        back={{
+          href: `/platform/catalogue/brands/${product.brand.id}`,
+          label: `${product.brand.name} products`,
+        }}
+        title={product.name}
+        description={
+          <span className="flex flex-wrap items-center gap-3">
+            <ActiveBadge active={product.active} />
+            <span>{product.brand.name}</span>
+          </span>
+        }
+      />
 
-      <div className="grid gap-8 desktop:grid-cols-2">
+      <div className="grid items-start gap-6 desktop:grid-cols-2">
         <Card as="section" className="p-6">
           <ProductForm
             // Remount after a save so the form shows the stored values.

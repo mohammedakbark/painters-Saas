@@ -74,3 +74,32 @@ export function getRegisteredShop(
     schema: shopRegistryEntrySchema,
   });
 }
+
+// Mirrors PlatformSummary in packages/api_contracts/openapi.json (UX-003).
+const platformSummarySchema = z.object({
+  reviews: z.object({
+    waiting: z.number().int(),
+    oldestSubmittedAt: z.string().nullable(),
+  }),
+  shops: z.object({
+    live: z.number().int(),
+    inReview: z.number().int(),
+    changesRequested: z.number().int(),
+    draft: z.number().int(),
+  }),
+  catalogue: z.object({
+    brands: z.number().int(),
+    products: z.number().int(),
+    shades: z.number().int(),
+  }),
+});
+
+export type PlatformSummary = z.infer<typeof platformSummarySchema>;
+
+/** Counts for the platform Overview and the Reviews menu badge. */
+export function getPlatformSummary(token: string): Promise<PlatformSummary> {
+  return apiRequest('/v1/platform/summary', {
+    token,
+    schema: platformSummarySchema,
+  });
+}

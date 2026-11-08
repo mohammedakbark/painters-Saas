@@ -48,7 +48,7 @@ export function SelectField({
         aria-required={required || undefined}
         aria-describedby={describedBy}
         className={cn(
-          'min-h-control rounded-control border bg-control-background px-4 text-body-large text-text-primary',
+          'min-h-control w-full max-w-full min-w-0 rounded-control border bg-control-background px-4 text-body-large text-text-primary',
           'disabled:bg-surface-subtle disabled:text-text-disabled',
           'focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-brand-primary',
           error ? 'border-control-border-error' : 'border-control-border',

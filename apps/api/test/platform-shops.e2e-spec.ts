@@ -182,6 +182,62 @@ describe('Platform shop registry (e2e, real Postgres)', () => {
     expect(response.body.errors[0].path).toBe(field);
   });
 
+  it('counts reviews waiting, shops by status and the catalogue (UX-003)', async () => {
+    const live = await registerShop('919999900001', 'Live Paints', 'Anil');
+    const waiting = await registerShop(
+      '919999900002',
+      'Waiting Paints',
+      'Bina',
+    );
+    await registerShop('919999900003', 'Draft Paints', 'Chandra');
+    await testApp.prisma.shop.update({
+      where: { id: live.id },
+      data: { status: 'ACTIVE' },
+    });
+    await testApp.prisma.shop.update({
+      where: { id: waiting.id },
+      data: { status: 'PENDING_REVIEW' },
+    });
+    const owner = await testApp.prisma.shopMembership.findFirstOrThrow({
+      where: { shopId: waiting.id },
+    });
+    const submittedAt = new Date('2026-11-01T10:00:00Z');
+    await testApp.prisma.shopReview.create({
+      data: {
+        shopId: waiting.id,
+        openShopId: waiting.id,
+        submittedFrom: 'DRAFT',
+        submittedByUserId: owner.userId,
+        submittedAt,
+      },
+    });
+    const brand = await testApp.prisma.brand.create({
+      data: { name: 'Sample Paints', nameKey: 'sample paints' },
+    });
+    await testApp.prisma.brand.create({
+      data: { name: 'Old Paints', nameKey: 'old paints', active: false },
+    });
+
+    const summary = (
+      await request(server())
+        .get('/v1/platform/summary')
+        .set('Authorization', admin)
+        .expect(200)
+    ).body;
+    expect(summary).toEqual({
+      reviews: { waiting: 1, oldestSubmittedAt: submittedAt.toISOString() },
+      shops: { live: 1, inReview: 1, changesRequested: 0, draft: 1 },
+      catalogue: { brands: 1, products: 0, shades: 0 },
+    });
+    expect(brand.active).toBe(true);
+
+    const forbidden = await request(server())
+      .get('/v1/platform/summary')
+      .set('Authorization', live.owner)
+      .expect(403);
+    expect(forbidden.body.code).toBe('platform_admin_required');
+  });
+
   it('forbids shop owners from reading the registry (403)', async () => {
     const shop = await registerShop('919999900001', 'Alpha Paints', 'Anil');
 

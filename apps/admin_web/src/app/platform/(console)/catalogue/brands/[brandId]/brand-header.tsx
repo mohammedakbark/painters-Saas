@@ -4,21 +4,26 @@ import { PageHeader } from '@/components/ui/page-header';
 import type { Brand } from '@/lib/api/platform-catalogue';
 import { countLabel } from '@/lib/format';
 import { updateBrandAction } from '../../actions';
-import { ActiveBadge, BackToCatalogue, BrandTabs } from '../../catalogue-parts';
+import { ActiveBadge, BrandTabs } from '../../catalogue-parts';
 
 /** Name, status, settings and section tabs of one brand. */
 export function BrandHeader({ brand }: { brand: Brand }) {
   return (
     <div className="flex flex-col gap-4">
-      <BackToCatalogue />
-      <div className="flex flex-wrap items-center gap-3">
-        <PageHeader
-          title={brand.name}
-          description={`${countLabel(brand.productCount, 'active product')} · ${countLabel(brand.shadeCount, 'active shade')}`}
-        />
-        <ActiveBadge active={brand.active} />
-      </div>
-      <Card as="details" className="p-4">
+      <PageHeader
+        back={{ href: '/platform/catalogue', label: 'Catalogue' }}
+        title={brand.name}
+        description={
+          <span className="flex flex-wrap items-center gap-3">
+            <ActiveBadge active={brand.active} />
+            <span>
+              {countLabel(brand.productCount, 'active product')} ·{' '}
+              {countLabel(brand.shadeCount, 'active shade')}
+            </span>
+          </span>
+        }
+      />
+      <Card as="details" className="px-5 py-4">
         <summary className="cursor-pointer text-body font-semibold">
           Brand settings
         </summary>
