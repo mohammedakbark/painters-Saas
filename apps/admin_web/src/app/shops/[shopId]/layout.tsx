@@ -1,7 +1,12 @@
 import { type ReactNode, Suspense } from 'react';
 import { AppShell } from '@/components/layout/app-shell';
 import { Spinner } from '@/components/ui/spinner';
-import { getShopUser, requireShopAccess } from '@/lib/auth/shop-access';
+import { getOrderSummary } from '@/lib/api/orders';
+import {
+  getShopUser,
+  requireShopAccess,
+  requireShopSession,
+} from '@/lib/auth/shop-access';
 import { formatIndianMobile } from '@/lib/phone';
 import { signOutOfShop } from '../actions';
 
@@ -30,6 +35,10 @@ async function ShopConsole({
   const { shopId } = await params;
   const shop = await requireShopAccess(shopId);
   const me = await getShopUser();
+  // A missing count never blocks the console (UX-002).
+  const newOrders = await getOrderSummary(await requireShopSession(), shop.id)
+    .then((summary) => summary.new)
+    .catch(() => 0);
   const base = `/shops/${shop.id}`;
   const account = me.phone
     ? formatIndianMobile(me.phone)
@@ -54,7 +63,13 @@ async function ShopConsole({
       }}
       nav={[
         { href: base, label: 'Overview', exact: true, icon: 'home' },
-        { href: `${base}/orders`, label: 'Orders', icon: 'receipt' },
+        {
+          href: `${base}/orders`,
+          label: 'Orders',
+          icon: 'receipt',
+          count: newOrders,
+          countLabel: 'new orders',
+        },
         { href: `${base}/customers`, label: 'Customers', icon: 'user' },
         {
           href: `${base}/catalogue`,
@@ -68,7 +83,7 @@ async function ShopConsole({
       accountLinks={[
         {
           href: `${base}/profile`,
-          label: 'Shop details and photo',
+          label: 'Shop profile',
           icon: 'store',
         },
         { href: `${base}/settings`, label: 'Shop settings', icon: 'settings' },

@@ -46,6 +46,7 @@ export const metadata: Metadata = { title: 'Orders' };
 type Props = PageProps<'/shops/[shopId]/orders'>;
 
 const FORM = 'order-filters';
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DEFAULTS = { status: 'open', page: '1', pageSize: '25' };
 const TAB_LABELS: Record<OrderTab, string> = {
   open: 'Open',
@@ -113,13 +114,20 @@ async function Orders({ params, searchParams }: Props) {
     payment:
       oneOf(['UNPAID', 'PAID', ''] as const, text(search.payment), '') ||
       undefined,
+    // From a customer's page: one customer's orders (UX-002).
+    customerId: UUID.test(text(search.customerId) ?? '')
+      ? text(search.customerId)
+      : undefined,
     ...readPaging(search),
   };
   const data = await listOrders(await requireShopSession(), shopId, state);
   const base = ordersBase(shopId);
   const link = (next: Partial<typeof state>) =>
     listLink(base, { ...state, ...next }, DEFAULTS);
-  const filtered = Boolean(state.q || state.fulfilment || state.payment);
+  const filtered = Boolean(
+    state.q || state.fulfilment || state.payment || state.customerId,
+  );
+  const customerName = state.customerId ? data.items[0]?.customer.name : null;
 
   // Four compact columns and a flexible Customer column, so the table fits
   // from the 900 px desktop layout up (fixed table layout).
@@ -227,7 +235,7 @@ async function Orders({ params, searchParams }: Props) {
   return (
     <div className="flex flex-col gap-6">
       <OrdersAutoRefresh
-        key={`${state.q ?? ''}|${state.fulfilment ?? ''}|${state.payment ?? ''}`}
+        key={`${state.q ?? ''}|${state.fulfilment ?? ''}|${state.payment ?? ''}|${state.customerId ?? ''}`}
         total={data.counts.all}
         newHref={listLink(base, { status: 'NEW' }, DEFAULTS)}
       />
@@ -279,8 +287,21 @@ async function Orders({ params, searchParams }: Props) {
           ]}
         />
       </FilterForm>
+      {state.customerId ? (
+        <input
+          type="hidden"
+          name="customerId"
+          value={state.customerId}
+          form={FORM}
+        />
+      ) : null}
       {filtered ? (
-        <div className="-mt-3 flex justify-end">
+        <div className="-mt-3 flex flex-wrap items-center justify-end gap-3">
+          {state.customerId ? (
+            <span className="mr-auto rounded-badge bg-brand-primary-soft px-3 py-1 text-body font-semibold text-brand-primary">
+              Showing orders for {customerName ?? 'one customer'}
+            </span>
+          ) : null}
           <ButtonLink
             href={listLink(base, { status: state.status }, DEFAULTS)}
             variant="tertiary"

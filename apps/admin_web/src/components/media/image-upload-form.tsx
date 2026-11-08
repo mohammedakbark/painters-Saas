@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Icon } from '@/components/ui/icon';
 import { RequiredMark } from '@/components/ui/field-label';
 import { FileField } from '@/components/ui/file-field';
 import {
@@ -107,7 +108,12 @@ export function ImageUploadForm({
         <p className="text-body text-text-secondary">{description}</p>
         <Card
           tone="subtle"
-          className="flex aspect-4/3 w-full max-w-form items-center justify-center overflow-hidden"
+          className={
+            shown
+              ? 'flex aspect-4/3 w-full max-w-form items-center justify-center overflow-hidden'
+              : // An empty photo is a short dashed drop area, not a large blank box (UX-002).
+                'flex w-full max-w-form flex-col items-center justify-center gap-2 overflow-hidden border-dashed px-4 py-8'
+          }
         >
           {shown ? (
             // eslint-disable-next-line @next/next/no-img-element -- see the component comment
@@ -121,7 +127,8 @@ export function ImageUploadForm({
               className="size-full object-cover"
             />
           ) : (
-            <p className="px-4 text-center text-body text-text-secondary">
+            <p className="flex flex-col items-center gap-2 px-4 text-center text-body text-text-secondary">
+              <Icon name="plus" className="size-6 text-text-disabled" />
               No {noun} yet.
             </p>
           )}

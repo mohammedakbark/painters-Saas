@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { cache, Suspense } from 'react';
 import { OnboardingChecklist } from '@/components/shops/onboarding-checklist';
@@ -8,7 +9,8 @@ import { ButtonLink } from '@/components/ui/button-link';
 import { Card, CardList } from '@/components/ui/card';
 import { Icon, type IconName } from '@/components/ui/icon';
 import { PageHeader } from '@/components/ui/page-header';
-import { SectionLoading } from '@/components/ui/section-loading';
+import { SectionBoundary } from '@/components/ui/section-boundary';
+import { LinesSkeleton, TilesSkeleton } from '@/components/ui/skeleton';
 import { StatTile } from '@/components/ui/stat-tile';
 import { getShopOnboarding } from '@/lib/api/shop-profile';
 import { getShopReview } from '@/lib/api/shop-review';
@@ -21,6 +23,8 @@ import { formatRupees } from '@/lib/money';
 import { ordersBase } from '@/lib/orders/labels';
 import { shopStatusLabel } from '@/lib/shops/labels';
 import { submitForReviewAction, withdrawReviewAction } from './review-actions';
+
+export const metadata: Metadata = { title: 'Overview' };
 
 type Props = PageProps<'/shops/[shopId]'>;
 
@@ -48,6 +52,10 @@ const loadOrders = cache(async (shopId: string) => {
   const { token } = await loadShop(shopId);
   return getOrderSummary(token, shopId);
 });
+const loadSettings = cache(async (shopId: string) => {
+  const { token } = await loadShop(shopId);
+  return getShopSettings(token, shopId);
+});
 const loadSummary = cache(async (shopId: string) => {
   const { token } = await loadShop(shopId);
   return getCatalogueSummary(token, shopId);
@@ -61,16 +69,20 @@ export default function ShopOverviewPage(props: Props) {
         title="Your shop at a glance"
         description="Status, orders, products and anything that needs your attention."
       />
-      <Suspense fallback={<SectionLoading label="Loading the status…" />}>
-        <Status {...props} />
-      </Suspense>
+      <SectionBoundary what="the shop status">
+        <Suspense fallback={<CardSkeleton label="Loading the status…" />}>
+          <Status {...props} />
+        </Suspense>
+      </SectionBoundary>
       <section aria-labelledby="orders-heading" className="flex flex-col gap-3">
         <h2 id="orders-heading" className="text-heading3 font-semibold">
           Orders
         </h2>
-        <Suspense fallback={<SectionLoading label="Loading orders…" />}>
-          <OrderTiles {...props} />
-        </Suspense>
+        <SectionBoundary what="order figures">
+          <Suspense fallback={<TilesSkeleton label="Loading orders…" />}>
+            <OrderTiles {...props} />
+          </Suspense>
+        </SectionBoundary>
       </section>
       <section
         aria-labelledby="products-heading"
@@ -79,21 +91,34 @@ export default function ShopOverviewPage(props: Props) {
         <h2 id="products-heading" className="text-heading3 font-semibold">
           Products
         </h2>
-        <Suspense fallback={<SectionLoading label="Loading products…" />}>
-          <ProductTiles {...props} />
-        </Suspense>
+        <SectionBoundary what="product figures">
+          <Suspense fallback={<TilesSkeleton label="Loading products…" />}>
+            <ProductTiles {...props} />
+          </Suspense>
+        </SectionBoundary>
       </section>
       <div className="grid items-start gap-6 desktop:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="flex flex-col gap-6">
-          <Suspense fallback={<SectionLoading label="Loading to-dos…" />}>
+        <SectionBoundary what="your to-dos">
+          <Suspense fallback={<CardSkeleton label="Loading to-dos…" />}>
             <ToDos {...props} />
           </Suspense>
-        </div>
-        <Suspense fallback={<SectionLoading label="Loading delivery…" />}>
-          <PickupAndDelivery {...props} />
-        </Suspense>
+        </SectionBoundary>
+        <SectionBoundary what="delivery details">
+          <Suspense fallback={<CardSkeleton label="Loading delivery…" />}>
+            <PickupAndDelivery {...props} />
+          </Suspense>
+        </SectionBoundary>
       </div>
     </div>
+  );
+}
+
+/** A card-shaped placeholder for one Overview section. */
+function CardSkeleton({ label }: { label: string }) {
+  return (
+    <Card className="p-5 medium:p-6">
+      <LinesSkeleton label={label} />
+    </Card>
   );
 }
 
@@ -243,11 +268,11 @@ interface ToDo {
 
 async function ToDos({ params }: Props) {
   const { shopId } = await params;
-  const { shop, token } = await loadShop(shopId);
+  const { shop } = await loadShop(shopId);
   const [onboarding, summary, settings, orders] = await Promise.all([
     loadOnboarding(shopId),
     loadSummary(shopId),
-    getShopSettings(token, shopId),
+    loadSettings(shopId),
     loadOrders(shopId),
   ]);
   const setupDone = onboarding.items.every((item) => item.done);
@@ -334,9 +359,8 @@ async function ToDos({ params }: Props) {
 
 async function PickupAndDelivery({ params }: Props) {
   const { shopId } = await params;
-  const { token } = await loadShop(shopId);
   const [settings, summary] = await Promise.all([
-    getShopSettings(token, shopId),
+    loadSettings(shopId),
     loadSummary(shopId),
   ]);
   const { delivery } = settings;
@@ -403,7 +427,7 @@ async function PickupAndDelivery({ params }: Props) {
           <dd className="font-semibold tabular-nums">
             {summary.shades.favourites}
           </dd>
-          <dt className="text-text-secondary">Your own shades</dt>
+          <dt className="text-text-secondary">My shades</dt>
           <dd className="font-semibold tabular-nums">{summary.shades.own}</dd>
           <dt className="text-text-secondary">Your own categories</dt>
           <dd className="font-semibold tabular-nums">

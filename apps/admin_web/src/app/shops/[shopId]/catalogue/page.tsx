@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { PageLoading } from '@/components/layout/page-loading';
-import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { ButtonLink } from '@/components/ui/button-link';
 import {
@@ -12,7 +10,9 @@ import {
 import { type Column, DataTable } from '@/components/ui/data-table';
 import { FilterForm } from '@/components/ui/filter-form';
 import { PackChip } from '@/components/ui/pack-chip';
+import { FlashToast } from '@/components/ui/flash-toast';
 import { PageHeader } from '@/components/ui/page-header';
+import { TableSkeleton } from '@/components/ui/skeleton';
 import { Pagination } from '@/components/ui/pagination';
 import { SegmentedLinks } from '@/components/ui/segmented-links';
 import { SideSheet, SideSheetButton } from '@/components/ui/side-sheet';
@@ -67,7 +67,14 @@ export default function ProductsPage(
   props: PageProps<'/shops/[shopId]/catalogue'>,
 ) {
   return (
-    <Suspense fallback={<PageLoading label="Loading your products…" />}>
+    <Suspense
+      fallback={
+        <div className="flex flex-col gap-6">
+          <PageHeader title="Products" description={DESCRIPTION} />
+          <TableSkeleton label="Loading your products…" />
+        </div>
+      }
+    >
       <Products {...props} />
     </Suspense>
   );
@@ -115,6 +122,8 @@ const DEFAULTS: Partial<Record<keyof ProductRowParams, string>> = {
 };
 
 const ADD_SHEET = 'add-product';
+const DESCRIPTION =
+  'Everything your shop sells, with prices and availability for each pack size.';
 
 async function Products({
   params,
@@ -318,16 +327,14 @@ async function Products({
         </SideSheet>
       ) : null}
       {Number.isInteger(added) && added > 0 ? (
-        <Alert
-          tone="success"
-          title={added === 1 ? '1 product added' : `${added} products added`}
-        >
-          They are on sale with the prices you entered.
-        </Alert>
+        <FlashToast
+          param="added"
+          message={`${added === 1 ? '1 product added' : `${added} products added`}. They are on sale with the prices you entered.`}
+        />
       ) : null}
       <PageHeader
         title="Products"
-        description="Everything your shop sells, with prices and availability for each pack size."
+        description={DESCRIPTION}
         actions={
           canEdit ? (
             <>
@@ -470,6 +477,13 @@ async function Products({
                     : state.status === 'ARCHIVED'
                       ? 'No archived products'
                       : 'No products here'
+                }
+                description={
+                  filtered
+                    ? 'Try another search or clear the filters.'
+                    : state.status === 'ARCHIVED'
+                      ? 'Products you archive appear here, so you can restore them.'
+                      : 'No products in this group. Choose another tab or add a product.'
                 }
                 action={
                   filtered ? (

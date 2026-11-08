@@ -6,6 +6,7 @@ import {
   OwnShadeForm,
 } from '@/components/shop-catalogue/shop-catalogue-forms';
 import { Badge } from '@/components/ui/badge';
+import { ConfirmActionButton } from '@/components/ui/confirm-action-button';
 import {
   ColumnSearchFilter,
   ColumnSelectFilter,
@@ -371,6 +372,11 @@ async function BrandShades({ shopId, base, search, canEdit }: SectionProps) {
           <StateMessage
             icon="palette"
             title={state.q ? 'No shades match' : `No ${brand.name} shades yet`}
+            description={
+              state.q
+                ? 'Try another shade code or name.'
+                : 'The platform team adds shade cards from the brand. Check another brand, or add a shade of your own.'
+            }
           />
         }
       />
@@ -421,12 +427,13 @@ async function OwnShades({ shopId, base, search, canEdit }: SectionProps) {
             align: 'end' as const,
             width: 'w-40',
             cell: (row: ShopShade) => (
-              <ActionButtonForm
+              <ConfirmActionButton
                 action={removeOwnShadeAction.bind(null, shopId, row.id)}
                 label="Remove"
-                pendingLabel="Removing…"
-                variant="tertiary"
                 accessibleLabel={`Remove shade ${row.code}`}
+                title={`Remove shade ${row.code}?`}
+                message="It is removed from your own shades. Orders that used it keep the shade code."
+                confirmLabel="Remove shade"
               />
             ),
           },
@@ -462,7 +469,7 @@ async function OwnShades({ shopId, base, search, canEdit }: SectionProps) {
         }
       />
       <DataTable
-        caption="Your own shades"
+        caption="My shades"
         columns={columns}
         rows={data.items}
         rowKey={(row) => row.id}

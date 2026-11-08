@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Suspense } from 'react';
+import { cache, Suspense } from 'react';
 import {
   CustomerForm,
   SitesPanel,
@@ -8,6 +8,7 @@ import {
 import { PageLoading } from '@/components/layout/page-loading';
 import { ActionButtonForm } from '@/components/shop-catalogue/shop-catalogue-forms';
 import { Badge } from '@/components/ui/badge';
+import { ConfirmActionButton } from '@/components/ui/confirm-action-button';
 import { ButtonLink } from '@/components/ui/button-link';
 import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
@@ -33,7 +34,18 @@ import {
   updateCustomerAction,
 } from '../actions';
 
-export const metadata: Metadata = { title: 'Customer' };
+/** One load per request, shared by the title and the page (UX-002). */
+const loadCustomer = cache(async (shopId: string, customerId: string) =>
+  orNotFound(getCustomer(await requireShopSession(), shopId, customerId)),
+);
+
+export async function generateMetadata({
+  params,
+}: PageProps<'/shops/[shopId]/customers/[customerId]'>): Promise<Metadata> {
+  const { shopId, customerId } = await params;
+  const customer = await loadCustomer(shopId, customerId).catch(() => null);
+  return { title: customer ? `${customer.name} · Customers` : 'Customer' };
+}
 
 type Props = PageProps<'/shops/[shopId]/customers/[customerId]'>;
 
@@ -52,7 +64,7 @@ async function CustomerView({ params }: Props) {
   const { shopId, customerId } = await params;
   await requireShopAccess(shopId);
   const token = await requireShopSession();
-  const customer = await orNotFound(getCustomer(token, shopId, customerId));
+  const customer = await loadCustomer(shopId, customerId);
   const orders = await listOrders(token, shopId, {
     status: 'all',
     customerId: customer.id,
@@ -106,6 +118,7 @@ async function CustomerView({ params }: Props) {
           </h2>
           {orders.items.length === 0 ? (
             <StateMessage
+              variant="plain"
               icon="receipt"
               title="No orders yet"
               description="Record an order for this customer with New order."
@@ -144,7 +157,13 @@ async function CustomerView({ params }: Props) {
           )}
           {orders.total > orders.items.length ? (
             <p className="text-body text-text-secondary">
-              Showing the latest {orders.items.length} of {orders.total} orders.
+              Showing the latest {orders.items.length} of {orders.total}.{' '}
+              <Link
+                href={`${ordersBase(shopId)}?status=all&customerId=${encodeURIComponent(customer.id)}`}
+                className="rounded-nav-item font-semibold text-brand-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-brand-primary"
+              >
+                See all orders
+              </Link>
             </p>
           ) : null}
         </Card>
@@ -170,7 +189,7 @@ async function CustomerView({ params }: Props) {
               archiveSlot={Object.fromEntries(
                 activeSites.map((site) => [
                   site.id,
-                  <ActionButtonForm
+                  <ConfirmActionButton
                     key={site.id}
                     action={setSiteArchivedAction.bind(
                       null,
@@ -180,10 +199,10 @@ async function CustomerView({ params }: Props) {
                       true,
                     )}
                     label="Archive"
-                    size="compact"
-                    pendingLabel="Archiving…"
                     accessibleLabel={`Archive ${site.name}`}
-                    variant="tertiary"
+                    title={`Archive ${site.name}?`}
+                    message="It can no longer be chosen for new orders. Past orders keep the site name. You can restore it later."
+                    confirmLabel="Archive site"
                   />,
                 ]),
               )}

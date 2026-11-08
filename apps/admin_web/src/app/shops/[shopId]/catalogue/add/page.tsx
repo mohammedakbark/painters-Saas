@@ -86,6 +86,13 @@ async function AddFromCatalogue({
         cursor: page.nextCursor,
       }).toString()}`
     : null;
+  // Cursor paging has no page numbers; offer the way back to the start.
+  const firstHref = cursor
+    ? `${base}/add?${new URLSearchParams({
+        brandId: brand.id,
+        ...(q ? { q } : {}),
+      }).toString()}`
+    : null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -212,11 +219,18 @@ async function AddFromCatalogue({
           ) : null}
         </>
       )}
-      {nextHref ? (
-        <div>
-          <ButtonLink href={nextHref} variant="secondary">
-            Next page
-          </ButtonLink>
+      {nextHref || firstHref ? (
+        <div className="flex flex-wrap gap-3">
+          {firstHref ? (
+            <ButtonLink href={firstHref} variant="tertiary">
+              Back to the first page
+            </ButtonLink>
+          ) : null}
+          {nextHref ? (
+            <ButtonLink href={nextHref} variant="secondary">
+              Next page
+            </ButtonLink>
+          ) : null}
         </div>
       ) : null}
     </div>

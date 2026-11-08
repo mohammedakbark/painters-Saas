@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { cache, Suspense } from 'react';
-import { ActionButtonForm } from '@/components/shop-catalogue/shop-catalogue-forms';
 import { Alert } from '@/components/ui/alert';
 import { ButtonLink } from '@/components/ui/button-link';
 import { Card, CardList } from '@/components/ui/card';
+import { ConfirmActionButton } from '@/components/ui/confirm-action-button';
 import { PageHeader } from '@/components/ui/page-header';
 import { SectionLoading } from '@/components/ui/section-loading';
 import { SideSheet, SideSheetButton } from '@/components/ui/side-sheet';
@@ -45,7 +45,7 @@ export default function ShopSettingsPage(props: Props) {
         className="flex flex-col gap-3 p-6"
       >
         <h2 id="details-heading" className="text-heading3 font-semibold">
-          Shop details and photo
+          Shop profile
         </h2>
         <p className="text-body text-text-secondary">
           Photo, support mobile, address and map location. Customers see these
@@ -82,6 +82,17 @@ export default function ShopSettingsPage(props: Props) {
         aria-labelledby="messages-heading"
         className="flex flex-col gap-4 p-6"
       >
+        {/* The title renders at once; the list loads below it (UX-002). */}
+        <div className="flex flex-col gap-1">
+          <h2 id="messages-heading" className="text-heading3 font-semibold">
+            Order messages
+          </h2>
+          <p className="text-body text-text-secondary">
+            Ready-made notes for items you can&apos;t supply. Pick one when you
+            mark an item not available, or write your own. Up to{' '}
+            {MAX_ORDER_MESSAGES}.
+          </p>
+        </div>
         <Suspense fallback={<SectionLoading label="Loading messages…" />}>
           <OrderMessages {...props} />
         </Suspense>
@@ -149,28 +160,18 @@ async function OrderMessages({ params }: Props) {
 
   return (
     <>
-      <div className="flex flex-col gap-3 medium:flex-row medium:items-start medium:justify-between">
-        <div className="flex flex-col gap-1">
-          <h2 id="messages-heading" className="text-heading3 font-semibold">
-            Order messages
-          </h2>
-          <p className="text-body text-text-secondary">
-            Ready-made notes for items you can&apos;t supply. Pick one when you
-            mark an item not available, or write your own. Up to{' '}
-            {MAX_ORDER_MESSAGES}.
-          </p>
-        </div>
-        {canEdit && !full ? (
+      {canEdit && !full ? (
+        <div>
           <SideSheetButton
-            className="shrink-0 whitespace-nowrap"
+            className="whitespace-nowrap"
             sheet={ADD_MESSAGE}
             icon="plus"
             variant="secondary"
           >
             Add message
           </SideSheetButton>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
 
       {canEdit ? (
         <>
@@ -216,15 +217,16 @@ async function OrderMessages({ params }: Props) {
             >
               <p className="text-body-large text-text-primary">{message}</p>
               {canEdit ? (
-                <div className="flex shrink-0 items-start gap-1">
+                <div className="-ml-3 flex shrink-0 items-start gap-1 medium:-mr-3 medium:ml-0">
                   <SideSheetButton
                     sheet={editMessage(index)}
                     variant="tertiary"
+                    size="compact"
                     aria-label={`Edit message: ${message}`}
                   >
                     Edit
                   </SideSheetButton>
-                  <ActionButtonForm
+                  <ConfirmActionButton
                     action={removeOrderMessageAction.bind(
                       null,
                       shopId,
@@ -232,9 +234,10 @@ async function OrderMessages({ params }: Props) {
                       message,
                     )}
                     label="Remove"
-                    pendingLabel="Removing…"
-                    variant="tertiary"
                     accessibleLabel={`Remove message: ${message}`}
+                    title="Remove this message?"
+                    message={`“${message}” will no longer be offered when you mark an item not available.`}
+                    confirmLabel="Remove message"
                   />
                 </div>
               ) : null}

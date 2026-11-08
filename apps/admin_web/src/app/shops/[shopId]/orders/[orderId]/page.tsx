@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
+import { cache, Suspense } from 'react';
 import { PageLoading } from '@/components/layout/page-loading';
 import {
   CancelOrderButton,
@@ -9,9 +9,9 @@ import {
   PaymentSheet,
 } from '@/components/orders/order-forms';
 import { StepButton } from '@/components/orders/step-button';
-import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
+import { FlashToast } from '@/components/ui/flash-toast';
 import { PageHeader } from '@/components/ui/page-header';
 import { orNotFound } from '@/lib/api/or-not-found';
 import { getOrder, type OrderDetail } from '@/lib/api/orders';
@@ -40,7 +40,18 @@ import {
   substituteAction,
 } from '../actions';
 
-export const metadata: Metadata = { title: 'Order' };
+/** One load per request, shared by the title and the page (UX-002). */
+const loadOrder = cache(async (shopId: string, orderId: string) =>
+  orNotFound(getOrder(await requireShopSession(), shopId, orderId)),
+);
+
+export async function generateMetadata({
+  params,
+}: PageProps<'/shops/[shopId]/orders/[orderId]'>): Promise<Metadata> {
+  const { shopId, orderId } = await params;
+  const order = await loadOrder(shopId, orderId).catch(() => null);
+  return { title: order ? `Order #${order.number} · Orders` : 'Order' };
+}
 
 type Props = PageProps<'/shops/[shopId]/orders/[orderId]'>;
 
@@ -60,7 +71,7 @@ async function OrderView({ params, searchParams }: Props) {
   const shop = await requireShopAccess(shopId);
   const token = await requireShopSession();
   // Another shop's order or a malformed id is "not found" (API 404).
-  const order = await orNotFound(getOrder(token, shopId, orderId));
+  const order = await loadOrder(shopId, orderId);
   const settings = await getShopSettings(token, shopId);
   const isOwner = shop.myRole === 'MASTER';
   const status = ORDER_STATUS[order.status];
@@ -106,10 +117,10 @@ async function OrderView({ params, searchParams }: Props) {
       />
 
       {justRecorded ? (
-        <Alert tone="success" title="Order saved">
-          {orderNumber(order.number)} is recorded for {order.customer.name}.
-          {order.status === 'COMPLETED' ? ' It is saved as handed over.' : ''}
-        </Alert>
+        <FlashToast
+          param="recorded"
+          message={`${orderNumber(order.number)} is recorded for ${order.customer.name}.${order.status === 'COMPLETED' ? ' It is saved as handed over.' : ''}`}
+        />
       ) : null}
       {order.cancelled ? (
         <Card tone="subtle" className="flex flex-col gap-1 p-5">

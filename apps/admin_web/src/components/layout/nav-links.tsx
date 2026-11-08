@@ -14,6 +14,10 @@ export interface NavItem {
   icon?: IconName;
   /** Not active under this path, e.g. Products is not active on Shades. */
   exclude?: string;
+  /** Items waiting, e.g. new orders (UX-002). Hidden when 0. */
+  count?: number;
+  /** Read out with the count, e.g. "new orders". */
+  countLabel?: string;
 }
 
 const LIST = {
@@ -88,11 +92,30 @@ export function NavLinks({
                 )}
               >
                 {item.icon ? (
-                  <Icon name={item.icon} className="size-5" />
+                  <span className="relative">
+                    <Icon name={item.icon} className="size-5" />
+                    {collapsed && item.count ? (
+                      <span
+                        aria-hidden="true"
+                        className="absolute -top-1 -right-1 size-2.5 rounded-full bg-brand-highlight ring-2 ring-surface-default"
+                      />
+                    ) : null}
+                  </span>
                 ) : null}
                 <span className={collapsed ? 'sr-only' : undefined}>
                   {item.label}
                 </span>
+                {item.count ? (
+                  <span
+                    className={cn(
+                      'ml-auto min-w-6 rounded-badge bg-brand-primary px-1.5 py-0.5 text-center text-caption font-semibold text-surface-default tabular-nums',
+                      collapsed && 'sr-only',
+                    )}
+                  >
+                    {item.count > 99 ? '99+' : item.count}
+                    <span className="sr-only"> {item.countLabel ?? ''}</span>
+                  </span>
+                ) : null}
               </Link>
             </li>
           );

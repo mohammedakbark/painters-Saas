@@ -87,7 +87,8 @@ export function DataTable<T>({
             <tr className="block desktop:table-row">
               <td
                 colSpan={columns.length}
-                className="block desktop:table-cell desktop:p-6"
+                // Inside the table's own border, an empty state needs no second card.
+                className="block desktop:table-cell desktop:p-6 desktop:[&>section]:border-0 desktop:[&>section]:bg-transparent desktop:[&>section]:py-6"
               >
                 {empty}
               </td>

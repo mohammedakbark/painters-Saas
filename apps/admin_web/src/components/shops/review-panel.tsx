@@ -101,7 +101,12 @@ export function ReviewPanel({
               variant="primary"
             />
           </div>
-        ) : null
+        ) : (
+          <p className="text-body-large text-text-secondary">
+            The checklist is complete. Only the shop owner can submit the shop
+            for review.
+          </p>
+        )
       ) : (
         <p className="text-body-large text-text-secondary">
           Complete the checklist, then submit your shop for review. Still to do:{' '}

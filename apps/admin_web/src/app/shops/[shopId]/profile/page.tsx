@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { PageLoading } from '@/components/layout/page-loading';
+import { FlashToast } from '@/components/ui/flash-toast';
+import { DetailSkeleton } from '@/components/ui/skeleton';
 import { Alert } from '@/components/ui/alert';
 import { Card } from '@/components/ui/card';
 import { RequiredFieldsNote } from '@/components/ui/field-label';
@@ -17,14 +18,20 @@ import { ShopProfileForm } from './profile-form';
 
 export const metadata: Metadata = { title: 'Shop profile' };
 
-/** Request data is read inside Suspense so navigating here is instant. */
+const DESCRIPTION =
+  'Photo, support mobile, address and map location. Customers see these once your shop is live.';
+
+/** The title renders at once; the form loads behind Suspense (UX-002). */
 export default function ShopProfilePage(
   props: PageProps<'/shops/[shopId]/profile'>,
 ) {
   return (
-    <Suspense fallback={<PageLoading label="Loading the profile…" />}>
-      <ShopProfileContent {...props} />
-    </Suspense>
+    <div className="flex flex-col gap-6">
+      <PageHeader title="Shop profile" description={DESCRIPTION} />
+      <Suspense fallback={<DetailSkeleton label="Loading the profile…" />}>
+        <ShopProfileContent {...props} />
+      </Suspense>
+    </div>
   );
 }
 
@@ -53,20 +60,17 @@ async function ShopProfileContent({
         </Alert>
       ) : null}
       {saved ? (
-        <Alert tone="success" title="Profile saved">
-          Your shop profile is up to date.
-        </Alert>
+        <FlashToast
+          param="saved"
+          message="Profile saved. Your shop profile is up to date."
+        />
       ) : null}
       {photoSaved ? (
-        <Alert tone="success" title="Photo saved">
-          Your shop photo is updated.
-        </Alert>
+        <FlashToast
+          param="photo"
+          message="Photo saved. Your shop photo is updated."
+        />
       ) : null}
-      <PageHeader
-        eyebrow="Profile"
-        title="Shop profile"
-        description="Photo, support mobile, address and map location. Customers see these once your shop is live."
-      />
       {canEdit ? (
         <RequiredFieldsNote>
           are needed before you can submit your shop for review. You can save
@@ -76,7 +80,7 @@ async function ShopProfileContent({
       <div className="grid items-start gap-6 desktop:grid-cols-[minmax(0,1fr)_22rem]">
         <Card
           as="section"
-          className="p-6 medium:p-8 desktop:sticky desktop:top-10 desktop:order-last"
+          className="p-5 medium:p-6 desktop:sticky desktop:top-10 desktop:order-last"
         >
           <ImageUploadForm
             title="Shop photo"

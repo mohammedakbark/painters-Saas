@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { categoryChoices, listShopCategories } from '@/lib/api/shop-categories';
-import { Suspense } from 'react';
+import { cache, Suspense } from 'react';
 import { PageLoading } from '@/components/layout/page-loading';
 import { ImageUploadForm } from '@/components/media/image-upload-form';
 import {
@@ -12,7 +12,10 @@ import {
 import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
+import { ConfirmActionButton } from '@/components/ui/confirm-action-button';
+import { FlashToast } from '@/components/ui/flash-toast';
 import { PageHeader } from '@/components/ui/page-header';
+import { Section } from '@/components/ui/section';
 import { orNotFound } from '@/lib/api/or-not-found';
 import { getShopProduct, listCatalogueBrands } from '@/lib/api/shop-catalogue';
 import { requireShopAccess, requireShopSession } from '@/lib/auth/shop-access';
@@ -31,7 +34,18 @@ import {
   productSubtitle,
 } from '../../catalogue-parts';
 
-export const metadata: Metadata = { title: 'Product · Catalogue' };
+/** One load per request, shared by the title and the page (UX-002). */
+const loadProduct = cache(async (shopId: string, productId: string) =>
+  orNotFound(getShopProduct(await requireShopSession(), shopId, productId)),
+);
+
+export async function generateMetadata({
+  params,
+}: PageProps<'/shops/[shopId]/catalogue/products/[productId]'>): Promise<Metadata> {
+  const { shopId, productId } = await params;
+  const product = await loadProduct(shopId, productId).catch(() => null);
+  return { title: product ? `${product.name} · Products` : 'Product' };
+}
 
 const MAX_PACKS = 12;
 
@@ -55,7 +69,7 @@ async function ShopProductView({
   const query = await searchParams;
   const added = query.added === '1';
   const photoFailed = query.photo === 'failed';
-  const product = await orNotFound(getShopProduct(token, shopId, productId));
+  const product = await loadProduct(shopId, productId);
   const own = product.source === 'own';
   const [categories, brands] = own
     ? await Promise.all([
@@ -71,10 +85,10 @@ async function ShopProductView({
   return (
     <div className="flex flex-col gap-6">
       {added ? (
-        <Alert tone="success" title="Product added">
-          {product.name} is in your catalogue.
-          {photoFailed ? ' The photo was not saved; add it again below.' : null}
-        </Alert>
+        <FlashToast
+          param="added"
+          message={`${product.name} is in your catalogue.${photoFailed ? ' The photo was not saved; add it again below.' : ''}`}
+        />
       ) : null}
       <PageHeader
         back={backToProducts(shopId)}
@@ -89,7 +103,7 @@ async function ShopProductView({
         </Alert>
       )}
 
-      <div className="grid gap-8 desktop:grid-cols-2">
+      <div className="grid items-start gap-6 desktop:grid-cols-2">
         <Card
           as="section"
           aria-labelledby="packs-heading"
@@ -116,7 +130,7 @@ async function ShopProductView({
                     )}
                   </span>
                   {canEdit && product.packs.length > 1 ? (
-                    <ActionButtonForm
+                    <ConfirmActionButton
                       action={removePackAction.bind(
                         null,
                         shopId,
@@ -124,8 +138,10 @@ async function ShopProductView({
                         pack.id,
                       )}
                       label="Remove"
-                      pendingLabel="Removing…"
                       accessibleLabel={`Remove pack size ${pack.label}`}
+                      title={`Remove ${pack.label}?`}
+                      message={`Customers can no longer order ${product.name} in ${pack.label}. Past orders keep their details. You can add the size again later.`}
+                      confirmLabel="Remove pack size"
                     />
                   ) : null}
                 </div>
@@ -242,26 +258,44 @@ async function ShopProductView({
           </Card>
 
           {canEdit ? (
-            <Card as="section" className="flex flex-col gap-3 p-6">
-              <h2 className="text-heading3 font-semibold">
-                {active ? 'Archive' : 'Restore'}
-              </h2>
-              <p className="text-body text-text-secondary">
-                {active
+            <Section
+              title={active ? 'Archive' : 'Restore'}
+              description={
+                active
                   ? 'Archived products are kept but not sold, and do not count towards the 10 products your shop needs.'
-                  : 'Restoring puts the product back on sale.'}
-              </p>
-              <ActionButtonForm
-                action={setShopProductStatusAction.bind(
-                  null,
-                  shopId,
-                  product.id,
-                  active ? 'ARCHIVED' : 'ACTIVE',
+                  : 'Restoring puts the product back on sale.'
+              }
+            >
+              <div>
+                {active ? (
+                  <ConfirmActionButton
+                    action={setShopProductStatusAction.bind(
+                      null,
+                      shopId,
+                      product.id,
+                      'ARCHIVED',
+                    )}
+                    label="Archive product"
+                    variant="secondary"
+                    size="default"
+                    title="Archive this product?"
+                    message={`${product.name} and all its pack sizes stop being sold. Customers will not see it. You can restore it from Archived.`}
+                    confirmLabel="Archive product"
+                  />
+                ) : (
+                  <ActionButtonForm
+                    action={setShopProductStatusAction.bind(
+                      null,
+                      shopId,
+                      product.id,
+                      'ACTIVE',
+                    )}
+                    label="Restore product"
+                    pendingLabel="Restoring…"
+                  />
                 )}
-                label={active ? 'Archive product' : 'Restore product'}
-                pendingLabel={active ? 'Archiving…' : 'Restoring…'}
-              />
-            </Card>
+              </div>
+            </Section>
           ) : null}
         </div>
       </div>
