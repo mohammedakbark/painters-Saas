@@ -19,6 +19,7 @@ import {
   itemsEditable,
   nextShopSteps,
   OPEN_STATUSES,
+  READY_STATUSES,
 } from './order-rules.js';
 import type {
   MarkItemNotAvailableRequest,
@@ -92,7 +93,9 @@ export class OrdersService {
         ? {}
         : query.status === 'open'
           ? { status: { in: [...OPEN_STATUSES] } }
-          : { status: query.status }),
+          : query.status === 'ready'
+            ? { status: { in: [...READY_STATUSES] } }
+            : { status: query.status }),
     };
 
     const [total, rows, grouped] = await Promise.all([
@@ -170,6 +173,10 @@ export class OrdersService {
       counts: {
         all: STATUSES.reduce((sum, status) => sum + byStatus[status], 0),
         open: OPEN_STATUSES.reduce((sum, status) => sum + byStatus[status], 0),
+        ready: READY_STATUSES.reduce(
+          (sum, status) => sum + byStatus[status],
+          0,
+        ),
         ...byStatus,
       },
     };

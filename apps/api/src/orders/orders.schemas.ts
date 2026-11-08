@@ -27,13 +27,13 @@ const statusValues = Object.values(OrderStatus) as [
 export const OrderListQuerySchema = z
   .object({
     status: z
-      .enum(['all', 'open', ...statusValues], {
-        error: 'status must be all, open or an order status.',
+      .enum(['all', 'open', 'ready', ...statusValues], {
+        error: 'status must be all, open, ready or an order status.',
       })
       .default('all')
       .meta({
         description:
-          'open: new, packing, ready for pickup and out for delivery.',
+          'open: new, packing, ready for pickup and out for delivery. ready: ready for pickup and out for delivery.',
       }),
     q: z
       .string()
@@ -97,6 +97,7 @@ export const OrderListPageSchema = z
     counts: z.object({
       all: z.int(),
       open: z.int(),
+      ready: z.int(),
       NEW: z.int(),
       PACKING: z.int(),
       READY_FOR_PICKUP: z.int(),

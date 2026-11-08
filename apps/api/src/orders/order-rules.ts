@@ -65,6 +65,12 @@ export function canRecordPayment(status: OrderStatus): boolean {
 }
 
 /** Statuses counted as "open" (still to be handed over). */
+/** Ready for the customer: waiting at the shop or on the way. */
+export const READY_STATUSES: readonly OrderStatus[] = [
+  'READY_FOR_PICKUP',
+  'OUT_FOR_DELIVERY',
+];
+
 export const OPEN_STATUSES: readonly OrderStatus[] = [
   'NEW',
   'PACKING',

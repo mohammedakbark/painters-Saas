@@ -215,7 +215,7 @@ describe('RadioGroupField and CheckboxGroupField', () => {
     const alpha = screen.getByLabelText('Alpha') as HTMLInputElement;
     expect(alpha.type).toBe('radio');
     expect(alpha.checked).toBe(true);
-    expect(alpha.getAttribute('aria-describedby')).toBe('pick-A-description');
+    expect(alpha.getAttribute('aria-describedby')).toBe('pick-0-description');
     expect(
       screen
         .getByRole('group', { name: 'Pick one' })

@@ -65,14 +65,17 @@ function Choice({
   type,
   name,
   option,
+  index,
   checked,
 }: {
   type: 'radio' | 'checkbox';
   name: string;
   option: ChoiceOption;
+  /** Position in the group: values may be free text, ids may not. */
+  index: number;
   checked: boolean;
 }) {
-  const id = `${name}-${option.value}`;
+  const id = `${name}-${index}`;
   const descriptionId = option.description ? `${id}-description` : undefined;
   return (
     <div className="flex items-start gap-3">
@@ -106,9 +109,10 @@ export function RadioGroupField({
 }: GroupProps & { defaultValue?: string }) {
   return (
     <GroupFrame {...group}>
-      {group.options.map((option) => (
+      {group.options.map((option, index) => (
         <Choice
           key={option.value}
+          index={index}
           type="radio"
           name={group.name}
           option={option}
@@ -127,9 +131,10 @@ export function CheckboxGroupField({
   const chosen = new Set(defaultValues);
   return (
     <GroupFrame {...group}>
-      {group.options.map((option) => (
+      {group.options.map((option, index) => (
         <Choice
           key={option.value}
+          index={index}
           type="checkbox"
           name={group.name}
           option={option}

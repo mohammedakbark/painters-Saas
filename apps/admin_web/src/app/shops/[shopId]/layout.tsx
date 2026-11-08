@@ -54,6 +54,7 @@ async function ShopConsole({
       }}
       nav={[
         { href: base, label: 'Overview', exact: true, icon: 'home' },
+        { href: `${base}/orders`, label: 'Orders', icon: 'receipt' },
         {
           href: `${base}/catalogue`,
           label: 'Products',

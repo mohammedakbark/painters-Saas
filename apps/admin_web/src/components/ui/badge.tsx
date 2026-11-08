@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 
-export type BadgeTone = 'neutral' | 'info' | 'success' | 'warning';
+export type BadgeTone = 'neutral' | 'info' | 'success' | 'warning' | 'error';
 
 // Filled soft background, text and dot in the tone colour (CAT-003): each
 // state has its own colour, so opposite states never look alike.
@@ -21,6 +21,10 @@ const TONES: Record<BadgeTone, { badge: string; dot: string }> = {
   warning: {
     badge: 'bg-status-warning-soft text-status-warning',
     dot: 'bg-status-warning',
+  },
+  error: {
+    badge: 'bg-status-error-soft text-status-error',
+    dot: 'bg-status-error',
   },
 };
 

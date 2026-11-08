@@ -9111,11 +9111,12 @@
         "properties": {
           "status": {
             "default": "all",
-            "description": "open: new, packing, ready for pickup and out for delivery.",
+            "description": "open: new, packing, ready for pickup and out for delivery. ready: ready for pickup and out for delivery.",
             "type": "string",
             "enum": [
               "all",
               "open",
+              "ready",
               "NEW",
               "PACKING",
               "READY_FOR_PICKUP",
@@ -9293,6 +9294,11 @@
                 "minimum": -9007199254740991,
                 "maximum": 9007199254740991
               },
+              "ready": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
               "NEW": {
                 "type": "integer",
                 "minimum": -9007199254740991,
@@ -9327,6 +9333,7 @@
             "required": [
               "all",
               "open",
+              "ready",
               "NEW",
               "PACKING",
               "READY_FOR_PICKUP",

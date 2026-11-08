@@ -16,7 +16,8 @@ export interface ComboboxOption {
 /**
  * A search box with suggestions (CAT-005, D-039): type to search, pick with
  * the mouse or the arrow keys and Enter. The last option always offers to
- * create what was typed. Follows the ARIA combobox pattern.
+ * create what was typed, when `onCreate` is given. Follows the ARIA combobox
+ * pattern.
  */
 export function Combobox({
   label,
@@ -27,6 +28,7 @@ export function Combobox({
   onSelect,
   onCreate,
   createLabel,
+  emptyLabel = 'No matches.',
 }: {
   label: string;
   description?: string;
@@ -35,8 +37,10 @@ export function Combobox({
   search: (text: string) => Promise<ComboboxOption[]>;
   onSelect: (option: ComboboxOption) => void;
   /** Called with the typed text when the "create" option is chosen. */
-  onCreate: (text: string) => void;
-  createLabel: (text: string) => string;
+  onCreate?: (text: string) => void;
+  createLabel?: (text: string) => string;
+  /** Shown when nothing matches and there is no "create" option. */
+  emptyLabel?: string;
 }) {
   const id = useId();
   const listId = `${id}-list`;
@@ -49,7 +53,8 @@ export function Combobox({
   const latest = useRef('');
 
   const ready = text.trim().length >= minLength;
-  const total = ready ? options.length + 1 : 0;
+  const creates = onCreate !== undefined && createLabel !== undefined;
+  const total = ready ? options.length + (creates ? 1 : 0) : 0;
 
   function change(value: string) {
     setText(value);
@@ -84,7 +89,7 @@ export function Combobox({
   function choose(index: number) {
     if (index < options.length) {
       onSelect(options[index]!);
-    } else {
+    } else if (onCreate) {
       onCreate(text.trim());
     }
     setOpen(false);
@@ -127,7 +132,7 @@ export function Combobox({
           onFocus={() => setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
           onKeyDown={(event) => {
-            if (!ready) {
+            if (!ready || total === 0) {
               return;
             }
             if (event.key === 'ArrowDown') {
@@ -193,21 +198,31 @@ export function Combobox({
               ) : null}
             </li>
           ))}
-          <li
-            id={optionId(options.length)}
-            role="option"
-            aria-selected={active === options.length}
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() => choose(options.length)}
-            onMouseEnter={() => setActive(options.length)}
-            className={cn(
-              'flex cursor-pointer items-center gap-3 rounded-nav-item border-t border-border-default px-3 py-2.5 text-body font-semibold text-brand-primary',
-              active === options.length && 'bg-brand-primary-soft',
-            )}
-          >
-            <Icon name="plus" className="size-4" />
-            {createLabel(text.trim())}
-          </li>
+          {!creates && !loading && options.length === 0 ? (
+            <li
+              className="px-3 py-2 text-body text-text-secondary"
+              aria-live="polite"
+            >
+              {emptyLabel}
+            </li>
+          ) : null}
+          {creates ? (
+            <li
+              id={optionId(options.length)}
+              role="option"
+              aria-selected={active === options.length}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => choose(options.length)}
+              onMouseEnter={() => setActive(options.length)}
+              className={cn(
+                'flex cursor-pointer items-center gap-3 rounded-nav-item border-t border-border-default px-3 py-2.5 text-body font-semibold text-brand-primary',
+                active === options.length && 'bg-brand-primary-soft',
+              )}
+            >
+              <Icon name="plus" className="size-4" />
+              {createLabel?.(text.trim())}
+            </li>
+          ) : null}
         </ul>
       ) : null}
     </div>

@@ -91,7 +91,7 @@ Prefer subtle borders over heavy shadows. Do not wrap every content section in a
 - Minimum mobile touch target: 48 × 48 logical pixels where practical.
 - Buttons need action-oriented labels.
 - Inputs need labels, helper text, validation, disabled and loading states.
-- **Status colours (CAT-003):** badges are filled with a soft tone (`status.*Soft`) plus a dot and text in the tone colour. Success = green (Available, Live), warning = amber (Not available, Changes requested), info = blue (In review, Own product), error = red, neutral = grey (Draft). Opposite states never share a colour, and the words always say the state.
+- **Status colours (CAT-003):** badges are filled with a soft tone (`status.*Soft`) plus a dot and text in the tone colour. Success = green (Available, Live), warning = amber (Not available, Changes requested), info = blue (In review, Own product), error = red, neutral = grey (Draft). Opposite states never share a colour, and the words always say the state. Orders (ORD-002): New blue, Packing amber, Ready for pickup / Out for delivery green, Completed grey, Cancelled red (`Badge` tone `error`).
 - **Lists:** web lists that can grow use `DataTable` with pagination and column filters; the mobile apps use search, a filter sheet and "Load more" instead of tables.
 - **Required fields (DS-004, product owner 2026-11-06):** every required field shows a red asterisk after its label (`status.error`), and the control tells screen readers it is required (web `aria-required`; Flutter a spoken ", required"). Pass `required` to `Field`, `SelectField`, `TextareaField`, `FileField` and the choice groups, or `isRequired` to `AppTextField`, `AppDropdown` and `AppRadioGroup`.
   - A form with more than one field explains the marker once, above the fields: `RequiredFieldsNote` ("Fields marked * are required.").
@@ -157,7 +157,9 @@ Web utilities: `rounded-control`, `min-h-control`, `rounded-card`, `border-card-
 | `SideSheet`, `SideSheetButton`, `useSideSheet`, `useCloseSheetOnSave`, `Toast` (WEB-007, D-051) | small add and edit forms in a panel from the right over a blurred page (native modal dialog: Escape, outside click and Close shut it; the draft survives closing); after a save the sheet closes, the form clears and a toast confirms, with an optional link. Records with their own lists or many sections stay full pages |
 | `StatTile` (WEB-008) | one headline number: label, value in text colours, optional context, status badge (word + tone) and link to the list behind it; KPI rows are 2 per row on phones, 4 from `wide` |
 | `Combobox` (CAT-005) | search with suggestions and a "create new" option, ARIA combobox |
-| `SegmentedLinks` | switching a list between views (e.g. Selling and Archived), links with `aria-current` |
+| `SegmentedLinks` | switching a list between views (e.g. Selling and Archived), links with `aria-current`; scrolls sideways inside itself when the segments don't fit |
+| `Button` size `compact` (ORD-002) | a quiet action inside a table row (e.g. the order's next step); everywhere else the default size |
+| `showToast` / `ToastHost` (ORD-002) | a page-level toast for actions whose own component may disappear after the change (a row leaving the current tab) |
 | `AppShell` (`area` with caption, name and switch link; icon `nav`), `NavLinks` (`vertical`, `horizontal`, `tabs`; optional `icon`), `PageLoading` (placeholder skeleton) | console frame, navigation, page loading |
 | `Icon`, `IconTile` | the project's icon set (line icons, `currentColor`; store glyphs); a new icon is added here first (WEB-001) |
 | `AuthLayout`, `AuthSteps` (`components/auth`) | sign-in and registration frame and the 2-step indicator (WEB-002) |

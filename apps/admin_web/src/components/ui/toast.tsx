@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useId } from 'react';
+import { useCallback, useEffect, useId, useState } from 'react';
 import { IconButton } from './icon-button';
 
 export interface ToastMessage {
@@ -12,6 +12,7 @@ export interface ToastMessage {
 
 const SHOW_FOR_MS = 8000;
 const SHOWN_EVENT = 'sevenpalette:toast-shown';
+const SHOW_EVENT = 'sevenpalette:show-toast';
 
 /**
  * A short confirmation at the bottom of the screen (WEB-007), for example
@@ -65,4 +66,26 @@ export function Toast({
       />
     </div>
   );
+}
+
+/** Shows a toast through the page's `ToastHost`, from anywhere on the page. */
+export function showToast(message: ToastMessage) {
+  window.dispatchEvent(new CustomEvent(SHOW_EVENT, { detail: message }));
+}
+
+/**
+ * Renders toasts sent with `showToast`, for actions whose own component may
+ * disappear after the change, such as a row leaving the current tab (ORD-002).
+ * Put one on a page.
+ */
+export function ToastHost() {
+  const [message, setMessage] = useState<ToastMessage | null>(null);
+  const dismiss = useCallback(() => setMessage(null), []);
+  useEffect(() => {
+    const onShow = (event: Event) =>
+      setMessage({ ...(event as CustomEvent<ToastMessage>).detail });
+    window.addEventListener(SHOW_EVENT, onShow);
+    return () => window.removeEventListener(SHOW_EVENT, onShow);
+  }, []);
+  return message ? <Toast message={message} onDismiss={dismiss} /> : null;
 }

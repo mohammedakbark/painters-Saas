@@ -587,6 +587,10 @@ describe('Orders (ORD-001, e2e, real Postgres)', () => {
         totalPaise: 130000,
       });
 
+      expect(all.counts.ready).toBe(0);
+      expect(
+        (await call(shop, 'get', '?status=ready').expect(200)).body.total,
+      ).toBe(0);
       const open = (await call(shop, 'get', '?status=open').expect(200)).body;
       expect(open.total).toBe(2);
       const byName = (await call(shop, 'get', '?q=meena').expect(200)).body;

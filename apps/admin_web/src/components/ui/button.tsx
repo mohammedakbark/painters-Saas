@@ -5,8 +5,12 @@ import { Spinner } from './spinner';
 export type ButtonVariant =
   'primary' | 'secondary' | 'tertiary' | 'destructive';
 
+/** `compact` is for actions inside table rows (ORD-002); `default` elsewhere. */
+export type ButtonSize = 'default' | 'compact';
+
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
+  size?: ButtonSize;
   /** Shows a spinner, disables the button and announces it as busy. */
   pending?: boolean;
   /** Label shown while pending, e.g. "Signing in…". */
@@ -16,7 +20,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const BASE =
-  'inline-flex min-h-control items-center justify-center gap-2 rounded-button px-6 text-body-large font-semibold transition-colors ' +
+  'inline-flex items-center justify-center gap-2 rounded-button font-semibold transition-colors ' +
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary ' +
   'disabled:cursor-not-allowed disabled:opacity-70';
 
@@ -34,15 +38,22 @@ const VARIANTS: Record<ButtonVariant, string> = {
 };
 
 /** Button styles, shared with ButtonLink so links that act as actions look the same. */
+const SIZES: Record<ButtonSize, string> = {
+  default: 'min-h-control px-6 text-body-large',
+  compact: 'min-h-10 px-3 text-body',
+};
+
 export function buttonClasses(
   variant: ButtonVariant = 'primary',
   className?: string,
+  size: ButtonSize = 'default',
 ): string {
-  return cn(BASE, VARIANTS[variant], className);
+  return cn(BASE, SIZES[size], VARIANTS[variant], className);
 }
 
 export function Button({
   variant = 'primary',
+  size = 'default',
   pending = false,
   pendingLabel,
   disabled,
@@ -56,7 +67,7 @@ export function Button({
       type={type}
       disabled={disabled || pending}
       aria-busy={pending || undefined}
-      className={buttonClasses(variant, className)}
+      className={buttonClasses(variant, className, size)}
       {...rest}
     >
       {pending ? <Spinner className="size-4" /> : null}
