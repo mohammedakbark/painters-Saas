@@ -12,6 +12,7 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiConflictResponse,
+  ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -42,6 +43,8 @@ import {
   OrderListQuerySchema,
   type OrderSummary,
   OrderSummarySchema,
+  type RecordOrderRequest,
+  RecordOrderRequestSchema,
   type RecordPaymentRequest,
   RecordPaymentRequestSchema,
   type ReturnItemRequest,
@@ -49,6 +52,7 @@ import {
   type UpdateOrderStatusRequest,
   UpdateOrderStatusRequestSchema,
 } from './orders.schemas.js';
+import { OrderRecordingService } from './order-recording.service.js';
 import { OrdersService } from './orders.service.js';
 
 const PROBLEM = { standardSchema: ProblemDetailsSchema } as const;
@@ -85,7 +89,10 @@ function itemId(value: string): string {
 @ApiNotFoundResponse(PROBLEM)
 @Controller('shops/:shopId/orders')
 export class OrdersController {
-  constructor(private readonly orders: OrdersService) {}
+  constructor(
+    private readonly orders: OrdersService,
+    private readonly recording: OrderRecordingService,
+  ) {}
 
   @Get()
   @ShopScoped()
@@ -100,6 +107,25 @@ export class OrdersController {
     @Query({ schema: OrderListQuerySchema }) query: OrderListQuery,
   ): Promise<OrderListPage> {
     return this.orders.list(shop, query);
+  }
+
+  @Post()
+  @ShopScoped()
+  @ApiOperation({
+    summary:
+      'Record an order for a customer (phone or counter). Handed over now saves it as completed; a payment with it is owner only.',
+  })
+  @ApiCreatedResponse({ standardSchema: OrderDetailSchema })
+  @ApiBadRequestResponse(PROBLEM)
+  @ApiForbiddenResponse(OWNER_ONLY)
+  @ApiConflictResponse(PROBLEM)
+  async record(
+    @CurrentUser() user: CurrentUserContext,
+    @CurrentShop() shop: ShopContext,
+    @Body({ schema: RecordOrderRequestSchema }) body: RecordOrderRequest,
+  ): Promise<OrderDetail> {
+    const { id } = await this.recording.record(user, shop, body);
+    return this.orders.detail(shop, id);
   }
 
   // Declared before ':orderId' so "summary" is not read as an order id.

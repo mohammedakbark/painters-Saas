@@ -48,6 +48,7 @@ const DETAIL_SELECT = {
   status: true,
   fulfilment: true,
   siteLabel: true,
+  source: true,
   deliveryAddress: true,
   deliveryLatitude: true,
   deliveryLongitude: true,
@@ -113,6 +114,7 @@ export class OrdersService {
           status: true,
           fulfilment: true,
           siteLabel: true,
+          source: true,
           totalPaise: true,
           paymentStatus: true,
           customer: {
@@ -160,6 +162,7 @@ export class OrdersService {
             hasApp: row.customer.userId !== null,
           },
           siteLabel: row.siteLabel,
+          source: row.source,
           itemCount: lines.reduce((sum, line) => sum + line._count._all, 0),
           notAvailableCount:
             lines.find((line) => line.status === 'NOT_AVAILABLE')?._count
@@ -494,6 +497,9 @@ export class OrdersService {
     if (query.payment) {
       where.paymentStatus = query.payment;
     }
+    if (query.customerId) {
+      where.customerId = query.customerId;
+    }
     const q = query.q?.trim();
     if (q) {
       const digits = q.replace(/[^0-9]/g, '');
@@ -597,16 +603,13 @@ async function findItem(
 
 function toDetail(row: DetailRow): OrderDetail {
   const delivery =
-    row.fulfilment === 'DELIVERY' &&
-    row.deliveryAddress !== null &&
-    row.deliveryLatitude !== null &&
-    row.deliveryLongitude !== null &&
-    row.deliveryDistanceKm !== null
+    row.fulfilment === 'DELIVERY' && row.deliveryAddress !== null
       ? {
           address: row.deliveryAddress,
-          latitude: row.deliveryLatitude.toNumber(),
-          longitude: row.deliveryLongitude.toNumber(),
-          distanceKm: row.deliveryDistanceKm.toNumber(),
+          // Orders the shop records may have no map point (ORD-004).
+          latitude: row.deliveryLatitude?.toNumber() ?? null,
+          longitude: row.deliveryLongitude?.toNumber() ?? null,
+          distanceKm: row.deliveryDistanceKm?.toNumber() ?? null,
         }
       : null;
   return {
@@ -621,6 +624,7 @@ function toDetail(row: DetailRow): OrderDetail {
       hasApp: row.customer.userId !== null,
     },
     siteLabel: row.siteLabel,
+    source: row.source,
     delivery,
     items: row.items.map((item) => ({
       id: item.id,

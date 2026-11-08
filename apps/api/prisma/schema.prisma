@@ -514,25 +514,72 @@ model ShopReview {
 /// the customer orders in the app; shop-recorded customers (ORD-004) have no
 /// link until the person connects with an OTP. Other shops never see it.
 model ShopCustomer {
-  id        String   @id @default(uuid(7)) @db.Uuid
-  shopId    String   @map("shop_id") @db.Uuid
+  id        String       @id @default(uuid(7)) @db.Uuid
+  shopId    String       @map("shop_id") @db.Uuid
   /// The app account, when there is one.
-  userId    String?  @map("user_id") @db.Uuid
+  userId    String?      @map("user_id") @db.Uuid
   /// As the shop knows them. Trimmed, 1–120 characters.
   name      String
   /// E.164, for example +919999900001.
   phone     String
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  /// The shop's own label (D-055); sites are for painters only.
+  kind      CustomerKind @default(CUSTOMER)
+  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  shop   Shop    @relation(fields: [shopId], references: [id], onDelete: Restrict)
-  user   User?   @relation(fields: [userId], references: [id], onDelete: Restrict)
+  shop   Shop       @relation(fields: [shopId], references: [id], onDelete: Restrict)
+  user   User?      @relation(fields: [userId], references: [id], onDelete: Restrict)
   orders Order[]
+  sites  ShopSite[]
 
   @@unique([shopId, id])
-  @@unique([shopId, phone])
   @@unique([shopId, userId])
+  /// Shop-recorded customers are unique per mobile (partial unique index
+  /// WHERE user_id IS NULL in the migration); an app-linked record with the
+  /// same mobile can exist beside it (D-054, D-055).
+  @@index([shopId, phone])
   @@map("shop_customers")
+}
+
+/// Painter or normal customer, as the shop records it (D-055).
+enum CustomerKind {
+  PAINTER
+  CUSTOMER
+
+  @@map("customer_kind")
+}
+
+/// A painter's site recorded by the shop (ORD-004, D-054, D-055). Private to
+/// the shop. The map pin is optional.
+model ShopSite {
+  id         String    @id @default(uuid(7)) @db.Uuid
+  shopId     String    @map("shop_id") @db.Uuid
+  customerId String    @map("customer_id") @db.Uuid
+  /// For example "Green Villa". Trimmed, 2–80 characters.
+  name       String
+  ownerName  String?   @map("owner_name")
+  /// House or business name, street and place. 5–300 characters.
+  address    String
+  latitude   Decimal?  @db.Decimal(9, 6)
+  longitude  Decimal?  @db.Decimal(9, 6)
+  archivedAt DateTime? @map("archived_at") @db.Timestamptz(3)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  customer ShopCustomer @relation(fields: [shopId, customerId], references: [shopId, id], onDelete: Restrict)
+  orders   Order[]
+
+  @@unique([shopId, id])
+  @@index([shopId, customerId])
+  @@map("shop_sites")
+}
+
+/// Who placed the order: the customer in the app, or the shop (ORD-004).
+enum OrderSource {
+  APP
+  SHOP
+
+  @@map("order_source")
 }
 
 /// Five steps (D-053). Orders are accepted automatically (D-045).
@@ -583,8 +630,13 @@ model Order {
   /// Per-shop running number, shown as "#1001".
   number              Int
   customerId          String             @map("customer_id") @db.Uuid
-  /// Painter site name until sites are built (D-049).
+  /// The site's name when the order was placed (snapshot).
   siteLabel           String?            @map("site_label")
+  /// A site the shop recorded (ORD-004).
+  siteId              String?            @map("site_id") @db.Uuid
+  source              OrderSource        @default(APP)
+  /// The shop member who recorded the order (source SHOP).
+  createdByUserId     String?            @map("created_by_user_id") @db.Uuid
   fulfilment          OrderFulfilment
   status              OrderStatus        @default(NEW)
   /// Delivery snapshot, set only for DELIVERY.
@@ -611,6 +663,7 @@ model Order {
 
   shop     Shop         @relation(fields: [shopId], references: [id], onDelete: Restrict)
   customer ShopCustomer @relation(fields: [shopId, customerId], references: [shopId, id], onDelete: Restrict)
+  site     ShopSite?    @relation(fields: [shopId, siteId], references: [shopId, id], onDelete: Restrict)
   items    OrderItem[]
   events   OrderEvent[]
 

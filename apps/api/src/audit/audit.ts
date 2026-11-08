@@ -45,6 +45,11 @@ export const AuditAction = {
   OrderSubstituteAnswered: 'order.substitute_answered',
   OrderPaymentRecorded: 'order.payment_recorded',
   OrderItemReturned: 'order.item_returned',
+  OrderRecordedByShop: 'order.recorded_by_shop',
+  ShopCustomerCreated: 'shop_customer.created',
+  ShopCustomerUpdated: 'shop_customer.updated',
+  ShopSiteCreated: 'shop_site.created',
+  ShopSiteUpdated: 'shop_site.updated',
 } as const;
 
 export type AuditAction = (typeof AuditAction)[keyof typeof AuditAction];

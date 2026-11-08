@@ -49,6 +49,9 @@ export const OrderListQuerySchema = z
     payment: z
       .enum(OrderPaymentStatus, { error: 'payment must be UNPAID or PAID.' })
       .optional(),
+    customerId: z
+      .uuid({ error: 'customerId must be a customer id.' })
+      .optional(),
     page: z.coerce
       .number({ error: 'page must be a number.' })
       .int({ error: 'page must be a whole number.' })
@@ -84,6 +87,7 @@ export const OrderListPageSchema = z
         fulfilment: z.enum(OrderFulfilment),
         customer: customerSchema,
         siteLabel: z.string().nullable(),
+        source: z.enum(['APP', 'SHOP']),
         itemCount: z.int(),
         notAvailableCount: z.int(),
         totalPaise: z.int(),
@@ -137,12 +141,14 @@ export const OrderDetailSchema = z
     fulfilment: z.enum(OrderFulfilment),
     customer: customerSchema,
     siteLabel: z.string().nullable(),
+    /** APP: placed by the customer; SHOP: recorded by the shop (ORD-004). */
+    source: z.enum(['APP', 'SHOP']),
     delivery: z
       .object({
         address: z.string(),
-        latitude: z.number(),
-        longitude: z.number(),
-        distanceKm: z.number(),
+        latitude: z.number().nullable(),
+        longitude: z.number().nullable(),
+        distanceKm: z.number().nullable(),
       })
       .nullable(),
     items: z.array(OrderItemSchema),
@@ -237,6 +243,51 @@ export const OfferSubstituteRequestSchema = z
     message: note.optional(),
   })
   .meta({ id: 'OfferSubstituteRequest' });
+
+const recordLine = z.object({
+  shopProductPackId: z.uuid({ error: 'Choose a pack size.' }),
+  quantity,
+  shadeCode: shadeText(40),
+  shadeName: shadeText(80),
+});
+
+/** An order the shop records for a customer (ORD-004, D-054, D-055). */
+export const RecordOrderRequestSchema = z
+  .object({
+    customerId: z.uuid({ error: 'Choose the customer.' }),
+    siteId: z.uuid({ error: 'Choose the site.' }).optional(),
+    fulfilment: z.enum(OrderFulfilment, {
+      error: 'Choose pickup or delivery.',
+    }),
+    deliveryAddress: z
+      .string()
+      .trim()
+      .min(5, { error: 'Enter the delivery address.' })
+      .max(300, { error: 'The address can be at most 300 characters.' })
+      .optional(),
+    items: z
+      .array(recordLine)
+      .min(1, { error: 'Add at least one item.' })
+      .max(ORDER_LIMITS.maxItems, { error: 'An order has at most 50 items.' }),
+    /** Handed over at the counter: saved as completed. */
+    handedOver: z.boolean().default(false),
+    /** Owner only; with handedOver. */
+    paymentMethod: z
+      .enum(PaymentMethod, { error: 'Choose cash, UPI or bank transfer.' })
+      .optional(),
+  })
+  .superRefine((value, context) => {
+    if (value.paymentMethod && !value.handedOver) {
+      context.addIssue({
+        code: 'custom',
+        path: ['paymentMethod'],
+        message: 'Record a payment when the order is handed over.',
+      });
+    }
+  })
+  .meta({ id: 'RecordOrderRequest' });
+
+export type RecordOrderRequest = z.infer<typeof RecordOrderRequestSchema>;
 
 export const RecordPaymentRequestSchema = z
   .object({

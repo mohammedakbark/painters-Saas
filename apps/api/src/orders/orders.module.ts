@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { PrismaModule } from '../prisma/prisma.module.js';
 import { ShopAccessModule } from '../shop-access/shop-access.module.js';
 import { OrderPlacementService } from './order-placement.service.js';
+import { OrderRecordingService } from './order-recording.service.js';
 import { OrdersController } from './orders.controller.js';
 import { OrdersService } from './orders.service.js';
 
@@ -9,7 +10,7 @@ import { OrdersService } from './orders.service.js';
 @Module({
   imports: [PrismaModule, ShopAccessModule],
   controllers: [OrdersController],
-  providers: [OrdersService, OrderPlacementService],
+  providers: [OrdersService, OrderPlacementService, OrderRecordingService],
   exports: [OrderPlacementService],
 })
 export class OrdersModule {}

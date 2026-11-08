@@ -4,15 +4,18 @@ import type { OrderFulfilment } from '../generated/prisma/enums.js';
 import { Prisma } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { problem } from '../shop-catalogue/shop-catalogue-mapping.js';
-import { loadSellablePack } from './order-packs.js';
+import {
+  buildLines,
+  checkLineCount,
+  lockShopForOrder,
+  takeOrderNumber,
+} from './order-building.js';
 import {
   customerCanCancel,
   deliveryCharge,
   distanceKm,
-  itemsTotal,
 } from './order-rules.js';
 import { lockOrder, orderNotFound, recalculateTotals } from './order-locks.js';
-import { ORDER_LIMITS } from './orders.schemas.js';
 
 export interface PlaceOrderInput {
   shopId: string;
@@ -29,17 +32,6 @@ export interface PlaceOrderInput {
   delivery?: { address: string; latitude: number; longitude: number };
 }
 
-interface ShopForOrder {
-  status: string;
-  latitude: Prisma.Decimal | null;
-  longitude: Prisma.Decimal | null;
-  delivery_enabled: boolean;
-  delivery_charge_paise: number | null;
-  free_delivery_above_paise: number | null;
-  delivery_radius_km: number | null;
-  next_order_number: number;
-}
-
 /**
  * The customer side of an order (ORD-001). Used by the test-order script now
  * and by the Customer App's endpoints later; there are no customer routes
@@ -51,77 +43,16 @@ export class OrderPlacementService {
   constructor(private readonly prisma: PrismaService) {}
 
   async place(input: PlaceOrderInput): Promise<{ id: string; number: number }> {
-    if (input.items.length < 1 || input.items.length > ORDER_LIMITS.maxItems) {
-      throw problem(
-        HttpStatus.BAD_REQUEST,
-        'order_items_invalid',
-        'An order has 1 to 50 items.',
-        'items',
-      );
-    }
-    for (const item of input.items) {
-      if (
-        !Number.isInteger(item.quantity) ||
-        item.quantity < 1 ||
-        item.quantity > ORDER_LIMITS.maxQuantity
-      ) {
-        throw problem(
-          HttpStatus.BAD_REQUEST,
-          'order_items_invalid',
-          'Each quantity must be from 1 to 999.',
-          'items',
-        );
-      }
-    }
+    checkLineCount(input.items);
 
     return this.prisma.$transaction(async (tx) => {
-      // Locks the shop row: the order number and settings stay consistent.
-      const [shop] = await tx.$queryRaw<ShopForOrder[]>`
-        SELECT status, latitude, longitude, delivery_enabled,
-               delivery_charge_paise, free_delivery_above_paise,
-               delivery_radius_km, next_order_number
-        FROM shops WHERE id = ${input.shopId}::uuid FOR UPDATE`;
-      if (!shop) {
-        throw problem(
-          HttpStatus.NOT_FOUND,
-          'shop_not_found',
-          'Shop not found.',
-        );
-      }
-      if (shop.status !== 'ACTIVE') {
-        throw problem(
-          HttpStatus.CONFLICT,
-          'shop_not_accepting_orders',
-          'This shop is not taking orders yet.',
-        );
-      }
-
+      const shop = await lockShopForOrder(tx, input.shopId);
       const customerId = await this.customerFor(tx, input.shopId, input.userId);
-
-      const lines = [];
-      for (const [index, item] of input.items.entries()) {
-        const pack = await loadSellablePack(
-          tx,
-          input.shopId,
-          item.shopProductPackId,
-        );
-        const withShade = pack.supportsShades && item.shadeCode;
-        lines.push({
-          shopId: input.shopId,
-          position: index + 1,
-          shopProductPackId: pack.shopProductPackId,
-          productName: pack.productName,
-          brandName: pack.brandName,
-          packLabel: pack.packLabel,
-          shadeCode: withShade ? item.shadeCode?.trim() : null,
-          shadeName: withShade ? (item.shadeName?.trim() ?? null) : null,
-          unitPricePaise: pack.unitPricePaise,
-          quantity: item.quantity,
-          status: 'OK' as const,
-          returnedQuantity: 0,
-        });
-      }
-      const itemsPaise = itemsTotal(lines);
+      const { lines, itemsPaise } = await buildLines(
+        tx,
+        input.shopId,
+        input.items,
+      );
 
       let delivery: Pick<
         Prisma.OrderUncheckedCreateInput,
@@ -132,12 +63,7 @@ export class OrderPlacementService {
       > = {};
       let chargePaise = 0;
       if (input.fulfilment === 'DELIVERY') {
-        const settings = {
-          enabled: shop.delivery_enabled,
-          chargePaise: shop.delivery_charge_paise,
-          freeAbovePaise: shop.free_delivery_above_paise,
-          radiusKm: shop.delivery_radius_km,
-        };
+        const settings = shop.delivery;
         if (
           !input.delivery ||
           !settings.enabled ||
@@ -176,11 +102,7 @@ export class OrderPlacementService {
         };
       }
 
-      const number = shop.next_order_number;
-      await tx.shop.update({
-        where: { id: input.shopId },
-        data: { nextOrderNumber: number + 1 },
-      });
+      const number = await takeOrderNumber(tx, input.shopId, shop);
       const order = await tx.order.create({
         data: {
           ...delivery,
@@ -192,7 +114,7 @@ export class OrderPlacementService {
           itemsTotalPaise: itemsPaise,
           deliveryChargePaise: chargePaise,
           totalPaise: itemsPaise + chargePaise,
-          items: { create: lines.map(({ shopId: _shop, ...line }) => line) },
+          items: { create: lines },
         },
         select: { id: true, number: true },
       });
@@ -333,8 +255,9 @@ export class OrderPlacementService {
 
   /**
    * The shop's record of this app customer (D-054), created on the first
-   * order. A shop-recorded customer with the same mobile is linked only after
-   * the person connects with an OTP (ORD-004), never automatically.
+   * order. A record the shop made for the same mobile stays separate and
+   * private; it is linked only after the person connects with an OTP, never
+   * automatically (D-055).
    */
   private async customerFor(
     tx: Prisma.TransactionClient,
@@ -357,17 +280,6 @@ export class OrderPlacementService {
         HttpStatus.CONFLICT,
         'customer_needs_phone',
         'Add your mobile number before ordering.',
-      );
-    }
-    const recorded = await tx.shopCustomer.findUnique({
-      where: { shopId_phone: { shopId, phone: user.phone } },
-      select: { id: true },
-    });
-    if (recorded) {
-      throw problem(
-        HttpStatus.CONFLICT,
-        'customer_link_needed',
-        'This shop already has a record for your number. Ask the shop to connect it.',
       );
     }
     const created = await tx.shopCustomer.create({
