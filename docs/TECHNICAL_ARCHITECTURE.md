@@ -106,7 +106,8 @@ Recommended concepts:
 - A protected master membership created with each shop.
 - Shop-owned records such as catalogue, offers, orders, bills, credit accounts and staff memberships carry shop/tenant ownership.
 - A customer can transact with multiple shops.
-- A painter's site is owned by the painter and may link orders from multiple shops.
+- A painter's site is owned by the painter and may link orders from multiple shops. Sites and customers a shop records for someone without the app belong to that shop until the person connects with an OTP (D-054).
+- Orders (ORD-001) belong to a shop and a `shop_customers` row (the shop's record of the person, linked to an app account when there is one). Lines snapshot product, pack and price; totals are recomputed from the lines in the same transaction; changes lock the order row and append to `order_events` (append-only) and the audit log.
 - Every order belongs to one shop.
 
 Customer-wide aggregation is limited to the authenticated customer's own records. Shop users see only their tenant's records. Use database constraints/indexes to reinforce tenant relationships. Evaluate PostgreSQL Row Level Security as defense in depth, but do not assume it protects data automatically when a privileged backend/service key bypasses those policies. Backend authorization is mandatory.

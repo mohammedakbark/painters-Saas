@@ -9,6 +9,12 @@ export const PROFILE_MANAGER_ROLES: readonly ShopRole[] = ['MASTER'];
 /** Roles that may change the shop's products, prices and shades (CAT-002). */
 export const CATALOGUE_MANAGER_ROLES: readonly ShopRole[] = ['MASTER'];
 
+/** Roles that may work on orders: status, not-available items, substitutes (D-053). */
+export const ORDER_ROLES: readonly ShopRole[] = ['MASTER'];
+
+/** Roles that may record payments and returns (D-053). */
+export const ORDER_MANAGER_ROLES: readonly ShopRole[] = ['MASTER'];
+
 /**
  * Throws 403 `shop_permission_denied` unless the caller's role in this shop is
  * one of `roles`. Membership itself is already checked by `ShopAccessGuard`;

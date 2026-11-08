@@ -26,7 +26,8 @@
     "openapi:export": "nest build && node dist/scripts/export-openapi.js ../../packages/api_contracts/openapi.json",
     "platform-admin:create": "nest build && node dist/scripts/create-platform-admin.js",
     "db:check-drift": "prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code",
-    "catalogue:seed-sample": "nest build && node dist/scripts/seed-sample-catalogue.js"
+    "catalogue:seed-sample": "nest build && node dist/scripts/seed-sample-catalogue.js",
+    "orders:seed-test": "nest build && node dist/scripts/seed-orders.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1161.0",

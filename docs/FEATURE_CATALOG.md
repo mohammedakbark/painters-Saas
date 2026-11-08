@@ -44,7 +44,8 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 | Master account created with shop | **Implemented (SHP-001)** | The registering person becomes the MASTER; the database allows one master per shop. One person may master several shops (D-026). |
 | Role-based staff access | Confirmed direction | Additional staff seats may be paid later. |
 | View/manage assigned orders | Confirmed direction | Depends on role. |
-| Update order status | Confirmed direction | Exact statuses/transitions open. |
+| Update order status | **Implemented (API, ORD-001)**; web in ORD-002 | Five steps (D-053), not-available items, substitutes, payment at pickup/delivery, returns. Spec: `docs/features/ORD-001-orders-api.md`. |
+| Record orders for customers without the app | Confirmed (D-054); ORD-004 | By mobile number; private to the shop until the person connects with an OTP. |
 | Owner-only reports and credit exposure | Confirmed | Hidden from staff unless explicitly permitted. |
 
 ## 4. Shop Admin Web Portal

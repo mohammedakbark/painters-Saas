@@ -38,6 +38,7 @@ model User {
   shopMemberships  ShopMembership[]
   reviewsSubmitted ShopReview[]     @relation("ShopReviewSubmittedBy")
   reviewsDecided   ShopReview[]     @relation("ShopReviewDecidedBy")
+  shopCustomers    ShopCustomer[]
 
   @@map("users")
 }
@@ -197,6 +198,8 @@ model Shop {
   /// Ready-made notes for "not available" items (D-045), in display order.
   orderMessages          String[]  @default(["Stock not available.", "Stock can be arranged by tomorrow morning."]) @map("order_messages")
   settingsUpdatedAt      DateTime? @map("settings_updated_at") @db.Timestamptz(3)
+  /// Next order number for this shop (ORD-001); taken under a row lock.
+  nextOrderNumber        Int       @default(1001) @map("next_order_number")
 
   memberships     ShopMembership[]
   auditEvents     AuditEvent[]
@@ -205,6 +208,8 @@ model Shop {
   favouriteShades ShopFavouriteShade[]
   reviews         ShopReview[]
   categories      CatalogueCategory[]
+  customers       ShopCustomer[]
+  orders          Order[]
 
   @@map("shops")
 }
@@ -428,6 +433,7 @@ model ShopProductPack {
 
   product       ShopProduct    @relation(fields: [shopId, shopProductId], references: [shopId, id], onDelete: Restrict)
   cataloguePack CataloguePack? @relation(fields: [cataloguePackId], references: [id], onDelete: Restrict)
+  orderItems    OrderItem[]
 
   @@unique([shopProductId, cataloguePackId])
   @@unique([shopProductId, quantity, unit])
@@ -496,4 +502,190 @@ model ShopReview {
   @@index([shopId, submittedAt])
   @@index([decision, submittedAt])
   @@map("shop_reviews")
+}
+
+// ---------------------------------------------------------------------------
+// Orders (ORD-001, D-045 to D-047, D-053, D-054). Tenant-owned: every row
+// carries shop_id and children reference their parent through composite
+// (shop_id, id) keys. Money is integer paise. CHECKs in the migration.
+// ---------------------------------------------------------------------------
+
+/// The shop's own record of a customer (D-054). Linked to an app account when
+/// the customer orders in the app; shop-recorded customers (ORD-004) have no
+/// link until the person connects with an OTP. Other shops never see it.
+model ShopCustomer {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  shopId    String   @map("shop_id") @db.Uuid
+  /// The app account, when there is one.
+  userId    String?  @map("user_id") @db.Uuid
+  /// As the shop knows them. Trimmed, 1–120 characters.
+  name      String
+  /// E.164, for example +919999900001.
+  phone     String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  shop   Shop    @relation(fields: [shopId], references: [id], onDelete: Restrict)
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Restrict)
+  orders Order[]
+
+  @@unique([shopId, id])
+  @@unique([shopId, phone])
+  @@unique([shopId, userId])
+  @@map("shop_customers")
+}
+
+/// Five steps (D-053). Orders are accepted automatically (D-045).
+enum OrderStatus {
+  NEW
+  PACKING
+  READY_FOR_PICKUP
+  OUT_FOR_DELIVERY
+  COMPLETED
+  CANCELLED
+
+  @@map("order_status")
+}
+
+enum OrderFulfilment {
+  PICKUP
+  DELIVERY
+
+  @@map("order_fulfilment")
+}
+
+enum OrderPaymentStatus {
+  UNPAID
+  PAID
+
+  @@map("order_payment_status")
+}
+
+/// Paid at pickup or delivery and recorded by the shop (D-053).
+enum PaymentMethod {
+  CASH
+  UPI
+  BANK_TRANSFER
+
+  @@map("payment_method")
+}
+
+enum OrderCancelledBy {
+  CUSTOMER
+  SHOP
+
+  @@map("order_cancelled_by")
+}
+
+model Order {
+  id                  String             @id @default(uuid(7)) @db.Uuid
+  shopId              String             @map("shop_id") @db.Uuid
+  /// Per-shop running number, shown as "#1001".
+  number              Int
+  customerId          String             @map("customer_id") @db.Uuid
+  /// Painter site name until sites are built (D-049).
+  siteLabel           String?            @map("site_label")
+  fulfilment          OrderFulfilment
+  status              OrderStatus        @default(NEW)
+  /// Delivery snapshot, set only for DELIVERY.
+  deliveryAddress     String?            @map("delivery_address")
+  deliveryLatitude    Decimal?           @map("delivery_latitude") @db.Decimal(9, 6)
+  deliveryLongitude   Decimal?           @map("delivery_longitude") @db.Decimal(9, 6)
+  deliveryDistanceKm  Decimal?           @map("delivery_distance_km") @db.Decimal(6, 2)
+  /// Counted items: unit price × (quantity − returned).
+  itemsTotalPaise     Int                @map("items_total_paise")
+  /// Fixed when the order is placed; 0 for pickup and free delivery.
+  deliveryChargePaise Int                @default(0) @map("delivery_charge_paise")
+  totalPaise          Int                @map("total_paise")
+  paymentStatus       OrderPaymentStatus @default(UNPAID) @map("payment_status")
+  paymentMethod       PaymentMethod?     @map("payment_method")
+  paidAt              DateTime?          @map("paid_at") @db.Timestamptz(3)
+  paidByUserId        String?            @map("paid_by_user_id") @db.Uuid
+  cancelledBy         OrderCancelledBy?  @map("cancelled_by")
+  cancelReason        String?            @map("cancel_reason")
+  placedAt            DateTime           @default(now()) @map("placed_at") @db.Timestamptz(3)
+  readyAt             DateTime?          @map("ready_at") @db.Timestamptz(3)
+  completedAt         DateTime?          @map("completed_at") @db.Timestamptz(3)
+  cancelledAt         DateTime?          @map("cancelled_at") @db.Timestamptz(3)
+  updatedAt           DateTime           @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  shop     Shop         @relation(fields: [shopId], references: [id], onDelete: Restrict)
+  customer ShopCustomer @relation(fields: [shopId, customerId], references: [shopId, id], onDelete: Restrict)
+  items    OrderItem[]
+  events   OrderEvent[]
+
+  @@unique([shopId, id])
+  @@unique([shopId, number])
+  @@index([shopId, status, placedAt])
+  @@index([shopId, placedAt])
+  @@index([shopId, customerId])
+  @@map("orders")
+}
+
+/// OK lines count towards the total. A substitute (D-045) is its own line,
+/// SUBSTITUTE_OFFERED until the customer accepts (OK; the original becomes
+/// SUBSTITUTED) or declines (SUBSTITUTE_DECLINED).
+enum OrderItemStatus {
+  OK
+  NOT_AVAILABLE
+  SUBSTITUTED
+  SUBSTITUTE_OFFERED
+  SUBSTITUTE_DECLINED
+
+  @@map("order_item_status")
+}
+
+model OrderItem {
+  id                String          @id @default(uuid(7)) @db.Uuid
+  shopId            String          @map("shop_id") @db.Uuid
+  orderId           String          @map("order_id") @db.Uuid
+  /// Display order within the order.
+  position          Int
+  /// The pack sold; kept for links, the snapshot below is what was ordered.
+  shopProductPackId String?         @map("shop_product_pack_id") @db.Uuid
+  productName       String          @map("product_name")
+  brandName         String?         @map("brand_name")
+  packLabel         String          @map("pack_label")
+  shadeCode         String?         @map("shade_code")
+  shadeName         String?         @map("shade_name")
+  unitPricePaise    Int             @map("unit_price_paise")
+  quantity          Int
+  returnedQuantity  Int             @default(0) @map("returned_quantity")
+  status            OrderItemStatus @default(OK)
+  /// The message sent to the customer for a not-available item.
+  shopNote          String?         @map("shop_note")
+  /// Set on a substitute line: the line it replaces.
+  substituteForId   String?         @map("substitute_for_id") @db.Uuid
+  createdAt         DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  order         Order            @relation(fields: [shopId, orderId], references: [shopId, id], onDelete: Restrict)
+  pack          ShopProductPack? @relation(fields: [shopProductPackId], references: [id], onDelete: SetNull)
+  substituteFor OrderItem?       @relation("OrderItemSubstitute", fields: [substituteForId], references: [id], onDelete: Restrict)
+  substitutes   OrderItem[]      @relation("OrderItemSubstitute")
+
+  @@unique([orderId, position])
+  @@index([shopId, orderId])
+  @@map("order_items")
+}
+
+/// Append-only order timeline (trigger in the migration). Ids and statuses
+/// only, never personal data.
+model OrderEvent {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  shopId      String   @map("shop_id") @db.Uuid
+  orderId     String   @map("order_id") @db.Uuid
+  /// For example placed, status_changed, item_not_available, paid.
+  type        String
+  /// CUSTOMER, SHOP or SYSTEM.
+  actor       String
+  /// The shop member who acted; null for the customer or the system.
+  actorUserId String?  @map("actor_user_id") @db.Uuid
+  data        Json     @default("{}")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  order Order @relation(fields: [shopId, orderId], references: [shopId, id], onDelete: Restrict)
+
+  @@index([shopId, orderId, createdAt])
+  @@map("order_events")
 }

@@ -37,6 +37,14 @@ export const AuditAction = {
   ShopShadeRemoved: 'shop_catalogue.shade_removed',
   ShopCategoryCreated: 'shop_catalogue.category_created',
   ShopCategoryUpdated: 'shop_catalogue.category_updated',
+  OrderPlaced: 'order.placed',
+  OrderStatusChanged: 'order.status_changed',
+  OrderCancelledByCustomer: 'order.cancelled_by_customer',
+  OrderItemNotAvailable: 'order.item_not_available',
+  OrderSubstituteOffered: 'order.substitute_offered',
+  OrderSubstituteAnswered: 'order.substitute_answered',
+  OrderPaymentRecorded: 'order.payment_recorded',
+  OrderItemReturned: 'order.item_returned',
 } as const;
 
 export type AuditAction = (typeof AuditAction)[keyof typeof AuditAction];
