@@ -36,8 +36,32 @@ const OsmLocationMap = dynamic(() => import('./osm-location-map'), {
 
 type Status = { tone: 'error' | 'info'; message: string } | null;
 
+export interface PickerCopy {
+  legend: string;
+  description: string;
+  searchLabel: string;
+  required: boolean;
+}
+
+const SHOP_COPY: PickerCopy = {
+  legend: 'Map location',
+  description:
+    'Customers will find your shop with this pin. Stand at the shop and use your current location, or search and place the pin on the map.',
+  searchLabel: 'Search for your shop or street',
+  required: true,
+};
+
+/** A painter's site (ORD-004): the pin is optional. */
+export const SITE_COPY: PickerCopy = {
+  legend: 'Site on the map',
+  description:
+    'Search for the place and drag the pin to the building, or use your current location when you are at the site.',
+  searchLabel: 'Search for the place or street',
+  required: false,
+};
+
 /**
- * The shop's map location (D-027, D-041): an OpenStreetMap map with search
+ * A map location: the shop's (D-027) or a painter's site (ORD-004), D-041: an OpenStreetMap map with search
  * and a draggable pin, and "Use my current location".
  */
 export function LocationPicker({
@@ -46,10 +70,13 @@ export function LocationPicker({
   onSuggestAddress,
   error,
   disabled = false,
+  copy = SHOP_COPY,
 }: {
   value: PickedLocation | null;
   onChange: (location: PickedLocation) => void;
-  onSuggestAddress: (suggestion: SuggestedAddress) => void;
+  onSuggestAddress?: (suggestion: SuggestedAddress) => void;
+  /** Wording for where the picker is used; the shop's by default. */
+  copy?: PickerCopy;
   error?: string;
   disabled?: boolean;
 }) {
@@ -111,14 +138,15 @@ export function LocationPicker({
       aria-describedby={errorId}
     >
       <legend className="text-heading3 font-semibold">
-        Map location
-        <RequiredMark />
-        <span className="sr-only"> (required)</span>
+        {copy.legend}
+        {copy.required ? (
+          <>
+            <RequiredMark />
+            <span className="sr-only"> (required)</span>
+          </>
+        ) : null}
       </legend>
-      <p className="text-body text-text-secondary">
-        Customers will find your shop with this pin. Stand at the shop and use
-        your current location, or search and place the pin on the map.
-      </p>
+      <p className="text-body text-text-secondary">{copy.description}</p>
 
       <OsmLocationMap
         value={value}
@@ -134,6 +162,7 @@ export function LocationPicker({
           onChange({ latitude, longitude, source: 'MAP_PIN' });
         }}
         onSuggestAddress={onSuggestAddress}
+        searchLabel={copy.searchLabel}
       />
 
       <div className="flex flex-wrap items-center gap-3">

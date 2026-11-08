@@ -39,16 +39,21 @@ export default function OsmLocationMap({
   value,
   onPick,
   onSuggestAddress,
+  searchLabel = 'Search for your shop or street',
 }: {
   value: PickedLocation | null;
   onPick: (latitude: number, longitude: number) => void;
-  onSuggestAddress: (suggestion: SuggestedAddress) => void;
+  /** Offers the address at the pin; left out where there is no address form. */
+  onSuggestAddress?: (suggestion: SuggestedAddress) => void;
+  searchLabel?: string;
 }) {
   return (
     <div className="flex flex-col gap-3">
-      <PlaceSearch onPlace={onPick} />
+      <PlaceSearch onPlace={onPick} label={searchLabel} />
       <LeafletMap value={value} onPick={onPick} />
-      <SuggestFromPin value={value} onSuggestAddress={onSuggestAddress} />
+      {onSuggestAddress ? (
+        <SuggestFromPin value={value} onSuggestAddress={onSuggestAddress} />
+      ) : null}
     </div>
   );
 }
@@ -194,8 +199,10 @@ type SearchState =
  */
 function PlaceSearch({
   onPlace,
+  label,
 }: {
   onPlace: (latitude: number, longitude: number) => void;
+  label: string;
 }) {
   const [text, setText] = useState('');
   const [state, setState] = useState<SearchState>({ kind: 'idle' });
@@ -225,7 +232,7 @@ function PlaceSearch({
       <div className="flex flex-col gap-3 medium:flex-row medium:items-end">
         <div className="w-full">
           <Field
-            label="Search for your shop or street"
+            label={label}
             name="mapSearch"
             type="search"
             leadingIcon="search"

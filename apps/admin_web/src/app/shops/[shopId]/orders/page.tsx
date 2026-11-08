@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/column-filter';
 import { type Column, DataTable } from '@/components/ui/data-table';
 import { FilterForm } from '@/components/ui/filter-form';
+import { Icon } from '@/components/ui/icon';
 import { PageHeader } from '@/components/ui/page-header';
 import { Pagination } from '@/components/ui/pagination';
 import { SectionLoading } from '@/components/ui/section-loading';
@@ -76,12 +77,28 @@ export default function OrdersPage(props: Props) {
       <PageHeader
         title="Orders"
         description="New orders appear here by themselves. Move each order to its next step as you go."
+        actions={
+          <Suspense fallback={null}>
+            <NewOrderLink {...props} />
+          </Suspense>
+        }
       />
       <Suspense fallback={<SectionLoading label="Loading orders…" />}>
         <Orders {...props} />
       </Suspense>
       <ToastHost />
     </div>
+  );
+}
+
+/** Orders by phone or at the counter (ORD-004). */
+async function NewOrderLink({ params }: Props) {
+  const { shopId } = await params;
+  return (
+    <ButtonLink href={`${ordersBase(shopId)}/new`}>
+      <Icon name="plus" className="size-5" />
+      New order
+    </ButtonLink>
   );
 }
 

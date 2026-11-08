@@ -9,6 +9,7 @@ import {
   PaymentSheet,
 } from '@/components/orders/order-forms';
 import { StepButton } from '@/components/orders/step-button';
+import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
@@ -56,7 +57,7 @@ export default function OrderPage(props: Props) {
   );
 }
 
-async function OrderView({ params }: Props) {
+async function OrderView({ params, searchParams }: Props) {
   const { shopId, orderId } = await params;
   const shop = await requireShopAccess(shopId);
   const token = await requireShopSession();
@@ -67,6 +68,7 @@ async function OrderView({ params }: Props) {
   const status = ORDER_STATUS[order.status];
   const steps = order.nextSteps.filter((step) => step !== 'CANCELLED');
   const canCancel = order.nextSteps.includes('CANCELLED');
+  const justRecorded = (await searchParams).recorded === '1';
 
   return (
     <div className="flex flex-col gap-6">
@@ -105,6 +107,12 @@ async function OrderView({ params }: Props) {
         }
       />
 
+      {justRecorded ? (
+        <Alert tone="success" title="Order saved">
+          {orderNumber(order.number)} is recorded for {order.customer.name}.
+          {order.status === 'COMPLETED' ? ' It is saved as handed over.' : ''}
+        </Alert>
+      ) : null}
       {order.cancelled ? (
         <Card tone="subtle" className="flex flex-col gap-1 p-5">
           <p className="font-semibold">
@@ -175,6 +183,11 @@ async function OrderView({ params }: Props) {
             {order.siteLabel ? (
               <p className="text-body">Site: {order.siteLabel}</p>
             ) : null}
+            {order.source === 'SHOP' ? (
+              <p className="text-caption text-text-secondary">
+                This order was recorded by your shop.
+              </p>
+            ) : null}
           </Card>
 
           <Card
@@ -188,17 +201,27 @@ async function OrderView({ params }: Props) {
             {order.delivery ? (
               <>
                 <p className="text-body">{order.delivery.address}</p>
-                <p className="text-body text-text-secondary">
-                  {order.delivery.distanceKm.toFixed(1)} km from the shop
-                </p>
-                <a
-                  href={`https://www.openstreetmap.org/?mlat=${order.delivery.latitude}&mlon=${order.delivery.longitude}#map=17/${order.delivery.latitude}/${order.delivery.longitude}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-fit font-semibold text-brand-primary underline-offset-4 hover:underline"
-                >
-                  Open map
-                </a>
+                {order.delivery.distanceKm !== null &&
+                order.delivery.latitude !== null &&
+                order.delivery.longitude !== null ? (
+                  <>
+                    <p className="text-body text-text-secondary">
+                      {order.delivery.distanceKm.toFixed(1)} km from the shop
+                    </p>
+                    <a
+                      href={`https://www.openstreetmap.org/?mlat=${order.delivery.latitude}&mlon=${order.delivery.longitude}#map=17/${order.delivery.latitude}/${order.delivery.longitude}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-fit font-semibold text-brand-primary underline-offset-4 hover:underline"
+                    >
+                      Open map
+                    </a>
+                  </>
+                ) : (
+                  <p className="text-body text-text-secondary">
+                    No map pin for this address.
+                  </p>
+                )}
               </>
             ) : (
               <p className="text-body text-text-secondary">

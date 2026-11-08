@@ -436,6 +436,7 @@ export function ActionButtonForm({
   pendingLabel,
   accessibleLabel,
   variant = 'secondary',
+  size = 'default',
 }: {
   action: (previous: CatalogueFormState) => Promise<CatalogueFormState>;
   label: string;
@@ -444,6 +445,8 @@ export function ActionButtonForm({
   accessibleLabel?: string;
   /** `tertiary` for a quiet action repeated on every row of a list. */
   variant?: 'primary' | 'secondary' | 'tertiary';
+  /** `compact` next to other compact row actions. */
+  size?: 'default' | 'compact';
 }) {
   const [state, formAction, pending] = useActionState(action, {});
   return (
@@ -461,6 +464,7 @@ export function ActionButtonForm({
         pending={pending}
         pendingLabel={pendingLabel}
         aria-label={accessibleLabel}
+        size={size}
       >
         {label}
       </Button>

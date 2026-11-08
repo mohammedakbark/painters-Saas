@@ -134,6 +134,10 @@ export function eventSentence(event: {
   switch (event.type) {
     case 'placed':
       return 'Order placed by the customer.';
+    case 'recorded':
+      return event.data.handedOver === true
+        ? 'Recorded by the shop and handed over.'
+        : 'Recorded by the shop.';
     case 'status_changed':
       if (to === 'CANCELLED') {
         return `Cancelled by ${by}.`;

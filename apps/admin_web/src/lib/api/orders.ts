@@ -37,6 +37,7 @@ const listPageSchema = z.object({
       fulfilment,
       customer: customerSchema,
       siteLabel: z.string().nullable(),
+      source: z.enum(['APP', 'SHOP']),
       itemCount: z.number().int(),
       notAvailableCount: z.number().int(),
       totalPaise: z.number().int(),
@@ -90,12 +91,13 @@ const detailSchema = z.object({
   fulfilment,
   customer: customerSchema,
   siteLabel: z.string().nullable(),
+  source: z.enum(['APP', 'SHOP']),
   delivery: z
     .object({
       address: z.string(),
-      latitude: z.number(),
-      longitude: z.number(),
-      distanceKm: z.number(),
+      latitude: z.number().nullable(),
+      longitude: z.number().nullable(),
+      distanceKm: z.number().nullable(),
     })
     .nullable(),
   items: z.array(itemSchema),
@@ -169,6 +171,7 @@ export interface OrderListParams {
   q?: string;
   fulfilment?: Fulfilment;
   payment?: 'UNPAID' | 'PAID';
+  customerId?: string;
   page: number;
   pageSize: number;
 }
@@ -197,6 +200,7 @@ export function listOrders(
   if (params.q) search.set('q', params.q);
   if (params.fulfilment) search.set('fulfilment', params.fulfilment);
   if (params.payment) search.set('payment', params.payment);
+  if (params.customerId) search.set('customerId', params.customerId);
   return apiRequest(`${base(shopId)}?${search.toString()}`, {
     token,
     schema: listPageSchema,
@@ -211,6 +215,30 @@ export function getOrderSummary(
   return apiRequest(`${base(shopId)}/summary`, {
     token,
     schema: summarySchema,
+  });
+}
+
+export interface RecordOrderBody {
+  customerId: string;
+  siteId?: string;
+  fulfilment: Fulfilment;
+  deliveryAddress?: string;
+  items: { shopProductPackId: string; quantity: number; shadeCode?: string }[];
+  handedOver: boolean;
+  paymentMethod?: PaymentMethod;
+}
+
+/** Records an order for a customer (phone or counter, ORD-004). */
+export function recordOrder(
+  token: string,
+  shopId: string,
+  body: RecordOrderBody,
+): Promise<OrderDetail> {
+  return apiRequest(base(shopId), {
+    token,
+    schema: detailSchema,
+    method: 'POST',
+    body,
   });
 }
 

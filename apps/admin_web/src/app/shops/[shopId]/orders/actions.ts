@@ -271,10 +271,14 @@ export async function returnItemAction(
 }
 
 /** Available pack sizes of the shop for the substitute search. */
+export interface PackOption extends ComboboxOption {
+  pricePaise: number;
+}
+
 export async function searchPacksAction(
   shopId: string,
   text: string,
-): Promise<ComboboxOption[]> {
+): Promise<PackOption[]> {
   const q = text.trim().slice(0, 60);
   if (q.length < 2) {
     return [];
@@ -295,6 +299,7 @@ export async function searchPacksAction(
             .filter((pack) => pack.available)
             .map((pack) => ({
               id: pack.id,
+              pricePaise: pack.pricePaise,
               title: `${row.name} · ${pack.label}`,
               detail: [row.brandName, formatRupees(pack.pricePaise)]
                 .filter(Boolean)

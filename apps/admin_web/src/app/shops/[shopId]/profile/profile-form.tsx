@@ -19,7 +19,7 @@ import type {
   ProfileFormState,
   ProfileFormValues,
 } from '@/lib/shops/profile';
-import { LocationPicker } from './location-picker';
+import { LocationPicker } from '@/components/maps/location-picker';
 
 export type SaveProfileAction = (
   previous: ProfileFormState,

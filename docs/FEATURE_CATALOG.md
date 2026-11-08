@@ -45,7 +45,7 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 | Role-based staff access | Confirmed direction | Additional staff seats may be paid later. |
 | View/manage assigned orders | Confirmed direction | Depends on role. |
 | Update order status | **Implemented (API ORD-001, shop web ORD-002)**; Shop App later | Five steps (D-053), not-available items, substitutes, payment at pickup/delivery, returns. Specs: `docs/features/ORD-001-orders-api.md`, `docs/features/ORD-002-orders-page.md`. |
-| Record orders for customers without the app | Confirmed (D-054); ORD-004 | By mobile number; private to the shop until the person connects with an OTP. |
+| Record orders for customers without the app | **Implemented (ORD-004, D-054, D-055)** | By mobile number; private to the shop until the person connects with an OTP (connect step with the Customer App). Painters' sites, new order or handed over now. Spec: `docs/features/ORD-004-shop-recorded-orders.md`. |
 | Owner-only reports and credit exposure | Confirmed | Hidden from staff unless explicitly permitted. |
 
 ## 4. Shop Admin Web Portal
