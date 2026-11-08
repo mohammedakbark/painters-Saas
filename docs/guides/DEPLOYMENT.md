@@ -19,7 +19,8 @@ feature branch ──CI──▶ dev ──(fast-forward)──▶ main ──�
 ```
 
 - Day-to-day work still goes to `dev` (D-035). To release: `git checkout main && git merge --ff-only dev && git push origin main`.
-- **Render** deploys only after the `CI` workflow passes on that commit (`autoDeployTrigger: checksPass`) and only when API files changed (`buildFilter`). Pending Prisma migrations run when the new API starts (`prisma migrate deploy`).
+- **Render** deploys only after the `CI` workflow passes on that commit (`autoDeployTrigger: checksPass`), on every push to `main`. There is no `buildFilter`: Render matched it against the last commit of a push only, so a release ending in a docs commit skipped the API. Pending Prisma migrations run when the new API starts (`prisma migrate deploy`).
+- **If the API stops answering** (requests hang, even `/health`), Render → `sevenpalette-api` → Manual Deploy → **Deploy latest commit**. A plain restart did not help on 2026-11-08.
 - **Vercel** builds every push to `main`; other branches are skipped (`ignoreCommand`). Because `main` only receives commits that already passed CI on `dev`, this is safe.
 - **Order:** the web can go live a minute before the API. Ship API changes that the web depends on in an earlier release, or accept a short window where a new page errors.
 - **Rollback:** Render → service → Events → "Rollback" to a previous deploy; Vercel → Deployments → previous → "Promote to Production". A migration is not rolled back by either; fix forward with a new migration.

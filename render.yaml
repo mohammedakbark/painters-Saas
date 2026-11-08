@@ -10,14 +10,8 @@ services:
     branch: main
     # Deploy a commit on main only after its GitHub checks (the CI workflow) pass.
     autoDeployTrigger: checksPass
-    buildFilter:
-      paths:
-        - apps/api/**
-        - package.json
-        - pnpm-lock.yaml
-        - pnpm-workspace.yaml
-        - .node-version
-        - render.yaml
+    # No buildFilter: Render checks it against the last commit of a push only,
+    # so a release whose last commit touches docs skipped the API (2026-11-08).
     # Node comes from .node-version. pnpm is pinned to the root `packageManager`
     # version. NODE_ENV=development for the install keeps the dev tools the
     # build needs (Nest CLI, TypeScript, Prisma CLI).
