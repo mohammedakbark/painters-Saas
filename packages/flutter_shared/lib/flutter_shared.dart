@@ -10,6 +10,7 @@ export 'src/brand/app_brand.dart';
 export 'src/brand/brand_mark.dart';
 export 'src/components/app_button.dart';
 export 'src/components/app_card.dart';
+export 'src/components/app_chips.dart';
 export 'src/components/app_choices.dart';
 export 'src/components/app_feedback.dart';
 export 'src/components/app_overlays.dart';

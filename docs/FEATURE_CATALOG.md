@@ -44,8 +44,9 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 | Master account created with shop | **Implemented (SHP-001)** | The registering person becomes the MASTER; the database allows one master per shop. One person may master several shops (D-026). |
 | Role-based staff access | Confirmed direction | Additional staff seats may be paid later. |
 | View/manage assigned orders | Confirmed direction | Depends on role. |
-| Update order status | **Implemented (API ORD-001, shop web ORD-002)**; Shop App later | Five steps (D-053), not-available items, substitutes, payment at pickup/delivery, returns. Specs: `docs/features/ORD-001-orders-api.md`, `docs/features/ORD-002-orders-page.md`. |
-| Record orders for customers without the app | **Implemented (ORD-004, D-054, D-055)** | By mobile number; private to the shop until the person connects with an OTP (connect step with the Customer App). Painters' sites, new order or handed over now. Spec: `docs/features/ORD-004-shop-recorded-orders.md`. |
+| Update order status | **Implemented (API ORD-001, shop web ORD-002, Shop App SHP-007)** | Five steps (D-053), not-available items, substitutes, payment at pickup/delivery, returns. In the Shop App: orders list with step chips, search and filters, order page with every action, order figures on the shop home, a check for new orders every 30 s. Specs: `docs/features/ORD-001-orders-api.md`, `docs/features/ORD-002-orders-page.md`, `docs/features/SHP-007-shop-app-orders.md`. |
+| Push notifications for orders | Planned (NOT-001; product owner, 2026-11-13) | Firebase Cloud Messaging behind a replaceable sender (D-028); Android first. Needs the owner's Firebase project. |
+| Record orders for customers without the app | **Implemented (ORD-004, D-054, D-055)** | By mobile number; private to the shop until the person connects with an OTP (connect step with the Customer App). Painters' sites, new order or handed over now. On the web today; in the Shop App with SHP-009 (planned). Spec: `docs/features/ORD-004-shop-recorded-orders.md`. |
 | Owner-only reports and credit exposure | Confirmed | Hidden from staff unless explicitly permitted. |
 
 ## 4. Shop Admin Web Portal

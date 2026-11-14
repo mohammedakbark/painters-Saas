@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_shared/flutter_shared.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../orders/order_models.dart';
+import '../../orders/order_providers.dart';
 import '../../providers.dart';
 import '../../shops/shop_access_repository.dart';
 import '../../shops/shop_models.dart';
@@ -86,16 +88,24 @@ class _ShopOverview extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: AppSpacing.s8),
-              Text(
-                '${shopStatusDescription(status)} Orders will appear here '
-                'when that feature is released.',
-                style: textTheme.bodyLarge,
-              ),
+              Text(shopStatusDescription(status), style: textTheme.bodyLarge),
               if (review != null) ..._reviewDetails(review, textTheme),
             ],
           ),
         ),
+        // Only a Live shop takes orders; the figures load on their own.
+        if (status == 'ACTIVE') ...[
+          const SizedBox(height: AppSpacing.s16),
+          _OrderFigures(shopId: shop.id),
+        ],
         const SizedBox(height: AppSpacing.s16),
+        AppNavRow(
+          icon: Icons.receipt_long_outlined,
+          title: 'Orders',
+          subtitle: 'New orders, packing, payment and returns',
+          onTap: () => context.go('/shops/${shop.id}/orders'),
+        ),
+        const SizedBox(height: AppSpacing.s12),
         AppNavRow(
           icon: Icons.inventory_2_outlined,
           title: 'Products',
@@ -108,6 +118,103 @@ class _ShopOverview extends ConsumerWidget {
           title: 'Shop profile',
           subtitle: 'Address, support mobile and map location',
           onTap: () => context.go('/shops/${shop.id}/profile'),
+        ),
+      ],
+    );
+  }
+}
+
+/// Today's order figures (ORD-003), each opening its orders.
+class _OrderFigures extends ConsumerWidget {
+  const _OrderFigures({required this.shopId});
+
+  final String shopId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final summary = ref.watch(orderSummaryProvider(shopId));
+    final textTheme = Theme.of(context).textTheme;
+    void open(OrderTab tab) =>
+        context.go('/shops/$shopId/orders?tab=${tab.apiValue}');
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Semantics(
+          header: true,
+          child: Text('Orders', style: textTheme.titleMedium),
+        ),
+        const SizedBox(height: AppSpacing.s8),
+        summary.when(
+          loading: () => const Padding(
+            padding: EdgeInsets.all(AppSpacing.s16),
+            child: Center(child: AppSpinner()),
+          ),
+          error: (_, _) => AppInlineMessage(
+            tone: AppTone.error,
+            message: "We couldn't load the order figures.",
+            action: Align(
+              alignment: Alignment.centerLeft,
+              child: AppButton(
+                label: 'Try again',
+                variant: AppButtonVariant.tertiary,
+                onPressed: () => ref.invalidate(orderSummaryProvider(shopId)),
+              ),
+            ),
+          ),
+          data: (figures) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: AppStatTile(
+                      label: 'New',
+                      value: '${figures.newOrders}',
+                      onTap: () => open(OrderTab.newOrders),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.s12),
+                  Expanded(
+                    child: AppStatTile(
+                      label: 'To pack',
+                      value: '${figures.packing}',
+                      onTap: () => open(OrderTab.packing),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.s12),
+              Row(
+                children: [
+                  Expanded(
+                    child: AppStatTile(
+                      label: 'Ready or on the way',
+                      value: '${figures.ready}',
+                      onTap: () => open(OrderTab.ready),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.s12),
+                  Expanded(
+                    child: AppStatTile(
+                      label: "Today's sales",
+                      value: formatRupees(figures.todaySalesPaise),
+                      onTap: () => open(OrderTab.completed),
+                    ),
+                  ),
+                ],
+              ),
+              if (figures.unpaidCount > 0) ...[
+                const SizedBox(height: AppSpacing.s8),
+                Text(
+                  '${figures.unpaidCount == 1 ? '1 order' : '${figures.unpaidCount} orders'} '
+                  'not paid yet: ${formatRupees(figures.unpaidPaise)}',
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
       ],
     );

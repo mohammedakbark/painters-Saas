@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'auth/auth_repository.dart';
 import 'catalogue/product_photo_picker.dart';
 import 'catalogue/shop_catalogue_repository.dart';
 import 'location/location_service.dart';
+import 'orders/shop_orders_repository.dart';
 import 'shops/shop_access_repository.dart';
 import 'shops/shop_models.dart';
 import 'shops/shop_profile.dart';
@@ -28,6 +30,26 @@ final shopProfileRepositoryProvider = Provider<ShopProfileRepository>(
 final shopCatalogueRepositoryProvider = Provider<ShopCatalogueRepository>(
   (ref) =>
       throw UnimplementedError('shopCatalogueRepositoryProvider is overridden'),
+);
+
+/// The shop's orders (ORD-001 API; SHP-007 screens).
+final shopOrdersRepositoryProvider = Provider<ShopOrdersRepository>(
+  (ref) =>
+      throw UnimplementedError('shopOrdersRepositoryProvider is overridden'),
+);
+
+/// Opens a `tel:` or map link in the phone's own app. Returns false when
+/// nothing on the phone can open it.
+typedef LinkOpener = Future<bool> Function(Uri link);
+
+final linkOpenerProvider = Provider<LinkOpener>(
+  (ref) =>
+      (link) => launchUrl(link, mode: LaunchMode.externalApplication),
+);
+
+/// How often the open orders list checks for new orders (ORD-002: 30 s).
+final orderRefreshIntervalProvider = Provider<Duration>(
+  (ref) => const Duration(seconds: 30),
 );
 
 /// The camera and photo picker for product photos.

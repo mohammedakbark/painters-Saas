@@ -100,6 +100,52 @@ class AppSection extends StatelessWidget {
   }
 }
 
+/// One figure on a dashboard, such as "New 3": a small label over a large
+/// value. With [onTap] the whole tile opens the list behind the figure.
+class AppStatTile extends StatelessWidget {
+  const AppStatTile({
+    super.key,
+    required this.label,
+    required this.value,
+    this.onTap,
+  });
+
+  final String label;
+  final String value;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: onTap != null,
+      label: '$label: $value',
+      excludeSemantics: true,
+      child: AppCard(
+        onTap: onTap,
+        padding: const EdgeInsets.all(AppSpacing.s12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: AppTypography.body.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.s4),
+            Text(
+              value,
+              style: AppTypography.heading3.copyWith(
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// A card that opens another screen: optional icon, title, subtitle and a
 /// chevron.
 class AppNavRow extends StatelessWidget {

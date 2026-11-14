@@ -6,10 +6,13 @@ import '../features/catalogue/add_from_catalogue_screen.dart';
 import '../features/catalogue/catalogue_listing_screen.dart';
 import '../features/catalogue/product_list_screen.dart';
 import '../features/catalogue/product_screen.dart';
+import '../features/orders/order_list_screen.dart';
+import '../features/orders/order_screen.dart';
 import '../features/shops/shop_home_screen.dart';
 import '../features/shops/shop_picker_screen.dart';
 import '../features/shops/shop_profile_screen.dart';
 import '../features/sign_in/sign_in_screen.dart';
+import '../orders/order_models.dart';
 import '../providers.dart';
 
 const signInPath = '/sign-in';
@@ -53,6 +56,24 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: 'profile',
                 builder: (context, state) =>
                     ShopProfileScreen(shopId: state.pathParameters['shopId']!),
+              ),
+              GoRoute(
+                path: 'orders',
+                builder: (context, state) => OrderListScreen(
+                  shopId: state.pathParameters['shopId']!,
+                  initialTab: OrderTab.fromApi(
+                    state.uri.queryParameters['tab'],
+                  ),
+                ),
+                routes: [
+                  GoRoute(
+                    path: ':orderId',
+                    builder: (context, state) => OrderScreen(
+                      shopId: state.pathParameters['shopId']!,
+                      orderId: state.pathParameters['orderId']!,
+                    ),
+                  ),
+                ],
               ),
               GoRoute(
                 path: 'catalogue',

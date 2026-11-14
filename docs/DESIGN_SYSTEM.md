@@ -180,6 +180,8 @@ Web utilities: `rounded-control`, `min-h-control`, `rounded-card`, `border-card-
 | `AppTextField`, `AppSearchField`, `AppDropdown<T>` (with `AppOption<T>`) | `TextField`, dropdowns |
 | `AppSwitchRow`, `AppCheckboxRow`, `AppRadioGroup<T>`, `AppSegmentedControl<T>` | switches, checkboxes, radios, segmented buttons |
 | `AppCard` (`tone`, `onTap`), `AppSection`, `AppNavRow` | `Card`, `ListTile` |
+| `AppChoiceChips<T>` (SHP-007): one-of-many chips with optional counts that scroll sideways, for example the order steps | `ChoiceChip`, `FilterChip` |
+| `AppStatTile` (SHP-007): a dashboard figure (label over value) that can open its list | none |
 | `AppBadge`, `AppInlineMessage` (`AppTone`), `showAppSnackBar` | chips, hand-styled status text, snack bars |
 | `showAppBottomSheet`, `showAppDialog`, `showAppConfirmDialog` | `showModalBottomSheet`, `showDialog`/`AlertDialog` |
 | `AppSpinner`, `AppNetworkImage` | `CircularProgressIndicator`, `Image.network` |

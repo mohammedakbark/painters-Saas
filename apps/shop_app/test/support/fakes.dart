@@ -5,6 +5,7 @@ import 'package:shop_app/src/auth/auth_repository.dart';
 import 'package:shop_app/src/catalogue/product_photo_picker.dart';
 import 'package:shop_app/src/catalogue/shop_catalogue_repository.dart';
 import 'package:shop_app/src/location/location_service.dart';
+import 'package:shop_app/src/orders/shop_orders_repository.dart';
 import 'package:shop_app/src/providers.dart';
 import 'package:shop_app/src/shops/shop_access_repository.dart';
 import 'package:shop_app/src/shops/shop_models.dart';
@@ -12,8 +13,10 @@ import 'package:shop_app/src/shops/shop_profile.dart';
 import 'package:shop_app/src/shops/shop_review.dart';
 
 import 'catalogue_fakes.dart';
+import 'order_fakes.dart';
 
 export 'catalogue_fakes.dart';
+export 'order_fakes.dart';
 
 class FakeAuthRepository extends ChangeNotifier implements AuthRepository {
   FakeAuthRepository({this.signedIn = false});
@@ -208,8 +211,16 @@ Widget testApp({
   LocationService? location,
   ShopCatalogueRepository? catalogue,
   ProductPhotoPicker? photos,
+  ShopOrdersRepository? orders,
+  Duration orderRefreshInterval = const Duration(hours: 1),
+  LinkOpener? openLink,
 }) => ProviderScope(
   overrides: [
+    shopOrdersRepositoryProvider.overrideWithValue(
+      orders ?? FakeShopOrdersRepository(),
+    ),
+    orderRefreshIntervalProvider.overrideWithValue(orderRefreshInterval),
+    linkOpenerProvider.overrideWithValue(openLink ?? (link) async => true),
     authRepositoryProvider.overrideWithValue(auth),
     shopAccessRepositoryProvider.overrideWithValue(shops),
     shopProfileRepositoryProvider.overrideWithValue(
