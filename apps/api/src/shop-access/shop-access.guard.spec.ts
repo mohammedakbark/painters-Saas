@@ -3,6 +3,10 @@ import type { ExecutionContext } from '@nestjs/common';
 import { ProblemException } from '../common/http/problem-details.js';
 import { ShopAccessGuard } from './shop-access.guard.js';
 import type { ShopMembershipsService } from './shop-memberships.service.js';
+import {
+  SHOP_PERMISSIONS,
+  ShopPermissionsResolver,
+} from './shop-permissions.js';
 
 function contextFor(request: object): ExecutionContext {
   return {
@@ -16,9 +20,10 @@ describe('ShopAccessGuard', () => {
 
   function createGuard(role: 'MASTER' | null) {
     const roleOf = vi.fn(() => Promise.resolve(role));
-    const guard = new ShopAccessGuard({
-      roleOf,
-    } as unknown as ShopMembershipsService);
+    const guard = new ShopAccessGuard(
+      { roleOf } as unknown as ShopMembershipsService,
+      new ShopPermissionsResolver(),
+    );
     return { guard, roleOf };
   }
 
@@ -40,7 +45,11 @@ describe('ShopAccessGuard', () => {
 
     await expect(guard.canActivate(contextFor(request))).resolves.toBe(true);
     expect(roleOf).toHaveBeenCalledWith(shopId, 'user-1');
-    expect(request.shopContext).toEqual({ shopId, role: 'MASTER' });
+    expect(request.shopContext).toEqual({
+      shopId,
+      role: 'MASTER',
+      permissions: SHOP_PERMISSIONS,
+    });
   });
 
   it('answers 404 to a non-member', async () => {

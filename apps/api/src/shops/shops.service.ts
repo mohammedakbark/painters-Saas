@@ -8,6 +8,10 @@ import {
   shopNotFound,
 } from '../shop-access/shop-access.guard.js';
 import type { MyShopResponse, RegisterShopRequest } from './shop.schemas.js';
+import {
+  permissionsFor,
+  type ShopPermission,
+} from '../shop-access/shop-permissions.js';
 
 const SHOP_SELECT = {
   id: true,
@@ -69,7 +73,7 @@ export class ShopsService {
       return created;
     });
 
-    return toMyShop(shop, 'MASTER');
+    return toMyShop(shop, 'MASTER', permissionsFor('MASTER'));
   }
 
   /** The shop of a `@ShopScoped()` request. */
@@ -81,7 +85,7 @@ export class ShopsService {
     if (!shop) {
       throw shopNotFound();
     }
-    return toMyShop(shop, context.role);
+    return toMyShop(shop, context.role, context.permissions);
   }
 }
 
@@ -93,12 +97,14 @@ function toMyShop(
     createdAt: Date;
   },
   myRole: MyShopResponse['myRole'],
+  permissions: readonly ShopPermission[],
 ): MyShopResponse {
   return {
     id: shop.id,
     name: shop.name,
     status: shop.status,
     myRole,
+    permissions: [...permissions],
     createdAt: shop.createdAt.toISOString(),
   };
 }

@@ -6,10 +6,10 @@ import type { OrderStatus } from '../generated/prisma/enums.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { ShopContext } from '../shop-access/shop-access.guard.js';
 import {
-  ORDER_MANAGER_ROLES,
-  ORDER_ROLES,
-  requireShopRole,
-} from '../shop-access/shop-roles.js';
+  hasShopPermission,
+  requireAnyShopPermission,
+  requireShopPermission,
+} from '../shop-access/shop-permissions.js';
 import { problem } from '../shop-catalogue/shop-catalogue-mapping.js';
 import { lockOrder, orderNotFound, recalculateTotals } from './order-locks.js';
 import { loadSellablePack } from './order-packs.js';
@@ -87,7 +87,7 @@ export class OrdersService {
   constructor(private readonly prisma: PrismaService) {}
 
   async list(shop: ShopContext, query: OrderListQuery): Promise<OrderListPage> {
-    requireShopRole(shop, ORDER_ROLES);
+    requireShopPermission(shop, 'orders.handle');
     const base = this.filters(shop.shopId, query);
     const where: Prisma.OrderWhereInput = {
       ...base,
@@ -191,7 +191,7 @@ export class OrdersService {
    * day; sales are the totals of orders completed today (owner, 2026-11-08).
    */
   async summary(shop: ShopContext): Promise<OrderSummary> {
-    requireShopRole(shop, ORDER_ROLES);
+    requireShopPermission(shop, 'orders.handle');
     const [row] = await this.prisma.$queryRaw<
       {
         new: bigint;
@@ -222,21 +222,33 @@ export class OrdersService {
       FROM orders o CROSS JOIN day
       WHERE o.shop_id = ${shop.shopId}::uuid`;
     const n = (value: bigint | null | undefined) => Number(value ?? 0);
+    // Money figures only for members who may see them (D-056).
+    const money = (value: bigint | null | undefined) =>
+      hasShopPermission(shop, 'reports.view') ? n(value) : null;
     return {
       new: n(row?.new),
       packing: n(row?.packing),
       ready: n(row?.ready),
-      unpaid: { count: n(row?.unpaid_count), totalPaise: n(row?.unpaid_paise) },
+      unpaid: {
+        count: n(row?.unpaid_count),
+        totalPaise: money(row?.unpaid_paise),
+      },
       today: {
         placed: n(row?.placed_today),
         completed: n(row?.completed_today),
-        salesPaise: n(row?.sales_today),
+        salesPaise: money(row?.sales_today),
       },
     };
   }
 
   async detail(shop: ShopContext, orderId: string): Promise<OrderDetail> {
-    requireShopRole(shop, ORDER_ROLES);
+    // Anyone who works on orders may read one: also after recording a payment
+    // or recording the order itself.
+    requireAnyShopPermission(shop, [
+      'orders.handle',
+      'orders.payments',
+      'orders.record',
+    ]);
     const row = await this.prisma.order.findFirst({
       where: { id: orderId, shopId: shop.shopId },
       select: DETAIL_SELECT,
@@ -253,7 +265,7 @@ export class OrdersService {
     orderId: string,
     input: UpdateOrderStatusRequest,
   ): Promise<OrderDetail> {
-    requireShopRole(shop, ORDER_ROLES);
+    requireShopPermission(shop, 'orders.handle');
     await this.prisma.$transaction(async (tx) => {
       const order = await lockOrder(tx, shop.shopId, orderId);
       if (!canShopMove(order.status, input.to, order.fulfilment)) {
@@ -293,7 +305,7 @@ export class OrdersService {
     itemId: string,
     input: MarkItemNotAvailableRequest,
   ): Promise<OrderDetail> {
-    requireShopRole(shop, ORDER_ROLES);
+    requireShopPermission(shop, 'orders.handle');
     await this.prisma.$transaction(async (tx) => {
       const order = await lockOrder(tx, shop.shopId, orderId);
       requireItemsEditable(order.status);
@@ -328,7 +340,7 @@ export class OrdersService {
     itemId: string,
     input: OfferSubstituteRequest,
   ): Promise<OrderDetail> {
-    requireShopRole(shop, ORDER_ROLES);
+    requireShopPermission(shop, 'orders.handle');
     await this.prisma.$transaction(async (tx) => {
       const order = await lockOrder(tx, shop.shopId, orderId);
       requireItemsEditable(order.status);
@@ -406,7 +418,7 @@ export class OrdersService {
     orderId: string,
     input: RecordPaymentRequest,
   ): Promise<OrderDetail> {
-    requireShopRole(shop, ORDER_MANAGER_ROLES);
+    requireShopPermission(shop, 'orders.payments');
     await this.prisma.$transaction(async (tx) => {
       const order = await lockOrder(tx, shop.shopId, orderId);
       if (order.paymentStatus === 'PAID') {
@@ -448,7 +460,7 @@ export class OrdersService {
     itemId: string,
     input: ReturnItemRequest,
   ): Promise<OrderDetail> {
-    requireShopRole(shop, ORDER_MANAGER_ROLES);
+    requireShopPermission(shop, 'orders.payments');
     await this.prisma.$transaction(async (tx) => {
       const order = await lockOrder(tx, shop.shopId, orderId);
       if (order.status !== 'COMPLETED') {

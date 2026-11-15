@@ -23,6 +23,7 @@ import { formatRupees } from '@/lib/money';
 import { ordersBase } from '@/lib/orders/labels';
 import { shopStatusLabel } from '@/lib/shops/labels';
 import { submitForReviewAction, withdrawReviewAction } from './review-actions';
+import { can } from '@/lib/api/shops';
 
 export const metadata: Metadata = { title: 'Overview' };
 
@@ -154,7 +155,7 @@ async function Status({ params, searchParams }: Props) {
         {live ? null : (
           <ReviewPanel
             review={review}
-            canEdit={shop.myRole === 'MASTER'}
+            canEdit={can(shop, 'shop.profile')}
             submitAction={submitForReviewAction.bind(null, shop.id)}
             withdrawAction={withdrawReviewAction.bind(null, shop.id)}
           />
@@ -192,17 +193,20 @@ async function OrderTiles({ params }: Props) {
           value={orders.ready}
           href={`${list}?status=ready`}
         />
-        <StatTile
-          label="Today’s sales"
-          value={formatRupees(orders.today.salesPaise)}
-          context={`${countLabel(orders.today.completed, 'order')} completed today`}
-          href={`${list}?status=COMPLETED`}
-        />
+        {orders.today.salesPaise === null ? null : (
+          <StatTile
+            label="Today’s sales"
+            value={formatRupees(orders.today.salesPaise)}
+            context={`${countLabel(orders.today.completed, 'order')} completed today`}
+            href={`${list}?status=COMPLETED`}
+          />
+        )}
       </div>
       {orders.unpaid.count > 0 ? (
         <p className="text-body text-text-secondary">
-          {formatRupees(orders.unpaid.totalPaise)} not yet paid on{' '}
-          {countLabel(orders.unpaid.count, 'order')}.{' '}
+          {orders.unpaid.totalPaise === null
+            ? `${countLabel(orders.unpaid.count, 'order')} not yet paid.`
+            : `${formatRupees(orders.unpaid.totalPaise)} not yet paid on ${countLabel(orders.unpaid.count, 'order')}.`}{' '}
           <Link
             href={`${list}?status=all&payment=UNPAID`}
             className="rounded-nav-item font-semibold text-brand-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-brand-primary"

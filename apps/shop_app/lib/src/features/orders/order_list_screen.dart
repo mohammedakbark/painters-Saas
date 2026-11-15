@@ -10,6 +10,7 @@ import '../../orders/order_models.dart';
 import '../../orders/order_providers.dart';
 import '../../providers.dart';
 import '../../shops/shop_access_repository.dart';
+import '../../shops/shop_permissions.dart';
 import '../catalogue/catalogue_parts.dart';
 import '../shops/sign_out_button.dart';
 import 'order_messages.dart';
@@ -137,8 +138,10 @@ class _OrderListScreenState extends ConsumerState<OrderListScreen>
   @override
   Widget build(BuildContext context) {
     final orders = ref.watch(orderListProvider(_key));
+    final shop = ref.watch(shopProvider(widget.shopId)).value;
+    // Only a Live shop records orders, and only people allowed to (D-056).
     final isLive =
-        ref.watch(shopProvider(widget.shopId)).value?.status == 'ACTIVE';
+        shop?.status == 'ACTIVE' && shop!.can(ShopPermission.ordersRecord);
     final loaded = orders.value;
     if (loaded != null) _counts = loaded.counts;
 

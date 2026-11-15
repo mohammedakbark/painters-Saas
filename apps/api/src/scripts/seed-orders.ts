@@ -7,6 +7,7 @@ import { OrderPlacementService } from '../orders/order-placement.service.js';
 import { OrdersService } from '../orders/orders.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { ShopContext } from '../shop-access/shop-access.guard.js';
+import { permissionsFor } from '../shop-access/shop-permissions.js';
 
 /**
  * Local development only: about 25 test orders for one Live shop, in every
@@ -169,7 +170,11 @@ async function main(): Promise<void> {
       displayName: null,
       platformRole: null,
     };
-    const shopContext: ShopContext = { shopId: shop.id, role: 'MASTER' };
+    const shopContext: ShopContext = {
+      shopId: shop.id,
+      role: 'MASTER',
+      permissions: permissionsFor('MASTER'),
+    };
     const canDeliver =
       shop.deliveryEnabled && shop.latitude !== null && shop.longitude !== null;
     // About 2 km north-east of the shop's pin.

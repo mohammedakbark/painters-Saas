@@ -14,6 +14,7 @@ import {
   searchCustomersAction,
 } from '../../customers/actions';
 import { searchPacksAction } from '../actions';
+import { can } from '@/lib/api/shops';
 
 export const metadata: Metadata = { title: 'New order' };
 
@@ -54,7 +55,7 @@ async function NewOrder({ params, searchParams }: Props) {
       <NewOrderForm
         shopId={shopId}
         initialCustomer={initialCustomer}
-        isOwner={shop.myRole === 'MASTER'}
+        isOwner={can(shop, 'orders.payments')}
         deliveryEnabled={settings.delivery.enabled}
         searchCustomers={searchCustomersAction.bind(null, shopId)}
         loadCustomer={loadOrderCustomerAction.bind(null, shopId)}

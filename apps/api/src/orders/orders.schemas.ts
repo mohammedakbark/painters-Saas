@@ -307,14 +307,20 @@ export const OrderSummarySchema = z
     packing: z.int(),
     /** Ready for pickup plus out for delivery. */
     ready: z.int(),
-    /** Ready, out for delivery or completed orders not yet paid. */
-    unpaid: z.object({ count: z.int(), totalPaise: z.int() }),
+    /**
+     * Ready, out for delivery or completed orders not yet paid. The amount is
+     * null without `reports.view` (D-056).
+     */
+    unpaid: z.object({ count: z.int(), totalPaise: z.int().nullable() }),
     /** The Indian calendar day (Asia/Kolkata). */
     today: z.object({
       placed: z.int(),
       completed: z.int(),
-      /** Totals of orders completed today (D-053, owner 2026-11-08). */
-      salesPaise: z.int(),
+      /**
+       * Totals of orders completed today (D-053, owner 2026-11-08); null
+       * without `reports.view` (D-056).
+       */
+      salesPaise: z.int().nullable(),
     }),
   })
   .meta({ id: 'OrderSummary' });

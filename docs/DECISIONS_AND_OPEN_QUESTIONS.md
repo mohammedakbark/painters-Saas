@@ -61,6 +61,7 @@ This document prevents assumptions from silently becoming requirements.
 | D-053 | **Order steps, payment and roles at launch.** Steps: New → Packing → Ready for pickup (pickup) or Out for delivery (delivery) → Completed, plus Cancelled. The customer pays at pickup or delivery; the shop records the method (cash, UPI or bank transfer) and marks the order paid. Every shop member works on orders; payments and returns are owner only until staff roles are decided (question 37). Customers place orders through the Customer App; ORD-001 builds the shop side and a test-order script. | Confirmed (product owner, 2026-11-08); ORD-001 |
 | D-054 | **Shops can record customers, sites and orders for people who don't use the app**, by mobile number. These records belong only to that shop and the person is not told. If the person later asks the shop to connect, the records are shared with their account after an OTP sent to that mobile. No SMS is sent when a shop adds someone. An order therefore belongs to a shop customer (the shop's record of the person), linked to an app account when there is one. | Confirmed (product owner, 2026-11-08); data model in ORD-001, feature ORD-004 |
 | D-055 | **Recording orders for people without the app.** The shop marks a recorded customer Painter or Customer (its own label); sites are only for painters the shop recorded, with name and address or place required and the owner name and map pin optional. A recorded order is saved as a new order (normal steps) or "handed over now" (completed, optionally paid, owner only). If the mobile already orders in the app, the shop's record stays separate and private; nothing is added to the person's account. | Confirmed (product owner, 2026-11-08); ORD-004 |
+| D-056 | **Shop permissions.** What a shop member may do is a list of permission keys (orders, payments, recording orders, customers, catalogue view and change, profile, settings, money figures, staff). The owner will tick them per employee; the owner always has all. The API checks a permission on every shop action and tells the apps the member's list; the apps show only what is allowed. Employee accounts come later. Push notifications (NOT-001) are postponed; the Shop App redesign comes first. | Confirmed (product owner, 2026-11-15); SHP-010, ADR 0010 |
 
 ## 2. Proposed technical decisions — require approval
 
@@ -161,7 +162,7 @@ Do not treat proposals as approved until the product owner confirms them.
 36. Which offline payment methods can be recorded?
 
 ### Staff, web and premium features
-37. What exact staff roles are needed initially?
+37. What exact staff roles are needed initially? *(Partly answered by D-056: tick-box permissions per employee instead of roles. Still open: how employees are added and how many seats.)*
 38. Should staff account creation be limited by an entitlement setting before paid-seat billing exists?
 39. Should customer-facing shop phone visibility be hidden until a future premium entitlement is active?
 40. Is customer shopping required on web, or is responsive web only for shop/platform administration?

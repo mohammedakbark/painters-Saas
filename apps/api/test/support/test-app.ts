@@ -7,15 +7,19 @@ import { configureApp } from '../../src/app.setup.js';
 import { ACCESS_TOKEN_KEYS } from '../../src/auth/access-token-verifier.js';
 import { IdentityAdmin } from '../../src/identity/identity-admin.js';
 import { PrismaService } from '../../src/prisma/prisma.service.js';
+import { ShopPermissionsResolver } from '../../src/shop-access/shop-permissions.js';
 import { ObjectStorage } from '../../src/storage/object-storage.js';
 import { FakeIdentityAdmin } from './fake-identity-admin.js';
 import { FakeObjectStorage } from './fake-object-storage.js';
+import { FakeShopPermissionsResolver } from './fake-shop-permissions.js';
 
 export interface TestApp {
   app: NestExpressApplication;
   prisma: PrismaService;
   identity: FakeIdentityAdmin;
   storage: FakeObjectStorage;
+  /** Restrict a shop's permissions in a test (D-056). */
+  permissions: FakeShopPermissionsResolver;
 }
 
 export interface TestAppOptions {
@@ -33,6 +37,7 @@ export interface TestAppOptions {
 export async function createTestApp(options: TestAppOptions): Promise<TestApp> {
   const identity = new FakeIdentityAdmin();
   const storage = new FakeObjectStorage();
+  const permissions = new FakeShopPermissionsResolver();
   const moduleRef = await Test.createTestingModule({
     imports: [AppModule, ...(options.imports ?? [])],
     controllers: options.controllers ?? [],
@@ -43,6 +48,8 @@ export async function createTestApp(options: TestAppOptions): Promise<TestApp> {
     .useValue(identity)
     .overrideProvider(ObjectStorage)
     .useValue(storage)
+    .overrideProvider(ShopPermissionsResolver)
+    .useValue(permissions)
     .compile();
 
   const app = moduleRef.createNestApplication<NestExpressApplication>({
@@ -50,5 +57,11 @@ export async function createTestApp(options: TestAppOptions): Promise<TestApp> {
   });
   configureApp(app);
   await app.init();
-  return { app, prisma: app.get(PrismaService), identity, storage };
+  return {
+    app,
+    prisma: app.get(PrismaService),
+    identity,
+    storage,
+    permissions,
+  };
 }

@@ -9,9 +9,9 @@ import {
   shopNotFound,
 } from '../shop-access/shop-access.guard.js';
 import {
-  PROFILE_MANAGER_ROLES,
-  requireShopRole,
-} from '../shop-access/shop-roles.js';
+  requireAnyShopPermission,
+  requireShopPermission,
+} from '../shop-access/shop-permissions.js';
 import type {
   ShopSettingsResponse,
   UpdateDeliverySettingsRequest,
@@ -41,6 +41,13 @@ export class ShopSettingsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async get(shop: ShopContext): Promise<ShopSettingsResponse> {
+    // Order messages and the delivery charge are needed to handle and record
+    // orders.
+    requireAnyShopPermission(shop, [
+      'shop.settings',
+      'orders.handle',
+      'orders.record',
+    ]);
     const row = await this.prisma.shop.findUnique({
       where: { id: shop.shopId },
       select: SETTINGS_SELECT,
@@ -56,7 +63,7 @@ export class ShopSettingsService {
     shop: ShopContext,
     input: UpdateDeliverySettingsRequest,
   ): Promise<ShopSettingsResponse> {
-    requireShopRole(shop, PROFILE_MANAGER_ROLES);
+    requireShopPermission(shop, 'shop.settings');
     const row = await this.prisma.$transaction(async (tx) => {
       // Locks the shop row so a location change can't race the check below.
       const [current] = await tx.$queryRaw<{ latitude: unknown }[]>`
@@ -100,7 +107,7 @@ export class ShopSettingsService {
     shop: ShopContext,
     input: UpdateOrderMessagesRequest,
   ): Promise<ShopSettingsResponse> {
-    requireShopRole(shop, PROFILE_MANAGER_ROLES);
+    requireShopPermission(shop, 'shop.settings');
     const row = await this.prisma.$transaction(async (tx) => {
       const updated = await tx.shop.update({
         where: { id: shop.shopId },

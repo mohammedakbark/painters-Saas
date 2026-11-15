@@ -42,6 +42,7 @@ import {
   setFavouriteShadeAction,
 } from '../actions';
 import { catalogueBase } from '../catalogue-parts';
+import { can } from '@/lib/api/shops';
 
 export const metadata: Metadata = { title: 'Shades' };
 
@@ -91,7 +92,7 @@ async function Shades({ params, searchParams }: Props) {
   const search = await searchParams;
   const view = oneOf(VIEWS, text(search.view), 'favourites');
   const base = `${catalogueBase(shopId)}/shades`;
-  const canEdit = shop.myRole === 'MASTER';
+  const canEdit = can(shop, 'catalogue.manage');
 
   return (
     <div className="flex flex-col gap-6">

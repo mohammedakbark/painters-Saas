@@ -17,10 +17,7 @@ import type { Prisma } from '../generated/prisma/client.js';
 import { isUniqueViolation } from '../prisma/prisma-errors.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { ShopContext } from '../shop-access/shop-access.guard.js';
-import {
-  CATALOGUE_MANAGER_ROLES,
-  requireShopRole,
-} from '../shop-access/shop-roles.js';
+import { requireShopPermission } from '../shop-access/shop-permissions.js';
 import { SHOP_CATALOGUE_LIMITS } from './shop-catalogue-rules.js';
 import {
   problem,
@@ -94,6 +91,7 @@ export class ShopShadesService {
     brandId: string,
     query: ShopShadeListQuery,
   ): Promise<BrandShadeBrowsePage> {
+    requireShopPermission(shop, 'catalogue.view');
     await this.catalogue.brand(brandId);
     const where: Prisma.ShadeWhereInput = {
       brandId,
@@ -134,6 +132,7 @@ export class ShopShadesService {
     shop: ShopContext,
     query: ShopShadeListQuery,
   ): Promise<FavouriteShadePage> {
+    requireShopPermission(shop, 'catalogue.view');
     const where: Prisma.ShopFavouriteShadeWhereInput = {
       shopId: shop.shopId,
       ...(query.q ? { shade: codeSearch(query.q) } : {}),
@@ -162,7 +161,7 @@ export class ShopShadesService {
     shop: ShopContext,
     shadeId: string,
   ): Promise<FavouriteShade> {
-    requireShopRole(shop, CATALOGUE_MANAGER_ROLES);
+    requireShopPermission(shop, 'catalogue.manage');
     const shade = idSchema.safeParse(shadeId).success
       ? await this.prisma.shade.findFirst({
           where: { id: shadeId, active: true, brand: { active: true } },
@@ -229,7 +228,7 @@ export class ShopShadesService {
     shop: ShopContext,
     shadeId: string,
   ): Promise<void> {
-    requireShopRole(shop, CATALOGUE_MANAGER_ROLES);
+    requireShopPermission(shop, 'catalogue.manage');
     if (!idSchema.safeParse(shadeId).success) {
       return;
     }
@@ -256,6 +255,7 @@ export class ShopShadesService {
     shop: ShopContext,
     query: ShopShadeListQuery,
   ): Promise<ShopShadePage> {
+    requireShopPermission(shop, 'catalogue.view');
     const where: Prisma.ShopShadeWhereInput = {
       shopId: shop.shopId,
       ...codeSearch(query.q),
@@ -283,7 +283,7 @@ export class ShopShadesService {
     shop: ShopContext,
     input: CreateShopShadeRequest,
   ): Promise<ShopShadeResponse> {
-    requireShopRole(shop, CATALOGUE_MANAGER_ROLES);
+    requireShopPermission(shop, 'catalogue.manage');
     const code = normaliseShadeCode(input.code);
     return this.writeOwn(code, async (tx) => {
       const count = await tx.shopShade.count({
@@ -327,7 +327,7 @@ export class ShopShadesService {
     shadeId: string,
     input: UpdateShopShadeRequest,
   ): Promise<ShopShadeResponse> {
-    requireShopRole(shop, CATALOGUE_MANAGER_ROLES);
+    requireShopPermission(shop, 'catalogue.manage');
     const code =
       input.code === undefined ? undefined : normaliseShadeCode(input.code);
     return this.writeOwn(code ?? '', async (tx) => {
@@ -369,7 +369,7 @@ export class ShopShadesService {
     shop: ShopContext,
     shadeId: string,
   ): Promise<void> {
-    requireShopRole(shop, CATALOGUE_MANAGER_ROLES);
+    requireShopPermission(shop, 'catalogue.manage');
     await this.prisma.$transaction(async (tx) => {
       const current = await this.loadOwn(tx, shop, shadeId);
       await tx.shopShade.delete({ where: { id: current.id } });

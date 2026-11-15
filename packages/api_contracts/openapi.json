@@ -6774,6 +6774,24 @@
               "MASTER"
             ]
           },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "orders.handle",
+                "orders.payments",
+                "orders.record",
+                "customers.manage",
+                "catalogue.view",
+                "catalogue.manage",
+                "shop.profile",
+                "shop.settings",
+                "reports.view",
+                "staff.manage"
+              ]
+            }
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time",
@@ -6785,6 +6803,7 @@
           "name",
           "status",
           "myRole",
+          "permissions",
           "createdAt"
         ],
         "additionalProperties": false
@@ -10652,6 +10671,7 @@
                 "maximum": 9007199254740991
               },
               "totalPaise": {
+                "nullable": true,
                 "type": "integer",
                 "minimum": -9007199254740991,
                 "maximum": 9007199254740991
@@ -10677,6 +10697,7 @@
                 "maximum": 9007199254740991
               },
               "salesPaise": {
+                "nullable": true,
                 "type": "integer",
                 "minimum": -9007199254740991,
                 "maximum": 9007199254740991

@@ -3,11 +3,7 @@ import { AuditAction, recordAuditEvent } from '../audit/audit.js';
 import type { CurrentUserContext } from '../auth/current-user.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { ShopContext } from '../shop-access/shop-access.guard.js';
-import {
-  ORDER_MANAGER_ROLES,
-  ORDER_ROLES,
-  requireShopRole,
-} from '../shop-access/shop-roles.js';
+import { requireShopPermission } from '../shop-access/shop-permissions.js';
 import { problem } from '../shop-catalogue/shop-catalogue-mapping.js';
 import {
   buildLines,
@@ -34,9 +30,9 @@ export class OrderRecordingService {
     shop: ShopContext,
     input: RecordOrderRequest,
   ): Promise<{ id: string; number: number }> {
-    requireShopRole(shop, ORDER_ROLES);
+    requireShopPermission(shop, 'orders.record');
     if (input.paymentMethod) {
-      requireShopRole(shop, ORDER_MANAGER_ROLES);
+      requireShopPermission(shop, 'orders.payments');
     }
     checkLineCount(input.items);
 

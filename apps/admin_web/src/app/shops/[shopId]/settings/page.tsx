@@ -18,6 +18,7 @@ import {
   saveDeliveryAction,
 } from './actions';
 import { DeliveryForm, OrderMessageForm } from './settings-forms';
+import { can } from '@/lib/api/shops';
 
 export const metadata: Metadata = { title: 'Shop settings' };
 
@@ -120,7 +121,7 @@ const loadSettings = cache(async (shopId: string) => {
     await requireShopSession(),
     shopId,
   );
-  return { shopId, settings, canEdit: shop.myRole === 'MASTER' };
+  return { shopId, settings, canEdit: can(shop, 'shop.settings') };
 });
 
 async function load(params: Props['params']) {

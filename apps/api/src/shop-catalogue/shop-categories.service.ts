@@ -7,10 +7,7 @@ import type { Prisma } from '../generated/prisma/client.js';
 import { isUniqueViolation } from '../prisma/prisma-errors.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { ShopContext } from '../shop-access/shop-access.guard.js';
-import {
-  CATALOGUE_MANAGER_ROLES,
-  requireShopRole,
-} from '../shop-access/shop-roles.js';
+import { requireShopPermission } from '../shop-access/shop-permissions.js';
 import {
   type CreateShopCategoryRequest,
   MAX_SHOP_CATEGORIES,
@@ -53,6 +50,7 @@ export class ShopCategoriesService {
    * so they can be restored), with how many of the shop's products use each.
    */
   async list(shop: ShopContext): Promise<ShopCategoryList> {
+    requireShopPermission(shop, 'catalogue.view');
     const rows = await this.prisma.catalogueCategory.findMany({
       where: {
         OR: [{ shopId: null, active: true }, { shopId: shop.shopId }],
@@ -86,7 +84,7 @@ export class ShopCategoriesService {
     shop: ShopContext,
     input: CreateShopCategoryRequest,
   ): Promise<ShopCategoryResponse> {
-    requireShopRole(shop, CATALOGUE_MANAGER_ROLES);
+    requireShopPermission(shop, 'catalogue.manage');
     const name = normaliseText(input.name);
     return this.write(name, async (tx) => {
       const count = await tx.catalogueCategory.count({
@@ -127,7 +125,7 @@ export class ShopCategoriesService {
     categoryId: string,
     input: UpdateShopCategoryRequest,
   ): Promise<ShopCategoryResponse> {
-    requireShopRole(shop, CATALOGUE_MANAGER_ROLES);
+    requireShopPermission(shop, 'catalogue.manage');
     const name =
       input.name === undefined ? undefined : normaliseText(input.name);
     return this.write(name ?? '', async (tx) => {

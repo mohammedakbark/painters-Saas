@@ -16,11 +16,17 @@ import {
 } from '../common/http/problem-details.js';
 import type { ShopRole } from '../generated/prisma/enums.js';
 import { ShopMembershipsService } from './shop-memberships.service.js';
+import {
+  type ShopPermission,
+  ShopPermissionsResolver,
+} from './shop-permissions.js';
 
 /** The shop a request works on, resolved from the caller's membership. */
 export interface ShopContext {
   shopId: string;
   role: ShopRole;
+  /** What this member may do in the shop (D-056). */
+  permissions: readonly ShopPermission[];
 }
 
 interface ShopScopedRequest extends AuthenticatedRequest {
@@ -45,7 +51,10 @@ export function shopNotFound(): ProblemException {
  */
 @Injectable()
 export class ShopAccessGuard implements CanActivate {
-  constructor(private readonly memberships: ShopMembershipsService) {}
+  constructor(
+    private readonly memberships: ShopMembershipsService,
+    private readonly permissions: ShopPermissionsResolver,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<ShopScopedRequest>();
@@ -59,7 +68,15 @@ export class ShopAccessGuard implements CanActivate {
     if (role === null) {
       throw shopNotFound();
     }
-    request.shopContext = { shopId: shopId.data, role };
+    request.shopContext = {
+      shopId: shopId.data,
+      role,
+      permissions: this.permissions.resolve({
+        shopId: shopId.data,
+        userId: user.id,
+        role,
+      }),
+    };
     return true;
   }
 }

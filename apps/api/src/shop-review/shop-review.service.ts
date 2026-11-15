@@ -9,10 +9,7 @@ import {
   type ShopContext,
   shopNotFound,
 } from '../shop-access/shop-access.guard.js';
-import {
-  PROFILE_MANAGER_ROLES,
-  requireShopRole,
-} from '../shop-access/shop-roles.js';
+import { requireShopPermission } from '../shop-access/shop-permissions.js';
 import { lockShopStatus } from '../shops/shop-edit-lock.js';
 import { ShopProfileService } from '../shops/shop-profile.service.js';
 import type { ShopReviewState } from './shop-review.schemas.js';
@@ -88,7 +85,7 @@ export class ShopReviewService {
     user: CurrentUserContext,
     shop: ShopContext,
   ): Promise<ShopReviewState> {
-    requireShopRole(shop, PROFILE_MANAGER_ROLES);
+    requireShopPermission(shop, 'shop.profile');
     try {
       await this.prisma.$transaction(async (tx) => {
         const status = await lockShopStatus(tx, shop.shopId);
@@ -150,7 +147,7 @@ export class ShopReviewService {
     user: CurrentUserContext,
     shop: ShopContext,
   ): Promise<ShopReviewState> {
-    requireShopRole(shop, PROFILE_MANAGER_ROLES);
+    requireShopPermission(shop, 'shop.profile');
     await this.prisma.$transaction(async (tx) => {
       await lockShopStatus(tx, shop.shopId);
       const open = await tx.shopReview.findUnique({

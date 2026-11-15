@@ -9,6 +9,7 @@ import 'package:shop_app/src/catalogue/product_photo_picker.dart';
 import 'package:shop_app/src/catalogue/shop_catalogue_repository.dart';
 import 'package:shop_app/src/features/catalogue/catalogue_messages.dart';
 import 'package:shop_app/src/shops/shop_models.dart';
+import 'package:shop_app/src/shops/shop_permissions.dart';
 
 import 'support/fakes.dart';
 
@@ -17,6 +18,8 @@ const _staffShop = MyShop(
   name: 'Lakshmi Paints',
   status: 'ACTIVE',
   myRole: 'STAFF',
+  // Sees the catalogue but may not change it.
+  permissions: {ShopPermission.catalogueView, ShopPermission.ordersHandle},
 );
 
 /// Finds a field by its label setting (the shown label may add a marker).

@@ -437,8 +437,8 @@ class OrderSummary {
       packing: _int(json['packing']),
       ready: _int(json['ready']),
       unpaidCount: _int(unpaid['count']),
-      unpaidPaise: _int(unpaid['totalPaise']),
-      todaySalesPaise: _int(today['salesPaise']),
+      unpaidPaise: (unpaid['totalPaise'] as num?)?.toInt(),
+      todaySalesPaise: (today['salesPaise'] as num?)?.toInt(),
     );
   }
 
@@ -448,10 +448,12 @@ class OrderSummary {
   /// Ready for pickup plus out for delivery.
   final int ready;
   final int unpaidCount;
-  final int unpaidPaise;
+
+  /// Null without `reports.view` (D-056).
+  final int? unpaidPaise;
 
   /// Totals of orders completed today (Indian day).
-  final int todaySalesPaise;
+  final int? todaySalesPaise;
 }
 
 /// An available pack size of the shop, offered as a substitute.

@@ -7,6 +7,7 @@ import '../../api/api_client.dart';
 import '../../location/location_service.dart';
 import '../../providers.dart';
 import '../../shops/shop_access_repository.dart';
+import '../../shops/shop_permissions.dart';
 import '../../shops/shop_profile.dart';
 import 'sign_out_button.dart';
 
@@ -50,7 +51,12 @@ class ShopProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(shopProfileProvider(shopId));
-    final isOwner = ref.watch(shopProvider(shopId)).value?.myRole == 'MASTER';
+    final canEdit =
+        ref
+            .watch(shopProvider(shopId))
+            .value
+            ?.can(ShopPermission.shopProfile) ??
+        false;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Shop profile'),
@@ -77,7 +83,7 @@ class ShopProfileScreen extends ConsumerWidget {
                   onRetry: () => ref.invalidate(shopProfileProvider(shopId)),
                 ),
           data: (profile) =>
-              _ProfileDetails(profile: profile, isOwner: isOwner),
+              _ProfileDetails(profile: profile, canEdit: canEdit),
         ),
       ),
     );
@@ -85,10 +91,10 @@ class ShopProfileScreen extends ConsumerWidget {
 }
 
 class _ProfileDetails extends StatelessWidget {
-  const _ProfileDetails({required this.profile, required this.isOwner});
+  const _ProfileDetails({required this.profile, required this.canEdit});
 
   final ShopProfile profile;
-  final bool isOwner;
+  final bool canEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +130,7 @@ class _ProfileDetails extends StatelessWidget {
           muted: phone == null,
         ),
         const SizedBox(height: AppSpacing.s16),
-        _LocationSection(profile: profile, isOwner: isOwner),
+        _LocationSection(profile: profile, canEdit: canEdit),
       ],
     );
   }
@@ -174,10 +180,10 @@ class _PhotoSection extends StatelessWidget {
 
 /// The map, and "Use my current location" for the owner.
 class _LocationSection extends ConsumerStatefulWidget {
-  const _LocationSection({required this.profile, required this.isOwner});
+  const _LocationSection({required this.profile, required this.canEdit});
 
   final ShopProfile profile;
-  final bool isOwner;
+  final bool canEdit;
 
   @override
   ConsumerState<_LocationSection> createState() => _LocationSectionState();
@@ -355,7 +361,7 @@ class _LocationSectionState extends ConsumerState<_LocationSection> {
               ),
             ),
           ],
-          if (widget.isOwner) ...[
+          if (widget.canEdit) ...[
             const SizedBox(height: AppSpacing.s16),
             AppButton(
               label: 'Use my current location',

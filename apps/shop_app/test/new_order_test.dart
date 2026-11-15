@@ -13,6 +13,7 @@ import 'package:shop_app/src/orders/order_draft.dart';
 import 'package:shop_app/src/orders/order_models.dart';
 import 'package:shop_app/src/orders/shop_orders_repository.dart';
 import 'package:shop_app/src/shops/shop_models.dart';
+import 'package:shop_app/src/shops/shop_permissions.dart';
 
 import 'support/fakes.dart';
 
@@ -35,6 +36,8 @@ const _staffShop = MyShop(
   name: 'Lakshmi Paints',
   status: 'ACTIVE',
   myRole: 'STAFF',
+  // Records orders but may not take payments.
+  permissions: {ShopPermission.ordersHandle, ShopPermission.ordersRecord},
 );
 
 const _royal = PackOption(

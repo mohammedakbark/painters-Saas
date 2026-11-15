@@ -9,6 +9,7 @@ import '../../orders/order_providers.dart';
 import '../../orders/shop_orders_repository.dart';
 import '../../providers.dart';
 import '../../shops/shop_access_repository.dart';
+import '../../shops/shop_permissions.dart';
 import '../catalogue/catalogue_parts.dart';
 import '../shops/sign_out_button.dart';
 import 'order_messages.dart';
@@ -27,7 +28,12 @@ class OrderScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final key = (shopId: shopId, orderId: orderId);
     final order = ref.watch(orderProvider(key));
-    final isOwner = ref.watch(shopProvider(shopId)).value?.myRole == 'MASTER';
+    final canTakePayment =
+        ref
+            .watch(shopProvider(shopId))
+            .value
+            ?.can(ShopPermission.ordersPayments) ??
+        false;
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -57,8 +63,11 @@ class OrderScreen extends ConsumerWidget {
               onRetry: () => ref.invalidate(orderProvider(key)),
             ),
           },
-          data: (order) =>
-              _OrderDetails(orderKey: key, order: order, isOwner: isOwner),
+          data: (order) => _OrderDetails(
+            orderKey: key,
+            order: order,
+            canTakePayment: canTakePayment,
+          ),
         ),
       ),
     );
@@ -72,12 +81,12 @@ class _OrderDetails extends ConsumerStatefulWidget {
   const _OrderDetails({
     required this.orderKey,
     required this.order,
-    required this.isOwner,
+    required this.canTakePayment,
   });
 
   final OrderKey orderKey;
   final OrderDetail order;
-  final bool isOwner;
+  final bool canTakePayment;
 
   @override
   ConsumerState<_OrderDetails> createState() => _OrderDetailsState();
@@ -244,7 +253,7 @@ class _OrderDetailsState extends ConsumerState<_OrderDetails> {
                   _ItemLine(
                     item: item,
                     canEdit: order.canEditItems,
-                    canReturn: order.canReturnItems && widget.isOwner,
+                    canReturn: order.canReturnItems && widget.canTakePayment,
                     onNotAvailable: () => _notAvailable(item),
                     onSubstitute: () => _substitute(item),
                     onReturn: () => _return(item),
@@ -261,7 +270,8 @@ class _OrderDetailsState extends ConsumerState<_OrderDetails> {
                         item: substitute,
                         isSubstitute: true,
                         canEdit: false,
-                        canReturn: order.canReturnItems && widget.isOwner,
+                        canReturn:
+                            order.canReturnItems && widget.canTakePayment,
                         onNotAvailable: () {},
                         onSubstitute: () {},
                         onReturn: () => _return(substitute),
@@ -334,7 +344,7 @@ class _OrderDetailsState extends ConsumerState<_OrderDetails> {
                     ].join(' · '),
                     style: textTheme.bodyLarge,
                   )
-                else if (order.canRecordPayment && widget.isOwner)
+                else if (order.canRecordPayment && widget.canTakePayment)
                   AppButton(
                     label: 'Record payment',
                     variant: AppButtonVariant.secondary,

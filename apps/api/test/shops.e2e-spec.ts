@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import request from 'supertest';
+import { SHOP_PERMISSIONS } from '../src/shop-access/shop-permissions.js';
 import { resetDatabase } from './support/database.js';
 import { createTestApp, type TestApp } from './support/test-app.js';
 import {
@@ -62,6 +63,7 @@ describe('Shop registration and tenant-scoped access (e2e, real Postgres)', () =
         name: 'Lakshmi Paints',
         status: 'DRAFT',
         myRole: 'MASTER',
+        permissions: [...SHOP_PERMISSIONS],
         createdAt: expect.any(String),
       });
       const user = await testApp.prisma.user.findUniqueOrThrow({
@@ -181,6 +183,7 @@ describe('Shop registration and tenant-scoped access (e2e, real Postgres)', () =
         name: 'Lakshmi Paints',
         status: 'DRAFT',
         myRole: 'MASTER',
+        permissions: [...SHOP_PERMISSIONS],
       });
     });
 

@@ -15,6 +15,7 @@ import { saveShopProfileAction } from './actions';
 import { uploadShopPhotoAction } from './photo-actions';
 import { ImageUploadForm } from '@/components/media/image-upload-form';
 import { ShopProfileForm } from './profile-form';
+import { can } from '@/lib/api/shops';
 
 export const metadata: Metadata = { title: 'Shop profile' };
 
@@ -48,7 +49,7 @@ async function ShopProfileContent({
   const photoSaved = query.photo === '1';
   // Locked while the shop waits for review (D-033); the API enforces it too.
   const inReview = shop.status === 'PENDING_REVIEW';
-  const canEdit = shop.myRole === 'MASTER' && !inReview;
+  const canEdit = can(shop, 'shop.profile') && !inReview;
 
   return (
     <>

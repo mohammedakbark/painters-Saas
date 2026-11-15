@@ -25,6 +25,7 @@ Expected roles: Platform Super Admin, Shop Master Account, Shop Staff with assig
 - Shop creation creates one initial master account.
 - The master role has protected permissions; ordinary staff cannot demote, remove or disable it.
 - Staff accounts are scoped to one shop and least-privilege permissions.
+- Permissions are named keys (D-056, ADR 0010), checked by the API on every shop action (`requireShopPermission`); the apps only use the member's list to decide what to show. The owner has every permission.
 - Platform-level recovery, suspension or ownership transfer must be audited.
 - Hiding a menu item is not authorization.
 
@@ -113,7 +114,8 @@ Keep this list accurate. It records what the code does today, not what is planne
 | The operator script never promotes an existing account to platform admin (sign-up is public) | `platform-admin-provisioning.ts` | SHP-001 |
 | Framework 400 messages (which can echo input) are replaced by a generic detail | `problem-details.filter.ts` | SHP-001 |
 | Shop App: sessions are stored in the platform keystore (`flutter_secure_storage`), the app never creates accounts (`shouldCreateUser: false`), it holds only non-secret configuration, cleartext HTTP is allowed only in debug builds, and Android auto-backup is off | `apps/shop_app/lib/src/auth/`, Android debug manifest | SHP-002 |
-| Shop profile writes need the MASTER role (`requireShopRole`); every profile route is shop-scoped (404 for non-members); audit records changed field names or the location source only, never phone numbers, addresses or coordinates | `apps/api/src/shops/shop-profile.service.ts`, `apps/api/src/shop-access/shop-roles.ts` | SHP-003 |
+| Shop profile writes need the `shop.profile` permission (was the MASTER role until SHP-010); every profile route is shop-scoped (404 for non-members); audit records changed field names or the location source only, never phone numbers, addresses or coordinates | `apps/api/src/shops/shop-profile.service.ts`, `apps/api/src/shop-access/shop-permissions.ts` | SHP-003 |
+| Every shop action needs a named permission (D-056): 403 `shop_permission_denied` without it, 404 for non-members as before; money figures in the order summary are null without `reports.view`; e2e removes each permission and checks nothing changes | `apps/api/src/shop-access/shop-permissions.ts`, `apps/api/test/permissions.e2e-spec.ts` | SHP-010 |
 | Customers, sites and orders a shop records are private to that shop: every route is shop-scoped (404 for other shops and malformed ids); a shop record is never linked to an app account automatically (partial unique index per shop on mobile WHERE user_id IS NULL); audit events store field names only, never names, mobiles or addresses | `apps/api/src/customers/`, `apps/api/src/orders/order-recording.service.ts`, `test/customers.e2e-spec.ts` | ORD-004 (D-054, D-055) |
 | The owner's device location is read only on "Use my current location" and saved only after confirmation; imprecise (> 500 m) and out-of-India positions are refused; the Shop App logs only the error type in debug builds | web `location-picker.tsx`, Shop App `location_service.dart` | SHP-003 |
 | Maps use OpenStreetMap without keys (D-041). Map search text and pin coordinates go from the browser to Nominatim (OpenStreetMap Foundation); no account or personal data is sent. The usage policies are followed: attribution, at most one request per second, search on submit, one lookup per pin move | `docs/guides/MAPS.md`, `apps/admin_web/src/lib/maps/openstreetmap.ts` | SHP-006 |

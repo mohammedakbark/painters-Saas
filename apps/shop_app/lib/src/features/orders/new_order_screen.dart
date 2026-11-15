@@ -11,6 +11,7 @@ import '../../orders/order_labels.dart';
 import '../../orders/order_models.dart';
 import '../../orders/order_providers.dart';
 import '../../providers.dart';
+import '../../shops/shop_permissions.dart';
 import '../shops/sign_out_button.dart';
 import 'order_messages.dart';
 
@@ -271,8 +272,12 @@ class _NewOrderScreenState extends ConsumerState<NewOrderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isOwner =
-        ref.watch(shopProvider(widget.shopId)).value?.myRole == 'MASTER';
+    final canTakePayment =
+        ref
+            .watch(shopProvider(widget.shopId))
+            .value
+            ?.can(ShopPermission.ordersPayments) ??
+        false;
     final delivery = ref.watch(deliverySettingsProvider(widget.shopId)).value;
     final textTheme = Theme.of(context).textTheme;
     final secondary = textTheme.bodyMedium?.copyWith(
@@ -371,7 +376,7 @@ class _NewOrderScreenState extends ConsumerState<NewOrderScreen> {
                     paise: itemsPaise + chargePaise,
                     strong: true,
                   ),
-                  if (isOwner) ...[
+                  if (canTakePayment) ...[
                     const SizedBox(height: AppSpacing.s16),
                     AppDropdown<PaymentMethod?>(
                       label: 'Paid by',

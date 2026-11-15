@@ -1,5 +1,7 @@
 import 'package:flutter_shared/flutter_shared.dart';
 
+import 'shop_permissions.dart';
+
 /// A shop the signed-in user belongs to (from `GET /v1/me`).
 class ShopMembership {
   const ShopMembership({
@@ -44,6 +46,7 @@ class MyShop {
     required this.name,
     required this.status,
     required this.myRole,
+    this.permissions = const {...ShopPermission.values},
   });
 
   factory MyShop.fromJson(Map<String, Object?> json) => MyShop(
@@ -51,12 +54,19 @@ class MyShop {
     name: json['name']! as String,
     status: json['status']! as String,
     myRole: json['myRole']! as String,
+    // A missing list gives no permissions: the app fails closed.
+    permissions: ShopPermission.parse(json['permissions']),
   );
 
   final String id;
   final String name;
   final String status;
   final String myRole;
+
+  /// What the signed-in person may do here (D-056).
+  final Set<ShopPermission> permissions;
+
+  bool can(ShopPermission permission) => permissions.contains(permission);
 }
 
 /// User-facing labels; unknown values are shown as sent.

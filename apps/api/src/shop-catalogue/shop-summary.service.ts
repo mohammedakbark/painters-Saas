@@ -14,6 +14,7 @@ import {
   type ShopContext,
   ShopScoped,
 } from '../shop-access/shop-access.guard.js';
+import { requireShopPermission } from '../shop-access/shop-permissions.js';
 
 export const ShopCatalogueSummarySchema = z
   .object({
@@ -52,6 +53,7 @@ export class ShopSummaryService {
   constructor(private readonly prisma: PrismaService) {}
 
   async summary(shop: ShopContext): Promise<ShopCatalogueSummary> {
+    requireShopPermission(shop, 'catalogue.view');
     const [rows, favourites, own, ownCategories] = await Promise.all([
       this.prisma.$queryRaw<ProductCounts[]>`
         SELECT

@@ -6,7 +6,10 @@ import type { Prisma } from '../generated/prisma/client.js';
 import { isUniqueViolation } from '../prisma/prisma-errors.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { ShopContext } from '../shop-access/shop-access.guard.js';
-import { ORDER_ROLES, requireShopRole } from '../shop-access/shop-roles.js';
+import {
+  requireAnyShopPermission,
+  requireShopPermission,
+} from '../shop-access/shop-permissions.js';
 import { problem } from '../shop-catalogue/shop-catalogue-mapping.js';
 import {
   type CreateCustomerRequest,
@@ -89,7 +92,8 @@ export class CustomersService {
     shop: ShopContext,
     query: CustomerListQuery,
   ): Promise<CustomerListPage> {
-    requireShopRole(shop, ORDER_ROLES);
+    // Recording an order finds or adds the customer.
+    requireAnyShopPermission(shop, ['customers.manage', 'orders.record']);
     const where: Prisma.ShopCustomerWhereInput = { shopId: shop.shopId };
     if (query.kind) {
       where.kind = query.kind;
@@ -144,7 +148,8 @@ export class CustomersService {
   }
 
   async detail(shop: ShopContext, customerId: string): Promise<CustomerDetail> {
-    requireShopRole(shop, ORDER_ROLES);
+    // Recording an order finds or adds the customer.
+    requireAnyShopPermission(shop, ['customers.manage', 'orders.record']);
     const row = await this.prisma.shopCustomer.findFirst({
       where: { id: customerId, shopId: shop.shopId },
       select: {
@@ -184,7 +189,8 @@ export class CustomersService {
     shop: ShopContext,
     input: CreateCustomerRequest,
   ): Promise<CustomerDetail> {
-    requireShopRole(shop, ORDER_ROLES);
+    // Recording an order finds or adds the customer.
+    requireAnyShopPermission(shop, ['customers.manage', 'orders.record']);
     const phone = phoneOrError(input.phone);
     let id: string;
     try {
@@ -223,7 +229,7 @@ export class CustomersService {
     customerId: string,
     input: UpdateCustomerRequest,
   ): Promise<CustomerDetail> {
-    requireShopRole(shop, ORDER_ROLES);
+    requireShopPermission(shop, 'customers.manage');
     const current = await this.prisma.shopCustomer.findFirst({
       where: { id: customerId, shopId: shop.shopId },
       select: { id: true, userId: true },
@@ -277,7 +283,7 @@ export class CustomersService {
     customerId: string,
     input: CreateSiteRequest,
   ): Promise<SiteResponse> {
-    requireShopRole(shop, ORDER_ROLES);
+    requireShopPermission(shop, 'customers.manage');
     try {
       return await this.prisma.$transaction(async (tx) => {
         await this.lockPainter(tx, shop.shopId, customerId);
@@ -319,7 +325,7 @@ export class CustomersService {
     siteId: string,
     input: UpdateSiteRequest,
   ): Promise<SiteResponse> {
-    requireShopRole(shop, ORDER_ROLES);
+    requireShopPermission(shop, 'customers.manage');
     try {
       return await this.prisma.$transaction(async (tx) => {
         await this.lockPainter(tx, shop.shopId, customerId, false);

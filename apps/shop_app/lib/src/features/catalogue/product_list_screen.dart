@@ -7,6 +7,7 @@ import '../../catalogue/catalogue_models.dart';
 import '../../catalogue/catalogue_providers.dart';
 import '../../providers.dart';
 import '../../shops/shop_access_repository.dart';
+import '../../shops/shop_permissions.dart';
 import '../shops/sign_out_button.dart';
 import 'catalogue_messages.dart';
 import 'catalogue_parts.dart';
@@ -38,8 +39,12 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isOwner =
-        ref.watch(shopProvider(widget.shopId)).value?.myRole == 'MASTER';
+    final canEdit =
+        ref
+            .watch(shopProvider(widget.shopId))
+            .value
+            ?.can(ShopPermission.catalogueManage) ??
+        false;
     final products = ref.watch(productListProvider(_key));
     return Scaffold(
       appBar: AppBar(
@@ -50,13 +55,13 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
         child: products.when(
           skipLoadingOnRefresh: false,
           loading: () => _withHeader(
-            isOwner,
+            canEdit,
             const LoadingView(message: 'Loading your products…'),
           ),
           error: (error, _) => error is ShopNotFound
               ? const CatalogueShopNotFound()
               : _withHeader(
-                  isOwner,
+                  canEdit,
                   ErrorView(
                     title: CatalogueMessages.listFailed,
                     onRetry: () => ref.invalidate(productListProvider(_key)),
@@ -64,17 +69,17 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
                 ),
           data: (page) => page.items.isEmpty
               ? _withHeader(
-                  isOwner,
+                  canEdit,
                   _EmptyState(
                     archived: _archived,
                     query: _query,
-                    isOwner: isOwner,
+                    canEdit: canEdit,
                     shopId: widget.shopId,
                   ),
                 )
               : _ProductList(
                   header: _Header(
-                    isOwner: isOwner,
+                    canEdit: canEdit,
                     shopId: widget.shopId,
                     archived: _archived,
                     search: _search,
@@ -93,7 +98,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
   }
 
   /// The tabs and search stay visible while loading, empty or failing.
-  Widget _withHeader(bool isOwner, Widget body) => Column(
+  Widget _withHeader(bool canEdit, Widget body) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       Padding(
@@ -104,7 +109,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
           0,
         ),
         child: _Header(
-          isOwner: isOwner,
+          canEdit: canEdit,
           shopId: widget.shopId,
           archived: _archived,
           search: _search,
@@ -119,7 +124,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
 
 class _Header extends StatelessWidget {
   const _Header({
-    required this.isOwner,
+    required this.canEdit,
     required this.shopId,
     required this.archived,
     required this.search,
@@ -127,7 +132,7 @@ class _Header extends StatelessWidget {
     required this.onSearch,
   });
 
-  final bool isOwner;
+  final bool canEdit;
   final String shopId;
   final bool archived;
   final TextEditingController search;
@@ -139,7 +144,7 @@ class _Header extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (isOwner) ...[
+        if (canEdit) ...[
           AppButton(
             label: 'Add from brand catalogue',
             icon: Icons.add,
@@ -173,13 +178,13 @@ class _EmptyState extends StatelessWidget {
   const _EmptyState({
     required this.archived,
     required this.query,
-    required this.isOwner,
+    required this.canEdit,
     required this.shopId,
   });
 
   final bool archived;
   final String query;
-  final bool isOwner;
+  final bool canEdit;
   final String shopId;
 
   @override
@@ -201,7 +206,7 @@ class _EmptyState extends StatelessWidget {
     return MessageView(
       icon: Icons.inventory_2_outlined,
       title: CatalogueMessages.noProducts,
-      message: isOwner
+      message: canEdit
           ? CatalogueMessages.noProductsOwner
           : CatalogueMessages.noProductsMember,
     );

@@ -25,9 +25,9 @@ import type { ShopContext } from '../shop-access/shop-access.guard.js';
 import { productRows } from './product-rows.js';
 import { UNIT_GROUP_MESSAGE, unitGroup } from './shop-catalogue-rules.js';
 import {
-  CATALOGUE_MANAGER_ROLES,
-  requireShopRole,
-} from '../shop-access/shop-roles.js';
+  requireAnyShopPermission,
+  requireShopPermission,
+} from '../shop-access/shop-permissions.js';
 import {
   problem,
   SHOP_PRODUCT_SELECT,
@@ -81,6 +81,7 @@ export class ShopProductsService {
     shop: ShopContext,
     query: ShopProductListQuery,
   ): Promise<ShopProductPage> {
+    requireShopPermission(shop, 'catalogue.view');
     const after = query.cursor ? decodeCursor(query.cursor) : undefined;
     const contains = query.q
       ? { contains: query.q, mode: 'insensitive' as const }
@@ -130,6 +131,12 @@ export class ShopProductsService {
     shop: ShopContext,
     query: ShopProductRowQuery,
   ): Promise<ShopProductRowPage> {
+    // Orders search the available pack sizes for substitutes and new orders.
+    requireAnyShopPermission(shop, [
+      'catalogue.view',
+      'orders.handle',
+      'orders.record',
+    ]);
     const rows = await this.prisma.shopProduct.findMany({
       where: { shopId: shop.shopId, status: query.status },
       select: SHOP_PRODUCT_SELECT,
@@ -168,6 +175,7 @@ export class ShopProductsService {
     shop: ShopContext,
     productId: string,
   ): Promise<ShopProductResponse> {
+    requireShopPermission(shop, 'catalogue.view');
     return toShopProduct(
       await this.load(this.prisma, shop, productId),
       this.images,
@@ -179,6 +187,7 @@ export class ShopProductsService {
     shop: ShopContext,
     query: BrandBrowseQuery,
   ): Promise<BrandBrowsePage> {
+    requireShopPermission(shop, 'catalogue.view');
     const page = await this.catalogue.products(query.brandId, query);
     const listings = await this.prisma.shopProduct.findMany({
       where: {
@@ -204,7 +213,7 @@ export class ShopProductsService {
     shop: ShopContext,
     input: AddShopProductRequest,
   ): Promise<ShopProductResponse> {
-    requireShopRole(shop, CATALOGUE_MANAGER_ROLES);
+    requireShopPermission(shop, 'catalogue.manage');
     try {
       return await this.prisma.$transaction(async (tx) => {
         const data =
@@ -237,7 +246,7 @@ export class ShopProductsService {
     productId: string,
     input: UpdateShopProductRequest,
   ): Promise<ShopProductResponse> {
-    requireShopRole(shop, CATALOGUE_MANAGER_ROLES);
+    requireShopPermission(shop, 'catalogue.manage');
     try {
       return await this.prisma.$transaction(async (tx) => {
         const current = await this.load(tx, shop, productId);
@@ -310,7 +319,7 @@ export class ShopProductsService {
     productId: string,
     buffer: Buffer | undefined,
   ): Promise<ShopProductResponse> {
-    requireShopRole(shop, CATALOGUE_MANAGER_ROLES);
+    requireShopPermission(shop, 'catalogue.manage');
     await this.load(this.prisma, shop, productId);
     const image = await this.images.store(
       `shops/${shop.shopId}/products/${productId}/image`,
@@ -355,7 +364,7 @@ export class ShopProductsService {
     productId: string,
     input: AddShopPackRequest,
   ): Promise<ShopProductResponse> {
-    requireShopRole(shop, CATALOGUE_MANAGER_ROLES);
+    requireShopPermission(shop, 'catalogue.manage');
     try {
       return await this.prisma.$transaction(async (tx) => {
         const product = await this.lockProduct(tx, shop, productId);
@@ -428,7 +437,7 @@ export class ShopProductsService {
     packId: string,
     input: UpdateShopPackRequest,
   ): Promise<ShopProductResponse> {
-    requireShopRole(shop, CATALOGUE_MANAGER_ROLES);
+    requireShopPermission(shop, 'catalogue.manage');
     return this.prisma.$transaction(async (tx) => {
       const pack = await this.loadPack(tx, shop, productId, packId);
       const mrpPaise =
@@ -476,7 +485,7 @@ export class ShopProductsService {
     productId: string,
     packId: string,
   ): Promise<ShopProductResponse> {
-    requireShopRole(shop, CATALOGUE_MANAGER_ROLES);
+    requireShopPermission(shop, 'catalogue.manage');
     return this.prisma.$transaction(async (tx) => {
       const product = await this.lockProduct(tx, shop, productId);
       const pack = await this.loadPack(tx, shop, product.id, packId);

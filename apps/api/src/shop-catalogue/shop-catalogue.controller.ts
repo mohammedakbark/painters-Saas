@@ -97,7 +97,7 @@ interface UploadedBuffer {
 /**
  * The shop's catalogue (CAT-002): products with per-pack prices and
  * availability, favourite brand shades and the shop's own shades. Members
- * read; the owner writes (`CATALOGUE_MANAGER_ROLES`).
+ * read with `catalogue.view`; writes need `catalogue.manage` (D-056).
  */
 @ApiTags('shop catalogue')
 @ApiBearerAuth()

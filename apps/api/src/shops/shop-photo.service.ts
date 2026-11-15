@@ -7,10 +7,7 @@ import {
   type ShopContext,
   shopNotFound,
 } from '../shop-access/shop-access.guard.js';
-import {
-  PROFILE_MANAGER_ROLES,
-  requireShopRole,
-} from '../shop-access/shop-roles.js';
+import { requireShopPermission } from '../shop-access/shop-permissions.js';
 import type { ShopProfileResponse } from './shop-profile.schemas.js';
 import { lockShopForProfileEdit, shopInReview } from './shop-edit-lock.js';
 import { ShopProfileService } from './shop-profile.service.js';
@@ -39,7 +36,7 @@ export class ShopPhotoService {
     shop: ShopContext,
     file: UploadedImage | undefined,
   ): Promise<ShopProfileResponse> {
-    requireShopRole(shop, PROFILE_MANAGER_ROLES);
+    requireShopPermission(shop, 'shop.profile');
     // Fail fast before processing the image; re-checked under the row lock.
     const current = await this.prisma.shop.findUnique({
       where: { id: shop.shopId },

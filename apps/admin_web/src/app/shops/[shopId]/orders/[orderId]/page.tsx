@@ -39,6 +39,7 @@ import {
   searchPacksAction,
   substituteAction,
 } from '../actions';
+import { can } from '@/lib/api/shops';
 
 /** One load per request, shared by the title and the page (UX-002). */
 const loadOrder = cache(async (shopId: string, orderId: string) =>
@@ -73,7 +74,7 @@ async function OrderView({ params, searchParams }: Props) {
   // Another shop's order or a malformed id is "not found" (API 404).
   const order = await loadOrder(shopId, orderId);
   const settings = await getShopSettings(token, shopId);
-  const isOwner = shop.myRole === 'MASTER';
+  const isOwner = can(shop, 'orders.payments');
   const status = ORDER_STATUS[order.status];
   const steps = order.nextSteps.filter((step) => step !== 'CANCELLED');
   const canCancel = order.nextSteps.includes('CANCELLED');

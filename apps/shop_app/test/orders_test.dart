@@ -5,6 +5,7 @@ import 'package:shop_app/src/api/api_client.dart';
 import 'package:shop_app/src/features/orders/order_messages.dart';
 import 'package:shop_app/src/orders/order_models.dart';
 import 'package:shop_app/src/shops/shop_models.dart';
+import 'package:shop_app/src/shops/shop_permissions.dart';
 
 import 'support/fakes.dart';
 
@@ -27,6 +28,8 @@ const _staffShop = MyShop(
   name: 'Lakshmi Paints',
   status: 'ACTIVE',
   myRole: 'STAFF',
+  // Handles orders but may not take payments.
+  permissions: {ShopPermission.ordersHandle, ShopPermission.ordersRecord},
 );
 
 Finder _field(String label) => find.byWidgetPredicate(

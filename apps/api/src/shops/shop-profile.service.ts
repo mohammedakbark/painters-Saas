@@ -10,10 +10,7 @@ import {
   type ShopContext,
   shopNotFound,
 } from '../shop-access/shop-access.guard.js';
-import {
-  PROFILE_MANAGER_ROLES,
-  requireShopRole,
-} from '../shop-access/shop-roles.js';
+import { requireShopPermission } from '../shop-access/shop-permissions.js';
 import { indianStateName } from './indian-states.js';
 import { ImageStore } from '../media/image-store.js';
 import type {
@@ -75,7 +72,7 @@ export class ShopProfileService {
     shop: ShopContext,
     input: UpdateShopProfileRequest,
   ): Promise<ShopProfileResponse> {
-    requireShopRole(shop, PROFILE_MANAGER_ROLES);
+    requireShopPermission(shop, 'shop.profile');
     const now = new Date();
 
     const updated = await this.prisma.$transaction(async (tx) => {
@@ -125,7 +122,7 @@ export class ShopProfileService {
     shop: ShopContext,
     input: ShopLocationInput,
   ): Promise<ShopProfileResponse> {
-    requireShopRole(shop, PROFILE_MANAGER_ROLES);
+    requireShopPermission(shop, 'shop.profile');
     const now = new Date();
 
     const updated = await this.prisma.$transaction(async (tx) => {

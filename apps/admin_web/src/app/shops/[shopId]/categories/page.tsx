@@ -15,6 +15,7 @@ import { requireShopAccess, requireShopSession } from '@/lib/auth/shop-access';
 import { listLink, oneOf, text } from '@/lib/list-params';
 import { createShopCategoryAction, updateShopCategoryAction } from './actions';
 import { ShopCategoryForm } from './category-forms';
+import { can } from '@/lib/api/shops';
 
 export const metadata: Metadata = { title: 'Categories' };
 
@@ -57,7 +58,7 @@ async function Categories({ params, searchParams }: Props) {
   );
   const view = oneOf(VIEWS, text((await searchParams).view), 'all');
   const base = `/shops/${encodeURIComponent(shopId)}/categories`;
-  const canEdit = shop.myRole === 'MASTER';
+  const canEdit = can(shop, 'catalogue.manage');
   const own = categories.filter((category) => category.own);
   const rows =
     view === 'all'

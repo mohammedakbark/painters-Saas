@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ShopRole, ShopStatus } from '../generated/prisma/enums.js';
+import { SHOP_PERMISSIONS } from '../shop-access/shop-permissions.js';
 
 export const RegisterShopRequestSchema = z
   .object({
@@ -25,6 +26,8 @@ export const MyShopResponseSchema = z
     name: z.string(),
     status: z.enum(ShopStatus),
     myRole: z.enum(ShopRole),
+    /** What the caller may do in this shop (D-056). Unknown keys can be ignored. */
+    permissions: z.array(z.enum(SHOP_PERMISSIONS)),
     createdAt: z.iso.datetime(),
   })
   .meta({ id: 'MyShop' });

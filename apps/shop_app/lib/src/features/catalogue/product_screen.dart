@@ -8,6 +8,7 @@ import '../../catalogue/product_photo_picker.dart';
 import '../../catalogue/shop_catalogue_repository.dart';
 import '../../providers.dart';
 import '../../shops/shop_access_repository.dart';
+import '../../shops/shop_permissions.dart';
 import '../shops/sign_out_button.dart';
 import 'catalogue_messages.dart';
 import 'catalogue_parts.dart';
@@ -30,7 +31,12 @@ class ProductScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final key = (shopId: shopId, productId: productId);
     final product = ref.watch(productProvider(key));
-    final isOwner = ref.watch(shopProvider(shopId)).value?.myRole == 'MASTER';
+    final canEdit =
+        ref
+            .watch(shopProvider(shopId))
+            .value
+            ?.can(ShopPermission.catalogueManage) ??
+        false;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Product'),
@@ -50,7 +56,7 @@ class ProductScreen extends ConsumerWidget {
           data: (product) => _ProductDetails(
             productKey: key,
             product: product,
-            isOwner: isOwner,
+            canEdit: canEdit,
           ),
         ),
       ),
@@ -62,12 +68,12 @@ class _ProductDetails extends ConsumerStatefulWidget {
   const _ProductDetails({
     required this.productKey,
     required this.product,
-    required this.isOwner,
+    required this.canEdit,
   });
 
   final ProductKey productKey;
   final ShopProduct product;
-  final bool isOwner;
+  final bool canEdit;
 
   @override
   ConsumerState<_ProductDetails> createState() => _ProductDetailsState();
@@ -203,7 +209,7 @@ class _ProductDetailsState extends ConsumerState<_ProductDetails> {
   Widget build(BuildContext context) {
     final product = widget.product;
     final textTheme = Theme.of(context).textTheme;
-    final isOwner = widget.isOwner;
+    final canEdit = widget.canEdit;
     final canAddPack =
         product.packs.length < maxPacksPerProduct &&
         (product.source == ProductSource.own ||
@@ -239,7 +245,7 @@ class _ProductDetailsState extends ConsumerState<_ProductDetails> {
         const SizedBox(height: AppSpacing.s16),
         _PhotoCard(
           product: product,
-          isOwner: isOwner,
+          canEdit: canEdit,
           uploadingFrom: _uploadingFrom,
           onPick: _replacePhoto,
         ),
@@ -261,7 +267,7 @@ class _ProductDetailsState extends ConsumerState<_ProductDetails> {
                 const Divider(),
                 _PackRow(
                   pack: pack,
-                  isOwner: isOwner,
+                  canEdit: canEdit,
                   saving: _savingPacks.contains(pack.id),
                   isLast: product.packs.length == 1,
                   onAvailable: (value) => _setAvailable(pack, value),
@@ -269,7 +275,7 @@ class _ProductDetailsState extends ConsumerState<_ProductDetails> {
                   onRemove: () => _removePack(pack),
                 ),
               ],
-              if (isOwner && canAddPack) ...[
+              if (canEdit && canAddPack) ...[
                 const SizedBox(height: AppSpacing.s12),
                 AppButton(
                   label: 'Add a pack size',
@@ -281,7 +287,7 @@ class _ProductDetailsState extends ConsumerState<_ProductDetails> {
             ],
           ),
         ),
-        if (isOwner) ...[
+        if (canEdit) ...[
           const SizedBox(height: AppSpacing.s24),
           if (product.archived)
             AppButton(
@@ -310,7 +316,7 @@ class _ProductDetailsState extends ConsumerState<_ProductDetails> {
 class _PackRow extends StatelessWidget {
   const _PackRow({
     required this.pack,
-    required this.isOwner,
+    required this.canEdit,
     required this.saving,
     required this.isLast,
     required this.onAvailable,
@@ -319,7 +325,7 @@ class _PackRow extends StatelessWidget {
   });
 
   final ShopPack pack;
-  final bool isOwner;
+  final bool canEdit;
   final bool saving;
 
   /// A product keeps at least one pack size, so the last can't be removed.
@@ -335,7 +341,7 @@ class _PackRow extends StatelessWidget {
       children: [
         const SizedBox(height: AppSpacing.s8),
         PackPriceLine(pack: pack),
-        if (isOwner) ...[
+        if (canEdit) ...[
           AppSwitchRow(
             label: 'Available',
             semanticLabel: '${pack.label} available',
@@ -377,13 +383,13 @@ class _PackRow extends StatelessWidget {
 class _PhotoCard extends StatelessWidget {
   const _PhotoCard({
     required this.product,
-    required this.isOwner,
+    required this.canEdit,
     required this.uploadingFrom,
     required this.onPick,
   });
 
   final ShopProduct product;
-  final bool isOwner;
+  final bool canEdit;
   final PhotoSource? uploadingFrom;
   final ValueChanged<PhotoSource> onPick;
 
@@ -407,7 +413,7 @@ class _PhotoCard extends StatelessWidget {
                     errorMessage: "The photo couldn't be loaded.",
                   ),
           ),
-          if (isOwner || (image != null && product.imageFromCatalogue))
+          if (canEdit || (image != null && product.imageFromCatalogue))
             Padding(
               padding: const EdgeInsets.all(AppSpacing.s16),
               child: Column(
@@ -420,7 +426,7 @@ class _PhotoCard extends StatelessWidget {
                         color: AppColors.textSecondary,
                       ),
                     ),
-                  if (isOwner) ...[
+                  if (canEdit) ...[
                     if (image != null && product.imageFromCatalogue)
                       const SizedBox(height: AppSpacing.s12),
                     Wrap(

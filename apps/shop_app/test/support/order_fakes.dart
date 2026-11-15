@@ -188,6 +188,9 @@ class FakeShopOrdersRepository implements ShopOrdersRepository {
   /// When set, the next call fails with it (once).
   Object? nextError;
   final List<OrderListFilter> listed = [];
+
+  /// Like the API without `reports.view`: money figures are null.
+  bool hideMoney = false;
   final List<String> packSearches = [];
 
   void _fail() {
@@ -260,13 +263,17 @@ class FakeShopOrdersRepository implements ShopOrdersRepository {
       packing: count(OrderTab.packing),
       ready: count(OrderTab.ready),
       unpaidCount: unpaid.length,
-      unpaidPaise: unpaid.fold(
-        0,
-        (total, order) => total + order.itemsPaise + order.deliveryPaise,
-      ),
-      todaySalesPaise: all
-          .where((order) => order.status == OrderStatus.completed)
-          .fold(0, (total, order) => total + order.itemsPaise),
+      unpaidPaise: hideMoney
+          ? null
+          : unpaid.fold<int>(
+              0,
+              (total, order) => total + order.itemsPaise + order.deliveryPaise,
+            ),
+      todaySalesPaise: hideMoney
+          ? null
+          : all
+                .where((order) => order.status == OrderStatus.completed)
+                .fold<int>(0, (total, order) => total + order.itemsPaise),
     );
   }
 

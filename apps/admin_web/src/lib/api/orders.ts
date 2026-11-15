@@ -140,11 +140,15 @@ const summarySchema = z.object({
   new: z.number().int(),
   packing: z.number().int(),
   ready: z.number().int(),
-  unpaid: z.object({ count: z.number().int(), totalPaise: z.number().int() }),
+  // Money figures are null without `reports.view` (D-056).
+  unpaid: z.object({
+    count: z.number().int(),
+    totalPaise: z.number().int().nullable(),
+  }),
   today: z.object({
     placed: z.number().int(),
     completed: z.number().int(),
-    salesPaise: z.number().int(),
+    salesPaise: z.number().int().nullable(),
   }),
 });
 

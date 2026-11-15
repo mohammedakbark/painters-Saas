@@ -39,6 +39,7 @@ import {
 import { catalogueBase } from './catalogue-parts';
 import { AddProductFlow } from './add-product-flow';
 import { RowActions } from './row-actions';
+import { can } from '@/lib/api/shops';
 
 export const metadata: Metadata = { title: 'Products' };
 
@@ -135,7 +136,7 @@ async function Products({
   const search = await searchParams;
   const state = readParams(search);
   const added = Number(text(search.added));
-  const canEdit = shop.myRole === 'MASTER';
+  const canEdit = can(shop, 'catalogue.manage');
   const [data, onboarding, categories, brands] = await Promise.all([
     listProductRows(token, shopId, state),
     getShopOnboarding(token, shopId),

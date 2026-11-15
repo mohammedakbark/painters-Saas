@@ -8,6 +8,7 @@ import '../../orders/order_providers.dart';
 import '../../providers.dart';
 import '../../shops/shop_access_repository.dart';
 import '../../shops/shop_models.dart';
+import '../../shops/shop_permissions.dart';
 import '../../shops/shop_review.dart';
 import 'sign_out_button.dart';
 
@@ -94,24 +95,29 @@ class _ShopOverview extends ConsumerWidget {
           ),
         ),
         // Only a Live shop takes orders; the figures load on their own.
-        if (status == 'ACTIVE') ...[
+        if (status == 'ACTIVE' && shop.can(ShopPermission.ordersHandle)) ...[
           const SizedBox(height: AppSpacing.s16),
           _OrderFigures(shopId: shop.id),
         ],
-        const SizedBox(height: AppSpacing.s16),
-        AppNavRow(
-          icon: Icons.receipt_long_outlined,
-          title: 'Orders',
-          subtitle: 'New orders, packing, payment and returns',
-          onTap: () => context.go('/shops/${shop.id}/orders'),
-        ),
-        const SizedBox(height: AppSpacing.s12),
-        AppNavRow(
-          icon: Icons.inventory_2_outlined,
-          title: 'Products',
-          subtitle: 'Prices, pack sizes and availability',
-          onTap: () => context.go('/shops/${shop.id}/catalogue'),
-        ),
+        // Each area only for people who may use it (D-056).
+        if (shop.can(ShopPermission.ordersHandle)) ...[
+          const SizedBox(height: AppSpacing.s16),
+          AppNavRow(
+            icon: Icons.receipt_long_outlined,
+            title: 'Orders',
+            subtitle: 'New orders, packing, payment and returns',
+            onTap: () => context.go('/shops/${shop.id}/orders'),
+          ),
+        ],
+        if (shop.can(ShopPermission.catalogueView)) ...[
+          const SizedBox(height: AppSpacing.s12),
+          AppNavRow(
+            icon: Icons.inventory_2_outlined,
+            title: 'Products',
+            subtitle: 'Prices, pack sizes and availability',
+            onTap: () => context.go('/shops/${shop.id}/catalogue'),
+          ),
+        ],
         const SizedBox(height: AppSpacing.s12),
         AppNavRow(
           icon: Icons.storefront_outlined,
@@ -193,21 +199,24 @@ class _OrderFigures extends ConsumerWidget {
                       onTap: () => open(OrderTab.ready),
                     ),
                   ),
-                  const SizedBox(width: AppSpacing.s12),
-                  Expanded(
-                    child: AppStatTile(
-                      label: "Today's sales",
-                      value: formatRupees(figures.todaySalesPaise),
-                      onTap: () => open(OrderTab.completed),
+                  // Money figures come only with `reports.view` (D-056).
+                  if (figures.todaySalesPaise case final sales?) ...[
+                    const SizedBox(width: AppSpacing.s12),
+                    Expanded(
+                      child: AppStatTile(
+                        label: "Today's sales",
+                        value: formatRupees(sales),
+                        onTap: () => open(OrderTab.completed),
+                      ),
                     ),
-                  ),
+                  ] else
+                    const Spacer(),
                 ],
               ),
               if (figures.unpaidCount > 0) ...[
                 const SizedBox(height: AppSpacing.s8),
                 Text(
-                  '${figures.unpaidCount == 1 ? '1 order' : '${figures.unpaidCount} orders'} '
-                  'not paid yet: ${formatRupees(figures.unpaidPaise)}',
+                  unpaidLine(figures.unpaidCount, figures.unpaidPaise),
                   style: textTheme.bodyMedium?.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -219,6 +228,14 @@ class _OrderFigures extends ConsumerWidget {
       ],
     );
   }
+}
+
+/// "2 orders not paid yet: ₹4,300", without the amount when it is hidden.
+String unpaidLine(int count, int? paise) {
+  final orders = count == 1 ? '1 order' : '$count orders';
+  return paise == null
+      ? '$orders not paid yet.'
+      : '$orders not paid yet: ${formatRupees(paise)}';
 }
 
 /// What the owner should know about the review (PLT-002). Submitting and

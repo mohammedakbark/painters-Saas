@@ -33,6 +33,7 @@ import {
   ProductBadges,
   productSubtitle,
 } from '../../catalogue-parts';
+import { can } from '@/lib/api/shops';
 
 /** One load per request, shared by the title and the page (UX-002). */
 const loadProduct = cache(async (shopId: string, productId: string) =>
@@ -79,7 +80,7 @@ async function ShopProductView({
         listCatalogueBrands(token),
       ])
     : [[], []];
-  const canEdit = shop.myRole === 'MASTER';
+  const canEdit = can(shop, 'catalogue.manage');
   const active = product.status === 'ACTIVE';
 
   return (

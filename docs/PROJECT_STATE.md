@@ -1,7 +1,7 @@
 # Project State — Living Document
 
 **Last updated:** 2026-11-15  
-**Current stage:** Phase 2: ordering. Phase 1 (shop onboarding: registration to Live) is complete. The web is finished for now: shop admin and platform admin consoles, the orders API and the shop Orders, Customers and New order pages (ORD-001 to ORD-004), and the quality pass (UX-001 to UX-003). Work is now on the **Shop App**: SHP-007 (orders and home figures) and SHP-009 (record phone and counter orders) are built; next NOT-001 (push notifications, waiting for the owner's Firebase project), then the Customer App.  
+**Current stage:** Phase 2: ordering. Phase 1 (shop onboarding) is complete and the web is finished for now. The Shop App has orders (SHP-007) and recording orders (SHP-009). Push notifications are postponed (owner, 2026-11-15); the Shop App redesign comes first: SHP-010 permissions (done), then SHP-011 app shell and navigation, SHP-012 customers, SHP-013 profile and settings, SHP-014 shades and categories, then the Customer App.  
 **Overall status:** Foundation complete with CI green on GitHub. Implemented and verified locally: platform admin sign-in, shop self-registration with tenant-scoped access, the platform shop registry, and Shop App sign-in (Android emulator).  
 **Product name:** SevenPalette (D-040, 2026-11-06), a product of zero.byt
 
@@ -52,6 +52,7 @@
 | DS-003: SevenPalette name and shade-card fan logo (D-040): names, logo files, web and Flutter brand mark, favicon, launcher icons | **Complete (local)**; Android emulator not run | `docs/features/DS-003-product-name-and-logo.md` |
 | SHP-007: Orders in the Shop App: step chips with counts, search, filter sheet, order cards with one next step, order page with cancel, not available, substitute, payment and return, order figures on the shop home, 30 s check for new orders | **Complete (local; tests, main path on the Android emulator)** | `docs/features/SHP-007-shop-app-orders.md` |
 | SHP-009: Record phone and counter orders in the Shop App: find or add a customer, painter's site, items at today's price, pickup or delivery with the charge preview, "Paid by" for the owner, Save as new order or Handed over now | **Complete (local; tests, counter sale on the Android emulator)** | `docs/features/SHP-009-shop-app-record-orders.md` |
+| SHP-010: Shop permissions (D-056, ADR 0010): permission keys checked by the API on every shop action and returned to the apps; web and Shop App show features by permission; money figures need `reports.view` | **Complete (local; API e2e, web and Shop App tests)** | `docs/features/SHP-010-permissions.md` |
 
 **Git (D-035):** every feature above is in `dev` (fast-forward merged and pushed on 2026-11-04; one commit per feature, `3697e4f` … `9c7885b`); the local per-feature branches were deleted. The first GitHub Actions run on `dev` (`8497b81`) passed all three jobs (TypeScript, Flutter, repository checks). The old remote branch `feat/shp-002-shop-app-sign-in` is still on GitHub (its commits are in `dev`); the product owner can delete it. From now on each finished feature is merged into `dev` and pushed the same way. `main` still holds only `c56f614` (project setup) until a release.
 
@@ -195,6 +196,18 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 - [ ] iOS build verification (requires macOS).
 
 ## 6. Checks run (local, Windows 11, Node 22.21.0)
+
+### SHP-010 (2026-11-15)
+
+| Check | Result |
+|---|---|
+| `pnpm --filter api typecheck`, `lint`, `test` (122) | Passed |
+| `pnpm --filter api test:e2e`: 169 (16 new in `permissions.e2e-spec.ts`) | Passed |
+| OpenAPI export (`MyShop.permissions`, nullable money in `OrderSummary`) | Updated |
+| `pnpm --filter admin_web typecheck`, `lint`, `test` (248) | Passed (an earlier run timed out on 10 tests while the Flutter tests ran at the same time; they pass alone and in the full run) |
+| `fvm flutter analyze`, `fvm flutter test` shop_app (131, 4 new) | Passed |
+| `pnpm ui:check`, `pnpm format:check` | Passed |
+| Emulator, Chrome | Not run (no visible change for owners; the machine was low on memory) |
 
 ### SHP-009 (2026-11-15)
 
@@ -509,6 +522,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-08 | ORD-002: shop Orders page (tabs with counts, search, filters, row next step, 30 s refresh with new-order toast) and order page (items with not available and substitute sheets, cancel, payment, return, timeline); owner chose status colours (red `error` badge), row buttons and the 30 s check. Also `Button` compact size, optional Combobox create, scrolling `SegmentedLinks`, `showToast`/`ToastHost`, API `status=ready`. |
 | 2026-11-08 | Owner: order steps, payment at pickup/delivery recorded by the shop, roles (D-053); shop-recorded customers, sites and orders private to the shop, shared only after the person connects with an OTP (D-054, ORD-004). ORD-001: `shop_customers`, `orders`, `order_items`, append-only `order_events`; shop orders API (list, detail, steps, not available, substitute, payment, return) with tenant e2e; `OrderPlacementService`; `orders:seed-test` script. |
 | 2026-11-14 | Owner (2026-11-13): Shop App next, with every order action, home figures, recording phone and counter orders, and push notifications; split into SHP-007, SHP-009 and NOT-001. SHP-007: orders list and order page in the Shop App on the ORD-001 API, order figures on the shop home, `AppChoiceChips` and `AppStatTile`, `url_launcher`. No API change. |
+| 2026-11-15 | Owner: push notifications postponed; Shop App redesign first (tabs, drawer, permission-driven screens, one template), employee accounts later. SHP-010: shop permissions (D-056, ADR 0010) in the API, web and Shop App. |
 | 2026-11-15 | SHP-009: New order in the Shop App on the ORD-004 API (find or add a customer, site, items, pickup or delivery, counter sale with payment for the owner); `AppTextField` `maxLines`. No API change. |
 | 2026-11-07 | Owner: free test hosting (D-052, ADR 0009). INFRA-001: `render.yaml` (Render Free API, deploys after CI on `main`, migrations at start), `apps/admin_web/vercel.json` (Vercel Hobby, `main` only), `keep-alive.yml`, `docs/guides/DEPLOYMENT.md`. |
 | 2026-11-08 | INFRA-001 live: Supabase `sevenpalette-test` (Singapore, Data API off, test phone numbers), Render API, Vercel web, `API_BASE_URL` repository variable; keep-alive verified. |
