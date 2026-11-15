@@ -58,6 +58,6 @@ The shop handles its orders from the phone with everything the web Orders page h
 ## Limits and follow-ups
 - The mobile number on a list card is text; calling is on the order page.
 - The 30-second check runs only while the Orders screen is open. Push notifications are NOT-001.
-- Recording a phone or counter order in the app is SHP-009; until then it is on the web.
+- Recording a phone or counter order in the app is SHP-009 (done).
 - The customer's answer to a substitute comes with the Customer App.
 - iOS not built (needs macOS).

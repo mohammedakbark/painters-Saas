@@ -8,6 +8,7 @@ import 'src/auth/secure_session_storage.dart';
 import 'src/auth/supabase_auth_repository.dart';
 import 'src/catalogue/shop_catalogue_repository.dart';
 import 'src/config/app_config.dart';
+import 'src/customers/shop_customers_repository.dart';
 import 'src/orders/shop_orders_repository.dart';
 import 'src/providers.dart';
 import 'src/shops/shop_access_repository.dart';
@@ -53,6 +54,9 @@ Future<void> main() async {
         ),
         shopOrdersRepositoryProvider.overrideWithValue(
           ApiShopOrdersRepository(api),
+        ),
+        shopCustomersRepositoryProvider.overrideWithValue(
+          ApiShopCustomersRepository(api),
         ),
         mapsEnabledProvider.overrideWithValue(config.mapsEnabled),
       ],

@@ -105,10 +105,7 @@ String quantityTimesPrice(int quantity, int paise) =>
     '$quantity × ${formatRupees(paise)}';
 
 /// "+919876543210" → "+91 98765 43210"; other numbers are shown as sent.
-String formatPhone(String e164) {
-  final match = RegExp(r'^\+91(\d{5})(\d{5})$').firstMatch(e164);
-  return match == null ? e164 : '+91 ${match.group(1)} ${match.group(2)}';
-}
+String formatPhone(String e164) => IndianMobileNumber.format(e164);
 
 const _istOffset = Duration(hours: 5, minutes: 30);
 

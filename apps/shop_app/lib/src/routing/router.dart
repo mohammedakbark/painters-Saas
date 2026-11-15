@@ -6,6 +6,7 @@ import '../features/catalogue/add_from_catalogue_screen.dart';
 import '../features/catalogue/catalogue_listing_screen.dart';
 import '../features/catalogue/product_list_screen.dart';
 import '../features/catalogue/product_screen.dart';
+import '../features/orders/new_order_screen.dart';
 import '../features/orders/order_list_screen.dart';
 import '../features/orders/order_screen.dart';
 import '../features/shops/shop_home_screen.dart';
@@ -66,6 +67,12 @@ final routerProvider = Provider<GoRouter>((ref) {
                   ),
                 ),
                 routes: [
+                  // Before ':orderId', so "new" is never read as an order id.
+                  GoRoute(
+                    path: 'new',
+                    builder: (context, state) =>
+                        NewOrderScreen(shopId: state.pathParameters['shopId']!),
+                  ),
                   GoRoute(
                     path: ':orderId',
                     builder: (context, state) => OrderScreen(

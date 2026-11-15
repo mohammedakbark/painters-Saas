@@ -1,3 +1,6 @@
+import 'package:shop_app/src/customers/customer_models.dart';
+import 'package:shop_app/src/customers/shop_customers_repository.dart';
+import 'package:shop_app/src/orders/order_draft.dart';
 import 'package:shop_app/src/orders/order_models.dart';
 import 'package:shop_app/src/orders/shop_orders_repository.dart';
 import 'package:shop_app/src/shops/shop_access_repository.dart';
@@ -391,6 +394,43 @@ class FakeShopOrdersRepository implements ShopOrdersRepository {
   @override
   Future<List<String>> orderMessages(String shopId) async => messages;
 
+  DeliverySettings delivery = const DeliverySettings(
+    enabled: true,
+    chargePaise: 5000,
+    freeAbovePaise: 200000,
+  );
+  final List<RecordOrderRequest> recorded = [];
+
+  @override
+  Future<DeliverySettings> deliverySettings(String shopId) async => delivery;
+
+  @override
+  Future<OrderDetail> record(String shopId, RecordOrderRequest request) async {
+    _fail();
+    recorded.add(request);
+    final shop = _shop(shopId);
+    final order = FakeOrder(
+      'rec-${recorded.length}',
+      2000 + recorded.length,
+      status: request.handedOver ? OrderStatus.completed : OrderStatus.newOrder,
+      fulfilment: request.fulfilment,
+      customerName: 'Recorded customer',
+      paymentMethod: request.paymentMethod,
+      recordedByShop: true,
+      items: [
+        for (final (index, line) in request.lines.indexed)
+          testItem(
+            'rec-${recorded.length}-$index',
+            line.pack.productName,
+            quantity: line.quantity!,
+            unitPricePaise: line.pack.pricePaise,
+          ),
+      ],
+    );
+    shop.add(order);
+    return order.toDetail();
+  }
+
   @override
   Future<List<PackOption>> searchPacks(String shopId, String query) async {
     _fail();
@@ -399,5 +439,67 @@ class FakeShopOrdersRepository implements ShopOrdersRepository {
       for (final pack in packs)
         if (pack.productName.toLowerCase().contains(query.toLowerCase())) pack,
     ];
+  }
+}
+
+/// The shop's customers, with the API's duplicate-mobile rule.
+class FakeShopCustomersRepository implements ShopCustomersRepository {
+  FakeShopCustomersRepository({List<CustomerDetail>? customers})
+    : customers = customers ?? [];
+
+  final List<CustomerDetail> customers;
+
+  /// When set, the next call fails with it (once).
+  Object? nextError;
+
+  void _fail() {
+    final error = nextError;
+    if (error != null) {
+      nextError = null;
+      throw error;
+    }
+  }
+
+  @override
+  Future<List<ShopCustomer>> search(String shopId, String query) async {
+    _fail();
+    final q = query.toLowerCase();
+    return [
+      for (final detail in customers)
+        if (detail.customer.name.toLowerCase().contains(q) ||
+            detail.customer.phone.contains(q))
+          detail.customer,
+    ];
+  }
+
+  @override
+  Future<CustomerDetail> fetch(String shopId, String customerId) async {
+    _fail();
+    return customers.firstWhere(
+      (detail) => detail.customer.id == customerId,
+      orElse: () => throw const CustomerNotFound(),
+    );
+  }
+
+  @override
+  Future<CustomerDetail> create(
+    String shopId, {
+    required String name,
+    required String phone,
+    required CustomerKind kind,
+  }) async {
+    _fail();
+    final created = CustomerDetail(
+      customer: ShopCustomer(
+        id: 'new-${customers.length}',
+        name: name,
+        phone: phone,
+        kind: kind,
+        hasApp: false,
+      ),
+      sites: const [],
+    );
+    customers.add(created);
+    return created;
   }
 }

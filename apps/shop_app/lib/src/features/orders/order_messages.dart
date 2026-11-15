@@ -55,6 +55,18 @@ abstract final class OrderMessages {
       ? 'Only 1 unit can be returned.'
       : 'Enter a quantity from 1 to $max.';
   static const reasonRequired = 'Enter a reason.';
+  static const orderSaved = 'Order saved.';
+  static const notSaved = 'Not saved';
+  static const noCustomerMatch = 'No customer matches. Add them below.';
+  static const sitesOnWeb =
+      "No sites yet. Add this painter's sites on the web portal.";
+  static const deliveryOff =
+      'Delivery is off in Shop settings. Turn it on on the web portal.';
+  static const saveNote =
+      'A new order goes through packing as usual. "Handed over now" saves '
+      'it as completed, for counter sales.';
+  static const nameRequired = 'Enter the name.';
+  static const phoneInvalid = 'Enter a 10-digit Indian mobile number.';
   static const choosePayment = 'Choose cash, UPI or bank transfer.';
 }
 

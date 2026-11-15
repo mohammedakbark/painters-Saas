@@ -88,6 +88,7 @@ class AppTextField extends StatelessWidget {
     this.enabled = true,
     this.autofocus = false,
     this.isRequired = false,
+    this.maxLines = 1,
   });
 
   final String label;
@@ -95,6 +96,9 @@ class AppTextField extends StatelessWidget {
   final String? hint;
   final String? helper;
   final String? error;
+
+  /// More than 1 for longer text such as an address.
+  final int maxLines;
 
   /// Shown before the value, for example "+91 " or "₹ ".
   final String? prefixText;
@@ -119,6 +123,7 @@ class AppTextField extends StatelessWidget {
       controller: controller,
       enabled: enabled,
       autofocus: autofocus,
+      maxLines: maxLines,
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
       maxLength: maxLength,

@@ -137,6 +137,8 @@ class _OrderListScreenState extends ConsumerState<OrderListScreen>
   @override
   Widget build(BuildContext context) {
     final orders = ref.watch(orderListProvider(_key));
+    final isLive =
+        ref.watch(shopProvider(widget.shopId)).value?.status == 'ACTIVE';
     final loaded = orders.value;
     if (loaded != null) _counts = loaded.counts;
 
@@ -224,6 +226,26 @@ class _OrderListScreenState extends ConsumerState<OrderListScreen>
         actions: const [SignOutButton()],
       ),
       body: SafeArea(child: body),
+      // Only a Live shop records orders (the API checks this too).
+      bottomNavigationBar: isLive
+          ? SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.screenPadding,
+                  AppSpacing.s8,
+                  AppSpacing.screenPadding,
+                  AppSpacing.s12,
+                ),
+                child: AppButton(
+                  label: 'New order',
+                  icon: Icons.add,
+                  expand: true,
+                  onPressed: () =>
+                      context.go('/shops/${widget.shopId}/orders/new'),
+                ),
+              ),
+            )
+          : null,
     );
   }
 

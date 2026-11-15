@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/api_client.dart';
 import '../providers.dart';
+import 'order_draft.dart';
 import 'order_models.dart';
 import 'shop_orders_repository.dart';
 
@@ -159,6 +160,14 @@ final orderMessagesProvider = FutureProvider.autoDispose
         return const [];
       }
     }, retry: noRetry);
+
+/// The shop's delivery settings, read when a new order is started.
+final deliverySettingsProvider = FutureProvider.autoDispose
+    .family<DeliverySettings, String>(
+      (ref, shopId) =>
+          ref.watch(shopOrdersRepositoryProvider).deliverySettings(shopId),
+      retry: noRetry,
+    );
 
 typedef OrderKey = ({String shopId, String orderId});
 

@@ -1,5 +1,6 @@
 import '../api/api_client.dart';
 import '../shops/shop_access_repository.dart';
+import 'order_draft.dart';
 import 'order_models.dart';
 
 /// The order or item is not one of this shop's (or no longer exists).
@@ -105,6 +106,13 @@ abstract interface class ShopOrdersRepository {
 
   /// The shop's ready messages for customers (Shop settings, SHP-008).
   Future<List<String>> orderMessages(String shopId);
+
+  /// The shop's delivery settings, for the charge shown on a new order.
+  Future<DeliverySettings> deliverySettings(String shopId);
+
+  /// Records a phone or counter order for one of the shop's customers
+  /// (ORD-004). Recording a payment with it is owner only.
+  Future<OrderDetail> record(String shopId, RecordOrderRequest request);
 
   /// Available pack sizes whose product or brand matches [query].
   Future<List<PackOption>> searchPacks(String shopId, String query);
@@ -230,6 +238,18 @@ class ApiShopOrdersRepository implements ShopOrdersRepository {
         message! as String,
     ];
   });
+
+  @override
+  Future<DeliverySettings> deliverySettings(String shopId) => _guard(
+    () async => DeliverySettings.fromJson(
+      (await _api.getJson(_shop(shopId, '/settings')))['delivery']!
+          as Map<String, Object?>,
+    ),
+  );
+
+  @override
+  Future<OrderDetail> record(String shopId, RecordOrderRequest request) =>
+      _detail(() => _api.postJson(_shop(shopId, '/orders'), request.toJson()));
 
   @override
   Future<List<PackOption>> searchPacks(String shopId, String query) => _guard(

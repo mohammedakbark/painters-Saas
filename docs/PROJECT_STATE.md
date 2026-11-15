@@ -1,7 +1,7 @@
 # Project State — Living Document
 
-**Last updated:** 2026-11-14  
-**Current stage:** Phase 2: ordering. Phase 1 (shop onboarding: registration to Live) is complete. The web is finished for now: shop admin and platform admin consoles, the orders API and the shop Orders, Customers and New order pages (ORD-001 to ORD-004), and the quality pass (UX-001 to UX-003). Work is now on the **Shop App**: SHP-007 (orders and home figures) is built; next SHP-009 (record phone and counter orders), then NOT-001 (push notifications), then the Customer App.  
+**Last updated:** 2026-11-15  
+**Current stage:** Phase 2: ordering. Phase 1 (shop onboarding: registration to Live) is complete. The web is finished for now: shop admin and platform admin consoles, the orders API and the shop Orders, Customers and New order pages (ORD-001 to ORD-004), and the quality pass (UX-001 to UX-003). Work is now on the **Shop App**: SHP-007 (orders and home figures) and SHP-009 (record phone and counter orders) are built; next NOT-001 (push notifications, waiting for the owner's Firebase project), then the Customer App.  
 **Overall status:** Foundation complete with CI green on GitHub. Implemented and verified locally: platform admin sign-in, shop self-registration with tenant-scoped access, the platform shop registry, and Shop App sign-in (Android emulator).  
 **Product name:** SevenPalette (D-040, 2026-11-06), a product of zero.byt
 
@@ -51,6 +51,7 @@
 | PERF-001: Partial updates: search and filters without page reloads (`UrlForm`), per-section loading on Shades, project-wide loading rules (D-044, `data-loading` skill) | **Complete (local; Chrome, production build)** | `docs/features/PERF-001-partial-updates.md` |
 | DS-003: SevenPalette name and shade-card fan logo (D-040): names, logo files, web and Flutter brand mark, favicon, launcher icons | **Complete (local)**; Android emulator not run | `docs/features/DS-003-product-name-and-logo.md` |
 | SHP-007: Orders in the Shop App: step chips with counts, search, filter sheet, order cards with one next step, order page with cancel, not available, substitute, payment and return, order figures on the shop home, 30 s check for new orders | **Complete (local; tests, main path on the Android emulator)** | `docs/features/SHP-007-shop-app-orders.md` |
+| SHP-009: Record phone and counter orders in the Shop App: find or add a customer, painter's site, items at today's price, pickup or delivery with the charge preview, "Paid by" for the owner, Save as new order or Handed over now | **Complete (local; tests, counter sale on the Android emulator)** | `docs/features/SHP-009-shop-app-record-orders.md` |
 
 **Git (D-035):** every feature above is in `dev` (fast-forward merged and pushed on 2026-11-04; one commit per feature, `3697e4f` … `9c7885b`); the local per-feature branches were deleted. The first GitHub Actions run on `dev` (`8497b81`) passed all three jobs (TypeScript, Flutter, repository checks). The old remote branch `feat/shp-002-shop-app-sign-in` is still on GitHub (its commits are in `dev`); the product owner can delete it. From now on each finished feature is merged into `dev` and pushed the same way. `main` still holds only `c56f614` (project setup) until a release.
 
@@ -194,6 +195,19 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 - [ ] iOS build verification (requires macOS).
 
 ## 6. Checks run (local, Windows 11, Node 22.21.0)
+
+### SHP-009 (2026-11-15)
+
+| Check | Result |
+|---|---|
+| `fvm dart format` (lib, test), `fvm flutter analyze` (shop_app, flutter_shared) | Clean / no issues |
+| `fvm flutter test`: shop_app 127 (16 new), flutter_shared 72 | Passed |
+| `pnpm ui:check` (152 files), `pnpm format:check` | Passed |
+| `fvm flutter build apk --debug` | Passed |
+| **Android emulator** (`emulator-5554`, real local API, ABC PAINTS): New order button on Orders, customer search and choosing a recorded painter (site dropdown shown), product search and adding a pack, totals, "Paid by" UPI, **Handed over now** saved order #1031 as completed and opened it with "Order saved" | Verified |
+| Add customer sheet, site and delivery with the charge preview, Save as new order, staff view and refusals on the emulator | **Not verified on the emulator**; covered by widget tests |
+| API e2e, web | Not re-run (no API or web change) |
+| iOS | **Not run** (requires macOS) |
 
 ### SHP-007 (2026-11-14)
 
@@ -385,7 +399,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 1. **Web first, then mobile (product owner, 2026-11-07).** The web shop admin and platform admin UI pass is complete (WEB-001 to WEB-005, CAT-003 to CAT-006, DS-003, DS-004, SHP-006, PLT-003, PERF-001). The web and server are finished before the mobile apps:
    - **Step A (shop web, no new decisions):** ~~Shades as a table~~ (done, WEB-006); ~~side sheet for small forms~~ (done, WEB-007, D-051); ~~Shop settings~~ (done, SHP-008); ~~shop categories~~ (done, CAT-007, D-048); ~~Overview dashboard v1~~ (done, WEB-008). Step A is complete; next is Step B (ORD-001).
    - **Step B (Phase 2 ordering, server and shop web):** ~~ORD-001 orders API~~ (done, D-053, D-054; `orders:seed-test`); ~~ORD-002 shop Orders page~~ (done); ~~ORD-003 order figures on the Overview~~ (done). Step B is complete. ~~ORD-004 shop-recorded customers, sites and orders~~ (done, D-055). Next: the Shop App (mobile).
-   - **Then mobile:** Shop App, then the Customer App on the same APIs. Shop App order chosen by the owner on 2026-11-13: ~~SHP-007 orders and home figures~~ (done); **next SHP-009** record phone and counter orders (ORD-004 API as is); then **NOT-001** push notifications for orders (Firebase Cloud Messaging behind a replaceable sender, Android first; needs a decision record, ADR 0010 and the owner's Firebase project: `google-services.json` and a service-account key. The app id is still `com.example.shop_app`, question 41).
+   - **Then mobile:** Shop App, then the Customer App on the same APIs. Shop App order chosen by the owner on 2026-11-13: ~~SHP-007 orders and home figures~~ (done); ~~SHP-009 record phone and counter orders~~ (done); **next NOT-001** push notifications for orders (Firebase Cloud Messaging behind a replaceable sender, Android first; needs a decision record, ADR 0010 and the owner's Firebase project: `google-services.json` and a service-account key. The app id is still `com.example.shop_app`, question 41).
    - Owner: domains, trademark check, bundle IDs (question 41).
 2. **Next phase: plan the Customer App foundation** with the product owner: CUS-001 sign-up and profile (customer type, D-036), CUS-002 Find shops and My Shops (D-037, D-038), CUS-003 shop storefront. Ordering questions 30–32 answered (D-045 to D-047).
 3. **Product owner checks:** try the platform **Reviews** decision form in Chrome as the platform admin; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
@@ -495,5 +509,6 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-08 | ORD-002: shop Orders page (tabs with counts, search, filters, row next step, 30 s refresh with new-order toast) and order page (items with not available and substitute sheets, cancel, payment, return, timeline); owner chose status colours (red `error` badge), row buttons and the 30 s check. Also `Button` compact size, optional Combobox create, scrolling `SegmentedLinks`, `showToast`/`ToastHost`, API `status=ready`. |
 | 2026-11-08 | Owner: order steps, payment at pickup/delivery recorded by the shop, roles (D-053); shop-recorded customers, sites and orders private to the shop, shared only after the person connects with an OTP (D-054, ORD-004). ORD-001: `shop_customers`, `orders`, `order_items`, append-only `order_events`; shop orders API (list, detail, steps, not available, substitute, payment, return) with tenant e2e; `OrderPlacementService`; `orders:seed-test` script. |
 | 2026-11-14 | Owner (2026-11-13): Shop App next, with every order action, home figures, recording phone and counter orders, and push notifications; split into SHP-007, SHP-009 and NOT-001. SHP-007: orders list and order page in the Shop App on the ORD-001 API, order figures on the shop home, `AppChoiceChips` and `AppStatTile`, `url_launcher`. No API change. |
+| 2026-11-15 | SHP-009: New order in the Shop App on the ORD-004 API (find or add a customer, site, items, pickup or delivery, counter sale with payment for the owner); `AppTextField` `maxLines`. No API change. |
 | 2026-11-07 | Owner: free test hosting (D-052, ADR 0009). INFRA-001: `render.yaml` (Render Free API, deploys after CI on `main`, migrations at start), `apps/admin_web/vercel.json` (Vercel Hobby, `main` only), `keep-alive.yml`, `docs/guides/DEPLOYMENT.md`. |
 | 2026-11-08 | INFRA-001 live: Supabase `sevenpalette-test` (Singapore, Data API off, test phone numbers), Render API, Vercel web, `API_BASE_URL` repository variable; keep-alive verified. |

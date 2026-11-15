@@ -4,6 +4,7 @@ import 'package:shop_app/app.dart';
 import 'package:shop_app/src/auth/auth_repository.dart';
 import 'package:shop_app/src/catalogue/product_photo_picker.dart';
 import 'package:shop_app/src/catalogue/shop_catalogue_repository.dart';
+import 'package:shop_app/src/customers/shop_customers_repository.dart';
 import 'package:shop_app/src/location/location_service.dart';
 import 'package:shop_app/src/orders/shop_orders_repository.dart';
 import 'package:shop_app/src/providers.dart';
@@ -212,12 +213,16 @@ Widget testApp({
   ShopCatalogueRepository? catalogue,
   ProductPhotoPicker? photos,
   ShopOrdersRepository? orders,
+  ShopCustomersRepository? customers,
   Duration orderRefreshInterval = const Duration(hours: 1),
   LinkOpener? openLink,
 }) => ProviderScope(
   overrides: [
     shopOrdersRepositoryProvider.overrideWithValue(
       orders ?? FakeShopOrdersRepository(),
+    ),
+    shopCustomersRepositoryProvider.overrideWithValue(
+      customers ?? FakeShopCustomersRepository(),
     ),
     orderRefreshIntervalProvider.overrideWithValue(orderRefreshInterval),
     linkOpenerProvider.overrideWithValue(openLink ?? (link) async => true),

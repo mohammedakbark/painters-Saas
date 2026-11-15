@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'auth/auth_repository.dart';
 import 'catalogue/product_photo_picker.dart';
 import 'catalogue/shop_catalogue_repository.dart';
+import 'customers/shop_customers_repository.dart';
 import 'location/location_service.dart';
 import 'orders/shop_orders_repository.dart';
 import 'shops/shop_access_repository.dart';
@@ -36,6 +37,12 @@ final shopCatalogueRepositoryProvider = Provider<ShopCatalogueRepository>(
 final shopOrdersRepositoryProvider = Provider<ShopOrdersRepository>(
   (ref) =>
       throw UnimplementedError('shopOrdersRepositoryProvider is overridden'),
+);
+
+/// The shop's own customers (ORD-004 API; SHP-009 new order).
+final shopCustomersRepositoryProvider = Provider<ShopCustomersRepository>(
+  (ref) =>
+      throw UnimplementedError('shopCustomersRepositoryProvider is overridden'),
 );
 
 /// Opens a `tel:` or map link in the phone's own app. Returns false when
