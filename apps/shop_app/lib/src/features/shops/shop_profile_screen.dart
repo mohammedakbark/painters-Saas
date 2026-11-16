@@ -4,15 +4,17 @@ import 'package:flutter_shared/flutter_shared.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../api/api_client.dart';
+import '../../catalogue/product_photo_picker.dart';
 import '../../location/location_service.dart';
 import '../../providers.dart';
 import '../../shops/shop_access_repository.dart';
 import '../../shops/shop_permissions.dart';
 import '../../shops/shop_profile.dart';
+import 'profile_sheets.dart';
 
 /// User-facing messages of the profile screen (also used by tests).
 abstract final class ShopProfileMessages {
-  static const notAdded = 'Not added yet. Add it on the web portal.';
+  static const notAdded = 'Not added yet.';
   static const photoFailed = "The photo couldn't be loaded.";
   static const noLocation = 'No location yet.';
   static const serviceDisabled =
@@ -32,7 +34,7 @@ abstract final class ShopProfileMessages {
       'try again.';
   static const inReview =
       'Your shop is waiting for review, so its location is locked. To change '
-      'it, withdraw the submission on the web portal.';
+      'it, withdraw the submission on the shop home.';
   static const outsideIndia =
       'This location is outside India. Stand at the shop and try again.';
   static const saved = 'Shop location saved.';
@@ -40,8 +42,9 @@ abstract final class ShopProfileMessages {
   static const saveFailed = "We couldn't save the location. Try again.";
 }
 
-/// The shop's support mobile, address and map location (SHP-003). The owner
-/// can set the location from the phone; the rest is edited on the web.
+/// The shop's photo, support mobile, address and map location (SHP-003,
+/// SHP-004). With `shop.profile` the owner changes them here (SHP-013);
+/// while the shop waits for review they are locked (D-033).
 class ShopProfileScreen extends ConsumerWidget {
   const ShopProfileScreen({super.key, required this.shopId});
 
@@ -56,6 +59,8 @@ class ShopProfileScreen extends ConsumerWidget {
             .value
             ?.can(ShopPermission.shopProfile) ??
         false;
+    final inReview =
+        ref.watch(shopReviewProvider(shopId)).value?.status == 'PENDING_REVIEW';
     return AppScaffold(
       title: 'Shop profile',
       body: profile.when(
@@ -77,20 +82,93 @@ class ShopProfileScreen extends ConsumerWidget {
                 title: "We couldn't load the profile",
                 onRetry: () => ref.invalidate(shopProfileProvider(shopId)),
               ),
-        data: (profile) => _ProfileDetails(profile: profile, canEdit: canEdit),
+        data: (profile) => _ProfileDetails(
+          profile: profile,
+          canEdit: canEdit,
+          locked: canEdit && inReview,
+        ),
       ),
     );
   }
 }
 
-class _ProfileDetails extends StatelessWidget {
-  const _ProfileDetails({required this.profile, required this.canEdit});
+class _ProfileDetails extends ConsumerStatefulWidget {
+  const _ProfileDetails({
+    required this.profile,
+    required this.canEdit,
+    required this.locked,
+  });
 
   final ShopProfile profile;
   final bool canEdit;
 
+  /// Waiting for review: shown, not changeable.
+  final bool locked;
+
+  @override
+  ConsumerState<_ProfileDetails> createState() => _ProfileDetailsState();
+}
+
+class _ProfileDetailsState extends ConsumerState<_ProfileDetails> {
+  PhotoSource? _uploadingFrom;
+
+  bool get _editable => widget.canEdit && !widget.locked;
+
+  String get _shopId => widget.profile.shopId;
+
+  /// The profile and the checklist on the home read again.
+  void _saved(String message) {
+    ref
+      ..invalidate(shopProfileProvider(_shopId))
+      ..invalidate(shopReviewProvider(_shopId));
+    showAppSnackBar(context, message, tone: AppTone.success);
+  }
+
+  Future<void> _edit(
+    Future<ShopProfile?> Function(BuildContext, ShopProfile) open,
+  ) async {
+    final saved = await open(context, widget.profile);
+    if (saved != null && mounted) _saved(ProfileFormMessages.saved);
+  }
+
+  Future<void> _replacePhoto(PhotoSource source) async {
+    final PickedPhoto? photo;
+    try {
+      photo = await ref.read(productPhotoPickerProvider).pick(source);
+    } on Object {
+      if (!mounted) return;
+      showAppSnackBar(
+        context,
+        source == PhotoSource.camera
+            ? "The camera couldn't be opened."
+            : "The photos couldn't be opened.",
+        tone: AppTone.error,
+      );
+      return;
+    }
+    if (photo == null || !mounted) return;
+    setState(() => _uploadingFrom = source);
+    try {
+      await ref
+          .read(shopProfileRepositoryProvider)
+          .replacePhoto(_shopId, photo);
+      if (mounted) _saved(ProfileFormMessages.photoSaved);
+    } on Object catch (error) {
+      if (mounted) {
+        showAppSnackBar(
+          context,
+          profileErrorMessage(error),
+          tone: AppTone.error,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _uploadingFrom = null);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final profile = widget.profile;
     final address = profile.address;
     final phone = profile.supportPhone;
     return ListView(
@@ -103,13 +181,31 @@ class _ProfileDetails extends StatelessWidget {
             style: Theme.of(context).textTheme.headlineSmall,
           ),
         ),
+        if (widget.locked) ...[
+          const SizedBox(height: AppSpacing.s16),
+          const AppInlineMessage(
+            tone: AppTone.info,
+            message: ProfileFormMessages.inReview,
+          ),
+        ],
         const SizedBox(height: AppSpacing.s24),
-        _PhotoSection(photo: profile.photo),
+        _PhotoSection(
+          photo: profile.photo,
+          editable: _editable,
+          uploadingFrom: _uploadingFrom,
+          onPick: _replacePhoto,
+        ),
         const SizedBox(height: AppSpacing.s16),
         AppSection(
           title: 'Address',
           lines: address?.lines ?? const [ShopProfileMessages.notAdded],
           muted: address == null,
+          child: _editable
+              ? _EditButton(
+                  label: address == null ? 'Add address' : 'Edit address',
+                  onPressed: () => _edit(showAddressSheet),
+                )
+              : null,
         ),
         const SizedBox(height: AppSpacing.s16),
         AppSection(
@@ -121,28 +217,94 @@ class _ProfileDetails extends StatelessWidget {
               IndianMobileNumber.format(phone),
           ],
           muted: phone == null,
+          child: _editable
+              ? _EditButton(
+                  label: phone == null
+                      ? 'Add support mobile'
+                      : 'Edit support mobile',
+                  onPressed: () => _edit(showSupportPhoneSheet),
+                )
+              : null,
         ),
         const SizedBox(height: AppSpacing.s16),
-        _LocationSection(profile: profile, canEdit: canEdit),
+        _LocationSection(profile: profile, canEdit: _editable),
       ],
     );
   }
 }
 
-/// The shop photo, uploaded on the web portal (SHP-004).
+class _EditButton extends StatelessWidget {
+  const _EditButton({required this.label, required this.onPressed});
+
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: AppSpacing.s12),
+    child: Align(
+      alignment: Alignment.centerLeft,
+      child: AppButton(
+        label: label,
+        icon: Icons.edit_outlined,
+        variant: AppButtonVariant.secondary,
+        onPressed: onPressed,
+      ),
+    ),
+  );
+}
+
+/// The shop photo (SHP-004): taken or chosen here, or on the web portal.
 class _PhotoSection extends StatelessWidget {
-  const _PhotoSection({required this.photo});
+  const _PhotoSection({
+    required this.photo,
+    required this.editable,
+    required this.uploadingFrom,
+    required this.onPick,
+  });
 
   final ShopPhoto? photo;
+  final bool editable;
+  final PhotoSource? uploadingFrom;
+  final ValueChanged<PhotoSource> onPick;
 
   @override
   Widget build(BuildContext context) {
     final photo = this.photo;
+    final busy = uploadingFrom != null;
+    final buttons = Wrap(
+      spacing: AppSpacing.s12,
+      runSpacing: AppSpacing.s8,
+      children: [
+        AppButton(
+          label: 'Take photo',
+          loadingLabel: 'Uploading…',
+          icon: Icons.photo_camera_outlined,
+          variant: AppButtonVariant.secondary,
+          loading: uploadingFrom == PhotoSource.camera,
+          onPressed: busy ? null : () => onPick(PhotoSource.camera),
+        ),
+        AppButton(
+          label: 'Choose from gallery',
+          loadingLabel: 'Uploading…',
+          icon: Icons.photo_library_outlined,
+          variant: AppButtonVariant.secondary,
+          loading: uploadingFrom == PhotoSource.gallery,
+          onPressed: busy ? null : () => onPick(PhotoSource.gallery),
+        ),
+      ],
+    );
     if (photo == null) {
-      return const AppSection(
+      return AppSection(
         title: 'Shop photo',
-        lines: [ShopProfileMessages.notAdded],
+        lines: const [ShopProfileMessages.notAdded],
         muted: true,
+        child: editable
+            ? Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.s12),
+                child: buttons,
+              )
+            : null,
       );
     }
     return AppCard(
@@ -160,9 +322,18 @@ class _PhotoSection extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.all(AppSpacing.s16),
-            child: Text(
-              'Shop photo',
-              style: Theme.of(context).textTheme.titleMedium,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Shop photo',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                if (editable) ...[
+                  const SizedBox(height: AppSpacing.s12),
+                  buttons,
+                ],
+              ],
             ),
           ),
         ],

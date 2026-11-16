@@ -243,9 +243,10 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.text('Fix these, then submit your shop again on the web portal.'),
+        find.text('Fix these, then submit your shop again.'),
         findsOneWidget,
       );
+      expect(find.widgetWithText(AppButton, 'Submit for review'), findsOne);
     });
 
     testWidgets('explains the lock while the shop is in review', (

@@ -13,6 +13,7 @@ import 'src/orders/shop_orders_repository.dart';
 import 'src/providers.dart';
 import 'src/shops/shop_access_repository.dart';
 import 'src/shops/shop_profile.dart';
+import 'src/shops/shop_settings.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,6 +49,9 @@ Future<void> main() async {
         ),
         shopProfileRepositoryProvider.overrideWithValue(
           ApiShopProfileRepository(api),
+        ),
+        shopSettingsRepositoryProvider.overrideWithValue(
+          ApiShopSettingsRepository(api),
         ),
         shopCatalogueRepositoryProvider.overrideWithValue(
           ApiShopCatalogueRepository(api),

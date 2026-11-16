@@ -223,9 +223,16 @@ class ShopDrawer extends ConsumerWidget {
         AppDrawerRow(
           icon: Icons.storefront_outlined,
           label: 'Shop profile',
-          detail: 'Address, support mobile and map location',
+          detail: 'Photo, address, support mobile and map location',
           onTap: () => open('/shops/$shopId/profile'),
         ),
+        if (shop?.can(ShopPermission.shopSettings) ?? false)
+          AppDrawerRow(
+            icon: Icons.tune,
+            label: 'Shop settings',
+            detail: 'Delivery and order messages',
+            onTap: () => open('/shops/$shopId/settings'),
+          ),
         const AppDrawerSection(title: 'Account'),
         if ((user?.memberships.length ?? 0) > 1)
           AppDrawerRow(

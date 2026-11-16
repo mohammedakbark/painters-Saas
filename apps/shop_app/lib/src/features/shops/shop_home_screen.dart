@@ -12,6 +12,7 @@ import '../../shops/shop_models.dart';
 import '../../shops/shop_permissions.dart';
 import '../../shops/shop_review.dart';
 import '../shell/shop_shell.dart';
+import 'review_messages.dart';
 
 /// The shop's Home tab (SHP-011), like the web Overview: status, what needs
 /// doing, today's order figures, product figures and shortcuts. Each part is
@@ -96,7 +97,7 @@ class _Dashboard extends ConsumerWidget {
               ),
               const SizedBox(height: AppSpacing.s8),
               Text(shopStatusDescription(status), style: textTheme.bodyLarge),
-              if (review != null) ..._reviewDetails(review, textTheme),
+              if (review != null) _ReviewDetails(shop: shop, review: review),
             ],
           ),
         ),
@@ -396,54 +397,150 @@ String unpaidLine(int count, int? paise) {
       : '$orders not paid yet: ${formatRupees(paise)}';
 }
 
-/// What the owner should know about the review (PLT-002). Submitting and
-/// withdrawing happen on the web portal; the app only shows the state.
-List<Widget> _reviewDetails(ShopReviewState review, TextTheme textTheme) {
-  final last = review.lastDecision;
-  final submittedAt = review.submittedAt;
-  final body = textTheme.bodyLarge;
-  return switch (review.status) {
-    'PENDING_REVIEW' => [
-      const SizedBox(height: AppSpacing.s12),
-      Text(
-        '${submittedAt == null ? 'Submitted' : 'Submitted on ${formatIstDate(submittedAt)}'}. '
-        'Until the review is done, the profile, photo and location are locked.',
-        style: body,
+/// What the owner should know about the review (PLT-002), with Submit for
+/// review and Withdraw for people with `shop.profile` (SHP-013).
+class _ReviewDetails extends ConsumerStatefulWidget {
+  const _ReviewDetails({required this.shop, required this.review});
+
+  final MyShop shop;
+  final ShopReviewState review;
+
+  @override
+  ConsumerState<_ReviewDetails> createState() => _ReviewDetailsState();
+}
+
+class _ReviewDetailsState extends ConsumerState<_ReviewDetails> {
+  bool _busy = false;
+
+  Future<void> _run({required bool submit}) async {
+    final shopId = widget.shop.id;
+    if (!submit) {
+      final confirmed = await showAppConfirmDialog(
+        context: context,
+        title: 'Withdraw the submission?',
+        message:
+            'The review stops and you can change the profile, photo and '
+            'location again. Submit again when you are ready.',
+        confirmLabel: 'Withdraw',
+      );
+      if (!confirmed || !mounted) return;
+    }
+    setState(() => _busy = true);
+    final repository = ref.read(shopProfileRepositoryProvider);
+    try {
+      if (submit) {
+        await repository.submitForReview(shopId);
+      } else {
+        await repository.withdrawReview(shopId);
+      }
+      if (!mounted) return;
+      ref
+        ..invalidate(shopReviewProvider(shopId))
+        ..invalidate(shopProvider(shopId));
+      showAppSnackBar(
+        context,
+        submit ? ReviewMessages.submitted : ReviewMessages.withdrawn,
+        tone: AppTone.success,
+      );
+    } on Object catch (error) {
+      if (!mounted) return;
+      // The checklist or the status may have changed meanwhile.
+      ref.invalidate(shopReviewProvider(shopId));
+      showAppSnackBar(context, reviewErrorMessage(error), tone: AppTone.error);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final review = widget.review;
+    final textTheme = Theme.of(context).textTheme;
+    final last = review.lastDecision;
+    final submittedAt = review.submittedAt;
+    final body = textTheme.bodyLarge;
+    final canAct = widget.shop.can(ShopPermission.shopProfile);
+    final draft =
+        review.status == 'DRAFT' || review.status == 'CHANGES_REQUESTED';
+
+    final Widget? action = switch (review.status) {
+      'PENDING_REVIEW' when canAct => AppButton(
+        label: 'Withdraw submission',
+        loadingLabel: 'Withdrawing…',
+        variant: AppButtonVariant.secondary,
+        loading: _busy,
+        onPressed: () => _run(submit: false),
       ),
-    ],
-    'CHANGES_REQUESTED' when last != null => [
-      const SizedBox(height: AppSpacing.s12),
-      Semantics(
-        header: true,
-        child: Text('Changes requested', style: textTheme.titleMedium),
+      _ when draft && canAct && review.missing.isEmpty => AppButton(
+        label: 'Submit for review',
+        loadingLabel: 'Submitting…',
+        loading: _busy,
+        expand: true,
+        onPressed: () => _run(submit: true),
       ),
-      const SizedBox(height: AppSpacing.s4),
-      for (final reason in last.reasons)
-        Padding(
-          padding: const EdgeInsets.only(top: AppSpacing.s4),
-          child: Text('• ${reviewReasonLabel(reason)}', style: body),
-        ),
-      if (last.note != null) ...[
-        const SizedBox(height: AppSpacing.s8),
-        Text('Note from the platform team: "${last.note}"', style: body),
+      _ when draft && canAct => AppButton(
+        label: 'Open shop profile',
+        variant: AppButtonVariant.secondary,
+        onPressed: () => context.go('/shops/${widget.shop.id}/profile'),
+      ),
+      _ => null,
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ...switch (review.status) {
+          'PENDING_REVIEW' => [
+            const SizedBox(height: AppSpacing.s12),
+            Text(
+              '${submittedAt == null ? 'Submitted' : 'Submitted on ${formatIstDate(submittedAt)}'}. '
+              'Until the review is done, the profile, photo and location are '
+              'locked.',
+              style: body,
+            ),
+          ],
+          'CHANGES_REQUESTED' when last != null => [
+            const SizedBox(height: AppSpacing.s12),
+            Semantics(
+              header: true,
+              child: Text('Changes requested', style: textTheme.titleMedium),
+            ),
+            const SizedBox(height: AppSpacing.s4),
+            for (final reason in last.reasons)
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.s4),
+                child: Text('• ${reviewReasonLabel(reason)}', style: body),
+              ),
+            if (last.note != null) ...[
+              const SizedBox(height: AppSpacing.s8),
+              Text('Note from the platform team: "${last.note}"', style: body),
+            ],
+            const SizedBox(height: AppSpacing.s8),
+            Text(
+              review.missing.isEmpty
+                  ? 'Fix these, then submit your shop again.'
+                  : 'Fix these, then submit your shop again. Still to do: '
+                        '${review.missing.map(checklistItemName).join(', ')}.',
+              style: body,
+            ),
+          ],
+          'DRAFT' || 'CHANGES_REQUESTED' => [
+            const SizedBox(height: AppSpacing.s12),
+            Text(
+              review.missing.isEmpty
+                  ? 'Your checklist is complete. Submit your shop for review.'
+                  : 'Still to do before review: '
+                        '${review.missing.map(checklistItemName).join(', ')}.',
+              style: body,
+            ),
+          ],
+          _ => const <Widget>[],
+        },
+        if (action != null) ...[
+          const SizedBox(height: AppSpacing.s12),
+          Align(alignment: Alignment.centerLeft, child: action),
+        ],
       ],
-      const SizedBox(height: AppSpacing.s8),
-      Text(
-        'Fix these, then submit your shop again on the web portal.',
-        style: body,
-      ),
-    ],
-    'DRAFT' || 'CHANGES_REQUESTED' => [
-      const SizedBox(height: AppSpacing.s12),
-      Text(
-        review.missing.isEmpty
-            ? 'Your checklist is complete. Submit your shop for review on '
-                  'the web portal.'
-            : 'Still to do before review: '
-                  '${review.missing.map(checklistItemName).join(', ')}.',
-        style: body,
-      ),
-    ],
-    _ => const [],
-  };
+    );
+  }
 }

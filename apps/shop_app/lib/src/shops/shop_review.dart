@@ -1,5 +1,5 @@
-/// The shop's review status (`GET /v1/shops/{id}/review`, PLT-002). The Shop
-/// App only shows it; submitting and withdrawing happen on the web portal.
+/// The shop's review status (`GET /v1/shops/{id}/review`, PLT-002). The
+/// owner can submit and withdraw in the Shop App too (SHP-013).
 class ShopReviewDecision {
   const ShopReviewDecision({
     required this.decision,

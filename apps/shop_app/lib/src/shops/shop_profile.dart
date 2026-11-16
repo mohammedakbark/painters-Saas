@@ -1,4 +1,5 @@
 import '../api/api_client.dart';
+import '../catalogue/product_photo_picker.dart';
 import 'shop_access_repository.dart';
 import 'shop_review.dart';
 
@@ -10,6 +11,7 @@ class ShopAddress {
     required this.landmark,
     required this.city,
     required this.district,
+    required this.stateCode,
     required this.stateName,
     required this.postalCode,
   });
@@ -20,15 +22,30 @@ class ShopAddress {
     landmark: json['landmark'] as String?,
     city: json['city']! as String,
     district: json['district']! as String,
+    stateCode: json['stateCode']! as String,
     stateName: json['stateName']! as String,
     postalCode: json['postalCode']! as String,
   );
+
+  /// The API's address input; the API derives the state name from the code.
+  Map<String, Object?> toJson() => {
+    'line1': line1,
+    'line2': line2,
+    'landmark': landmark,
+    'city': city,
+    'district': district,
+    'stateCode': stateCode,
+    'postalCode': postalCode,
+  };
 
   final String line1;
   final String? line2;
   final String? landmark;
   final String city;
   final String district;
+
+  /// Two letters, for example KL.
+  final String stateCode;
   final String stateName;
   final String postalCode;
 
@@ -125,13 +142,15 @@ class ShopProfileForbidden implements Exception {
   const ShopProfileForbidden();
 }
 
-/// The shop is waiting for review, so its location is locked (D-033).
+/// The shop is waiting for review, so its profile, photo and location are
+/// locked (D-033).
 class ShopInReview implements Exception {
   const ShopInReview();
 }
 
-/// Reads the profile and sets the location. The API checks membership and
-/// role; this never decides access itself.
+/// Reads and changes the profile, photo and location, and submits the shop
+/// for review (SHP-003, SHP-013). The API checks membership and permission;
+/// this never decides access itself.
 abstract interface class ShopProfileRepository {
   /// Throws [ShopNotFound] for shops the user cannot access.
   Future<ShopProfile> fetchProfile(String shopId);
@@ -144,8 +163,27 @@ abstract interface class ShopProfileRepository {
     required double longitude,
   });
 
+  /// Replaces the support mobile and the address; the location is kept.
+  /// Throws [ShopInReview] while the shop waits for review, and
+  /// [ApiException] with field errors for invalid values.
+  Future<ShopProfile> saveDetails(
+    String shopId, {
+    required String? supportPhone,
+    required ShopAddress? address,
+  });
+
+  /// Replaces the shop photo. Throws like [saveDetails].
+  Future<ShopProfile> replacePhoto(String shopId, PickedPhoto photo);
+
   /// The review status (PLT-002). Throws [ShopNotFound] like [fetchProfile].
   Future<ShopReviewState> fetchReview(String shopId);
+
+  /// Sends the shop for review; the checklist must be complete (409
+  /// `onboarding_incomplete` otherwise).
+  Future<ShopReviewState> submitForReview(String shopId);
+
+  /// Takes the submission back so the shop can be edited again.
+  Future<ShopReviewState> withdrawReview(String shopId);
 }
 
 class ApiShopProfileRepository implements ShopProfileRepository {
@@ -174,14 +212,52 @@ class ApiShopProfileRepository implements ShopProfileRepository {
   );
 
   @override
-  Future<ShopReviewState> fetchReview(String shopId) async {
+  Future<ShopProfile> saveDetails(
+    String shopId, {
+    required String? supportPhone,
+    required ShopAddress? address,
+  }) => _guard(
+    () => _api.putJson(_path(shopId, 'profile'), {
+      'supportPhone': supportPhone,
+      'address': address?.toJson(),
+    }),
+  );
+
+  @override
+  Future<ShopProfile> replacePhoto(String shopId, PickedPhoto photo) => _guard(
+    () => _api.putMultipart(
+      _path(shopId, 'photo'),
+      field: 'photo',
+      bytes: photo.bytes,
+      filename: photo.filename,
+      contentType: photo.contentType,
+    ),
+  );
+
+  @override
+  Future<ShopReviewState> fetchReview(String shopId) =>
+      _review(() => _api.getJson(_path(shopId, 'review')));
+
+  @override
+  Future<ShopReviewState> submitForReview(String shopId) =>
+      _review(() => _api.postJson(_path(shopId, 'review-submission'), {}));
+
+  @override
+  Future<ShopReviewState> withdrawReview(String shopId) => _review(
+    () => _api.postJson(_path(shopId, 'review-submission/withdraw'), {}),
+  );
+
+  Future<ShopReviewState> _review(
+    Future<Map<String, Object?>> Function() call,
+  ) async {
     try {
-      return ShopReviewState.fromJson(
-        await _api.getJson(_path(shopId, 'review')),
-      );
+      return ShopReviewState.fromJson(await call());
     } on ApiException catch (error) {
       if (error.status == 404) {
         throw const ShopNotFound();
+      }
+      if (error.status == 403) {
+        throw const ShopProfileForbidden();
       }
       rethrow;
     }

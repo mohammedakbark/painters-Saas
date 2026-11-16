@@ -15,6 +15,7 @@ import '../features/shell/shop_shell.dart';
 import '../features/shops/shop_home_screen.dart';
 import '../features/shops/shop_picker_screen.dart';
 import '../features/shops/shop_profile_screen.dart';
+import '../features/shops/shop_settings_screen.dart';
 import '../features/sign_in/sign_in_screen.dart';
 import '../orders/order_models.dart';
 import '../providers.dart';
@@ -97,6 +98,12 @@ final routerProvider = Provider<GoRouter>((ref) {
             title: 'Shop profile',
             anyOf: ShopPermission.values,
             build: (state) => ShopProfileScreen(shopId: _shopId(state)),
+          ),
+          _detail(
+            'settings',
+            title: 'Shop settings',
+            anyOf: const [ShopPermission.shopSettings],
+            build: (state) => ShopSettingsScreen(shopId: _shopId(state)),
           ),
           _shopTabs,
         ],

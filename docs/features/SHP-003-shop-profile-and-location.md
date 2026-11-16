@@ -6,6 +6,8 @@
 - **Related modules:** API (`apps/api/src/shops/`), web portal (`/shops/[shopId]/profile`, overview checklist), Shop App (shop profile screen), `packages/flutter_shared` (`ShopLocationMap`)
 - **Decisions:** D-012 (onboarding checklist), D-027 (address on a Google map plus current location), D-028 (free tiers, replaceable providers), D-033 (edit lock during review, built with PLT-002)
 
+> **Shop App editing since SHP-013:** the photo, address and support mobile can also be changed in the Shop App, and the shop submitted for review there; see `docs/features/SHP-013-shop-app-profile-and-settings.md`.
+
 > **Maps changed in SHP-006 (D-041):** Google Maps was replaced by OpenStreetMap (Leaflet, Nominatim, flutter_map) and the Google keys and settings below were removed. The Google details in this document describe the first implementation; see `docs/features/SHP-006-openstreetmap.md` for the current one.
 
 ## 1. Problem and goal

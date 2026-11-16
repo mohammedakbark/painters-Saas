@@ -11,6 +11,7 @@ import 'shops/shop_access_repository.dart';
 import 'shops/shop_models.dart';
 import 'shops/shop_profile.dart';
 import 'shops/shop_review.dart';
+import 'shops/shop_settings.dart';
 
 /// Overridden in `main()` (and in tests) with the real or a fake implementation.
 final authRepositoryProvider = Provider<AuthRepository>(
@@ -26,6 +27,19 @@ final shopProfileRepositoryProvider = Provider<ShopProfileRepository>(
   (ref) =>
       throw UnimplementedError('shopProfileRepositoryProvider is overridden'),
 );
+
+/// Pickup, delivery and order messages (SHP-008 API; SHP-013 screen).
+final shopSettingsRepositoryProvider = Provider<ShopSettingsRepository>(
+  (ref) =>
+      throw UnimplementedError('shopSettingsRepositoryProvider is overridden'),
+);
+
+/// The shop's settings, read when Shop settings opens.
+final shopSettingsProvider = FutureProvider.autoDispose
+    .family<ShopSettings, String>(
+      (ref, shopId) => ref.watch(shopSettingsRepositoryProvider).fetch(shopId),
+      retry: noRetry,
+    );
 
 /// The shop's catalogue (CAT-002 API; SHP-005 screens).
 final shopCatalogueRepositoryProvider = Provider<ShopCatalogueRepository>(

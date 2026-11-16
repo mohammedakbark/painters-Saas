@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_shared/flutter_shared.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shop_app/app.dart';
+import 'package:shop_app/src/api/api_client.dart';
 import 'package:shop_app/src/auth/auth_repository.dart';
 import 'package:shop_app/src/catalogue/product_photo_picker.dart';
 import 'package:shop_app/src/catalogue/shop_catalogue_repository.dart';
@@ -14,12 +15,15 @@ import 'package:shop_app/src/shops/shop_access_repository.dart';
 import 'package:shop_app/src/shops/shop_models.dart';
 import 'package:shop_app/src/shops/shop_profile.dart';
 import 'package:shop_app/src/shops/shop_review.dart';
+import 'package:shop_app/src/shops/shop_settings.dart';
 
 import 'catalogue_fakes.dart';
 import 'order_fakes.dart';
+import 'settings_fakes.dart';
 
 export 'catalogue_fakes.dart';
 export 'order_fakes.dart';
+export 'settings_fakes.dart';
 
 class FakeAuthRepository extends ChangeNotifier implements AuthRepository {
   FakeAuthRepository({this.signedIn = false});
@@ -170,6 +174,107 @@ class FakeShopProfileRepository implements ShopProfileRepository {
     profiles[shopId] = updated;
     return updated;
   }
+
+  /// Saved details and photos, in order.
+  final List<String> saved = [];
+
+  /// Like the API: nothing changes while the shop waits for review.
+  void _checkEditable(String shopId) {
+    final error = saveError;
+    if (error != null) throw error;
+    if (reviews[shopId]?.status == 'PENDING_REVIEW') {
+      throw const ShopInReview();
+    }
+  }
+
+  ShopProfile _replace(
+    String shopId, {
+    String? supportPhone,
+    ShopAddress? address,
+    ShopPhoto? photo,
+    bool details = false,
+  }) {
+    final current = profiles[shopId]!;
+    return profiles[shopId] = ShopProfile(
+      shopId: current.shopId,
+      shopName: current.shopName,
+      supportPhone: details ? supportPhone : current.supportPhone,
+      address: details ? address : current.address,
+      photo: photo ?? current.photo,
+      location: current.location,
+    );
+  }
+
+  @override
+  Future<ShopProfile> saveDetails(
+    String shopId, {
+    required String? supportPhone,
+    required ShopAddress? address,
+  }) async {
+    _checkEditable(shopId);
+    saved.add('details');
+    return _replace(
+      shopId,
+      supportPhone: supportPhone,
+      address: address,
+      details: true,
+    );
+  }
+
+  @override
+  Future<ShopProfile> replacePhoto(String shopId, PickedPhoto photo) async {
+    _checkEditable(shopId);
+    saved.add('photo ${photo.filename}');
+    return _replace(
+      shopId,
+      photo: const ShopPhoto(
+        url: 'https://example.test/new.webp',
+        thumbUrl: 'https://example.test/new-thumb.webp',
+      ),
+    );
+  }
+
+  /// When set, the next review call fails with it (once).
+  Object? reviewError;
+
+  void _failReview() {
+    final error = reviewError;
+    if (error != null) {
+      reviewError = null;
+      throw error;
+    }
+  }
+
+  @override
+  Future<ShopReviewState> submitForReview(String shopId) async {
+    _failReview();
+    final current = await fetchReview(shopId);
+    if (current.missing.isNotEmpty) {
+      throw const ApiException(
+        status: 409,
+        code: 'onboarding_incomplete',
+        detail: 'Finish the checklist before submitting the shop for review.',
+      );
+    }
+    return reviews[shopId] = ShopReviewState(
+      status: 'PENDING_REVIEW',
+      missing: const [],
+      submittedAt: DateTime.utc(2026, 11, 16, 6),
+      lastDecision: current.lastDecision,
+    );
+  }
+
+  @override
+  Future<ShopReviewState> withdrawReview(String shopId) async {
+    _failReview();
+    final current = await fetchReview(shopId);
+    return reviews[shopId] = ShopReviewState(
+      status: current.lastDecision == null ? 'DRAFT' : 'CHANGES_REQUESTED',
+      missing: const [],
+      submittedAt: null,
+      lastDecision: current.lastDecision,
+    );
+  }
 }
 
 class FakeLocationService implements LocationService {
@@ -201,6 +306,7 @@ const lakshmiProfile = ShopProfile(
     landmark: null,
     city: 'Kochi',
     district: 'Ernakulam',
+    stateCode: 'KL',
     stateName: 'Kerala',
     postalCode: '682016',
   ),
@@ -216,6 +322,7 @@ Widget testApp({
   ProductPhotoPicker? photos,
   ShopOrdersRepository? orders,
   ShopCustomersRepository? customers,
+  ShopSettingsRepository? settings,
   Duration orderRefreshInterval = const Duration(hours: 1),
   LinkOpener? openLink,
 }) => ProviderScope(
@@ -225,6 +332,10 @@ Widget testApp({
     ),
     shopCustomersRepositoryProvider.overrideWithValue(
       customers ?? FakeShopCustomersRepository(),
+    ),
+    shopSettingsRepositoryProvider.overrideWithValue(
+      settings ??
+          FakeShopSettingsRepository(settings: {'shop-a': testSettings()}),
     ),
     orderRefreshIntervalProvider.overrideWithValue(orderRefreshInterval),
     linkOpenerProvider.overrideWithValue(openLink ?? (link) async => true),
