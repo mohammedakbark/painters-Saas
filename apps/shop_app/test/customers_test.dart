@@ -266,6 +266,25 @@ void main() {
       );
     });
 
+    // Found on the emulator: back from New order went to the Orders tab.
+    testWidgets('back from New order and from an order returns here', (
+      tester,
+    ) async {
+      await openRavi(tester);
+
+      await tester.tap(_button('New order'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Back'));
+      await tester.pumpAndSettle();
+      expect(find.text('Recorded by your shop'), findsOneWidget);
+
+      await tester.tap(find.textContaining('#1001'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Back'));
+      await tester.pumpAndSettle();
+      expect(find.text('Recorded by your shop'), findsOneWidget);
+    });
+
     testWidgets('no New order without permission to record orders', (
       tester,
     ) async {

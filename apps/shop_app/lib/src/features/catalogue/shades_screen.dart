@@ -534,7 +534,7 @@ class _ShadeRow extends StatelessWidget {
                   ),
                 ),
                 if (action case final action?)
-                  Align(alignment: Alignment.centerLeft, child: action),
+                  Align(alignment: Alignment.centerRight, child: action),
               ],
             ),
           ),
@@ -671,7 +671,7 @@ class _OwnShadeFormState extends ConsumerState<OwnShadeForm> {
             ),
             const SizedBox(width: AppSpacing.s12),
             Padding(
-              padding: const EdgeInsets.only(top: AppSpacing.s24),
+              padding: const EdgeInsets.only(top: AppSpacing.s8),
               child: AppColorSwatch(hex: _hex.text),
             ),
           ],

@@ -24,6 +24,11 @@ import '../providers.dart';
 import '../shops/shop_permissions.dart';
 
 const signInPath = '/sign-in';
+
+/// A screen of the shop's side menu: `profile`, `settings`, `shades` or
+/// `categories`.
+String shopMenuPath(String shopId, String screen) =>
+    '/shops/$shopId/home/$screen';
 const shopsPath = '/shops';
 
 /// Signed-out users may only see the sign-in screen; signed-in users never
@@ -94,33 +99,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           final shop = '/shops/${_shopId(state)}';
           return state.uri.path == shop ? '$shop/home' : null;
         },
-        routes: [
-          _detail(
-            'profile',
-            title: 'Shop profile',
-            anyOf: ShopPermission.values,
-            build: (state) => ShopProfileScreen(shopId: _shopId(state)),
-          ),
-          _detail(
-            'settings',
-            title: 'Shop settings',
-            anyOf: const [ShopPermission.shopSettings],
-            build: (state) => ShopSettingsScreen(shopId: _shopId(state)),
-          ),
-          _detail(
-            'shades',
-            title: 'Shades',
-            anyOf: const [ShopPermission.catalogueView],
-            build: (state) => ShadesScreen(shopId: _shopId(state)),
-          ),
-          _detail(
-            'categories',
-            title: 'Categories',
-            anyOf: const [ShopPermission.catalogueView],
-            build: (state) => CategoriesScreen(shopId: _shopId(state)),
-          ),
-          _shopTabs,
-        ],
+        routes: [_shopTabs],
       ),
     ],
   );
@@ -138,6 +117,34 @@ final _shopTabs = StatefulShellRoute.indexedStack(
         GoRoute(
           path: 'home',
           builder: (context, state) => ShopHomeScreen(shopId: _shopId(state)),
+          // Screens of the side menu open above the tabs with the home under
+          // them, so the back arrow and Android back return to the home.
+          routes: [
+            _detail(
+              'profile',
+              title: 'Shop profile',
+              anyOf: ShopPermission.values,
+              build: (state) => ShopProfileScreen(shopId: _shopId(state)),
+            ),
+            _detail(
+              'settings',
+              title: 'Shop settings',
+              anyOf: const [ShopPermission.shopSettings],
+              build: (state) => ShopSettingsScreen(shopId: _shopId(state)),
+            ),
+            _detail(
+              'shades',
+              title: 'Shades',
+              anyOf: const [ShopPermission.catalogueView],
+              build: (state) => ShadesScreen(shopId: _shopId(state)),
+            ),
+            _detail(
+              'categories',
+              title: 'Categories',
+              anyOf: const [ShopPermission.catalogueView],
+              build: (state) => CategoriesScreen(shopId: _shopId(state)),
+            ),
+          ],
         ),
       ],
     ),

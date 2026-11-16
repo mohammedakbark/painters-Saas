@@ -19,11 +19,15 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
     required this.title,
     this.subtitle,
     this.actions = const [],
+    this.leading,
   }) : assert(actions.length <= 2, 'at most two top bar actions');
 
   final String title;
   final String? subtitle;
   final List<Widget> actions;
+
+  /// Replaces the automatic back arrow or menu icon.
+  final Widget? leading;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight + 8);
@@ -31,6 +35,11 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final subtitle = this.subtitle;
+    // Without a back arrow or menu icon the title lines up with the content.
+    final hasLeading =
+        leading != null ||
+        (ModalRoute.of(context)?.impliesAppBarDismissal ?? false) ||
+        (Scaffold.maybeOf(context)?.hasDrawer ?? false);
     return AppBar(
       backgroundColor: AppComponentTokens.topBarBackground,
       foregroundColor: AppComponentTokens.topBarForeground,
@@ -38,10 +47,11 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       scrolledUnderElevation: 0,
       toolbarHeight: kToolbarHeight + 8,
+      leading: leading,
       shape: const Border(
         bottom: BorderSide(color: AppComponentTokens.topBarBorder),
       ),
-      titleSpacing: AppSpacing.s4,
+      titleSpacing: hasLeading ? AppSpacing.s4 : AppSpacing.screenPadding,
       title: Semantics(
         header: true,
         child: Column(
@@ -100,9 +110,25 @@ class AppScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final drawer = this.drawer;
+    final tabs = _AppTabScope.maybeOf(context);
+    // In a tab screen the side menu belongs to the frame around the tabs,
+    // so it covers the bottom tabs too instead of opening under them.
+    final opensInTabs = drawer != null && tabs != null;
     return Scaffold(
-      appBar: AppTopBar(title: title, subtitle: subtitle, actions: actions),
-      drawer: drawer,
+      appBar: AppTopBar(
+        title: title,
+        subtitle: subtitle,
+        actions: actions,
+        leading: opensInTabs
+            ? IconButton(
+                icon: const Icon(Icons.menu),
+                tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+                onPressed: () => tabs.openDrawer(drawer),
+              )
+            : null,
+      ),
+      drawer: opensInTabs ? null : drawer,
       body: SafeArea(bottom: bottomBar == null, child: body),
       bottomNavigationBar: bottomBar,
     );
@@ -354,7 +380,7 @@ class AppBottomNav extends StatelessWidget {
 
 /// The frame around tab screens: the tab content and [AppBottomNav]. Each
 /// tab screen brings its own [AppScaffold].
-class AppTabScaffold extends StatelessWidget {
+class AppTabScaffold extends StatefulWidget {
   const AppTabScaffold({super.key, required this.body, this.bottomNav});
 
   final Widget body;
@@ -363,9 +389,47 @@ class AppTabScaffold extends StatelessWidget {
   final Widget? bottomNav;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(body: body, bottomNavigationBar: bottomNav);
+  State<AppTabScaffold> createState() => _AppTabScaffoldState();
+}
+
+class _AppTabScaffoldState extends State<AppTabScaffold> {
+  final _scaffold = GlobalKey<ScaffoldState>();
+
+  /// The side menu of the tab screen that opened it.
+  Widget? _drawer;
+
+  void _openDrawer(Widget drawer) {
+    setState(() => _drawer = drawer);
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _scaffold.currentState?.openDrawer(),
+    );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return _AppTabScope(
+      openDrawer: _openDrawer,
+      child: Scaffold(
+        key: _scaffold,
+        drawer: _drawer,
+        body: widget.body,
+        bottomNavigationBar: widget.bottomNav,
+      ),
+    );
+  }
+}
+
+/// Lets an [AppScaffold] inside the tabs open its drawer over the tabs.
+class _AppTabScope extends InheritedWidget {
+  const _AppTabScope({required this.openDrawer, required super.child});
+
+  final void Function(Widget drawer) openDrawer;
+
+  static _AppTabScope? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_AppTabScope>();
+
+  @override
+  bool updateShouldNotify(_AppTabScope oldWidget) => false;
 }
 
 /// The side menu: a [header] (the person and the shop), then rows.

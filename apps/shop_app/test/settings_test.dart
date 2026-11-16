@@ -188,6 +188,25 @@ void main() {
     });
   });
 
+  // Found on the emulator: these screens opened with nothing under them, so
+  // back closed the app.
+  for (final row in ['Shop profile', 'Shop settings', 'Shades', 'Categories']) {
+    testWidgets('$row goes back to the home', (tester) async {
+      await openShop(tester);
+
+      await openFromDrawer(tester, row);
+      await tester.tap(find.byTooltip('Back'));
+      await tester.pumpAndSettle();
+      expect(find.byTooltip('Open navigation menu'), findsOneWidget);
+
+      await openFromDrawer(tester, row);
+      // Android's back button.
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.byTooltip('Open navigation menu'), findsOneWidget);
+    });
+  }
+
   testWidgets('only people with shop.settings see it in the menu', (
     tester,
   ) async {

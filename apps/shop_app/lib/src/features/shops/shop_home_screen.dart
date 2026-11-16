@@ -7,6 +7,7 @@ import '../../catalogue/catalogue_providers.dart';
 import '../../orders/order_models.dart';
 import '../../orders/order_providers.dart';
 import '../../providers.dart';
+import '../../routing/router.dart';
 import '../../shops/shop_access_repository.dart';
 import '../../shops/shop_models.dart';
 import '../../shops/shop_permissions.dart';
@@ -266,7 +267,7 @@ class _OrderFigures extends ConsumerWidget {
           data: (figures) => Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
+              _TileRow(
                 children: [
                   Expanded(
                     child: AppStatTile(
@@ -286,7 +287,7 @@ class _OrderFigures extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: AppSpacing.s12),
-              Row(
+              _TileRow(
                 children: [
                   Expanded(
                     child: AppStatTile(
@@ -342,7 +343,7 @@ class _ProductFigures extends ConsumerWidget {
           data: (figures) => Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
+              _TileRow(
                 children: [
                   Expanded(
                     child: AppStatTile(
@@ -362,7 +363,7 @@ class _ProductFigures extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: AppSpacing.s12),
-              Row(
+              _TileRow(
                 children: [
                   Expanded(
                     child: AppStatTile(
@@ -481,7 +482,7 @@ class _ReviewDetailsState extends ConsumerState<_ReviewDetails> {
       _ when draft && canAct => AppButton(
         label: 'Open shop profile',
         variant: AppButtonVariant.secondary,
-        onPressed: () => context.go('/shops/${widget.shop.id}/profile'),
+        onPressed: () => context.go(shopMenuPath(widget.shop.id, 'profile')),
       ),
       _ => null,
     };
@@ -543,4 +544,20 @@ class _ReviewDetailsState extends ConsumerState<_ReviewDetails> {
       ],
     );
   }
+}
+
+/// Two figure tiles side by side, as tall as the taller one, so a label on
+/// two lines doesn't push its neighbour out of line (found on the emulator).
+class _TileRow extends StatelessWidget {
+  const _TileRow({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => IntrinsicHeight(
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: children,
+    ),
+  );
 }

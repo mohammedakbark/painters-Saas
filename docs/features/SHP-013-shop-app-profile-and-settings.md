@@ -1,6 +1,6 @@
 # SHP-013: Shop profile, review and settings in the Shop App
 
-Status: **Complete (local; tests)**; emulator not run (`docs/PROJECT_STATE.md` §6). Fourth of the Shop App redesign features (owner, 2026-11-15).
+Status: **Complete (local; tests, Android emulator 2026-11-16)**; see `docs/PROJECT_STATE.md` §6. Fourth of the Shop App redesign features (owner, 2026-11-15).
 
 ## Goal
 

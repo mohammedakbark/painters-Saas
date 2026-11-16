@@ -103,7 +103,7 @@ class CustomerScreen extends ConsumerWidget {
                 label: 'New order',
                 icon: Icons.add,
                 expand: true,
-                onPressed: () => context.go(
+                onPressed: () => context.push(
                   '/shops/$shopId/orders/new?customerId=$customerId',
                 ),
               ),
@@ -216,7 +216,7 @@ class _LatestOrders extends ConsumerWidget {
                       subtitle:
                           '${formatOrderTime(order.placedAt)} · '
                           '${formatRupees(order.totalPaise)}',
-                      onTap: () => context.go(
+                      onTap: () => context.push(
                         '/shops/${customerKey.shopId}/orders/${order.id}',
                       ),
                     ),
@@ -398,7 +398,11 @@ class _SiteCard extends StatelessWidget {
           if (owner != null) Text('Owner: $owner', style: secondary),
           Text(site.address, style: secondary),
           if (site.hasPin) Text(CustomerMessages.pinFromWeb, style: secondary),
-          Wrap(spacing: AppSpacing.s8, children: actions),
+          Wrap(
+            alignment: WrapAlignment.end,
+            spacing: AppSpacing.s8,
+            children: actions,
+          ),
         ],
       ),
     );

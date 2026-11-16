@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../api/api_client.dart';
 import '../../providers.dart';
+import '../../routing/router.dart';
 import '../../shops/shop_access_repository.dart';
 import '../../shops/shop_profile.dart';
 import '../../shops/shop_settings.dart';
@@ -147,7 +148,7 @@ class _DeliverySection extends StatelessWidget {
                 child: AppButton(
                   label: 'Open Shop profile',
                   variant: AppButtonVariant.tertiary,
-                  onPressed: () => context.go('/shops/$shopId/profile'),
+                  onPressed: () => context.go(shopMenuPath(shopId, 'profile')),
                 ),
               ),
             ),
@@ -437,6 +438,7 @@ class _MessagesSectionState extends ConsumerState<_MessagesSection> {
                 children: [
                   Text(message, style: textTheme.bodyLarge),
                   Wrap(
+                    alignment: WrapAlignment.end,
                     spacing: AppSpacing.s8,
                     children: [
                       AppButton(

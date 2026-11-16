@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../orders/order_providers.dart';
 import '../../providers.dart';
+import '../../routing/router.dart';
 import '../../shops/shop_models.dart';
 import '../../shops/shop_permissions.dart';
 
@@ -224,14 +225,14 @@ class ShopDrawer extends ConsumerWidget {
           icon: Icons.storefront_outlined,
           label: 'Shop profile',
           detail: 'Photo, address, support mobile and map location',
-          onTap: () => open('/shops/$shopId/profile'),
+          onTap: () => open(shopMenuPath(shopId, 'profile')),
         ),
         if (shop?.can(ShopPermission.shopSettings) ?? false)
           AppDrawerRow(
             icon: Icons.tune,
             label: 'Shop settings',
             detail: 'Delivery and order messages',
-            onTap: () => open('/shops/$shopId/settings'),
+            onTap: () => open(shopMenuPath(shopId, 'settings')),
           ),
         if (shop?.can(ShopPermission.catalogueView) ?? false) ...[
           const AppDrawerSection(title: 'Catalogue'),
@@ -239,13 +240,13 @@ class ShopDrawer extends ConsumerWidget {
             icon: Icons.palette_outlined,
             label: 'Shades',
             detail: 'Favourite brand shades and your own',
-            onTap: () => open('/shops/$shopId/shades'),
+            onTap: () => open(shopMenuPath(shopId, 'shades')),
           ),
           AppDrawerRow(
             icon: Icons.category_outlined,
             label: 'Categories',
             detail: 'Platform categories and your own',
-            onTap: () => open('/shops/$shopId/categories'),
+            onTap: () => open(shopMenuPath(shopId, 'categories')),
           ),
         ],
         const AppDrawerSection(title: 'Account'),
