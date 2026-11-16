@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -9,12 +9,14 @@ import '../features/catalogue/product_screen.dart';
 import '../features/orders/new_order_screen.dart';
 import '../features/orders/order_list_screen.dart';
 import '../features/orders/order_screen.dart';
+import '../features/shell/shop_shell.dart';
 import '../features/shops/shop_home_screen.dart';
 import '../features/shops/shop_picker_screen.dart';
 import '../features/shops/shop_profile_screen.dart';
 import '../features/sign_in/sign_in_screen.dart';
 import '../orders/order_models.dart';
 import '../providers.dart';
+import '../shops/shop_permissions.dart';
 
 const signInPath = '/sign-in';
 const shopsPath = '/shops';
@@ -30,9 +32,40 @@ String? authRedirect({required bool signedIn, required String location}) {
   return onSignIn ? shopsPath : null;
 }
 
+/// Detail screens open here, above the tabs, with a back arrow (SHP-011).
+final _rootKey = GlobalKey<NavigatorState>(debugLabel: 'root');
+
+String _shopId(GoRouterState state) => state.pathParameters['shopId']!;
+
+/// A screen opened above the tabs, shown only with one of [anyOf] (D-056).
+GoRoute _detail(
+  String path, {
+  required String title,
+  required List<ShopPermission> anyOf,
+  required Widget Function(GoRouterState state) build,
+  List<RouteBase> routes = const [],
+}) => GoRoute(
+  path: path,
+  parentNavigatorKey: _rootKey,
+  builder: (context, state) => RequirePermission(
+    shopId: _shopId(state),
+    anyOf: anyOf,
+    title: title,
+    child: build(state),
+  ),
+  routes: routes,
+);
+
+const _anyOrderWork = [
+  ShopPermission.ordersHandle,
+  ShopPermission.ordersPayments,
+  ShopPermission.ordersRecord,
+];
+
 final routerProvider = Provider<GoRouter>((ref) {
   final auth = ref.watch(authRepositoryProvider);
   final router = GoRouter(
+    navigatorKey: _rootKey,
     initialLocation: shopsPath,
     refreshListenable: auth,
     redirect: (context, state) => authRedirect(
@@ -47,73 +80,23 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: shopsPath,
         builder: (context, state) => const ShopPickerScreen(),
+      ),
+      // The shop. '/shops/:shopId' opens the home tab. The tabs sit below it
+      // because go_router needs each tab's first route free of parameters.
+      GoRoute(
+        path: '/shops/:shopId',
+        redirect: (context, state) {
+          final shop = '/shops/${_shopId(state)}';
+          return state.uri.path == shop ? '$shop/home' : null;
+        },
         routes: [
-          GoRoute(
-            path: ':shopId',
-            builder: (context, state) =>
-                ShopHomeScreen(shopId: state.pathParameters['shopId']!),
-            routes: [
-              GoRoute(
-                path: 'profile',
-                builder: (context, state) =>
-                    ShopProfileScreen(shopId: state.pathParameters['shopId']!),
-              ),
-              GoRoute(
-                path: 'orders',
-                builder: (context, state) => OrderListScreen(
-                  shopId: state.pathParameters['shopId']!,
-                  initialTab: OrderTab.fromApi(
-                    state.uri.queryParameters['tab'],
-                  ),
-                ),
-                routes: [
-                  // Before ':orderId', so "new" is never read as an order id.
-                  GoRoute(
-                    path: 'new',
-                    builder: (context, state) =>
-                        NewOrderScreen(shopId: state.pathParameters['shopId']!),
-                  ),
-                  GoRoute(
-                    path: ':orderId',
-                    builder: (context, state) => OrderScreen(
-                      shopId: state.pathParameters['shopId']!,
-                      orderId: state.pathParameters['orderId']!,
-                    ),
-                  ),
-                ],
-              ),
-              GoRoute(
-                path: 'catalogue',
-                builder: (context, state) =>
-                    ProductListScreen(shopId: state.pathParameters['shopId']!),
-                routes: [
-                  GoRoute(
-                    path: 'products/:productId',
-                    builder: (context, state) => ProductScreen(
-                      shopId: state.pathParameters['shopId']!,
-                      productId: state.pathParameters['productId']!,
-                    ),
-                  ),
-                  GoRoute(
-                    path: 'add',
-                    builder: (context, state) => AddFromCatalogueScreen(
-                      shopId: state.pathParameters['shopId']!,
-                    ),
-                    routes: [
-                      GoRoute(
-                        path: ':catalogueProductId',
-                        builder: (context, state) => CatalogueListingScreen(
-                          shopId: state.pathParameters['shopId']!,
-                          catalogueProductId:
-                              state.pathParameters['catalogueProductId']!,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
+          _detail(
+            'profile',
+            title: 'Shop profile',
+            anyOf: ShopPermission.values,
+            build: (state) => ShopProfileScreen(shopId: _shopId(state)),
           ),
+          _shopTabs,
         ],
       ),
     ],
@@ -121,3 +104,91 @@ final routerProvider = Provider<GoRouter>((ref) {
   ref.onDispose(router.dispose);
   return router;
 });
+
+/// The shop's tabs (ShopTab, same order). Each keeps its own stack.
+final _shopTabs = StatefulShellRoute.indexedStack(
+  builder: (context, state, shell) =>
+      ShopShell(shopId: _shopId(state), shell: shell),
+  branches: [
+    StatefulShellBranch(
+      routes: [
+        GoRoute(
+          path: 'home',
+          builder: (context, state) => ShopHomeScreen(shopId: _shopId(state)),
+        ),
+      ],
+    ),
+    StatefulShellBranch(
+      routes: [
+        GoRoute(
+          path: 'orders',
+          builder: (context, state) => OrderListScreen(
+            shopId: _shopId(state),
+            initialTab: OrderTab.fromApi(state.uri.queryParameters['tab']),
+            initialPaid: switch (state.uri.queryParameters['paid']) {
+              'true' => true,
+              'false' => false,
+              _ => null,
+            },
+          ),
+          routes: [
+            // Before ':orderId', so "new" is never read as an order id.
+            _detail(
+              'new',
+              title: 'New order',
+              anyOf: const [ShopPermission.ordersRecord],
+              build: (state) => NewOrderScreen(shopId: _shopId(state)),
+            ),
+            _detail(
+              ':orderId',
+              title: 'Order',
+              anyOf: _anyOrderWork,
+              build: (state) => OrderScreen(
+                shopId: _shopId(state),
+                orderId: state.pathParameters['orderId']!,
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+    StatefulShellBranch(
+      routes: [
+        GoRoute(
+          path: 'catalogue',
+          builder: (context, state) =>
+              ProductListScreen(shopId: _shopId(state)),
+          routes: [
+            _detail(
+              'products/:productId',
+              title: 'Product',
+              anyOf: const [ShopPermission.catalogueView],
+              build: (state) => ProductScreen(
+                shopId: _shopId(state),
+                productId: state.pathParameters['productId']!,
+              ),
+            ),
+            _detail(
+              'add',
+              title: 'Add from brand catalogue',
+              anyOf: const [ShopPermission.catalogueManage],
+              build: (state) => AddFromCatalogueScreen(shopId: _shopId(state)),
+              routes: [
+                _detail(
+                  ':catalogueProductId',
+                  title: 'Add product',
+                  anyOf: const [ShopPermission.catalogueManage],
+                  build: (state) => CatalogueListingScreen(
+                    shopId: _shopId(state),
+                    catalogueProductId:
+                        state.pathParameters['catalogueProductId']!,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    ),
+  ],
+);

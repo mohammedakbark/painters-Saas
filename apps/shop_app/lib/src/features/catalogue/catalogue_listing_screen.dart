@@ -8,7 +8,6 @@ import '../../catalogue/catalogue_models.dart';
 import '../../catalogue/catalogue_providers.dart';
 import '../../catalogue/shop_catalogue_repository.dart';
 import '../../providers.dart';
-import '../shops/sign_out_button.dart';
 import 'catalogue_messages.dart';
 import 'pack_sheets.dart';
 
@@ -27,33 +26,28 @@ class CatalogueListingScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final product = ref.watch(catalogueProductProvider(catalogueProductId));
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Your prices'),
-        actions: const [SignOutButton()],
-      ),
-      body: SafeArea(
-        child: product.when(
-          loading: () => const LoadingView(message: 'Loading the product…'),
-          error: (error, _) => error is ShopProductNotFound
-              ? MessageView(
-                  icon: Icons.search_off,
-                  title: CatalogueMessages.productNotFound,
-                  message: 'This product is no longer in the brand catalogue.',
-                  action: AppButton(
-                    label: 'Back to the brand catalogue',
-                    variant: AppButtonVariant.secondary,
-                    onPressed: () => context.go('/shops/$shopId/catalogue/add'),
-                  ),
-                )
-              : ErrorView(
-                  title: "We couldn't load the product",
-                  onRetry: () => ref.invalidate(
-                    catalogueProductProvider(catalogueProductId),
-                  ),
+    return AppScaffold(
+      title: 'Your prices',
+      body: product.when(
+        loading: () => const LoadingView(message: 'Loading the product…'),
+        error: (error, _) => error is ShopProductNotFound
+            ? MessageView(
+                icon: Icons.search_off,
+                title: CatalogueMessages.productNotFound,
+                message: 'This product is no longer in the brand catalogue.',
+                action: AppButton(
+                  label: 'Back to the brand catalogue',
+                  variant: AppButtonVariant.secondary,
+                  onPressed: () => context.go('/shops/$shopId/catalogue/add'),
                 ),
-          data: (product) => _ListingForm(shopId: shopId, product: product),
-        ),
+              )
+            : ErrorView(
+                title: "We couldn't load the product",
+                onRetry: () => ref.invalidate(
+                  catalogueProductProvider(catalogueProductId),
+                ),
+              ),
+        data: (product) => _ListingForm(shopId: shopId, product: product),
       ),
     );
   }

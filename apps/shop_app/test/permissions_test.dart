@@ -25,9 +25,6 @@ const _membership = ShopMembership(
   role: 'STAFF',
 );
 
-const _ordersRow = 'New orders, packing, payment and returns';
-const _productsRow = 'Prices, pack sizes and availability';
-
 Map<String, Object?> _shopJson([Object? permissions]) => {
   'id': 's',
   'name': 'Shop',
@@ -88,14 +85,13 @@ void main() {
       orders.hideMoney = true;
       await openShop(tester, {ShopPermission.ordersHandle});
 
-      expect(find.text(_ordersRow), findsOneWidget);
-      expect(find.text(_productsRow), findsNothing);
+      expect(tabFinder('Orders'), findsOneWidget);
+      expect(tabFinder('Products'), findsNothing);
       expect(find.text('Ready or on the way'), findsOneWidget);
       expect(find.text("Today's sales"), findsNothing);
       expect(find.text('1 order not paid yet.'), findsOneWidget);
 
-      await tester.tap(find.text(_ordersRow));
-      await tester.pumpAndSettle();
+      await openTab(tester, 'Orders');
       expect(find.widgetWithText(AppButton, 'New order'), findsNothing);
       expect(find.widgetWithText(AppButton, 'Mark completed'), findsOneWidget);
     });
@@ -105,11 +101,10 @@ void main() {
     ) async {
       await openShop(tester, {ShopPermission.catalogueView});
 
-      expect(find.text(_ordersRow), findsNothing);
+      expect(tabFinder('Orders'), findsNothing);
       expect(find.text('To pack'), findsNothing);
 
-      await tester.tap(find.text(_productsRow));
-      await tester.pumpAndSettle();
+      await openTab(tester, 'Products');
       expect(
         find.widgetWithText(AppButton, 'Add from brand catalogue'),
         findsNothing,
@@ -121,8 +116,8 @@ void main() {
     ) async {
       await openShop(tester, {...ShopPermission.values});
 
-      expect(find.text(_ordersRow), findsOneWidget);
-      expect(find.text(_productsRow), findsOneWidget);
+      expect(tabFinder('Orders'), findsOneWidget);
+      expect(tabFinder('Products'), findsOneWidget);
       expect(find.text("Today's sales"), findsOneWidget);
       expect(find.textContaining('not paid yet: ₹'), findsOneWidget);
     });

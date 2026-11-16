@@ -32,53 +32,49 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     final state = ref.watch(signInControllerProvider);
     final textTheme = Theme.of(context).textTheme;
 
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSpacing.screenPadding),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: AppLayout.formMaxWidth,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const BrandMark(appName: AppBrand.shopAppName),
-                  const SizedBox(height: AppSpacing.s16),
-                  Text(
-                    'Shop owners and staff',
-                    style: textTheme.labelLarge?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
+    return AppPlainScaffold(
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(AppSpacing.screenPadding),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: AppLayout.formMaxWidth),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const BrandMark(appName: AppBrand.shopAppName),
+                const SizedBox(height: AppSpacing.s16),
+                Text(
+                  'Shop owners and staff',
+                  style: textTheme.labelLarge?.copyWith(
+                    color: AppColors.textSecondary,
                   ),
-                  const SizedBox(height: AppSpacing.s8),
-                  Semantics(
-                    header: true,
-                    child: Text('Sign in', style: textTheme.headlineMedium),
+                ),
+                const SizedBox(height: AppSpacing.s8),
+                Semantics(
+                  header: true,
+                  child: Text('Sign in', style: textTheme.headlineMedium),
+                ),
+                const SizedBox(height: AppSpacing.s8),
+                Text(
+                  'Use the mobile number your shop account is registered with.',
+                  style: textTheme.bodyLarge?.copyWith(
+                    color: AppColors.textSecondary,
                   ),
-                  const SizedBox(height: AppSpacing.s8),
-                  Text(
-                    'Use the mobile number your shop account is registered with.',
-                    style: textTheme.bodyLarge?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
+                ),
+                const SizedBox(height: AppSpacing.s24),
+                if (state.step == SignInStep.phone)
+                  ..._phoneStep(state)
+                else
+                  ..._codeStep(state),
+                const SizedBox(height: AppSpacing.s32),
+                Text(
+                  'New shop? Register it on the web portal, then sign in here.',
+                  textAlign: TextAlign.center,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
                   ),
-                  const SizedBox(height: AppSpacing.s24),
-                  if (state.step == SignInStep.phone)
-                    ..._phoneStep(state)
-                  else
-                    ..._codeStep(state),
-                  const SizedBox(height: AppSpacing.s32),
-                  Text(
-                    'New shop? Register it on the web portal, then sign in here.',
-                    textAlign: TextAlign.center,
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

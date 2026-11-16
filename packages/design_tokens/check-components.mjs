@@ -67,6 +67,14 @@ const FLUTTER_WIDGETS = [
   ['CircularProgressIndicator', 'AppSpinner'],
   ['LinearProgressIndicator', 'AppSpinner'],
   ['PopupMenuButton', 'AppMenuButton'],
+  // The app frame (SHP-011).
+  ['Scaffold', 'AppScaffold or AppTabScaffold'],
+  ['AppBar', 'AppScaffold (AppTopBar)'],
+  ['SliverAppBar', 'AppScaffold (AppTopBar)'],
+  ['NavigationBar', 'AppBottomNav'],
+  ['BottomNavigationBar', 'AppBottomNav'],
+  ['Drawer', 'AppDrawer'],
+  ['NavigationDrawer', 'AppDrawer'],
 ];
 
 /** Flutter: raw Material controls, overlays and literal styles outside flutter_shared's components. */

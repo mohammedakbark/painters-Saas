@@ -11,7 +11,6 @@ import '../../providers.dart';
 import '../../shops/shop_access_repository.dart';
 import '../../shops/shop_permissions.dart';
 import '../catalogue/catalogue_parts.dart';
-import '../shops/sign_out_button.dart';
 import 'order_messages.dart';
 import 'order_sheets.dart';
 
@@ -34,40 +33,33 @@ class OrderScreen extends ConsumerWidget {
             .value
             ?.can(ShopPermission.ordersPayments) ??
         false;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          order.value == null
-              ? 'Order'
-              : 'Order ${orderNumberLabel(order.value!.number)}',
-        ),
-        actions: const [SignOutButton()],
-      ),
-      body: SafeArea(
-        child: order.when(
-          loading: () => const LoadingView(message: 'Loading the order…'),
-          error: (error, _) => switch (error) {
-            ShopNotFound() => const CatalogueShopNotFound(),
-            OrderNotFound() => MessageView(
-              icon: Icons.search_off,
-              title: OrderMessages.orderNotFound,
-              message: OrderMessages.orderNotFoundMessage,
-              action: AppButton(
-                label: 'Go to your orders',
-                variant: AppButtonVariant.secondary,
-                onPressed: () => context.go('/shops/$shopId/orders'),
-              ),
+    return AppScaffold(
+      title: order.value == null
+          ? 'Order'
+          : 'Order ${orderNumberLabel(order.value!.number)}',
+      body: order.when(
+        loading: () => const LoadingView(message: 'Loading the order…'),
+        error: (error, _) => switch (error) {
+          ShopNotFound() => const CatalogueShopNotFound(),
+          OrderNotFound() => MessageView(
+            icon: Icons.search_off,
+            title: OrderMessages.orderNotFound,
+            message: OrderMessages.orderNotFoundMessage,
+            action: AppButton(
+              label: 'Go to your orders',
+              variant: AppButtonVariant.secondary,
+              onPressed: () => context.go('/shops/$shopId/orders'),
             ),
-            _ => ErrorView(
-              title: OrderMessages.orderFailed,
-              onRetry: () => ref.invalidate(orderProvider(key)),
-            ),
-          },
-          data: (order) => _OrderDetails(
-            orderKey: key,
-            order: order,
-            canTakePayment: canTakePayment,
           ),
+          _ => ErrorView(
+            title: OrderMessages.orderFailed,
+            onRetry: () => ref.invalidate(orderProvider(key)),
+          ),
+        },
+        data: (order) => _OrderDetails(
+          orderKey: key,
+          order: order,
+          canTakePayment: canTakePayment,
         ),
       ),
     );

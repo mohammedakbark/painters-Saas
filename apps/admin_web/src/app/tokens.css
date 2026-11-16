@@ -56,6 +56,20 @@
   --color-snackbar-foreground: var(--color-surface-default);
   --color-snackbar-action: var(--color-brand-primary-soft);
   --color-badge-background: var(--color-surface-default);
+  --color-top-bar-background: var(--color-surface-raised);
+  --color-top-bar-foreground: var(--color-text-primary);
+  --color-top-bar-border: var(--color-border-default);
+  --color-bottom-nav-background: var(--color-surface-raised);
+  --color-bottom-nav-border: var(--color-border-default);
+  --color-bottom-nav-active: var(--color-brand-primary-strong);
+  --color-bottom-nav-active-background: var(--color-brand-primary-soft);
+  --color-bottom-nav-inactive: var(--color-text-secondary);
+  --color-bottom-nav-count: var(--color-status-error);
+  --color-bottom-nav-count-foreground: var(--color-surface-default);
+  --color-drawer-background: var(--color-surface-raised);
+  --color-drawer-selected-background: var(--color-brand-primary-soft);
+  --color-action-bar-background: var(--color-surface-raised);
+  --color-action-bar-border: var(--color-border-default);
   --color-button-primary-background: var(--color-brand-primary);
   --color-button-primary-background-hover: var(--color-brand-primary-strong);
   --color-button-primary-foreground: var(--color-surface-default);
@@ -104,6 +118,8 @@
   --radius-dialog: var(--radius-large);
   --radius-snackbar: var(--radius-medium);
   --radius-badge: var(--radius-pill);
+  --radius-bottom-nav: var(--radius-pill);
+  --radius-drawer: var(--radius-large);
 
   /* Component minimum heights, e.g. min-h-control. */
   --spacing-control: 3rem;

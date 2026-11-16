@@ -15,38 +15,34 @@ class ShopPickerScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(shopUserProvider);
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Your shops'),
-        actions: const [SignOutButton()],
-      ),
-      body: SafeArea(
-        child: user.when(
-          loading: () => const LoadingView(message: 'Loading your shops…'),
-          error: (error, _) => _isSessionExpired(error)
-              ? const MessageView(
-                  icon: Icons.lock_outline,
-                  title: 'Your session has expired',
-                  message: 'Sign out, then sign in again with your number.',
-                  action: SignOutButton(filled: true),
-                )
-              : ErrorView(
-                  title: "We couldn't load your shops",
-                  onRetry: () => ref.invalidate(shopUserProvider),
-                ),
-          data: (user) => user.memberships.isEmpty
-              ? MessageView(
-                  icon: Icons.storefront_outlined,
-                  title: 'No shop is linked to this number',
-                  message: [
-                    if (user.phone != null)
-                      'Signed in as ${IndianMobileNumber.format(user.phone!)}.',
-                    'Register your shop on the web portal, then sign in here again.',
-                  ].join(' '),
-                  action: const SignOutButton(filled: true),
-                )
-              : _ShopList(memberships: user.memberships),
-        ),
+    return AppScaffold(
+      title: 'Your shops',
+      actions: const [SignOutButton()],
+      body: user.when(
+        loading: () => const LoadingView(message: 'Loading your shops…'),
+        error: (error, _) => _isSessionExpired(error)
+            ? const MessageView(
+                icon: Icons.lock_outline,
+                title: 'Your session has expired',
+                message: 'Sign out, then sign in again with your number.',
+                action: SignOutButton(filled: true),
+              )
+            : ErrorView(
+                title: "We couldn't load your shops",
+                onRetry: () => ref.invalidate(shopUserProvider),
+              ),
+        data: (user) => user.memberships.isEmpty
+            ? MessageView(
+                icon: Icons.storefront_outlined,
+                title: 'No shop is linked to this number',
+                message: [
+                  if (user.phone != null)
+                    'Signed in as ${IndianMobileNumber.format(user.phone!)}.',
+                  'Register your shop on the web portal, then sign in here again.',
+                ].join(' '),
+                action: const SignOutButton(filled: true),
+              )
+            : _ShopList(memberships: user.memberships),
       ),
     );
   }

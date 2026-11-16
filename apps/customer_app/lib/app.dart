@@ -22,26 +22,24 @@ class _FoundationHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.screenPadding),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const BrandMark(appName: AppBrand.customerAppName),
-              const SizedBox(height: AppSpacing.s8),
-              Text('Welcome', style: textTheme.headlineLarge),
-              const SizedBox(height: AppSpacing.s8),
-              Text(
-                'Foundation build. No features are available yet.',
-                style: textTheme.bodyLarge?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+    return AppPlainScaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(AppSpacing.screenPadding),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const BrandMark(appName: AppBrand.customerAppName),
+            const SizedBox(height: AppSpacing.s8),
+            Text('Welcome', style: textTheme.headlineLarge),
+            const SizedBox(height: AppSpacing.s8),
+            Text(
+              'Foundation build. No features are available yet.',
+              style: textTheme.bodyLarge?.copyWith(
+                color: AppColors.textSecondary,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -8,7 +8,7 @@ import '../../catalogue/catalogue_providers.dart';
 import '../../providers.dart';
 import '../../shops/shop_access_repository.dart';
 import '../../shops/shop_permissions.dart';
-import '../shops/sign_out_button.dart';
+import '../shell/shop_shell.dart';
 import 'catalogue_messages.dart';
 import 'catalogue_parts.dart';
 
@@ -46,53 +46,61 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
             ?.can(ShopPermission.catalogueManage) ??
         false;
     final products = ref.watch(productListProvider(_key));
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Products'),
-        actions: const [SignOutButton()],
-      ),
-      body: SafeArea(
-        child: products.when(
-          skipLoadingOnRefresh: false,
-          loading: () => _withHeader(
-            canEdit,
-            const LoadingView(message: 'Loading your products…'),
-          ),
-          error: (error, _) => error is ShopNotFound
-              ? const CatalogueShopNotFound()
-              : _withHeader(
-                  canEdit,
-                  ErrorView(
-                    title: CatalogueMessages.listFailed,
-                    onRetry: () => ref.invalidate(productListProvider(_key)),
-                  ),
-                ),
-          data: (page) => page.items.isEmpty
-              ? _withHeader(
-                  canEdit,
-                  _EmptyState(
-                    archived: _archived,
-                    query: _query,
-                    canEdit: canEdit,
-                    shopId: widget.shopId,
-                  ),
-                )
-              : _ProductList(
-                  header: _Header(
-                    canEdit: canEdit,
-                    shopId: widget.shopId,
-                    archived: _archived,
-                    search: _search,
-                    onArchived: (archived) =>
-                        setState(() => _archived = archived),
-                    onSearch: (query) => setState(() => _query = query),
-                  ),
-                  page: page,
-                  shopId: widget.shopId,
-                  onLoadMore: () =>
-                      ref.read(productListProvider(_key).notifier).loadMore(),
-                ),
+    return AppScaffold(
+      title: 'Products',
+      subtitle: ref.watch(shopProvider(widget.shopId)).value?.name,
+      drawer: ShopDrawer(shopId: widget.shopId),
+      bottomBar: canEdit
+          ? AppBottomActionBar(
+              child: AppButton(
+                label: 'Add from brand catalogue',
+                icon: Icons.add,
+                expand: true,
+                onPressed: () =>
+                    context.go('/shops/${widget.shopId}/catalogue/add'),
+              ),
+            )
+          : null,
+      body: products.when(
+        skipLoadingOnRefresh: false,
+        loading: () => _withHeader(
+          canEdit,
+          const LoadingView(message: 'Loading your products…'),
         ),
+        error: (error, _) => error is ShopNotFound
+            ? const CatalogueShopNotFound()
+            : _withHeader(
+                canEdit,
+                ErrorView(
+                  title: CatalogueMessages.listFailed,
+                  onRetry: () => ref.invalidate(productListProvider(_key)),
+                ),
+              ),
+        data: (page) => page.items.isEmpty
+            ? _withHeader(
+                canEdit,
+                _EmptyState(
+                  archived: _archived,
+                  query: _query,
+                  canEdit: canEdit,
+                  shopId: widget.shopId,
+                ),
+              )
+            : _ProductList(
+                header: _Header(
+                  canEdit: canEdit,
+                  shopId: widget.shopId,
+                  archived: _archived,
+                  search: _search,
+                  onArchived: (archived) =>
+                      setState(() => _archived = archived),
+                  onSearch: (query) => setState(() => _query = query),
+                ),
+                page: page,
+                shopId: widget.shopId,
+                onLoadMore: () =>
+                    ref.read(productListProvider(_key).notifier).loadMore(),
+              ),
       ),
     );
   }
@@ -144,15 +152,6 @@ class _Header extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (canEdit) ...[
-          AppButton(
-            label: 'Add from brand catalogue',
-            icon: Icons.add,
-            expand: true,
-            onPressed: () => context.go('/shops/$shopId/catalogue/add'),
-          ),
-          const SizedBox(height: AppSpacing.s16),
-        ],
         AppSegmentedControl<bool>(
           value: archived,
           options: const [

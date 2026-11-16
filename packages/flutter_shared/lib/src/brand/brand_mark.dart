@@ -27,34 +27,40 @@ class BrandMark extends StatelessWidget {
     return Semantics(
       label: appName,
       excludeSemantics: true,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const LogoMark(height: 32),
-          const SizedBox(width: 10),
-          Text.rich(
-            TextSpan(
-              style: wordStyle,
-              children: [
-                const TextSpan(text: 'Seven'),
-                TextSpan(
-                  text: 'Palette',
-                  style: wordStyle?.copyWith(color: AppColors.brandPrimary),
-                ),
-              ],
-            ),
-          ),
-          if (suffix.isNotEmpty) ...[
-            const SizedBox(width: 6),
-            Text(
-              suffix,
-              style: textTheme.titleMedium?.copyWith(
-                color: AppColors.textSecondary,
+      // Shrinks rather than overflowing in narrow places (the side menu) or
+      // with large text.
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: AlignmentDirectional.centerStart,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const LogoMark(height: 32),
+            const SizedBox(width: 10),
+            Text.rich(
+              TextSpan(
+                style: wordStyle,
+                children: [
+                  const TextSpan(text: 'Seven'),
+                  TextSpan(
+                    text: 'Palette',
+                    style: wordStyle?.copyWith(color: AppColors.brandPrimary),
+                  ),
+                ],
               ),
             ),
+            if (suffix.isNotEmpty) ...[
+              const SizedBox(width: 6),
+              Text(
+                suffix,
+                style: textTheme.titleMedium?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

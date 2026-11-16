@@ -128,8 +128,7 @@ void main() {
     Duration refresh = const Duration(hours: 1),
   }) async {
     await openHome(tester, shop: shop, refresh: refresh);
-    await tester.tap(find.text('New orders, packing, payment and returns'));
-    await tester.pumpAndSettle();
+    await openTab(tester, 'Orders');
   }
 
   Future<void> openOrder(
@@ -171,10 +170,7 @@ void main() {
       await openHome(tester, shop: lakshmiShop);
 
       expect(find.text('To pack'), findsNothing);
-      expect(
-        find.text('New orders, packing, payment and returns'),
-        findsOneWidget,
-      );
+      expect(tabFinder('Orders'), findsOneWidget);
     });
 
     testWidgets('a failed figures request can be retried', (tester) async {
@@ -182,7 +178,7 @@ void main() {
       await openHome(tester);
 
       expect(find.text("We couldn't load the order figures."), findsOneWidget);
-      expect(find.text('Products'), findsOneWidget);
+      expect(find.text('All sizes available'), findsOneWidget);
 
       await tester.tap(_button('Try again'));
       await tester.pumpAndSettle();
@@ -324,8 +320,7 @@ void main() {
       orders.orders['shop-a'] = [];
       await openHome(tester);
       orders.nextError = const ApiException(status: 500);
-      await tester.tap(find.text('New orders, packing, payment and returns'));
-      await tester.pumpAndSettle();
+      await openTab(tester, 'Orders');
 
       expect(find.text(OrderMessages.listFailed), findsOneWidget);
       expect(find.byType(AppSearchField), findsOneWidget);

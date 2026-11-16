@@ -110,6 +110,31 @@ class FakeShopCatalogueRepository implements ShopCatalogueRepository {
        brandProducts = brandProducts ?? {};
 
   final Map<String, List<ShopProduct>> products;
+
+  @override
+  Future<CatalogueSummary> summary(String shopId) async {
+    final active = [
+      for (final product in products[shopId] ?? const <ShopProduct>[])
+        if (!product.archived) product,
+    ];
+    int count(bool Function(int available, int all) test) => active
+        .where(
+          (product) => test(
+            product.packs.where((pack) => pack.available).length,
+            product.packs.length,
+          ),
+        )
+        .length;
+    return CatalogueSummary(
+      active: active.length,
+      allAvailable: count((available, all) => available == all),
+      partlyAvailable: count(
+        (available, all) => available > 0 && available < all,
+      ),
+      noneAvailable: count((available, all) => available == 0),
+    );
+  }
+
   final List<CatalogueBrand> brands;
   final Map<String, List<BrandProductItem>> brandProducts;
   final int pageSize;

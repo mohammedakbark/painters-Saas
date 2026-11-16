@@ -182,6 +182,11 @@ Web utilities: `rounded-control`, `min-h-control`, `rounded-card`, `border-card-
 | `AppCard` (`tone`, `onTap`), `AppSection`, `AppNavRow` | `Card`, `ListTile` |
 | `AppChoiceChips<T>` (SHP-007): one-of-many chips with optional counts that scroll sideways, for example the order steps | `ChoiceChip`, `FilterChip` |
 | `AppStatTile` (SHP-007): a dashboard figure (label over value) that can open its list | none |
+| `AppScaffold`, `AppTopBar`, `AppPlainScaffold` (SHP-011): every screen's frame; title (and the shop name as subtitle on tab screens), back arrow or menu icon, at most two actions | `Scaffold`, `AppBar`, `SliverAppBar` |
+| `AppBottomActionBar` (SHP-011): the screen's main action under the content, in reach of the thumb | a raw bottom bar |
+| `AppTabScaffold`, `AppBottomNav`, `AppNavDestination` (SHP-011): bottom tabs (2 to 5) with a count badge; the selected tab has a filled icon, a pill and a bold label | `NavigationBar`, `BottomNavigationBar` |
+| `AppDrawer`, `AppDrawerRow`, `AppDrawerSection` (SHP-011): the side menu | `Drawer`, `NavigationDrawer` |
+| `AppIconButton`, `AppMenuButton`, `AppMenuItem` (SHP-011): icon actions with a spoken tooltip, and the "More options" menu | `IconButton`, `PopupMenuButton` |
 | `AppBadge`, `AppInlineMessage` (`AppTone`), `showAppSnackBar` | chips, hand-styled status text, snack bars |
 | `showAppBottomSheet`, `showAppDialog`, `showAppConfirmDialog` | `showModalBottomSheet`, `showDialog`/`AlertDialog` |
 | `AppSpinner`, `AppNetworkImage` | `CircularProgressIndicator`, `Image.network` |

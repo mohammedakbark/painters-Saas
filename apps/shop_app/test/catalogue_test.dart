@@ -73,8 +73,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Lakshmi Paints'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Products'));
-    await tester.pumpAndSettle();
+    await openTab(tester, 'Products');
   }
 
   Future<void> openProduct(

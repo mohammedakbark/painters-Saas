@@ -9,7 +9,6 @@ import '../../providers.dart';
 import '../../shops/shop_access_repository.dart';
 import '../../shops/shop_permissions.dart';
 import '../../shops/shop_profile.dart';
-import 'sign_out_button.dart';
 
 /// User-facing messages of the profile screen (also used by tests).
 abstract final class ShopProfileMessages {
@@ -57,34 +56,28 @@ class ShopProfileScreen extends ConsumerWidget {
             .value
             ?.can(ShopPermission.shopProfile) ??
         false;
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Shop profile'),
-        actions: const [SignOutButton()],
-      ),
-      body: SafeArea(
-        child: profile.when(
-          loading: () => const LoadingView(message: 'Loading the profile…'),
-          error: (error, _) => error is ShopNotFound
-              ? MessageView(
-                  icon: Icons.search_off,
-                  title: 'Shop not found',
-                  message:
-                      "This shop doesn't exist, or your account doesn't have "
-                      'access to it.',
-                  action: AppButton(
-                    label: 'Go to your shops',
-                    variant: AppButtonVariant.secondary,
-                    onPressed: () => context.go('/shops'),
-                  ),
-                )
-              : ErrorView(
-                  title: "We couldn't load the profile",
-                  onRetry: () => ref.invalidate(shopProfileProvider(shopId)),
+    return AppScaffold(
+      title: 'Shop profile',
+      body: profile.when(
+        loading: () => const LoadingView(message: 'Loading the profile…'),
+        error: (error, _) => error is ShopNotFound
+            ? MessageView(
+                icon: Icons.search_off,
+                title: 'Shop not found',
+                message:
+                    "This shop doesn't exist, or your account doesn't have "
+                    'access to it.',
+                action: AppButton(
+                  label: 'Go to your shops',
+                  variant: AppButtonVariant.secondary,
+                  onPressed: () => context.go('/shops'),
                 ),
-          data: (profile) =>
-              _ProfileDetails(profile: profile, canEdit: canEdit),
-        ),
+              )
+            : ErrorView(
+                title: "We couldn't load the profile",
+                onRetry: () => ref.invalidate(shopProfileProvider(shopId)),
+              ),
+        data: (profile) => _ProfileDetails(profile: profile, canEdit: canEdit),
       ),
     );
   }

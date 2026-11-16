@@ -166,12 +166,21 @@ final productProvider = AsyncNotifierProvider.autoDispose
       retry: noRetry,
     );
 
+/// Product counts for the shop home.
+final catalogueSummaryProvider = FutureProvider.autoDispose
+    .family<CatalogueSummary, String>(
+      (ref, shopId) =>
+          ref.watch(shopCatalogueRepositoryProvider).summary(shopId),
+      retry: noRetry,
+    );
+
 /// After a catalogue change: reload the product lists and the review
 /// checklist (the Products item counts active products, CAT-002).
 void catalogueChanged(Ref ref, String shopId) {
   ref
     ..invalidate(productListProvider)
     ..invalidate(brandProductsProvider)
+    ..invalidate(catalogueSummaryProvider(shopId))
     ..invalidate(shopReviewProvider(shopId));
 }
 
@@ -180,5 +189,6 @@ void catalogueChangedFromWidget(WidgetRef ref, String shopId) {
   ref
     ..invalidate(productListProvider)
     ..invalidate(brandProductsProvider)
+    ..invalidate(catalogueSummaryProvider(shopId))
     ..invalidate(shopReviewProvider(shopId));
 }

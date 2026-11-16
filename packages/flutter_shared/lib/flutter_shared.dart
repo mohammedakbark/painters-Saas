@@ -13,6 +13,7 @@ export 'src/components/app_card.dart';
 export 'src/components/app_chips.dart';
 export 'src/components/app_choices.dart';
 export 'src/components/app_feedback.dart';
+export 'src/components/app_navigation.dart';
 export 'src/components/app_overlays.dart';
 export 'src/components/app_spinner.dart';
 export 'src/components/app_text_field.dart';

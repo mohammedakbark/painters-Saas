@@ -1,5 +1,7 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_shared/flutter_shared.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:shop_app/app.dart';
 import 'package:shop_app/src/auth/auth_repository.dart';
 import 'package:shop_app/src/catalogue/product_photo_picker.dart';
@@ -243,3 +245,23 @@ Widget testApp({
   ],
   child: const ShopApp(),
 );
+
+/// A bottom tab by its label (SHP-011).
+Finder tabFinder(String label) =>
+    find.descendant(of: find.byType(AppBottomNav), matching: find.text(label));
+
+/// Opens a bottom tab.
+Future<void> openTab(WidgetTester tester, String label) async {
+  await tester.tap(tabFinder(label));
+  await tester.pumpAndSettle();
+}
+
+/// Opens the side menu of a tab screen and taps one of its rows.
+Future<void> openFromDrawer(WidgetTester tester, String label) async {
+  await tester.tap(find.byTooltip('Open navigation menu').first);
+  await tester.pumpAndSettle();
+  await tester.tap(
+    find.descendant(of: find.byType(AppDrawer), matching: find.text(label)),
+  );
+  await tester.pumpAndSettle();
+}

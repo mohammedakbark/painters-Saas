@@ -12,7 +12,6 @@ import '../../orders/order_models.dart';
 import '../../orders/order_providers.dart';
 import '../../providers.dart';
 import '../../shops/shop_permissions.dart';
-import '../shops/sign_out_button.dart';
 import 'order_messages.dart';
 
 /// Records an order for a customer who phoned or is at the counter
@@ -289,149 +288,143 @@ class _NewOrderScreenState extends ConsumerState<NewOrderScreen> {
         ? delivery.chargeFor(itemsPaise)
         : 0;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('New order'),
-        actions: const [SignOutButton()],
-      ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(AppSpacing.screenPadding),
-          children: [
-            Text(
-              'For customers who order by phone or at the counter.',
-              style: textTheme.bodyLarge,
+    return AppScaffold(
+      title: 'New order',
+      body: ListView(
+        padding: const EdgeInsets.all(AppSpacing.screenPadding),
+        children: [
+          Text(
+            'For customers who order by phone or at the counter.',
+            style: textTheme.bodyLarge,
+          ),
+          const SizedBox(height: AppSpacing.s16),
+          AppSection(
+            title: '1. Customer',
+            child: _customerStep(textTheme, secondary),
+          ),
+          const SizedBox(height: AppSpacing.s12),
+          AppSection(
+            title: '2. Items',
+            child: _itemsStep(textTheme, secondary, itemsPaise),
+          ),
+          const SizedBox(height: AppSpacing.s12),
+          AppSection(
+            title: '3. Pickup or delivery',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                AppRadioGroup<Fulfilment>(
+                  label: 'How the customer gets it',
+                  value: _fulfilment,
+                  options: const [
+                    AppOption(Fulfilment.pickup, 'Pickup at the shop'),
+                    AppOption(Fulfilment.delivery, 'Delivery'),
+                  ],
+                  onChanged: busy
+                      ? (_) {}
+                      : (value) =>
+                            setState(() => _fulfilment = value ?? _fulfilment),
+                  error: _errors['fulfilment'],
+                ),
+                if (_fulfilment == Fulfilment.delivery) ...[
+                  if (delivery != null && !delivery.enabled) ...[
+                    const AppInlineMessage(
+                      tone: AppTone.warning,
+                      message: OrderMessages.deliveryOff,
+                    ),
+                    const SizedBox(height: AppSpacing.s12),
+                  ],
+                  AppTextField(
+                    label: 'Delivery address',
+                    isRequired: _site == null,
+                    controller: _address,
+                    enabled: !busy,
+                    maxLines: 3,
+                    maxLength: 300,
+                    keyboardType: TextInputType.streetAddress,
+                    helper: _site == null
+                        ? null
+                        : 'Leave empty to deliver to ${_site!.name}: '
+                              '${_site!.address}',
+                    error: _errors['address'],
+                  ),
+                ],
+              ],
             ),
-            const SizedBox(height: AppSpacing.s16),
-            AppSection(
-              title: '1. Customer',
-              child: _customerStep(textTheme, secondary),
-            ),
-            const SizedBox(height: AppSpacing.s12),
-            AppSection(
-              title: '2. Items',
-              child: _itemsStep(textTheme, secondary, itemsPaise),
-            ),
-            const SizedBox(height: AppSpacing.s12),
-            AppSection(
-              title: '3. Pickup or delivery',
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  AppRadioGroup<Fulfilment>(
-                    label: 'How the customer gets it',
-                    value: _fulfilment,
-                    options: const [
-                      AppOption(Fulfilment.pickup, 'Pickup at the shop'),
-                      AppOption(Fulfilment.delivery, 'Delivery'),
+          ),
+          const SizedBox(height: AppSpacing.s12),
+          AppSection(
+            title: '4. Save',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _TotalRow(label: 'Items', paise: itemsPaise),
+                if (_fulfilment == Fulfilment.delivery)
+                  _TotalRow(
+                    label: 'Delivery',
+                    paise: chargePaise,
+                    zeroLabel: 'Free',
+                  ),
+                _TotalRow(
+                  label: 'Total',
+                  paise: itemsPaise + chargePaise,
+                  strong: true,
+                ),
+                if (canTakePayment) ...[
+                  const SizedBox(height: AppSpacing.s16),
+                  AppDropdown<PaymentMethod?>(
+                    label: 'Paid by',
+                    helper: 'Only when the order is handed over now.',
+                    value: _payment,
+                    options: [
+                      const AppOption(null, 'Not paid yet'),
+                      for (final method in PaymentMethod.values)
+                        AppOption(method, paymentMethodLabel(method)),
                     ],
                     onChanged: busy
-                        ? (_) {}
-                        : (value) => setState(
-                            () => _fulfilment = value ?? _fulfilment,
-                          ),
-                    error: _errors['fulfilment'],
+                        ? null
+                        : (method) => setState(() => _payment = method),
+                    error: _errors['payment'],
                   ),
-                  if (_fulfilment == Fulfilment.delivery) ...[
-                    if (delivery != null && !delivery.enabled) ...[
-                      const AppInlineMessage(
-                        tone: AppTone.warning,
-                        message: OrderMessages.deliveryOff,
-                      ),
-                      const SizedBox(height: AppSpacing.s12),
-                    ],
-                    AppTextField(
-                      label: 'Delivery address',
-                      isRequired: _site == null,
-                      controller: _address,
-                      enabled: !busy,
-                      maxLines: 3,
-                      maxLength: 300,
-                      keyboardType: TextInputType.streetAddress,
-                      helper: _site == null
-                          ? null
-                          : 'Leave empty to deliver to ${_site!.name}: '
-                                '${_site!.address}',
-                      error: _errors['address'],
-                    ),
-                  ],
                 ],
-              ),
-            ),
-            const SizedBox(height: AppSpacing.s12),
-            AppSection(
-              title: '4. Save',
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _TotalRow(label: 'Items', paise: itemsPaise),
-                  if (_fulfilment == Fulfilment.delivery)
-                    _TotalRow(
-                      label: 'Delivery',
-                      paise: chargePaise,
-                      zeroLabel: 'Free',
-                    ),
-                  _TotalRow(
-                    label: 'Total',
-                    paise: itemsPaise + chargePaise,
-                    strong: true,
-                  ),
-                  if (canTakePayment) ...[
-                    const SizedBox(height: AppSpacing.s16),
-                    AppDropdown<PaymentMethod?>(
-                      label: 'Paid by',
-                      helper: 'Only when the order is handed over now.',
-                      value: _payment,
-                      options: [
-                        const AppOption(null, 'Not paid yet'),
-                        for (final method in PaymentMethod.values)
-                          AppOption(method, paymentMethodLabel(method)),
-                      ],
-                      onChanged: busy
-                          ? null
-                          : (method) => setState(() => _payment = method),
-                      error: _errors['payment'],
-                    ),
-                  ],
-                  if (_formError != null) ...[
-                    const SizedBox(height: AppSpacing.s16),
-                    AppInlineMessage(
-                      tone: AppTone.error,
-                      title: OrderMessages.notSaved,
-                      message: _formError!,
-                    ),
-                  ] else if (_errors.isNotEmpty) ...[
-                    const SizedBox(height: AppSpacing.s16),
-                    AppInlineMessage(
-                      tone: AppTone.error,
-                      title: OrderMessages.notSaved,
-                      message: _errors.values.join(' '),
-                    ),
-                  ],
+                if (_formError != null) ...[
                   const SizedBox(height: AppSpacing.s16),
-                  AppButton(
-                    label: 'Save as new order',
-                    loadingLabel: 'Saving…',
-                    loading: _saving == _Saving.asNew,
-                    expand: true,
-                    onPressed: busy ? null : () => _save(handedOver: false),
+                  AppInlineMessage(
+                    tone: AppTone.error,
+                    title: OrderMessages.notSaved,
+                    message: _formError!,
                   ),
-                  const SizedBox(height: AppSpacing.s8),
-                  AppButton(
-                    label: 'Handed over now',
-                    loadingLabel: 'Saving…',
-                    variant: AppButtonVariant.secondary,
-                    loading: _saving == _Saving.handedOver,
-                    expand: true,
-                    onPressed: busy ? null : () => _save(handedOver: true),
+                ] else if (_errors.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.s16),
+                  AppInlineMessage(
+                    tone: AppTone.error,
+                    title: OrderMessages.notSaved,
+                    message: _errors.values.join(' '),
                   ),
-                  const SizedBox(height: AppSpacing.s12),
-                  Text(OrderMessages.saveNote, style: secondary),
                 ],
-              ),
+                const SizedBox(height: AppSpacing.s16),
+                AppButton(
+                  label: 'Save as new order',
+                  loadingLabel: 'Saving…',
+                  loading: _saving == _Saving.asNew,
+                  expand: true,
+                  onPressed: busy ? null : () => _save(handedOver: false),
+                ),
+                const SizedBox(height: AppSpacing.s8),
+                AppButton(
+                  label: 'Handed over now',
+                  loadingLabel: 'Saving…',
+                  variant: AppButtonVariant.secondary,
+                  loading: _saving == _Saving.handedOver,
+                  expand: true,
+                  onPressed: busy ? null : () => _save(handedOver: true),
+                ),
+                const SizedBox(height: AppSpacing.s12),
+                Text(OrderMessages.saveNote, style: secondary),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

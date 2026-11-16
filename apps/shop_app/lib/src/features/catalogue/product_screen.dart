@@ -9,7 +9,6 @@ import '../../catalogue/shop_catalogue_repository.dart';
 import '../../providers.dart';
 import '../../shops/shop_access_repository.dart';
 import '../../shops/shop_permissions.dart';
-import '../shops/sign_out_button.dart';
 import 'catalogue_messages.dart';
 import 'catalogue_parts.dart';
 import 'pack_sheets.dart';
@@ -37,27 +36,22 @@ class ProductScreen extends ConsumerWidget {
             .value
             ?.can(ShopPermission.catalogueManage) ??
         false;
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Product'),
-        actions: const [SignOutButton()],
-      ),
-      body: SafeArea(
-        child: product.when(
-          loading: () => const LoadingView(message: 'Loading the product…'),
-          error: (error, _) => switch (error) {
-            ShopNotFound() => const CatalogueShopNotFound(),
-            ShopProductNotFound() => CatalogueProductNotFound(shopId: shopId),
-            _ => ErrorView(
-              title: "We couldn't load the product",
-              onRetry: () => ref.invalidate(productProvider(key)),
-            ),
-          },
-          data: (product) => _ProductDetails(
-            productKey: key,
-            product: product,
-            canEdit: canEdit,
+    return AppScaffold(
+      title: 'Product',
+      body: product.when(
+        loading: () => const LoadingView(message: 'Loading the product…'),
+        error: (error, _) => switch (error) {
+          ShopNotFound() => const CatalogueShopNotFound(),
+          ShopProductNotFound() => CatalogueProductNotFound(shopId: shopId),
+          _ => ErrorView(
+            title: "We couldn't load the product",
+            onRetry: () => ref.invalidate(productProvider(key)),
           ),
+        },
+        data: (product) => _ProductDetails(
+          productKey: key,
+          product: product,
+          canEdit: canEdit,
         ),
       ),
     );

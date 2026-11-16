@@ -29,15 +29,13 @@ class ConfigErrorApp extends StatelessWidget {
     return MaterialApp(
       title: AppBrand.shopAppName,
       theme: AppTheme.light(),
-      home: Scaffold(
-        body: SafeArea(
-          child: MessageView(
-            icon: Icons.settings_outlined,
-            title: 'The app is not configured',
-            message:
-                '${problems.join(' ')} Build with '
-                '--dart-define-from-file=config/local.json.',
-          ),
+      home: AppPlainScaffold(
+        body: MessageView(
+          icon: Icons.settings_outlined,
+          title: 'The app is not configured',
+          message:
+              '${problems.join(' ')} Build with '
+              '--dart-define-from-file=config/local.json.',
         ),
       ),
     );

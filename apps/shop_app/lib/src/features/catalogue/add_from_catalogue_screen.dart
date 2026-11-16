@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import '../../catalogue/catalogue_models.dart';
 import '../../catalogue/catalogue_providers.dart';
 import '../../shops/shop_access_repository.dart';
-import '../shops/sign_out_button.dart';
 import 'catalogue_messages.dart';
 import 'catalogue_parts.dart';
 
@@ -37,67 +36,62 @@ class _AddFromCatalogueScreenState
   @override
   Widget build(BuildContext context) {
     final brands = ref.watch(catalogueBrandsProvider);
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Brand catalogue'),
-        actions: const [SignOutButton()],
-      ),
-      body: SafeArea(
-        child: brands.when(
-          loading: () =>
-              const LoadingView(message: 'Loading the brand catalogue…'),
-          error: (error, _) => ErrorView(
-            title: "We couldn't load the brand catalogue",
-            onRetry: () => ref.invalidate(catalogueBrandsProvider),
-          ),
-          data: (brands) {
-            if (brands.isEmpty) {
-              return const MessageView(
-                icon: Icons.inventory_2_outlined,
-                title: CatalogueMessages.noBrands,
-                message: CatalogueMessages.noBrandsMessage,
-              );
-            }
-            final brand = brands.firstWhere(
-              (b) => b.id == _brandId,
-              orElse: () => brands.first,
-            );
-            return _BrandProducts(
-              shopId: widget.shopId,
-              brand: brand,
-              query: _query,
-              header: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'Choose a product, then the pack sizes you sell and '
-                    'your prices.',
-                    style: Theme.of(context).textTheme.bodyLarge
-                        ?.copyWith(color: AppColors.textSecondary),
-                  ),
-                  const SizedBox(height: AppSpacing.s16),
-                  AppDropdown<String>(
-                    label: 'Brand',
-                    value: brand.id,
-                    options: [for (final b in brands) AppOption(b.id, b.name)],
-                    onChanged: (id) => setState(() {
-                      _brandId = id;
-                      _query = '';
-                      _search.clear();
-                    }),
-                  ),
-                  const SizedBox(height: AppSpacing.s16),
-                  AppSearchField(
-                    label: 'Product name',
-                    controller: _search,
-                    onSubmitted: (query) => setState(() => _query = query),
-                  ),
-                  const SizedBox(height: AppSpacing.s16),
-                ],
-              ),
-            );
-          },
+    return AppScaffold(
+      title: 'Brand catalogue',
+      body: brands.when(
+        loading: () =>
+            const LoadingView(message: 'Loading the brand catalogue…'),
+        error: (error, _) => ErrorView(
+          title: "We couldn't load the brand catalogue",
+          onRetry: () => ref.invalidate(catalogueBrandsProvider),
         ),
+        data: (brands) {
+          if (brands.isEmpty) {
+            return const MessageView(
+              icon: Icons.inventory_2_outlined,
+              title: CatalogueMessages.noBrands,
+              message: CatalogueMessages.noBrandsMessage,
+            );
+          }
+          final brand = brands.firstWhere(
+            (b) => b.id == _brandId,
+            orElse: () => brands.first,
+          );
+          return _BrandProducts(
+            shopId: widget.shopId,
+            brand: brand,
+            query: _query,
+            header: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Choose a product, then the pack sizes you sell and '
+                  'your prices.',
+                  style: Theme.of(context).textTheme.bodyLarge
+                      ?.copyWith(color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: AppSpacing.s16),
+                AppDropdown<String>(
+                  label: 'Brand',
+                  value: brand.id,
+                  options: [for (final b in brands) AppOption(b.id, b.name)],
+                  onChanged: (id) => setState(() {
+                    _brandId = id;
+                    _query = '';
+                    _search.clear();
+                  }),
+                ),
+                const SizedBox(height: AppSpacing.s16),
+                AppSearchField(
+                  label: 'Product name',
+                  controller: _search,
+                  onSubmitted: (query) => setState(() => _query = query),
+                ),
+                const SizedBox(height: AppSpacing.s16),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

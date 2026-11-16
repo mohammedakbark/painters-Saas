@@ -248,6 +248,33 @@ class BrandProductItem {
   final String? listedProductId;
 }
 
+/// Product counts for the shop home (`catalogue/summary`, WEB-008).
+class CatalogueSummary {
+  const CatalogueSummary({
+    required this.active,
+    required this.allAvailable,
+    required this.partlyAvailable,
+    required this.noneAvailable,
+  });
+
+  factory CatalogueSummary.fromJson(Map<String, Object?> json) {
+    final products = json['products']! as Map<String, Object?>;
+    int count(String key) => (products[key]! as num).toInt();
+    return CatalogueSummary(
+      active: count('active'),
+      allAvailable: count('allAvailable'),
+      partlyAvailable: count('partlyAvailable'),
+      noneAvailable: count('noneAvailable'),
+    );
+  }
+
+  /// Products on sale.
+  final int active;
+  final int allAvailable;
+  final int partlyAvailable;
+  final int noneAvailable;
+}
+
 /// One page of a cursor-paginated list.
 class Paged<T> {
   const Paged({required this.items, required this.nextCursor});

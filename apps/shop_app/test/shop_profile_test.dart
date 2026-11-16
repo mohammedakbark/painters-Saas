@@ -37,8 +37,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Lakshmi Paints'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Shop profile'));
-    await tester.pumpAndSettle();
+    await openFromDrawer(tester, 'Shop profile');
   }
 
   Finder useCurrentLocation() =>

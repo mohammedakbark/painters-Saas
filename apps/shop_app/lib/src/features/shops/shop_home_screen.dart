@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_shared/flutter_shared.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../catalogue/catalogue_providers.dart';
 import '../../orders/order_models.dart';
 import '../../orders/order_providers.dart';
 import '../../providers.dart';
@@ -10,9 +11,11 @@ import '../../shops/shop_access_repository.dart';
 import '../../shops/shop_models.dart';
 import '../../shops/shop_permissions.dart';
 import '../../shops/shop_review.dart';
-import 'sign_out_button.dart';
+import '../shell/shop_shell.dart';
 
-/// Home of one shop. The API checks membership; non-members see "not found".
+/// The shop's Home tab (SHP-011), like the web Overview: status, what needs
+/// doing, today's order figures, product figures and shortcuts. Each part is
+/// shown only to people who may use it (D-056) and loads on its own.
 class ShopHomeScreen extends ConsumerWidget {
   const ShopHomeScreen({super.key, required this.shopId});
 
@@ -21,38 +24,45 @@ class ShopHomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final shop = ref.watch(shopProvider(shopId));
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(shop.value?.name ?? 'Shop'),
-        actions: const [SignOutButton()],
-      ),
-      body: SafeArea(
-        child: shop.when(
-          loading: () => const LoadingView(message: 'Loading your shop…'),
-          error: (error, _) => error is ShopNotFound
-              ? MessageView(
-                  icon: Icons.search_off,
-                  title: 'Shop not found',
-                  message: "This shop doesn't exist, or your account doesn't have access to it.",
-                  action: AppButton(
-                    label: 'Go to your shops',
-                    variant: AppButtonVariant.secondary,
-                    onPressed: () => context.go('/shops'),
-                  ),
-                )
-              : ErrorView(
-                  title: "We couldn't load this shop",
-                  onRetry: () => ref.invalidate(shopProvider(shopId)),
+    return AppScaffold(
+      title: 'Home',
+      subtitle: shop.value?.name,
+      drawer: ShopDrawer(shopId: shopId),
+      body: shop.when(
+        loading: () => const LoadingView(message: 'Loading your shop…'),
+        error: (error, _) => error is ShopNotFound
+            ? MessageView(
+                icon: Icons.search_off,
+                title: 'Shop not found',
+                message:
+                    "This shop doesn't exist, or your account doesn't have "
+                    'access to it.',
+                action: AppButton(
+                  label: 'Go to your shops',
+                  variant: AppButtonVariant.secondary,
+                  onPressed: () => context.go('/shops'),
                 ),
-          data: (shop) => _ShopOverview(shop: shop),
+              )
+            : ErrorView(
+                title: "We couldn't load this shop",
+                onRetry: () => ref.invalidate(shopProvider(shopId)),
+              ),
+        data: (shop) => RefreshIndicator(
+          onRefresh: () async {
+            ref
+              ..invalidate(shopReviewProvider(shop.id))
+              ..invalidate(orderSummaryProvider(shop.id))
+              ..invalidate(catalogueSummaryProvider(shop.id));
+          },
+          child: _Dashboard(shop: shop),
         ),
       ),
     );
   }
 }
 
-class _ShopOverview extends ConsumerWidget {
-  const _ShopOverview({required this.shop});
+class _Dashboard extends ConsumerWidget {
+  const _Dashboard({required this.shop});
 
   final MyShop shop;
 
@@ -60,28 +70,24 @@ class _ShopOverview extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final review = ref.watch(shopReviewProvider(shop.id)).value;
     final status = review?.status ?? shop.status;
+    final live = status == 'ACTIVE';
+    final ordersVisible = live && shop.can(ShopPermission.ordersHandle);
     final textTheme = Theme.of(context).textTheme;
+    final canRecord = live && shop.can(ShopPermission.ordersRecord);
+    final canAddProducts = shop.can(ShopPermission.catalogueManage);
     return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(AppSpacing.screenPadding),
       children: [
-        Semantics(
-          header: true,
-          child: Text(shop.name, style: textTheme.headlineSmall),
-        ),
-        const SizedBox(height: AppSpacing.s4),
-        Text(
-          shopRoleLabel(shop.myRole),
-          style: textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
-        ),
-        const SizedBox(height: AppSpacing.s24),
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  Text('Status', style: textTheme.titleMedium),
-                  const SizedBox(width: AppSpacing.s12),
+                  Expanded(
+                    child: Text(shop.name, style: textTheme.titleMedium),
+                  ),
                   AppBadge(
                     label: shopStatusLabel(status),
                     tone: shopStatusTone(status),
@@ -94,36 +100,140 @@ class _ShopOverview extends ConsumerWidget {
             ],
           ),
         ),
-        // Only a Live shop takes orders; the figures load on their own.
-        if (status == 'ACTIVE' && shop.can(ShopPermission.ordersHandle)) ...[
-          const SizedBox(height: AppSpacing.s16),
+        if (ordersVisible) ...[
+          const SizedBox(height: AppSpacing.s24),
+          _ToDo(shopId: shop.id),
+          const SizedBox(height: AppSpacing.s24),
           _OrderFigures(shopId: shop.id),
         ],
-        // Each area only for people who may use it (D-056).
-        if (shop.can(ShopPermission.ordersHandle)) ...[
-          const SizedBox(height: AppSpacing.s16),
-          AppNavRow(
-            icon: Icons.receipt_long_outlined,
-            title: 'Orders',
-            subtitle: 'New orders, packing, payment and returns',
-            onTap: () => context.go('/shops/${shop.id}/orders'),
-          ),
-        ],
         if (shop.can(ShopPermission.catalogueView)) ...[
-          const SizedBox(height: AppSpacing.s12),
-          AppNavRow(
-            icon: Icons.inventory_2_outlined,
-            title: 'Products',
-            subtitle: 'Prices, pack sizes and availability',
-            onTap: () => context.go('/shops/${shop.id}/catalogue'),
-          ),
+          const SizedBox(height: AppSpacing.s24),
+          _ProductFigures(shopId: shop.id),
         ],
-        const SizedBox(height: AppSpacing.s12),
-        AppNavRow(
-          icon: Icons.storefront_outlined,
-          title: 'Shop profile',
-          subtitle: 'Address, support mobile and map location',
-          onTap: () => context.go('/shops/${shop.id}/profile'),
+        if (canRecord || canAddProducts) ...[
+          const SizedBox(height: AppSpacing.s24),
+          const _SectionTitle('Shortcuts'),
+          const SizedBox(height: AppSpacing.s8),
+          if (canRecord)
+            AppButton(
+              label: 'New order',
+              icon: Icons.add,
+              expand: true,
+              onPressed: () => context.go('/shops/${shop.id}/orders/new'),
+            ),
+          if (canRecord && canAddProducts)
+            const SizedBox(height: AppSpacing.s8),
+          if (canAddProducts)
+            AppButton(
+              label: 'Add from brand catalogue',
+              icon: Icons.add_box_outlined,
+              variant: AppButtonVariant.secondary,
+              expand: true,
+              onPressed: () => context.go('/shops/${shop.id}/catalogue/add'),
+            ),
+        ],
+      ],
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle(this.title);
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    header: true,
+    child: Text(title, style: Theme.of(context).textTheme.titleMedium),
+  );
+}
+
+/// A section that failed to load, with "Try again" (the rest stays usable).
+class _SectionError extends StatelessWidget {
+  const _SectionError({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) => AppInlineMessage(
+    tone: AppTone.error,
+    message: message,
+    action: Align(
+      alignment: Alignment.centerLeft,
+      child: AppButton(
+        label: 'Try again',
+        variant: AppButtonVariant.tertiary,
+        onPressed: onRetry,
+      ),
+    ),
+  );
+}
+
+const _sectionLoading = Padding(
+  padding: EdgeInsets.all(AppSpacing.s16),
+  child: Center(child: AppSpinner()),
+);
+
+/// What needs doing now: new orders to start and orders to collect payment
+/// for. Says so when there is nothing.
+class _ToDo extends ConsumerWidget {
+  const _ToDo({required this.shopId});
+
+  final String shopId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final summary = ref.watch(orderSummaryProvider(shopId));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const _SectionTitle('To do'),
+        const SizedBox(height: AppSpacing.s8),
+        summary.when(
+          loading: () => _sectionLoading,
+          // The figures below explain a failure once.
+          error: (_, _) => const SizedBox.shrink(),
+          data: (figures) {
+            final rows = [
+              if (figures.newOrders > 0)
+                AppNavRow(
+                  icon: Icons.fiber_new_outlined,
+                  title: figures.newOrders == 1
+                      ? '1 new order to start'
+                      : '${figures.newOrders} new orders to start',
+                  subtitle: 'Start packing, or say what is not available',
+                  onTap: () => context.go(
+                    '/shops/$shopId/orders?tab=${OrderTab.newOrders.apiValue}',
+                  ),
+                ),
+              if (figures.unpaidCount > 0)
+                AppNavRow(
+                  icon: Icons.payments_outlined,
+                  title: unpaidLine(figures.unpaidCount, figures.unpaidPaise),
+                  subtitle: 'Record the payment when the customer pays',
+                  onTap: () => context.go(
+                    '/shops/$shopId/orders?tab=${OrderTab.all.apiValue}&paid=false',
+                  ),
+                ),
+            ];
+            if (rows.isEmpty) {
+              return const AppInlineMessage(
+                tone: AppTone.success,
+                message: 'Nothing waiting. New orders show up here.',
+              );
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final (index, row) in rows.indexed) ...[
+                  if (index > 0) const SizedBox(height: AppSpacing.s8),
+                  row,
+                ],
+              ],
+            );
+          },
         ),
       ],
     );
@@ -139,33 +249,18 @@ class _OrderFigures extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final summary = ref.watch(orderSummaryProvider(shopId));
-    final textTheme = Theme.of(context).textTheme;
     void open(OrderTab tab) =>
         context.go('/shops/$shopId/orders?tab=${tab.apiValue}');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Semantics(
-          header: true,
-          child: Text('Orders', style: textTheme.titleMedium),
-        ),
+        const _SectionTitle('Orders'),
         const SizedBox(height: AppSpacing.s8),
         summary.when(
-          loading: () => const Padding(
-            padding: EdgeInsets.all(AppSpacing.s16),
-            child: Center(child: AppSpinner()),
-          ),
-          error: (_, _) => AppInlineMessage(
-            tone: AppTone.error,
+          loading: () => _sectionLoading,
+          error: (_, _) => _SectionError(
             message: "We couldn't load the order figures.",
-            action: Align(
-              alignment: Alignment.centerLeft,
-              child: AppButton(
-                label: 'Try again',
-                variant: AppButtonVariant.tertiary,
-                onPressed: () => ref.invalidate(orderSummaryProvider(shopId)),
-              ),
-            ),
+            onRetry: () => ref.invalidate(orderSummaryProvider(shopId)),
           ),
           data: (figures) => Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -213,15 +308,78 @@ class _OrderFigures extends ConsumerWidget {
                     const Spacer(),
                 ],
               ),
-              if (figures.unpaidCount > 0) ...[
-                const SizedBox(height: AppSpacing.s8),
-                Text(
-                  unpaidLine(figures.unpaidCount, figures.unpaidPaise),
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
+              // Unpaid orders are a To do row above, not repeated here.
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Product counts (WEB-008), each opening the Products tab.
+class _ProductFigures extends ConsumerWidget {
+  const _ProductFigures({required this.shopId});
+
+  final String shopId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final summary = ref.watch(catalogueSummaryProvider(shopId));
+    void open() => context.go('/shops/$shopId/catalogue');
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const _SectionTitle('Products'),
+        const SizedBox(height: AppSpacing.s8),
+        summary.when(
+          loading: () => _sectionLoading,
+          error: (_, _) => _SectionError(
+            message: "We couldn't load the product figures.",
+            onRetry: () => ref.invalidate(catalogueSummaryProvider(shopId)),
+          ),
+          data: (figures) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: AppStatTile(
+                      label: 'On sale',
+                      value: '${figures.active}',
+                      onTap: open,
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: AppSpacing.s12),
+                  Expanded(
+                    child: AppStatTile(
+                      label: 'All sizes available',
+                      value: '${figures.allAvailable}',
+                      onTap: open,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.s12),
+              Row(
+                children: [
+                  Expanded(
+                    child: AppStatTile(
+                      label: 'Some sizes not available',
+                      value: '${figures.partlyAvailable}',
+                      onTap: open,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.s12),
+                  Expanded(
+                    child: AppStatTile(
+                      label: 'Not available',
+                      value: '${figures.noneAvailable}',
+                      onTap: open,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),

@@ -12,7 +12,7 @@ import '../../providers.dart';
 import '../../shops/shop_access_repository.dart';
 import '../../shops/shop_permissions.dart';
 import '../catalogue/catalogue_parts.dart';
-import '../shops/sign_out_button.dart';
+import '../shell/shop_shell.dart';
 import 'order_messages.dart';
 
 /// The shop's orders (SHP-007): a chip per step with its count, search,
@@ -23,10 +23,15 @@ class OrderListScreen extends ConsumerStatefulWidget {
     super.key,
     required this.shopId,
     this.initialTab = OrderTab.open,
+    this.initialPaid,
   });
 
   final String shopId;
   final OrderTab initialTab;
+
+  /// From a link such as the home's unpaid orders: only paid (true) or
+  /// unpaid (false) orders.
+  final bool? initialPaid;
 
   @override
   ConsumerState<OrderListScreen> createState() => _OrderListScreenState();
@@ -38,7 +43,7 @@ class _OrderListScreenState extends ConsumerState<OrderListScreen>
   late OrderTab _tab = widget.initialTab;
   String _query = '';
   Fulfilment? _fulfilment;
-  bool? _paid;
+  late bool? _paid = widget.initialPaid;
 
   /// Orders whose next step is being saved; their buttons wait for the API.
   final Set<String> _stepping = {};
@@ -56,6 +61,19 @@ class _OrderListScreenState extends ConsumerState<OrderListScreen>
       ref.read(orderRefreshIntervalProvider),
       (_) => _checkForNewOrders(),
     );
+  }
+
+  @override
+  void didUpdateWidget(OrderListScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // The tab stays open; a link from the home picks another step or filter.
+    if (oldWidget.initialTab != widget.initialTab ||
+        oldWidget.initialPaid != widget.initialPaid) {
+      setState(() {
+        _tab = widget.initialTab;
+        _paid = widget.initialPaid;
+      });
+    }
   }
 
   @override
@@ -223,29 +241,20 @@ class _OrderListScreenState extends ConsumerState<OrderListScreen>
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Orders'),
-        actions: const [SignOutButton()],
-      ),
-      body: SafeArea(child: body),
+    return AppScaffold(
+      title: 'Orders',
+      subtitle: shop?.name,
+      drawer: ShopDrawer(shopId: widget.shopId),
+      body: body,
       // Only a Live shop records orders (the API checks this too).
-      bottomNavigationBar: isLive
-          ? SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.screenPadding,
-                  AppSpacing.s8,
-                  AppSpacing.screenPadding,
-                  AppSpacing.s12,
-                ),
-                child: AppButton(
-                  label: 'New order',
-                  icon: Icons.add,
-                  expand: true,
-                  onPressed: () =>
-                      context.go('/shops/${widget.shopId}/orders/new'),
-                ),
+      bottomBar: isLive
+          ? AppBottomActionBar(
+              child: AppButton(
+                label: 'New order',
+                icon: Icons.add,
+                expand: true,
+                onPressed: () =>
+                    context.go('/shops/${widget.shopId}/orders/new'),
               ),
             )
           : null,

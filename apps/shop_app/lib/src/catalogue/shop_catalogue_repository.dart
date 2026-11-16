@@ -142,6 +142,9 @@ abstract interface class ShopCatalogueRepository {
     Map<String, PackPrice> pricesByCataloguePackId,
   );
 
+  /// Product counts for the shop home.
+  Future<CatalogueSummary> summary(String shopId);
+
   /// Replaces the shop's own photo of the product.
   Future<ShopProduct> replaceImage(
     String shopId,
@@ -311,6 +314,13 @@ class ApiShopCatalogueRepository implements ShopCatalogueRepository {
           {'cataloguePackId': packId, ...price.toJson()},
       ],
     }),
+  );
+
+  @override
+  Future<CatalogueSummary> summary(String shopId) => _guard(
+    () async => CatalogueSummary.fromJson(
+      await _api.getJson(_path(shopId, '/summary')),
+    ),
   );
 
   @override

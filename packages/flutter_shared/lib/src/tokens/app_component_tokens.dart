@@ -62,6 +62,30 @@ abstract final class AppComponentTokens {
   static const double badgeRadius = AppRadius.pill;
   static const Color badgeBackground = AppColors.surfaceDefault;
 
+  /// The top bar of every app screen (title, back or menu, actions).
+  static const Color topBarBackground = AppColors.surfaceRaised;
+  static const Color topBarForeground = AppColors.textPrimary;
+  static const Color topBarBorder = AppColors.borderDefault;
+
+  /// The app's bottom tabs; the selected tab shows a filled pill behind its icon and a bold label.
+  static const double bottomNavRadius = AppRadius.pill;
+  static const Color bottomNavBackground = AppColors.surfaceRaised;
+  static const Color bottomNavBorder = AppColors.borderDefault;
+  static const Color bottomNavActive = AppColors.brandPrimaryStrong;
+  static const Color bottomNavActiveBackground = AppColors.brandPrimarySoft;
+  static const Color bottomNavInactive = AppColors.textSecondary;
+  static const Color bottomNavCount = AppColors.statusError;
+  static const Color bottomNavCountForeground = AppColors.surfaceDefault;
+
+  /// The app's side menu with the person, the shop and the less frequent areas.
+  static const double drawerRadius = AppRadius.large;
+  static const Color drawerBackground = AppColors.surfaceRaised;
+  static const Color drawerSelectedBackground = AppColors.brandPrimarySoft;
+
+  /// The bar under a screen that holds its main action, above the bottom tabs.
+  static const Color actionBarBackground = AppColors.surfaceRaised;
+  static const Color actionBarBorder = AppColors.borderDefault;
+
   /// The main action on a screen.
   static const Color buttonPrimaryBackground = AppColors.brandPrimary;
   static const Color buttonPrimaryBackgroundHover =
