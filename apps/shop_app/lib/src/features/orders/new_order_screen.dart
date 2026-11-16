@@ -12,6 +12,7 @@ import '../../orders/order_models.dart';
 import '../../orders/order_providers.dart';
 import '../../providers.dart';
 import '../../shops/shop_permissions.dart';
+import '../customers/customer_sheets.dart';
 import 'order_messages.dart';
 
 /// Records an order for a customer who phoned or is at the counter
@@ -19,9 +20,12 @@ import 'order_messages.dart';
 /// or delivery, then "Save as new order" or "Handed over now". Customers and
 /// orders recorded here are private to the shop (D-054).
 class NewOrderScreen extends ConsumerStatefulWidget {
-  const NewOrderScreen({super.key, required this.shopId});
+  const NewOrderScreen({super.key, required this.shopId, this.customerId});
 
   final String shopId;
+
+  /// Starts with this customer chosen (from the customer's page).
+  final String? customerId;
 
   @override
   ConsumerState<NewOrderScreen> createState() => _NewOrderScreenState();
@@ -59,7 +63,7 @@ class _NewOrderScreenState extends ConsumerState<NewOrderScreen> {
   String? _siteId;
   List<ShopCustomer>? _customerResults;
   bool _searchingCustomers = false;
-  String? _openingCustomerId;
+  late String? _openingCustomerId = widget.customerId;
   String? _customerNote;
 
   final List<_Line> _lines = [];
@@ -72,6 +76,28 @@ class _NewOrderScreenState extends ConsumerState<NewOrderScreen> {
   _Saving? _saving;
   Map<String, String> _errors = const {};
   String? _formError;
+
+  @override
+  void initState() {
+    super.initState();
+    final customerId = widget.customerId;
+    if (customerId != null) _openCustomer(customerId, starting: true);
+  }
+
+  Future<void> _openCustomer(String customerId, {bool starting = false}) async {
+    if (!starting) setState(() => _openingCustomerId = customerId);
+    try {
+      final detail = await ref
+          .read(shopCustomersRepositoryProvider)
+          .fetch(widget.shopId, customerId);
+      if (mounted) _select(detail);
+    } on Object catch (error) {
+      if (!mounted) return;
+      setState(() => _customerNote = orderErrorMessage(error));
+    } finally {
+      if (mounted) setState(() => _openingCustomerId = null);
+    }
+  }
 
   @override
   void dispose() {
@@ -122,20 +148,8 @@ class _NewOrderScreenState extends ConsumerState<NewOrderScreen> {
   }
 
   /// Reads the customer with their sites, then selects them.
-  Future<void> _chooseCustomer(ShopCustomer customer) async {
-    setState(() => _openingCustomerId = customer.id);
-    try {
-      final detail = await ref
-          .read(shopCustomersRepositoryProvider)
-          .fetch(widget.shopId, customer.id);
-      if (mounted) _select(detail);
-    } on Object catch (error) {
-      if (!mounted) return;
-      setState(() => _customerNote = orderErrorMessage(error));
-    } finally {
-      if (mounted) setState(() => _openingCustomerId = null);
-    }
-  }
+  Future<void> _chooseCustomer(ShopCustomer customer) =>
+      _openCustomer(customer.id);
 
   void _select(CustomerDetail? customer) {
     setState(() {
@@ -149,11 +163,7 @@ class _NewOrderScreenState extends ConsumerState<NewOrderScreen> {
   }
 
   Future<void> _addCustomer() async {
-    final created = await showAppBottomSheet<CustomerDetail>(
-      context: context,
-      title: 'Add customer',
-      builder: (context) => _AddCustomerForm(shopId: widget.shopId),
-    );
+    final created = await showAddCustomerSheet(context, widget.shopId);
     if (created != null && mounted) _select(created);
   }
 
@@ -432,6 +442,15 @@ class _NewOrderScreenState extends ConsumerState<NewOrderScreen> {
   Widget _customerStep(TextTheme textTheme, TextStyle? secondary) {
     final customer = _customer;
     final error = _errors['customer'];
+    // Opened from the customer's page: their sites are being read.
+    if (customer == null &&
+        _openingCustomerId == widget.customerId &&
+        widget.customerId != null) {
+      return const Padding(
+        padding: EdgeInsets.all(AppSpacing.s12),
+        child: Center(child: AppSpinner()),
+      );
+    }
     if (customer == null) {
       final results = _customerResults;
       return Column(
@@ -767,124 +786,6 @@ class _TotalRow extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-/// Records a new customer of the shop; pops with the saved customer.
-class _AddCustomerForm extends ConsumerStatefulWidget {
-  const _AddCustomerForm({required this.shopId});
-
-  final String shopId;
-
-  @override
-  ConsumerState<_AddCustomerForm> createState() => _AddCustomerFormState();
-}
-
-class _AddCustomerFormState extends ConsumerState<_AddCustomerForm> {
-  final _name = TextEditingController();
-  final _phone = TextEditingController();
-  CustomerKind? _kind;
-  bool _saving = false;
-  Map<String, String> _errors = const {};
-  String? _formError;
-
-  @override
-  void dispose() {
-    _name.dispose();
-    _phone.dispose();
-    super.dispose();
-  }
-
-  Future<void> _save() async {
-    final name = _name.text.trim();
-    final phone = IndianMobileNumber.parse(_phone.text);
-    final kind = _kind;
-    final errors = <String, String>{
-      if (name.isEmpty) 'name': OrderMessages.nameRequired,
-      if (phone == null) 'phone': OrderMessages.phoneInvalid,
-      if (kind == null) 'kind': 'Choose Painter or Customer.',
-    };
-    setState(() {
-      _errors = errors;
-      _formError = null;
-    });
-    if (errors.isNotEmpty) return;
-
-    setState(() => _saving = true);
-    try {
-      final created = await ref
-          .read(shopCustomersRepositoryProvider)
-          .create(widget.shopId, name: name, phone: phone!, kind: kind!);
-      if (mounted) Navigator.of(context).pop(created);
-    } on Object catch (error) {
-      if (!mounted) return;
-      final fields = error is ApiException
-          ? error.fieldErrors
-          : const <String, String>{};
-      setState(() {
-        _saving = false;
-        _errors = fields;
-        _formError = fields.isEmpty ? orderErrorMessage(error) : null;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          "Only your shop sees this customer. They aren't told and no SMS is "
-          'sent.',
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        const SizedBox(height: AppSpacing.s16),
-        AppTextField(
-          label: 'Name',
-          isRequired: true,
-          controller: _name,
-          enabled: !_saving,
-          maxLength: 120,
-          textInputAction: TextInputAction.next,
-          error: _errors['name'],
-        ),
-        const SizedBox(height: AppSpacing.s12),
-        AppTextField(
-          label: 'Mobile number',
-          isRequired: true,
-          controller: _phone,
-          enabled: !_saving,
-          prefixText: '+91 ',
-          keyboardType: TextInputType.phone,
-          maxLength: 20,
-          error: _errors['phone'],
-        ),
-        const SizedBox(height: AppSpacing.s12),
-        AppRadioGroup<CustomerKind>(
-          label: 'Type',
-          isRequired: true,
-          value: _kind,
-          options: [
-            for (final kind in CustomerKind.values) AppOption(kind, kind.label),
-          ],
-          onChanged: _saving ? (_) {} : (kind) => setState(() => _kind = kind),
-          error: _errors['kind'],
-        ),
-        if (_formError != null) ...[
-          const SizedBox(height: AppSpacing.s16),
-          AppInlineMessage(tone: AppTone.error, message: _formError!),
-        ],
-        const SizedBox(height: AppSpacing.s24),
-        AppButton(
-          label: 'Add customer',
-          loadingLabel: 'Adding…',
-          loading: _saving,
-          expand: true,
-          onPressed: _save,
-        ),
-      ],
     );
   }
 }

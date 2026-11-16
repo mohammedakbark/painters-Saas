@@ -23,6 +23,12 @@ enum ShopTab {
     Icons.inventory_2_outlined,
     Icons.inventory_2,
     ShopPermission.catalogueView,
+  ),
+  customers(
+    'Customers',
+    Icons.people_outline,
+    Icons.people,
+    ShopPermission.customersManage,
   );
 
   const ShopTab(this.label, this.icon, this.selectedIcon, this.permission);

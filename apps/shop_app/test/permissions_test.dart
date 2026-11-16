@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_shared/flutter_shared.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shop_app/app.dart';
 import 'package:shop_app/src/orders/order_models.dart';
+import 'package:shop_app/src/routing/router.dart';
 import 'package:shop_app/src/shops/shop_models.dart';
 import 'package:shop_app/src/shops/shop_permissions.dart';
 
@@ -87,6 +90,7 @@ void main() {
 
       expect(tabFinder('Orders'), findsOneWidget);
       expect(tabFinder('Products'), findsNothing);
+      expect(tabFinder('Customers'), findsNothing);
       expect(find.text('Ready or on the way'), findsOneWidget);
       expect(find.text("Today's sales"), findsNothing);
       expect(find.text('1 order not paid yet.'), findsOneWidget);
@@ -111,6 +115,23 @@ void main() {
       );
     });
 
+    testWidgets('a link to a customer without permission explains it', (
+      tester,
+    ) async {
+      await openShop(tester, {ShopPermission.ordersHandle});
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(ShopApp)),
+      );
+      container.read(routerProvider).go('/shops/shop-a/customers/c-1');
+      await tester.pumpAndSettle();
+      expect(find.text("You don't have access to this"), findsOneWidget);
+
+      await tester.tap(find.widgetWithText(AppButton, 'Go to the shop home'));
+      await tester.pumpAndSettle();
+      expect(tabFinder('Orders'), findsOneWidget);
+    });
+
     testWidgets('the owner sees every area and the money figures', (
       tester,
     ) async {
@@ -118,6 +139,7 @@ void main() {
 
       expect(tabFinder('Orders'), findsOneWidget);
       expect(tabFinder('Products'), findsOneWidget);
+      expect(tabFinder('Customers'), findsOneWidget);
       expect(find.text("Today's sales"), findsOneWidget);
       expect(find.textContaining('not paid yet: ₹'), findsOneWidget);
     });

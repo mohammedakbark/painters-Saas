@@ -47,6 +47,9 @@ class SubstituteOffer {
 /// Orders per page in the list (the API allows 10, 25 or 50).
 const orderPageSize = 25;
 
+/// Orders shown on a customer's page.
+const customerOrdersShown = 5;
+
 /// Pack sizes offered per substitute search.
 const _packSearchPageSize = 10;
 
@@ -62,6 +65,9 @@ abstract interface class ShopOrdersRepository {
   });
 
   Future<OrderSummary> summary(String shopId);
+
+  /// The customer's newest orders (SHP-012), at most [customerOrdersShown].
+  Future<List<OrderRow>> latestForCustomer(String shopId, String customerId);
 
   /// Throws [ShopNotFound] or [OrderNotFound].
   Future<OrderDetail> fetch(String shopId, String orderId);
@@ -155,6 +161,23 @@ class ApiShopOrdersRepository implements ShopOrdersRepository {
       ),
     ),
   );
+
+  @override
+  Future<List<OrderRow>> latestForCustomer(String shopId, String customerId) =>
+      _guard(() async {
+        final page = OrderListPage.fromJson(
+          await _api.getJson(
+            _shop(shopId, '/orders'),
+            query: {
+              'status': OrderTab.all.apiValue,
+              'customerId': customerId,
+              'page': '1',
+              'pageSize': '10',
+            },
+          ),
+        );
+        return page.items.take(customerOrdersShown).toList();
+      });
 
   @override
   Future<OrderSummary> summary(String shopId) => _guard(

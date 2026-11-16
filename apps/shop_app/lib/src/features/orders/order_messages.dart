@@ -59,7 +59,7 @@ abstract final class OrderMessages {
   static const notSaved = 'Not saved';
   static const noCustomerMatch = 'No customer matches. Add them below.';
   static const sitesOnWeb =
-      "No sites yet. Add this painter's sites on the web portal.";
+      "No sites yet. Add this painter's sites on their page in Customers.";
   static const deliveryOff =
       'Delivery is off in Shop settings. Turn it on on the web portal.';
   static const saveNote =

@@ -1,5 +1,5 @@
-// The shop's own customers (ORD-004 API), as far as the Shop App needs them
-// to record an order. Mirrors `CustomerListPage` and `CustomerDetail` in
+// The shop's own customers (ORD-004 API) for New order (SHP-009) and the
+// Customers tab (SHP-012). Mirrors `CustomerListPage` and `CustomerDetail` in
 // apps/api/src/customers/customers.schemas.ts.
 
 /// What the shop marked the person as (D-055).
@@ -45,43 +45,126 @@ class ShopCustomer {
   final bool hasApp;
 }
 
+/// A row of the Customers tab.
+class CustomerListItem {
+  const CustomerListItem({
+    required this.customer,
+    required this.siteCount,
+    required this.orderCount,
+    required this.lastOrderAt,
+  });
+
+  factory CustomerListItem.fromJson(Map<String, Object?> json) =>
+      CustomerListItem(
+        customer: ShopCustomer.fromJson(json),
+        siteCount: (json['siteCount']! as num).toInt(),
+        orderCount: (json['orderCount']! as num).toInt(),
+        lastOrderAt: switch (json['lastOrderAt']) {
+          final String at => DateTime.parse(at),
+          _ => null,
+        },
+      );
+
+  final ShopCustomer customer;
+
+  /// Active sites.
+  final int siteCount;
+  final int orderCount;
+  final DateTime? lastOrderAt;
+}
+
+/// One page of the Customers tab.
+class CustomerListPage {
+  const CustomerListPage({
+    required this.items,
+    required this.total,
+    required this.page,
+  });
+
+  factory CustomerListPage.fromJson(Map<String, Object?> json) =>
+      CustomerListPage(
+        items: [
+          for (final item in json['items']! as List<Object?>)
+            CustomerListItem.fromJson(item! as Map<String, Object?>),
+        ],
+        total: (json['total']! as num).toInt(),
+        page: (json['page']! as num).toInt(),
+      );
+
+  final List<CustomerListItem> items;
+
+  /// Customers matching the search and type.
+  final int total;
+  final int page;
+}
+
 /// A work site of a painter the shop recorded.
 class CustomerSite {
   const CustomerSite({
     required this.id,
     required this.name,
     required this.address,
+    this.ownerName,
+    this.hasPin = false,
+    this.archived = false,
   });
 
   factory CustomerSite.fromJson(Map<String, Object?> json) => CustomerSite(
     id: json['id']! as String,
     name: json['name']! as String,
     address: json['address']! as String,
+    ownerName: json['ownerName'] as String?,
+    hasPin: json['pin'] != null,
+    archived: json['archived'] == true,
   );
 
   final String id;
   final String name;
   final String address;
+  final String? ownerName;
+
+  /// A map pin set on the web; the app keeps it as it is.
+  final bool hasPin;
+  final bool archived;
 }
 
-/// A customer with the sites an order can go to.
+/// A customer with their sites.
 class CustomerDetail {
-  const CustomerDetail({required this.customer, required this.sites});
+  const CustomerDetail({
+    required this.customer,
+    required this.sites,
+    this.archivedSites = const [],
+    this.orderCount = 0,
+  });
 
-  factory CustomerDetail.fromJson(Map<String, Object?> json) => CustomerDetail(
-    customer: ShopCustomer.fromJson(json),
-    sites: [
+  factory CustomerDetail.fromJson(Map<String, Object?> json) {
+    final all = [
       for (final site in json['sites']! as List<Object?>)
-        if (site case final Map<String, Object?> site
-            when site['archived'] != true)
-          CustomerSite.fromJson(site),
-    ],
-  );
+        CustomerSite.fromJson(site! as Map<String, Object?>),
+    ];
+    return CustomerDetail(
+      customer: ShopCustomer.fromJson(json),
+      sites: [
+        for (final site in all)
+          if (!site.archived) site,
+      ],
+      archivedSites: [
+        for (final site in all)
+          if (site.archived) site,
+      ],
+      orderCount: switch (json['orderCount']) {
+        final num count => count.toInt(),
+        _ => 0,
+      },
+    );
+  }
 
   final ShopCustomer customer;
 
-  /// Active sites only.
+  /// Active sites only: the ones an order can go to.
   final List<CustomerSite> sites;
+  final List<CustomerSite> archivedSites;
+  final int orderCount;
 
   /// Sites are only for painters the shop recorded (D-055).
   bool get canHaveSites =>

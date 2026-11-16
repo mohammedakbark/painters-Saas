@@ -1,3 +1,4 @@
+import 'package:shop_app/src/api/api_client.dart';
 import 'package:shop_app/src/customers/customer_models.dart';
 import 'package:shop_app/src/customers/shop_customers_repository.dart';
 import 'package:shop_app/src/orders/order_draft.dart';
@@ -208,6 +209,18 @@ class FakeShopOrdersRepository implements ShopOrdersRepository {
     (order) => order.id == orderId,
     orElse: () => throw const OrderNotFound(),
   );
+
+  @override
+  Future<List<OrderRow>> latestForCustomer(
+    String shopId,
+    String customerId,
+  ) async {
+    _fail();
+    final mine =
+        _shop(shopId).where((order) => order.customer.id == customerId).toList()
+          ..sort((a, b) => b.placedAt.compareTo(a.placedAt));
+    return [for (final order in mine.take(customerOrdersShown)) order.toRow()];
+  }
 
   @override
   Future<OrderListPage> list(
@@ -449,7 +462,8 @@ class FakeShopOrdersRepository implements ShopOrdersRepository {
   }
 }
 
-/// The shop's customers, with the API's duplicate-mobile rule.
+/// The shop's customers and sites, with the API's rules for duplicate
+/// mobiles, app customers' mobiles and site names.
 class FakeShopCustomersRepository implements ShopCustomersRepository {
   FakeShopCustomersRepository({List<CustomerDetail>? customers})
     : customers = customers ?? [];
@@ -458,12 +472,45 @@ class FakeShopCustomersRepository implements ShopCustomersRepository {
 
   /// When set, the next call fails with it (once).
   Object? nextError;
+  final List<CustomerListFilter> listed = [];
+
+  /// Page size of [list]; small in tests to reach "Load more".
+  int pageSize = customerPageSize;
 
   void _fail() {
     final error = nextError;
     if (error != null) {
       nextError = null;
       throw error;
+    }
+  }
+
+  int _index(String customerId) {
+    final index = customers.indexWhere(
+      (detail) => detail.customer.id == customerId,
+    );
+    if (index < 0) throw const CustomerNotFound();
+    return index;
+  }
+
+  static ApiException _conflict(String code, String message, [String? field]) =>
+      ApiException(
+        status: 409,
+        code: code,
+        detail: message,
+        fieldErrors: field == null ? const {} : {field: message},
+      );
+
+  void _checkPhone(String phone, {String? except}) {
+    if (customers.any(
+      (detail) =>
+          detail.customer.phone == phone && detail.customer.id != except,
+    )) {
+      throw _conflict(
+        'customer_phone_taken',
+        'This mobile number is already in your customers.',
+        'phone',
+      );
     }
   }
 
@@ -480,12 +527,42 @@ class FakeShopCustomersRepository implements ShopCustomersRepository {
   }
 
   @override
+  Future<CustomerListPage> list(
+    String shopId,
+    CustomerListFilter filter, {
+    int page = 1,
+  }) async {
+    _fail();
+    listed.add(filter);
+    final q = filter.query.toLowerCase();
+    final matching = [
+      for (final detail in customers)
+        if ((q.isEmpty ||
+                detail.customer.name.toLowerCase().contains(q) ||
+                detail.customer.phone.contains(q)) &&
+            (filter.kind == null || detail.customer.kind == filter.kind))
+          detail,
+    ];
+    return CustomerListPage(
+      items: [
+        for (final detail
+            in matching.skip((page - 1) * pageSize).take(pageSize))
+          CustomerListItem(
+            customer: detail.customer,
+            siteCount: detail.sites.length,
+            orderCount: detail.orderCount,
+            lastOrderAt: null,
+          ),
+      ],
+      total: matching.length,
+      page: page,
+    );
+  }
+
+  @override
   Future<CustomerDetail> fetch(String shopId, String customerId) async {
     _fail();
-    return customers.firstWhere(
-      (detail) => detail.customer.id == customerId,
-      orElse: () => throw const CustomerNotFound(),
-    );
+    return customers[_index(customerId)];
   }
 
   @override
@@ -496,6 +573,7 @@ class FakeShopCustomersRepository implements ShopCustomersRepository {
     required CustomerKind kind,
   }) async {
     _fail();
+    _checkPhone(phone);
     final created = CustomerDetail(
       customer: ShopCustomer(
         id: 'new-${customers.length}',
@@ -508,5 +586,124 @@ class FakeShopCustomersRepository implements ShopCustomersRepository {
     );
     customers.add(created);
     return created;
+  }
+
+  @override
+  Future<CustomerDetail> update(
+    String shopId,
+    String customerId, {
+    String? name,
+    String? phone,
+    CustomerKind? kind,
+  }) async {
+    _fail();
+    final index = _index(customerId);
+    final old = customers[index];
+    if (phone != null) {
+      if (old.customer.hasApp) {
+        throw _conflict(
+          'customer_phone_from_app',
+          'This customer uses the app; their mobile comes from their account.',
+          'phone',
+        );
+      }
+      _checkPhone(phone, except: customerId);
+    }
+    final updated = CustomerDetail(
+      customer: ShopCustomer(
+        id: old.customer.id,
+        name: name ?? old.customer.name,
+        phone: phone ?? old.customer.phone,
+        kind: kind ?? old.customer.kind,
+        hasApp: old.customer.hasApp,
+      ),
+      sites: old.sites,
+      archivedSites: old.archivedSites,
+      orderCount: old.orderCount,
+    );
+    customers[index] = updated;
+    return updated;
+  }
+
+  void _checkSiteName(CustomerDetail detail, String name, {String? except}) {
+    if (detail.sites.any(
+      (site) =>
+          site.id != except && site.name.toLowerCase() == name.toLowerCase(),
+    )) {
+      throw _conflict(
+        'site_name_taken',
+        'This customer already has a site with this name.',
+        'name',
+      );
+    }
+  }
+
+  @override
+  Future<CustomerSite> createSite(
+    String shopId,
+    String customerId,
+    SiteFields fields,
+  ) async {
+    _fail();
+    final index = _index(customerId);
+    final detail = customers[index];
+    if (!detail.canHaveSites) {
+      throw _conflict(
+        'sites_for_painters_only',
+        'Sites can be added for painters you recorded.',
+      );
+    }
+    _checkSiteName(detail, fields.name);
+    final site = CustomerSite(
+      id: 'site-${detail.sites.length + detail.archivedSites.length}',
+      name: fields.name,
+      ownerName: fields.ownerName,
+      address: fields.address,
+    );
+    customers[index] = CustomerDetail(
+      customer: detail.customer,
+      sites: [...detail.sites, site],
+      archivedSites: detail.archivedSites,
+      orderCount: detail.orderCount,
+    );
+    return site;
+  }
+
+  @override
+  Future<CustomerSite> updateSite(
+    String shopId,
+    String customerId,
+    String siteId, {
+    SiteFields? fields,
+    bool? archived,
+  }) async {
+    _fail();
+    final index = _index(customerId);
+    final detail = customers[index];
+    final all = [...detail.sites, ...detail.archivedSites];
+    final old = all.firstWhere((site) => site.id == siteId);
+    if (fields != null) _checkSiteName(detail, fields.name, except: siteId);
+    final site = CustomerSite(
+      id: old.id,
+      name: fields?.name ?? old.name,
+      ownerName: fields == null ? old.ownerName : fields.ownerName,
+      address: fields?.address ?? old.address,
+      hasPin: old.hasPin,
+      archived: archived ?? old.archived,
+    );
+    final updated = [for (final each in all) each.id == siteId ? site : each];
+    customers[index] = CustomerDetail(
+      customer: detail.customer,
+      sites: [
+        for (final each in updated)
+          if (!each.archived) each,
+      ],
+      archivedSites: [
+        for (final each in updated)
+          if (each.archived) each,
+      ],
+      orderCount: detail.orderCount,
+    );
+    return site;
   }
 }

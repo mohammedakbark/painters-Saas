@@ -6,6 +6,8 @@ import '../features/catalogue/add_from_catalogue_screen.dart';
 import '../features/catalogue/catalogue_listing_screen.dart';
 import '../features/catalogue/product_list_screen.dart';
 import '../features/catalogue/product_screen.dart';
+import '../features/customers/customer_list_screen.dart';
+import '../features/customers/customer_screen.dart';
 import '../features/orders/new_order_screen.dart';
 import '../features/orders/order_list_screen.dart';
 import '../features/orders/order_screen.dart';
@@ -137,7 +139,10 @@ final _shopTabs = StatefulShellRoute.indexedStack(
               'new',
               title: 'New order',
               anyOf: const [ShopPermission.ordersRecord],
-              build: (state) => NewOrderScreen(shopId: _shopId(state)),
+              build: (state) => NewOrderScreen(
+                shopId: _shopId(state),
+                customerId: state.uri.queryParameters['customerId'],
+              ),
             ),
             _detail(
               ':orderId',
@@ -185,6 +190,26 @@ final _shopTabs = StatefulShellRoute.indexedStack(
                   ),
                 ),
               ],
+            ),
+          ],
+        ),
+      ],
+    ),
+    StatefulShellBranch(
+      routes: [
+        GoRoute(
+          path: 'customers',
+          builder: (context, state) =>
+              CustomerListScreen(shopId: _shopId(state)),
+          routes: [
+            _detail(
+              ':customerId',
+              title: 'Customer',
+              anyOf: const [ShopPermission.customersManage],
+              build: (state) => CustomerScreen(
+                shopId: _shopId(state),
+                customerId: state.pathParameters['customerId']!,
+              ),
             ),
           ],
         ),
