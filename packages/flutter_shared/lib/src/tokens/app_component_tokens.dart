@@ -32,9 +32,10 @@ abstract final class AppComponentTokens {
   /// Photos and image previews.
   static const double imageRadius = AppRadius.medium;
 
-  /// Indicative shade colour squares.
+  /// A shade's indicative screen colour next to its code (SHP-014).
   static const double swatchRadius = AppRadius.small;
-  static const Color swatchBorder = AppColors.borderStrong;
+  static const Color swatchBorder = AppColors.borderDefault;
+  static const Color swatchBackground = AppColors.surfaceSubtle;
 
   /// Navigation links in the console sidebar.
   static const double navItemRadius = AppRadius.small;

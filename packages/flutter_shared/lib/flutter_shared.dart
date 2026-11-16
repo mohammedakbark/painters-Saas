@@ -16,6 +16,7 @@ export 'src/components/app_feedback.dart';
 export 'src/components/app_navigation.dart';
 export 'src/components/app_overlays.dart';
 export 'src/components/app_spinner.dart';
+export 'src/components/app_swatch.dart';
 export 'src/components/app_text_field.dart';
 export 'src/components/app_tone.dart';
 export 'src/maps/shop_location_map.dart';

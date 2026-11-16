@@ -2,7 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'auth/auth_repository.dart';
+import 'catalogue/categories_repository.dart';
 import 'catalogue/product_photo_picker.dart';
+import 'catalogue/shades_repository.dart';
 import 'catalogue/shop_catalogue_repository.dart';
 import 'customers/shop_customers_repository.dart';
 import 'location/location_service.dart';
@@ -45,6 +47,17 @@ final shopSettingsProvider = FutureProvider.autoDispose
 final shopCatalogueRepositoryProvider = Provider<ShopCatalogueRepository>(
   (ref) =>
       throw UnimplementedError('shopCatalogueRepositoryProvider is overridden'),
+);
+
+/// Favourite and own shades (WEB-006 API; SHP-014 screen).
+final shadesRepositoryProvider = Provider<ShadesRepository>(
+  (ref) => throw UnimplementedError('shadesRepositoryProvider is overridden'),
+);
+
+/// The shop's categories (CAT-007 API; SHP-014 screen).
+final categoriesRepositoryProvider = Provider<CategoriesRepository>(
+  (ref) =>
+      throw UnimplementedError('categoriesRepositoryProvider is overridden'),
 );
 
 /// The shop's orders (ORD-001 API; SHP-007 screens).

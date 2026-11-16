@@ -10,7 +10,7 @@ Make the Shop App easy to move around and the same on every screen, using the we
 - A tab is shown only with its permission: Orders `orders.handle`, Products `catalogue.view`, Customers `customers.manage`; Home always. With only one tab the bar is hidden.
 - The Orders tab shows a count of new orders (red badge, also spoken).
 - **Detail screens** (an order, New order, a product, Add from brand catalogue, Shop profile) open above the tabs with a back arrow. Each checks its permission; a link to a screen the person may not use shows "You don't have access to this" with **Go to the shop home**.
-- **Side menu** (menu icon on the tab screens): brand, shop name, status and role, "Signed in as" the mobile; **Shop profile**; **Shop settings** (with `shop.settings`, SHP-013); **Switch shop** (only with more than one shop); **Sign out** (asks to confirm); "Powered by zero.byt". Sign out is no longer in every top bar.
+- **Side menu** (menu icon on the tab screens): brand, shop name, status and role, "Signed in as" the mobile; **Shop profile**; **Shop settings** (with `shop.settings`, SHP-013); **Shades** and **Categories** (with `catalogue.view`, SHP-014); **Switch shop** (only with more than one shop); **Sign out** (asks to confirm); "Powered by zero.byt". Sign out is no longer in every top bar.
 
 ## Home (like the web Overview)
 - Status card with the review details (unchanged wording).
@@ -39,5 +39,4 @@ Make the Shop App easy to move around and the same on every screen, using the we
 - `BrandMark` scales down instead of overflowing in the side menu or with large text.
 
 ## Limits
-- Shades and Categories (SHP-014) follow.
 - The app version is not shown in the menu yet (it needs a new package).

@@ -5,7 +5,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shop_app/app.dart';
 import 'package:shop_app/src/api/api_client.dart';
 import 'package:shop_app/src/auth/auth_repository.dart';
+import 'package:shop_app/src/catalogue/categories_repository.dart';
 import 'package:shop_app/src/catalogue/product_photo_picker.dart';
+import 'package:shop_app/src/catalogue/shades_repository.dart';
 import 'package:shop_app/src/catalogue/shop_catalogue_repository.dart';
 import 'package:shop_app/src/customers/shop_customers_repository.dart';
 import 'package:shop_app/src/location/location_service.dart';
@@ -20,10 +22,12 @@ import 'package:shop_app/src/shops/shop_settings.dart';
 import 'catalogue_fakes.dart';
 import 'order_fakes.dart';
 import 'settings_fakes.dart';
+import 'setup_fakes.dart';
 
 export 'catalogue_fakes.dart';
 export 'order_fakes.dart';
 export 'settings_fakes.dart';
+export 'setup_fakes.dart';
 
 class FakeAuthRepository extends ChangeNotifier implements AuthRepository {
   FakeAuthRepository({this.signedIn = false});
@@ -323,6 +327,8 @@ Widget testApp({
   ShopOrdersRepository? orders,
   ShopCustomersRepository? customers,
   ShopSettingsRepository? settings,
+  ShadesRepository? shades,
+  CategoriesRepository? categories,
   Duration orderRefreshInterval = const Duration(hours: 1),
   LinkOpener? openLink,
 }) => ProviderScope(
@@ -332,6 +338,12 @@ Widget testApp({
     ),
     shopCustomersRepositoryProvider.overrideWithValue(
       customers ?? FakeShopCustomersRepository(),
+    ),
+    shadesRepositoryProvider.overrideWithValue(
+      shades ?? FakeShadesRepository(),
+    ),
+    categoriesRepositoryProvider.overrideWithValue(
+      categories ?? FakeCategoriesRepository(),
     ),
     shopSettingsRepositoryProvider.overrideWithValue(
       settings ??

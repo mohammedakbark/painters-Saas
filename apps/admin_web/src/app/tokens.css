@@ -47,7 +47,8 @@
   --color-card-background: var(--color-surface-raised);
   --color-card-border: var(--color-border-default);
   --color-panel-border: var(--color-border-default);
-  --color-swatch-border: var(--color-border-strong);
+  --color-swatch-border: var(--color-border-default);
+  --color-swatch-background: var(--color-surface-subtle);
   --color-inline-message-background: var(--color-surface-default);
   --color-inline-message-border: var(--color-border-default);
   --color-sheet-background: var(--color-surface-raised);

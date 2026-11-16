@@ -18,7 +18,7 @@ Owners manage their catalogue on the web portal (CAT-002), but day-to-day change
 - adding a product from the brand catalogue;
 - product photos from the camera or the gallery.
 
-Own products and shades stay on the web.
+Own products stay on the web. Shades and categories came to the app with SHP-014 (`docs/features/SHP-014-shop-app-shades-and-categories.md`).
 
 ## 2. User roles and permissions
 

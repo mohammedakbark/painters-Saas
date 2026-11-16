@@ -89,6 +89,16 @@ class ApiClient {
   Future<Map<String, Object?>> deleteJson(String path) =>
       _send(() => _dio.delete<Object?>(path));
 
+  /// DELETEs [path] when the API answers 204 No Content.
+  /// Throws [ApiException].
+  Future<void> delete(String path) async {
+    try {
+      await _dio.delete<Object?>(path);
+    } on DioException catch (error) {
+      throw apiExceptionFrom(error);
+    }
+  }
+
   /// PUTs one file as `multipart/form-data` in the form field [field].
   /// Throws [ApiException].
   Future<Map<String, Object?>> putMultipart(

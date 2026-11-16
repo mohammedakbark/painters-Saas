@@ -233,6 +233,21 @@ class ShopDrawer extends ConsumerWidget {
             detail: 'Delivery and order messages',
             onTap: () => open('/shops/$shopId/settings'),
           ),
+        if (shop?.can(ShopPermission.catalogueView) ?? false) ...[
+          const AppDrawerSection(title: 'Catalogue'),
+          AppDrawerRow(
+            icon: Icons.palette_outlined,
+            label: 'Shades',
+            detail: 'Favourite brand shades and your own',
+            onTap: () => open('/shops/$shopId/shades'),
+          ),
+          AppDrawerRow(
+            icon: Icons.category_outlined,
+            label: 'Categories',
+            detail: 'Platform categories and your own',
+            onTap: () => open('/shops/$shopId/categories'),
+          ),
+        ],
         const AppDrawerSection(title: 'Account'),
         if ((user?.memberships.length ?? 0) > 1)
           AppDrawerRow(

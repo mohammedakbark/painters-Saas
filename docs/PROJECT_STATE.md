@@ -1,7 +1,7 @@
 # Project State — Living Document
 
 **Last updated:** 2026-11-15  
-**Current stage:** Phase 2: ordering. Phase 1 (shop onboarding) is complete and the web is finished for now. The Shop App has orders (SHP-007) and recording orders (SHP-009). Push notifications are postponed (owner, 2026-11-15); the Shop App redesign comes first: SHP-010 permissions (done), SHP-011 app shell and navigation (done), SHP-012 customers (done), SHP-013 profile and settings (done), then SHP-014 shades and categories, then the Customer App.  
+**Current stage:** Phase 2: ordering. Phase 1 (shop onboarding) is complete and the web is finished for now. The Shop App has orders (SHP-007) and recording orders (SHP-009). Push notifications are postponed (owner, 2026-11-15); the Shop App redesign comes first: SHP-010 permissions (done), SHP-011 app shell and navigation (done), SHP-012 customers (done), SHP-013 profile and settings (done), SHP-014 shades and categories (done); next the Customer App.  
 **Overall status:** Foundation complete with CI green on GitHub. Implemented and verified locally: platform admin sign-in, shop self-registration with tenant-scoped access, the platform shop registry, and Shop App sign-in (Android emulator).  
 **Product name:** SevenPalette (D-040, 2026-11-06), a product of zero.byt
 
@@ -56,6 +56,7 @@
 | SHP-011: Shop App shell: bottom tabs by permission (Home, Orders with a new-order count, Products), side menu, dashboard home (to do, order and product figures, shortcuts), one screen layout (`AppScaffold`, `AppBottomActionBar`) | **Complete (local; tests)**; emulator not run | `docs/features/SHP-011-app-shell.md` |
 | SHP-012: Customers tab in the Shop App: search, Painter/Customer chips, load more, Add customer; customer page with call, edit, latest orders, New order for the customer; painters' sites (add, edit, archive, restore; pins stay on the web) | **Complete (local; tests)**; emulator not run | `docs/features/SHP-012-shop-app-customers.md` |
 | SHP-013: Shop App profile and settings: photo, address and support mobile editable (locked in review), Submit for review and Withdraw on the home, Shop settings (delivery, order messages); map pin by hand stays on the web | **Complete (local; tests)**; emulator not run | `docs/features/SHP-013-shop-app-profile-and-settings.md` |
+| SHP-014: Shop App shades (favourites, brand shades with favourite toggle, own shades add/remove) and categories (add, rename, archive, restore) from the side menu; `AppColorSwatch` component and `swatch` token | **Complete (local; tests)**; emulator not run | `docs/features/SHP-014-shop-app-shades-and-categories.md` |
 
 **Git (D-035):** every feature above is in `dev` (fast-forward merged and pushed on 2026-11-04; one commit per feature, `3697e4f` … `9c7885b`); the local per-feature branches were deleted. The first GitHub Actions run on `dev` (`8497b81`) passed all three jobs (TypeScript, Flutter, repository checks). The old remote branch `feat/shp-002-shop-app-sign-in` is still on GitHub (its commits are in `dev`); the product owner can delete it. From now on each finished feature is merged into `dev` and pushed the same way. `main` still holds only `c56f614` (project setup) until a release.
 
@@ -199,6 +200,15 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 - [ ] iOS build verification (requires macOS).
 
 ## 6. Checks run (local, Windows 11, Node 22.21.0)
+
+### SHP-014 (2026-11-16)
+
+| Check | Result |
+|---|---|
+| `fvm flutter analyze`, `fvm flutter test` flutter_shared (75, 3 new) and shop_app (178, 10 new); customer_app analyze | Passed |
+| `pnpm --filter design-tokens check` and `test` (29), `pnpm ui:check`, `pnpm format:check` | Passed |
+| API | Unchanged (no API change); web only gained the generated `swatch` tokens in `tokens.css` |
+| Emulator | Not run (SHP-011 to SHP-014 not yet checked on a device) |
 
 ### SHP-013 (2026-11-16)
 
@@ -443,7 +453,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 1. **Web first, then mobile (product owner, 2026-11-07).** The web shop admin and platform admin UI pass is complete (WEB-001 to WEB-005, CAT-003 to CAT-006, DS-003, DS-004, SHP-006, PLT-003, PERF-001). The web and server are finished before the mobile apps:
    - **Step A (shop web, no new decisions):** ~~Shades as a table~~ (done, WEB-006); ~~side sheet for small forms~~ (done, WEB-007, D-051); ~~Shop settings~~ (done, SHP-008); ~~shop categories~~ (done, CAT-007, D-048); ~~Overview dashboard v1~~ (done, WEB-008). Step A is complete; next is Step B (ORD-001).
    - **Step B (Phase 2 ordering, server and shop web):** ~~ORD-001 orders API~~ (done, D-053, D-054; `orders:seed-test`); ~~ORD-002 shop Orders page~~ (done); ~~ORD-003 order figures on the Overview~~ (done). Step B is complete. ~~ORD-004 shop-recorded customers, sites and orders~~ (done, D-055). Next: the Shop App (mobile).
-   - **Then mobile:** Shop App, then the Customer App on the same APIs. Shop App order chosen by the owner on 2026-11-13: ~~SHP-007 orders and home figures~~ (done); ~~SHP-009 record phone and counter orders~~ (done). Redesign first (owner, 2026-11-15): ~~SHP-010 permissions~~, ~~SHP-011 app shell~~ (done); ~~SHP-012 Customers tab~~, ~~SHP-013 profile and settings~~ (done); **next SHP-014** shades and categories, then the Customer App. Postponed: NOT-001 push notifications for orders (Firebase Cloud Messaging behind a replaceable sender, Android first; needs a decision record, ADR 0010 and the owner's Firebase project: `google-services.json` and a service-account key. The app id is still `com.example.shop_app`, question 41).
+   - **Then mobile:** Shop App, then the Customer App on the same APIs. Shop App order chosen by the owner on 2026-11-13: ~~SHP-007 orders and home figures~~ (done); ~~SHP-009 record phone and counter orders~~ (done). Redesign first (owner, 2026-11-15): ~~SHP-010 permissions~~, ~~SHP-011 app shell~~ (done); ~~SHP-012 Customers tab~~, ~~SHP-013 profile and settings~~, ~~SHP-014 shades and categories~~ (done). The redesign is complete; check SHP-011 to SHP-014 on the Android emulator, then plan the Customer App (item 2). Postponed: NOT-001 push notifications for orders (Firebase Cloud Messaging behind a replaceable sender, Android first; needs a decision record, ADR 0010 and the owner's Firebase project: `google-services.json` and a service-account key. The app id is still `com.example.shop_app`, question 41).
    - Owner: domains, trademark check, bundle IDs (question 41).
 2. **Next phase: plan the Customer App foundation** with the product owner: CUS-001 sign-up and profile (customer type, D-036), CUS-002 Find shops and My Shops (D-037, D-038), CUS-003 shop storefront. Ordering questions 30–32 answered (D-045 to D-047).
 3. **Product owner checks:** try the platform **Reviews** decision form in Chrome as the platform admin; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
@@ -553,6 +563,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 | 2026-11-08 | ORD-002: shop Orders page (tabs with counts, search, filters, row next step, 30 s refresh with new-order toast) and order page (items with not available and substitute sheets, cancel, payment, return, timeline); owner chose status colours (red `error` badge), row buttons and the 30 s check. Also `Button` compact size, optional Combobox create, scrolling `SegmentedLinks`, `showToast`/`ToastHost`, API `status=ready`. |
 | 2026-11-08 | Owner: order steps, payment at pickup/delivery recorded by the shop, roles (D-053); shop-recorded customers, sites and orders private to the shop, shared only after the person connects with an OTP (D-054, ORD-004). ORD-001: `shop_customers`, `orders`, `order_items`, append-only `order_events`; shop orders API (list, detail, steps, not available, substitute, payment, return) with tenant e2e; `OrderPlacementService`; `orders:seed-test` script. |
 | 2026-11-14 | Owner (2026-11-13): Shop App next, with every order action, home figures, recording phone and counter orders, and push notifications; split into SHP-007, SHP-009 and NOT-001. SHP-007: orders list and order page in the Shop App on the ORD-001 API, order figures on the shop home, `AppChoiceChips` and `AppStatTile`, `url_launcher`. No API change. |
+| 2026-11-16 | SHP-014: Shades and Categories in the Shop App (side menu, `catalogue.view` to see, `catalogue.manage` to change); `AppColorSwatch` and the `swatch` component token; `ApiClient.delete` for 204 answers. No API change. The Shop App redesign (SHP-010 to SHP-014) is complete. |
 | 2026-11-16 | Owner: Submit for review and Withdraw also in the Shop App; the map pin by hand stays on the web. SHP-013: profile (photo, address, support mobile) editable in the Shop App, locked in review; review actions on the home; Shop settings (delivery, order messages). No API change. |
 | 2026-11-16 | SHP-012: Customers tab in the Shop App on the ORD-004 API (list, customer page, edit, latest orders, New order for the customer, painters' sites without map pins). New order uses the shared customer form. No API change. |
 | 2026-11-16 | SHP-011: Shop App shell (tabs by permission, side menu, dashboard home, one screen layout); new `flutter_shared` navigation components and `topBar`, `bottomNav`, `drawer`, `actionBar` tokens; `pnpm ui:check` refuses raw Scaffold, AppBar and navigation widgets. No API change except reading `catalogue/summary`. |

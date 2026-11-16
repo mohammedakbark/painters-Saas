@@ -4,8 +4,10 @@ import 'package:go_router/go_router.dart';
 
 import '../features/catalogue/add_from_catalogue_screen.dart';
 import '../features/catalogue/catalogue_listing_screen.dart';
+import '../features/catalogue/categories_screen.dart';
 import '../features/catalogue/product_list_screen.dart';
 import '../features/catalogue/product_screen.dart';
+import '../features/catalogue/shades_screen.dart';
 import '../features/customers/customer_list_screen.dart';
 import '../features/customers/customer_screen.dart';
 import '../features/orders/new_order_screen.dart';
@@ -104,6 +106,18 @@ final routerProvider = Provider<GoRouter>((ref) {
             title: 'Shop settings',
             anyOf: const [ShopPermission.shopSettings],
             build: (state) => ShopSettingsScreen(shopId: _shopId(state)),
+          ),
+          _detail(
+            'shades',
+            title: 'Shades',
+            anyOf: const [ShopPermission.catalogueView],
+            build: (state) => ShadesScreen(shopId: _shopId(state)),
+          ),
+          _detail(
+            'categories',
+            title: 'Categories',
+            anyOf: const [ShopPermission.catalogueView],
+            build: (state) => CategoriesScreen(shopId: _shopId(state)),
           ),
           _shopTabs,
         ],
