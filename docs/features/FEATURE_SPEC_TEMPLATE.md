@@ -26,6 +26,15 @@ Write explicit rules. Do not leave important behavior implicit.
 ## 6. UI requirements
 List screens, components, loading/empty/error/success states, responsive behavior and accessibility considerations.
 
+## 6a. Design (D-060)
+Screens from the "SevenPalette Screens" design artifact (DESIGN_SYSTEM §11). Looks only; behaviour comes from this spec.
+
+| Our screen | Design screen (surface › name) | Status |
+|---|---|---|
+| [e.g. Checkout] | Customer App › Checkout | To build / Matches / Differs: [reason] |
+
+New components or component tokens needed: [none / list].
+
 ## 7. API contract
 List endpoints, request/response fields, validation and errors. Do not expose internal database models directly.
 

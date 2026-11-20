@@ -11,11 +11,20 @@ Use for Customer App, Shop App and admin web UI work.
 1. Read `docs/DESIGN_SYSTEM.md` and the feature specification.
 2. Identify the user role and exact task the screen supports.
 3. Inspect existing shared components before creating new ones.
+4. Follow the design reference below.
+
+## Follow the design reference (D-060, product owner 2026-11-20)
+The owner's design artifact **"SevenPalette Screens"** (claude.ai `VrnTXsW7v9hiNEWEHngTqr`; read it with the Artifact tool, `action: "read"`) is the visual reference for every screen on all four surfaces. `docs/DESIGN_SYSTEM.md` §11 maps each design screen to its feature. For every feature with UI:
+1. **Find the design screens.** Open the surface in the artifact (Shop Admin, Platform Admin, Shop App, Customer App) and find each screen the feature touches in its screen index. Record them in the spec's "Design" table (template §6a): our screen, design screen, and status.
+2. **Take looks from the design, features from the docs.** Layout order, hierarchy, which component is used, spacing rhythm, empty and loading shapes and copy tone come from the design. Behaviour, fields, rules and numbers come only from the documents and decisions. The design's sample data (prices, ₹80 delivery, names) is illustration, never a rule. A control or screen shown in the design but not in the documents is asked about, not built.
+3. **Build from components.** Use the existing shared components. If the design shows something no component does, add a component token and a component first (DESIGN_SYSTEM §8), then use it; never style it in the screen.
+4. **No design screen?** Use the closest design screen's pattern on the same surface (for example a new list follows Orders) and note which one in the Design table.
+5. **Compare before done.** Run the screen (browser at desktop and phone width, or the Android emulator) and compare it with the design screen side by side. Fix differences or list them in the spec with the reason (missing API data, not in the docs, later feature). Nothing is "complete" with an unexplained difference.
+6. **Keep the reference current.** When a design screen is built, mark it in DESIGN_SYSTEM §11. If the owner updates the artifact, re-read it before the next UI feature.
 
 ## Visual rules
 - Use centralized color, typography, spacing and radius tokens.
-- Use Inter as the provisional typeface.
-- Use light theme, navy/blue primary and limited amber accent.
+- Standard look (web and Shop App): Inter, deep teal primary, sunflower accent, cream background. Customer App theme (D-057): Plus Jakarta Sans, navy and blue with brush-stroke yellow. Light theme only.
 - Keep product information, shop context, prices and actions easy to scan.
 - Make the active shop clear in customer shopping flows.
 - Clearly distinguish another shop's search result.

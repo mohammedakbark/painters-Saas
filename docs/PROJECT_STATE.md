@@ -656,3 +656,4 @@ Android emulator (`emulator-5554`, 1080 x 1920), local Postgres, local Supabase 
 | 2026-11-20 | UI-103: Shop App chips, Home top bar and band. |
 | 2026-11-20 | UI-104: Customer App Home banner and product cards; the redesign rollout (D-060) is complete. |
 | 2026-11-20 | CUS-005: painter's sites in the Customer App and `/v1/me/sites`. |
+| 2026-11-20 | Design-follow rule (D-060): every UI feature maps its screens to the "SevenPalette Screens" artifact (DESIGN_SYSTEM §11, spec template §6a, ui-implementation and feature-cycle skills, CLAUDE.md §6) and compares before done. |

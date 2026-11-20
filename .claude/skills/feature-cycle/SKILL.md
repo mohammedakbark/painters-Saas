@@ -14,6 +14,7 @@ Use this skill whenever implementing or materially changing a product feature.
 4. Create/update a feature spec from `docs/features/FEATURE_SPEC_TEMPLATE.md`.
 5. Write testable acceptance criteria.
 6. Identify UI, API, database, permissions, tenant boundaries and tests.
+6a. For UI: find the feature's screens in the "SevenPalette Screens" design artifact and fill the spec's Design table (`ui-implementation` skill, D-060).
 7. Present the plan before broad changes.
 
 ## Implementation
@@ -28,7 +29,7 @@ Use this skill whenever implementing or materially changing a product feature.
 - Do not add unrelated refactors or dependencies.
 
 ## Verification
-Run relevant formatters, analyzers, tests and builds. Add tests for happy path, validation/error cases, loading/empty states, permission failures, cross-tenant access attempts and duplicate/concurrent financial operations where relevant. Report checks that could not run.
+Run relevant formatters, analyzers, tests and builds. For UI, compare each screen with its design screen in a browser or emulator and record matches and explained differences in the Design table. Add tests for happy path, validation/error cases, loading/empty states, permission failures, cross-tenant access attempts and duplicate/concurrent financial operations where relevant. Report checks that could not run.
 
 ## Documentation
 Update the feature specification, `docs/FEATURE_CATALOG.md`, `docs/PROJECT_STATE.md`, architecture docs and ADRs as needed. Summarize files changed, tests run, limitations and next feature.

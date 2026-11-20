@@ -277,6 +277,25 @@ Token implementations (generated since DS-001, 2026-11-04):
 
 The owner's design artifact "SevenPalette Screens" (claude.ai `VrnTXsW7v9hiNEWEHngTqr`) is the visual reference for all four surfaces. It uses the tokens above; the changes are layout and components: a deep-teal console sidebar with a white current item, a white page bar with breadcrumb, title and actions, a filled lead KPI tile, segments with counts and order progress steps. Since UI-101 the console `AppShell` has the deep-teal grouped sidebar (`NavItem.group`) and `PageHeader` is the white page bar at the top of every console page (it must be the page's first element; the console's main area has no top padding or maximum width). Rolled out one surface at a time: DS-006 (shared foundation), UI-101 Shop Admin web, UI-102 Platform Admin web, UI-103 Shop App, UI-104 Customer App. Its sample data is illustration only.
 
+### Following the design in new features (D-060)
+
+Every feature with UI finds its screens below, records them in its spec's Design table (template §6a) and compares the built screen with the design before it is complete (`.claude/skills/ui-implementation`). Looks come from the design; behaviour, fields and rules come from the documents. A screen with no design screen follows the closest one on the same surface. Update the Status column when a screen is built.
+
+| Surface › design screen | Feature | Status |
+|---|---|---|
+| Shop Admin › Overview, Orders, order page, Products, Shades, Categories, Customers, Settings, Shop profile, side sheets | UI-101 and earlier features | Built |
+| Shop Admin › Users and permission matrix | Staff accounts (postponed) | Later |
+| Shop Admin › Bills & credit, Rewards & offers | Phase 3, Phase 4 | Greyed out in the sidebar |
+| Platform Admin › Overview, Shops, shop page, Reviews, Request changes, Brand catalogue, CSV import | UI-102 and earlier | Built; Overview's review queue with photos and "Shops by district" need API data |
+| Platform Admin › Plans and seats | Later | Greyed out in the sidebar |
+| Shop App › Home, Orders, Order page, Record an order, Products, Product page, Shades, Customers, Customer page, Shop settings, Side menu | UI-103 and earlier | Built; greeting and "Newest orders" on Home not yet |
+| Customer App › Sign up and type, Home storefront, Product and shade, Cart, My Shops, Find shops, Shop page, More | UI-104 and earlier | Built |
+| Customer App › Sites | CUS-005 | Built (list, add or edit with map pin, archive) |
+| Customer App › Site spend, painter's site card on Home | CUS-006 or later (needs orders) | To build |
+| Customer App › Checkout (pickup or delivery radio cards, site for painters, totals) | CUS-006 | To build |
+| Customer App › My Orders, Order tracking (steps) | CUS-006 | To build |
+| Customer App › Search all shops (active shop first, other shops apart) | Search feature (confirmed rule, CLAUDE.md §3) | To build |
+
 ## 12. States and page anatomy (UX-001, 2026-11-08)
 
 Learned from Shopify Admin, Stripe Dashboard, Linear and GOV.UK patterns:
