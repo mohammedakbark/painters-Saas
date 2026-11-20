@@ -95,7 +95,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
   - TypeScript ~6.0.3
   - Prettier 3.9.10
 - **API:** NestJS 12.3.2 · Prisma 7.10.1 · Zod 4.6.7 · jose 6.2.15
-- **Web:** Next.js 16.4.3 · React 19.3.0 · Tailwind CSS 4
+- **Web:** Next.js 16.4.6 · React 19.3.0 · Tailwind CSS 4
 - **Supabase:** supabase-js 2.118.0 · @supabase/ssr 0.12.7 · Supabase CLI 2.122.0 (GoTrue v2.197.0)
 - **Testing:** Vitest 5.0.5
 - **Flutter:** 3.47.9 / Dart 3.13.7 via FVM 4.3.2
@@ -647,3 +647,4 @@ Android emulator (`emulator-5554`, 1080 x 1920), local Postgres, local Supabase 
 | 2026-11-08 | INFRA-001 live: Supabase `sevenpalette-test` (Singapore, Data API off, test phone numbers), Render API, Vercel web, `API_BASE_URL` repository variable; keep-alive verified. |
 | 2026-11-20 | UI redesign started (D-060) from the owner's design artifact; DS-006 adds the shared tokens and web components; CUS-005 parked. |
 | 2026-11-20 | UI-101: Shop Admin web in the new design (dark sidebar, page bar, Overview, order steps). |
+| 2026-11-20 | Next.js 16.4.3 → 16.4.6 (security advisory), eslint-config-next to match. |

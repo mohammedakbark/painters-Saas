@@ -204,9 +204,9 @@ M0 foundation implemented 2026-11-03 (ADR 0004), then AUTH-001 (ADR 0005, ADR 00
 | API auth | JWKS verification with jose; Supabase admin client (ADR 0005) | jose 6.2.15, @supabase/supabase-js 2.118.0 |
 | ORM | Prisma 7 (`prisma-client` generator, `@prisma/adapter-pg`) | 7.10.1 exact (npm `latest` pointed to an 8.0 RC) |
 | API lint/test | oxlint (type-aware) / Vitest + supertest | oxlint ^1.90, Vitest 5.0.5, Vite ^8.3.5 |
-| Web | Next.js 16 App Router, Turbopack, Cache Components, React 19, Tailwind CSS 4 | next 16.4.3, react 19.3.0, tailwindcss ^4 |
+| Web | Next.js 16 App Router, Turbopack, Cache Components, React 19, Tailwind CSS 4 | next 16.4.6, react 19.3.0, tailwindcss ^4 |
 | Web auth/validation | `@supabase/ssr` (Server Actions + HTTP-only cookies), Zod | @supabase/ssr 0.12.7, @supabase/supabase-js 2.118.0, zod 4.6.7, server-only 0.0.1 |
-| Web lint/test | ESLint 9 + `eslint-config-next` / Vitest + Testing Library + jsdom | eslint-config-next 16.4.3, Vitest 5.0.5 |
+| Web lint/test | ESLint 9 + `eslint-config-next` / Vitest + Testing Library + jsdom | eslint-config-next 16.4.6, Vitest 5.0.5 |
 | Local auth | Supabase CLI, Auth only (`infra/supabase`) | supabase 2.122.0 (root devDependency; GoTrue v2.197.0) |
 | Formatting (TS) | Prettier (root config) | 3.9.10 |
 | Flutter / Dart | Pinned per project with FVM | Flutter 3.47.9 / Dart 3.13.7 (`.fvmrc`; FVM 4.3.2) |
