@@ -149,9 +149,8 @@ async function Shops({ searchParams }: PageProps<'/platform/shops'>) {
         label="Shop status"
         segments={[undefined, ...SHOP_STATUSES].map((value) => ({
           href: link({ status: value, page: 1 }),
-          label: `${value ? shopStatusLabel(value).label : 'All'} (${
-            data.statusCounts[value ?? 'ALL']
-          })`,
+          label: value ? shopStatusLabel(value).label : 'All',
+          count: data.statusCounts[value ?? 'ALL'],
           current: state.status === value,
         }))}
       />

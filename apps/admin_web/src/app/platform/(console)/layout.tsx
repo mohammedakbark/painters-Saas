@@ -20,16 +20,41 @@ export const metadata: Metadata = {
 /** The menu, with the number of shops waiting for review (UX-003). */
 function platformNav(waiting: number): NavItem[] {
   return [
-    { href: '/platform', label: 'Overview', exact: true, icon: 'home' },
+    {
+      href: '/platform',
+      label: 'Overview',
+      exact: true,
+      icon: 'home',
+      group: 'Platform',
+    },
+    {
+      href: '/platform/shops',
+      label: 'Shops',
+      icon: 'store',
+      group: 'Platform',
+    },
     {
       href: '/platform/reviews',
       label: 'Reviews',
       icon: 'shield',
       count: waiting,
       countLabel: 'shops waiting',
+      group: 'Platform',
     },
-    { href: '/platform/shops', label: 'Shops', icon: 'store' },
-    { href: '/platform/catalogue', label: 'Catalogue', icon: 'notebook' },
+    {
+      href: '/platform/catalogue',
+      label: 'Catalogue',
+      icon: 'notebook',
+      group: 'Brand catalogue',
+    },
+    // A later phase, greyed out with no page (D-060).
+    {
+      href: '/platform#plans',
+      label: 'Plans and seats',
+      icon: 'wallet',
+      later: 'Later',
+      group: 'Later',
+    },
   ];
 }
 

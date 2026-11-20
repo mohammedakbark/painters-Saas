@@ -55,11 +55,12 @@ async function Figures() {
   return (
     <>
       <section aria-labelledby="shops-heading" className="flex flex-col gap-3">
-        <h2 id="shops-heading" className="text-heading3 font-semibold">
+        <h2 id="shops-heading" className="sr-only">
           Shops
         </h2>
         <div className="grid grid-cols-2 gap-4 wide:grid-cols-4">
           <StatTile
+            lead
             label="Waiting for review"
             value={reviews.waiting}
             status={
@@ -103,7 +104,7 @@ async function Figures() {
         aria-labelledby="catalogue-heading"
         className="flex flex-col gap-3"
       >
-        <h2 id="catalogue-heading" className="text-heading3 font-semibold">
+        <h2 id="catalogue-heading" className="text-title font-semibold">
           Brand catalogue
         </h2>
         <div className="grid grid-cols-2 gap-4 wide:grid-cols-4">
