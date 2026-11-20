@@ -43,6 +43,7 @@ model User {
   reviewsDecided   ShopReview[]     @relation("ShopReviewDecidedBy")
   shopCustomers    ShopCustomer[]
   myShops          CustomerShop[]
+  sites            CustomerSite[]
 
   @@map("users")
 }
@@ -772,4 +773,28 @@ model CustomerShop {
   @@id([userId, shopId])
   @@index([shopId])
   @@map("customer_shops")
+}
+
+/// A painter's own work site (CUS-005, D-049): private to the painter, used
+/// for their orders at any shop. Separate from the sites a shop records for
+/// its customers (ShopSite, D-055). Archived, never deleted. CHECKs and the
+/// active-name index are in the migration.
+model CustomerSite {
+  id         String    @id @default(uuid(7)) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  /// For example "Rahman Villa". Trimmed, 2–80 characters.
+  name       String
+  ownerName  String?   @map("owner_name")
+  /// House or business name, street and place. 5–300 characters.
+  address    String
+  latitude   Decimal   @db.Decimal(9, 6)
+  longitude  Decimal   @db.Decimal(9, 6)
+  archivedAt DateTime? @map("archived_at") @db.Timestamptz(3)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId, archivedAt])
+  @@map("customer_sites")
 }
