@@ -95,6 +95,23 @@ abstract final class AppComponentTokens {
   static Color get sidebarCountForeground =>
       AppPalette.current.sidebarCountForeground;
 
+  /// The filled top bar and header band of an app's Home tab (UI-103): white text on the strong brand colour.
+  static Color get topBarBrandBackground =>
+      AppPalette.current.topBarBrandBackground;
+  static Color get topBarBrandForeground =>
+      AppPalette.current.topBarBrandForeground;
+  static Color get topBarBrandMuted => AppPalette.current.topBarBrandMuted;
+
+  /// One-of-many chips in the apps (AppChoiceChips): the selected chip is filled with white text and a translucent count (UI-103).
+  static double get chipRadius => AppPalette.current.chipRadius;
+  static Color get chipBackground => AppPalette.current.chipBackground;
+  static Color get chipForeground => AppPalette.current.chipForeground;
+  static Color get chipBorder => AppPalette.current.chipBorder;
+  static Color get chipSelectedBackground =>
+      AppPalette.current.chipSelectedBackground;
+  static Color get chipSelectedForeground =>
+      AppPalette.current.chipSelectedForeground;
+
   /// The first, headline tile of a KPI row: filled deep teal with white figures.
   static Color get statTileLeadBackground =>
       AppPalette.current.statTileLeadBackground;

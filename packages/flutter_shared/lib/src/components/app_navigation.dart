@@ -20,11 +20,15 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
     this.subtitle,
     this.actions = const [],
     this.leading,
+    this.brand = false,
   }) : assert(actions.length <= 2, 'at most two top bar actions');
 
   final String title;
   final String? subtitle;
   final List<Widget> actions;
+
+  /// Filled with the strong brand colour, for a Home tab (UI-103).
+  final bool brand;
 
   /// Replaces the automatic back arrow or menu icon.
   final Widget? leading;
@@ -40,15 +44,23 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
         leading != null ||
         (ModalRoute.of(context)?.impliesAppBarDismissal ?? false) ||
         (Scaffold.maybeOf(context)?.hasDrawer ?? false);
+    final background = brand
+        ? AppComponentTokens.topBarBrandBackground
+        : AppComponentTokens.topBarBackground;
+    final foreground = brand
+        ? AppComponentTokens.topBarBrandForeground
+        : AppComponentTokens.topBarForeground;
     return AppBar(
-      backgroundColor: AppComponentTokens.topBarBackground,
-      foregroundColor: AppComponentTokens.topBarForeground,
-      surfaceTintColor: AppComponentTokens.topBarBackground,
+      backgroundColor: background,
+      foregroundColor: foreground,
+      surfaceTintColor: background,
       elevation: 0,
       scrolledUnderElevation: 0,
       toolbarHeight: kToolbarHeight + 8,
       leading: leading,
-      shape: Border(bottom: BorderSide(color: AppComponentTokens.topBarBorder)),
+      shape: brand
+          ? null
+          : Border(bottom: BorderSide(color: AppComponentTokens.topBarBorder)),
       titleSpacing: hasLeading ? AppSpacing.s4 : AppSpacing.screenPadding,
       title: Semantics(
         header: true,
@@ -60,9 +72,7 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
               title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: AppTypography.title.copyWith(
-                color: AppComponentTokens.topBarForeground,
-              ),
+              style: AppTypography.title.copyWith(color: foreground),
             ),
             if (subtitle != null)
               Text(
@@ -70,7 +80,9 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppTypography.caption.copyWith(
-                  color: AppColors.textSecondary,
+                  color: brand
+                      ? AppComponentTokens.topBarBrandMuted
+                      : AppColors.textSecondary,
                 ),
               ),
           ],
@@ -95,12 +107,17 @@ class AppScaffold extends StatelessWidget {
     this.actions = const [],
     this.drawer,
     this.bottomBar,
+    this.brandBar = false,
   });
 
   final String title;
   final String? subtitle;
   final List<Widget> actions;
   final Widget body;
+
+  /// A filled brand top bar (see [AppTopBar.brand]); the body usually starts
+  /// with an [AppBrandBand].
+  final bool brandBar;
 
   /// Gives the top bar the menu icon.
   final Widget? drawer;
@@ -118,6 +135,7 @@ class AppScaffold extends StatelessWidget {
         title: title,
         subtitle: subtitle,
         actions: actions,
+        brand: brandBar,
         leading: opensInTabs
             ? IconButton(
                 icon: const Icon(Icons.menu),
@@ -129,6 +147,37 @@ class AppScaffold extends StatelessWidget {
       drawer: opensInTabs ? null : drawer,
       body: SafeArea(bottom: bottomBar == null, child: body),
       bottomNavigationBar: bottomBar,
+    );
+  }
+}
+
+/// The brand-coloured band under a filled top bar (UI-103). Content placed
+/// after it with a negative top offset, such as the order figures, overlaps
+/// its lower edge, as in the design.
+class AppBrandBand extends StatelessWidget {
+  const AppBrandBand({super.key, this.child, this.height = AppSpacing.s48});
+
+  final Widget? child;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: AppComponentTokens.topBarBrandBackground,
+      constraints: BoxConstraints(minHeight: height),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.screenPadding,
+        0,
+        AppSpacing.screenPadding,
+        AppSpacing.s16,
+      ),
+      alignment: Alignment.topLeft,
+      child: child == null
+          ? null
+          : DefaultTextStyle.merge(
+              style: TextStyle(color: AppComponentTokens.topBarBrandForeground),
+              child: child!,
+            ),
     );
   }
 }

@@ -161,6 +161,8 @@ Each property names a base token: `radius` a radius token, `minHeight` a layout 
 | `image`, `swatch`, `navItem` | photos, shade swatches, sidebar links | radius `medium`, `small`, `small` |
 | `buttonPrimary`, `buttonSecondary`, `buttonTertiary`, `buttonDestructive` | button variants | background, hover, foreground (and border) |
 | `sidebar` (DS-006) | the web console sidebar in the redesign | filled `brand.primaryStrong`, white text, muted `brand.primarySoft`; current item white with `brand.primaryStrong` text; counts `brand.accent` with `text.primary` |
+| `chip` (UI-103) | `AppChoiceChips` | selected filled `brand.primaryStrong` (Customer App `brand.primary`) with white text; others white with `border.strong` |
+| `topBarBrand` (UI-103) | `AppScaffold(brandBar: true)`, `AppBrandBand` | filled `brand.primaryStrong`, white text, muted `brand.primarySoft` |
 | `statTileLead` (DS-006) | the first tile of a KPI row (`StatTile lead`) | filled `brand.primaryStrong`, white figures, muted `brand.primarySoft` |
 
 Web utilities: `rounded-control`, `min-h-control`, `rounded-card`, `border-card-border`, `bg-button-primary-background` and so on. Flutter: `AppComponentTokens.controlRadius`, `cardBorder`, `buttonPrimaryBackground` and so on.

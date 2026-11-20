@@ -84,6 +84,15 @@ final class AppPalette {
     required this.sidebarActiveForeground,
     required this.sidebarCount,
     required this.sidebarCountForeground,
+    required this.topBarBrandBackground,
+    required this.topBarBrandForeground,
+    required this.topBarBrandMuted,
+    required this.chipRadius,
+    required this.chipBackground,
+    required this.chipForeground,
+    required this.chipBorder,
+    required this.chipSelectedBackground,
+    required this.chipSelectedForeground,
     required this.statTileLeadBackground,
     required this.statTileLeadForeground,
     required this.statTileLeadMuted,
@@ -331,6 +340,33 @@ final class AppPalette {
   /// Component token sidebar.countForeground.
   final Color sidebarCountForeground;
 
+  /// Component token topBarBrand.background.
+  final Color topBarBrandBackground;
+
+  /// Component token topBarBrand.foreground.
+  final Color topBarBrandForeground;
+
+  /// Component token topBarBrand.muted.
+  final Color topBarBrandMuted;
+
+  /// Component token chip.radius.
+  final double chipRadius;
+
+  /// Component token chip.background.
+  final Color chipBackground;
+
+  /// Component token chip.foreground.
+  final Color chipForeground;
+
+  /// Component token chip.border.
+  final Color chipBorder;
+
+  /// Component token chip.selectedBackground.
+  final Color chipSelectedBackground;
+
+  /// Component token chip.selectedForeground.
+  final Color chipSelectedForeground;
+
   /// Component token statTileLead.background.
   final Color statTileLeadBackground;
 
@@ -468,6 +504,15 @@ final class AppPalette {
     sidebarActiveForeground: Color(0xFF0B4F4B),
     sidebarCount: Color(0xFFF7C344),
     sidebarCountForeground: Color(0xFF132A29),
+    topBarBrandBackground: Color(0xFF0B4F4B),
+    topBarBrandForeground: Color(0xFFFFFFFF),
+    topBarBrandMuted: Color(0xFFE3F2EF),
+    chipRadius: 999,
+    chipBackground: Color(0xFFFFFFFF),
+    chipForeground: Color(0xFF566A68),
+    chipBorder: Color(0xFFD3CBBB),
+    chipSelectedBackground: Color(0xFF0B4F4B),
+    chipSelectedForeground: Color(0xFFFFFFFF),
     statTileLeadBackground: Color(0xFF0B4F4B),
     statTileLeadForeground: Color(0xFFFFFFFF),
     statTileLeadMuted: Color(0xFFE3F2EF),
@@ -567,6 +612,15 @@ final class AppPalette {
     sidebarActiveForeground: Color(0xFF0E3DAA),
     sidebarCount: Color(0xFFFFC629),
     sidebarCountForeground: Color(0xFF0B1B3F),
+    topBarBrandBackground: Color(0xFF0E3DAA),
+    topBarBrandForeground: Color(0xFFFFFFFF),
+    topBarBrandMuted: Color(0xFFE7EEFE),
+    chipRadius: 999,
+    chipBackground: Color(0xFFFFFFFF),
+    chipForeground: Color(0xFF5D6884),
+    chipBorder: Color(0xFFC9D0DE),
+    chipSelectedBackground: Color(0xFF1452E0),
+    chipSelectedForeground: Color(0xFFFFFFFF),
     statTileLeadBackground: Color(0xFF0E3DAA),
     statTileLeadForeground: Color(0xFFFFFFFF),
     statTileLeadMuted: Color(0xFFE7EEFE),

@@ -27,8 +27,9 @@ class ShopHomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final shop = ref.watch(shopProvider(shopId));
     return AppScaffold(
-      title: 'Home',
-      subtitle: shop.value?.name,
+      title: shop.value?.name ?? 'Home',
+      subtitle: shop.value == null ? null : 'Home',
+      brandBar: true,
       drawer: ShopDrawer(shopId: shopId),
       body: shop.when(
         loading: () => const LoadingView(message: 'Loading your shop…'),
@@ -77,63 +78,92 @@ class _Dashboard extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final canRecord = live && shop.can(ShopPermission.ordersRecord);
     final canAddProducts = shop.can(ShopPermission.catalogueManage);
+    const gap = SizedBox(height: AppSpacing.s24);
+    final statusCard = AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: Text(shop.name, style: textTheme.titleMedium)),
+              AppBadge(
+                label: shopStatusLabel(status),
+                tone: shopStatusTone(status),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.s8),
+          Text(shopStatusDescription(status), style: textTheme.bodyLarge),
+          if (review != null) _ReviewDetails(shop: shop, review: review),
+        ],
+      ),
+    );
+    // The design (UI-103): a deep-teal band under the top bar with the
+    // figures overlapping its lower edge; a live shop needs no status card.
+    final top = ordersVisible
+        ? _OrderFigures(shopId: shop.id, showTitle: false)
+        : statusCard;
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(AppSpacing.screenPadding),
+      padding: const EdgeInsets.only(bottom: AppSpacing.screenPadding),
       children: [
-        AppCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(shop.name, style: textTheme.titleMedium),
-                  ),
-                  AppBadge(
-                    label: shopStatusLabel(status),
-                    tone: shopStatusTone(status),
-                  ),
-                ],
+        Stack(
+          children: [
+            AppBrandBand(
+              height: AppSpacing.s64,
+              child: Text(
+                ordersVisible ? "Today's orders" : 'Getting your shop ready',
+                style: AppTypography.body.copyWith(
+                  color: AppComponentTokens.topBarBrandMuted,
+                ),
               ),
-              const SizedBox(height: AppSpacing.s8),
-              Text(shopStatusDescription(status), style: textTheme.bodyLarge),
-              if (review != null) _ReviewDetails(shop: shop, review: review),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screenPadding,
+                AppSpacing.s32,
+                AppSpacing.screenPadding,
+                0,
+              ),
+              child: top,
+            ),
+          ],
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.screenPadding,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (canRecord) ...[
+                const SizedBox(height: AppSpacing.s16),
+                AppButton(
+                  label: 'Record a phone or counter order',
+                  icon: Icons.add,
+                  expand: true,
+                  onPressed: () => context.go('/shops/${shop.id}/orders/new'),
+                ),
+              ],
+              if (ordersVisible) ...[gap, _ToDo(shopId: shop.id)],
+              if (shop.can(ShopPermission.catalogueView)) ...[
+                gap,
+                _ProductFigures(shopId: shop.id),
+              ],
+              if (canAddProducts) ...[
+                const SizedBox(height: AppSpacing.s16),
+                AppButton(
+                  label: 'Add from brand catalogue',
+                  icon: Icons.add_box_outlined,
+                  variant: AppButtonVariant.secondary,
+                  expand: true,
+                  onPressed: () =>
+                      context.go('/shops/${shop.id}/catalogue/add'),
+                ),
+              ],
             ],
           ),
         ),
-        if (ordersVisible) ...[
-          const SizedBox(height: AppSpacing.s24),
-          _ToDo(shopId: shop.id),
-          const SizedBox(height: AppSpacing.s24),
-          _OrderFigures(shopId: shop.id),
-        ],
-        if (shop.can(ShopPermission.catalogueView)) ...[
-          const SizedBox(height: AppSpacing.s24),
-          _ProductFigures(shopId: shop.id),
-        ],
-        if (canRecord || canAddProducts) ...[
-          const SizedBox(height: AppSpacing.s24),
-          const _SectionTitle('Shortcuts'),
-          const SizedBox(height: AppSpacing.s8),
-          if (canRecord)
-            AppButton(
-              label: 'New order',
-              icon: Icons.add,
-              expand: true,
-              onPressed: () => context.go('/shops/${shop.id}/orders/new'),
-            ),
-          if (canRecord && canAddProducts)
-            const SizedBox(height: AppSpacing.s8),
-          if (canAddProducts)
-            AppButton(
-              label: 'Add from brand catalogue',
-              icon: Icons.add_box_outlined,
-              variant: AppButtonVariant.secondary,
-              expand: true,
-              onPressed: () => context.go('/shops/${shop.id}/catalogue/add'),
-            ),
-        ],
       ],
     );
   }
@@ -244,9 +274,10 @@ class _ToDo extends ConsumerWidget {
 
 /// Today's order figures (ORD-003), each opening its orders.
 class _OrderFigures extends ConsumerWidget {
-  const _OrderFigures({required this.shopId});
+  const _OrderFigures({required this.shopId, this.showTitle = true});
 
   final String shopId;
+  final bool showTitle;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -256,10 +287,12 @@ class _OrderFigures extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const _SectionTitle('Orders'),
-        const SizedBox(height: AppSpacing.s8),
+        if (showTitle) ...[
+          const _SectionTitle('Orders'),
+          const SizedBox(height: AppSpacing.s8),
+        ],
         summary.when(
-          loading: () => _sectionLoading,
+          loading: () => const AppCard(child: _sectionLoading),
           error: (_, _) => _SectionError(
             message: "We couldn't load the order figures.",
             onRetry: () => ref.invalidate(orderSummaryProvider(shopId)),

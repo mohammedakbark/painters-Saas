@@ -74,6 +74,14 @@
   --color-sidebar-active-foreground: var(--color-brand-primary-strong);
   --color-sidebar-count: var(--color-brand-accent);
   --color-sidebar-count-foreground: var(--color-text-primary);
+  --color-top-bar-brand-background: var(--color-brand-primary-strong);
+  --color-top-bar-brand-foreground: var(--color-surface-default);
+  --color-top-bar-brand-muted: var(--color-brand-primary-soft);
+  --color-chip-background: var(--color-surface-default);
+  --color-chip-foreground: var(--color-text-secondary);
+  --color-chip-border: var(--color-border-strong);
+  --color-chip-selected-background: var(--color-brand-primary-strong);
+  --color-chip-selected-foreground: var(--color-surface-default);
   --color-stat-tile-lead-background: var(--color-brand-primary-strong);
   --color-stat-tile-lead-foreground: var(--color-surface-default);
   --color-stat-tile-lead-muted: var(--color-brand-primary-soft);
@@ -130,6 +138,7 @@
   --radius-swatch: var(--radius-small);
   --radius-badge: var(--radius-pill);
   --radius-bottom-nav: var(--radius-pill);
+  --radius-chip: var(--radius-pill);
   --radius-drawer: var(--radius-large);
 
   /* Component minimum heights, e.g. min-h-control. */

@@ -78,15 +78,17 @@ class _Chip<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final count = option.count;
+    // Selected: filled with white text (UI-103, `component.chip`).
     final foreground = selected
-        ? AppColors.brandPrimaryStrong
-        : AppColors.textPrimary;
+        ? AppComponentTokens.chipSelectedForeground
+        : AppComponentTokens.chipForeground;
+    final background = selected
+        ? AppComponentTokens.chipSelectedBackground
+        : AppComponentTokens.chipBackground;
     final shape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(AppComponentTokens.badgeRadius),
+      borderRadius: BorderRadius.circular(AppComponentTokens.chipRadius),
       side: BorderSide(
-        color: selected
-            ? AppColors.brandPrimary
-            : AppComponentTokens.controlBorder,
+        color: selected ? background : AppComponentTokens.chipBorder,
       ),
     );
     return Semantics(
@@ -95,9 +97,7 @@ class _Chip<T> extends StatelessWidget {
       label: count == null ? option.label : '${option.label}, $count',
       excludeSemantics: true,
       child: Material(
-        color: selected
-            ? AppColors.brandPrimarySoft
-            : AppComponentTokens.controlBackground,
+        color: background,
         shape: shape,
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -120,13 +120,27 @@ class _Chip<T> extends StatelessWidget {
                   ),
                   if (count != null) ...[
                     const SizedBox(width: AppSpacing.s8),
-                    Text(
-                      '$count',
-                      style: AppTypography.body.copyWith(
+                    DecoratedBox(
+                      decoration: BoxDecoration(
                         color: selected
-                            ? AppColors.brandPrimaryStrong
-                            : AppColors.textSecondary,
-                        fontFeatures: const [FontFeature.tabularFigures()],
+                            ? foreground.withValues(alpha: 0.2)
+                            : AppColors.surfaceSubtle,
+                        borderRadius: BorderRadius.circular(
+                          AppComponentTokens.chipRadius,
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.s8,
+                        ),
+                        child: Text(
+                          '$count',
+                          style: AppTypography.caption.copyWith(
+                            color: foreground,
+                            fontWeight: FontWeight.w700,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                        ),
                       ),
                     ),
                   ],
