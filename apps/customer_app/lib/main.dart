@@ -7,6 +7,8 @@ import 'app.dart';
 import 'src/api/api_client.dart';
 import 'src/auth/secure_session_storage.dart';
 import 'src/auth/supabase_auth_repository.dart';
+import 'src/cart/cart_providers.dart';
+import 'src/cart/cart_store.dart';
 import 'src/config/app_config.dart';
 import 'src/location/location_service.dart';
 import 'src/profile/customer_profile.dart';
@@ -61,6 +63,7 @@ Future<void> main() async {
         activeShopStoreProvider.overrideWithValue(
           const SecureActiveShopStore(),
         ),
+        cartStoreProvider.overrideWithValue(const SecureCartStore()),
       ],
       child: const CustomerApp(),
     ),

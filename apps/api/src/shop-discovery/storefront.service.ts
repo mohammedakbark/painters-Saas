@@ -7,8 +7,13 @@ import {
   SHOP_PRODUCT_SELECT,
   toShopProduct,
 } from '../shop-catalogue/shop-catalogue-mapping.js';
-import type {
-  StorefrontCategories,
+import {
+  type CartCheck,
+  type CartCheckRequest,
+  PRODUCT_SHADES_MAX,
+  type ProductShades,
+  type ProductShadesQuery,
+  type StorefrontCategories,
   StorefrontPage,
   StorefrontProduct,
   StorefrontQuery,
@@ -185,6 +190,122 @@ export class StorefrontService {
       });
     }
     return this.toPublic(row);
+  }
+
+  /**
+   * Shades for a visible product that comes in shades: the shop's favourite
+   * brand shades, then the brand's active shade card, then the shop's own
+   * codes (of that brand or without a brand), each by code.
+   */
+  async shades(
+    shopId: string,
+    productId: string,
+    query: ProductShadesQuery,
+  ): Promise<ProductShades> {
+    const product = await this.product(shopId, productId);
+    if (!product.supportsShades) {
+      return { items: [], more: false };
+    }
+    const row = await this.prisma.shopProduct.findFirstOrThrow({
+      where: { id: productId, shopId },
+      select: {
+        brandId: true,
+        catalogueProduct: { select: { brandId: true } },
+      },
+    });
+    const brandId = row.catalogueProduct?.brandId ?? row.brandId;
+    const text = query.q
+      ? {
+          OR: [
+            { code: { contains: query.q, mode: 'insensitive' as const } },
+            { name: { contains: query.q, mode: 'insensitive' as const } },
+          ],
+        }
+      : {};
+    const take = PRODUCT_SHADES_MAX + 1;
+    const [card, own, favourites] = await Promise.all([
+      brandId
+        ? this.prisma.shade.findMany({
+            where: { brandId, active: true, ...text },
+            orderBy: { code: 'asc' },
+            take,
+            select: { id: true, code: true, name: true, previewHex: true },
+          })
+        : Promise.resolve([]),
+      this.prisma.shopShade.findMany({
+        where: {
+          AND: [
+            { shopId },
+            brandId ? { OR: [{ brandId }, { brandId: null }] } : {},
+            text,
+          ],
+        },
+        orderBy: { code: 'asc' },
+        take,
+        select: { code: true, name: true, previewHex: true },
+      }),
+      this.prisma.shopFavouriteShade.findMany({
+        where: { shopId },
+        select: { shadeId: true },
+      }),
+    ]);
+    const favouriteIds = new Set(favourites.map((f) => f.shadeId));
+    const seen = new Set<string>();
+    const items: ProductShades['items'] = [];
+    const push = (
+      shade: { code: string; name: string; previewHex: string | null },
+      favourite: boolean,
+    ) => {
+      if (seen.has(shade.code)) return;
+      seen.add(shade.code);
+      items.push({
+        code: shade.code,
+        name: shade.name,
+        previewHex: shade.previewHex,
+        favourite,
+      });
+    };
+    for (const shade of card) {
+      if (favouriteIds.has(shade.id)) push(shade, true);
+    }
+    for (const shade of card) push(shade, false);
+    for (const shade of own) push(shade, false);
+    return {
+      items: items.slice(0, PRODUCT_SHADES_MAX),
+      more: items.length > PRODUCT_SHADES_MAX,
+    };
+  }
+
+  /** Today's price and availability of a cart's packs in this shop. */
+  async checkCart(shopId: string, input: CartCheckRequest): Promise<CartCheck> {
+    await this.requireLiveShop(shopId);
+    const rows = await this.prisma.shopProduct.findMany({
+      where: {
+        AND: [
+          visibleProducts(shopId),
+          { packs: { some: { id: { in: input.packIds } } } },
+        ],
+      },
+      select: SHOP_PRODUCT_SELECT,
+    });
+    const wanted = new Set(input.packIds);
+    return {
+      packs: rows.flatMap((row) => {
+        const product = this.toPublic(row);
+        return product.packs
+          .filter((pack) => wanted.has(pack.id))
+          .map((pack) => ({
+            packId: pack.id,
+            productId: product.id,
+            productName: product.name,
+            brand: product.brand,
+            label: pack.label,
+            pricePaise: pack.pricePaise,
+            available: pack.available,
+            supportsShades: product.supportsShades,
+          }));
+      }),
+    };
   }
 
   private async requireLiveShop(shopId: string): Promise<void> {

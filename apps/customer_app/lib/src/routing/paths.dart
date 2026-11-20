@@ -15,6 +15,9 @@ const morePath = '/more';
 const findShopsPath = '/find-shops';
 String shopPath(String shopId) => '/shop/${Uri.encodeComponent(shopId)}';
 
+/// Above the tabs: the cart (CUS-004).
+const cartPath = '/cart';
+
 /// Above the tabs: a shop's products and one product (CUS-003).
 String shopProductsPath(String shopId) => '${shopPath(shopId)}/products';
 String productPath(String shopId, String productId) =>

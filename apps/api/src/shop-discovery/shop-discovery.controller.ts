@@ -1,10 +1,12 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
+  Post,
   Put,
   Query,
 } from '@nestjs/common';
@@ -36,6 +38,14 @@ import {
 } from './shop-discovery.schemas.js';
 import { ShopDiscoveryService } from './shop-discovery.service.js';
 import {
+  type CartCheck,
+  type CartCheckRequest,
+  CartCheckRequestSchema,
+  CartCheckSchema,
+  type ProductShades,
+  type ProductShadesQuery,
+  ProductShadesQuerySchema,
+  ProductShadesSchema,
   type StorefrontCategories,
   StorefrontCategoriesSchema,
   type StorefrontPage,
@@ -185,5 +195,35 @@ export class StorefrontController {
     @Param('productId') productId: string,
   ): Promise<StorefrontProduct> {
     return this.storefront.product(shopId, productId);
+  }
+  @Get('products/:productId/shades')
+  @ApiOperation({
+    summary:
+      "Shades to pick for a product: the shop's favourites, the brand's shade card and the shop's own codes (at most 60; search to narrow).",
+  })
+  @ApiOkResponse({ standardSchema: ProductShadesSchema })
+  @ApiNotFoundResponse(NOT_FOUND)
+  shades(
+    @Param('shopId') shopId: string,
+    @Param('productId') productId: string,
+    @Query({ schema: ProductShadesQuerySchema }) query: ProductShadesQuery,
+  ): Promise<ProductShades> {
+    return this.storefront.shades(shopId, productId, query);
+  }
+
+  @Post('cart-check')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary:
+      "Today's price and availability of a cart's packs; packs no longer sold are left out. Read-only.",
+  })
+  @ApiOkResponse({ standardSchema: CartCheckSchema })
+  @ApiBadRequestResponse(PROBLEM)
+  @ApiNotFoundResponse(NOT_FOUND)
+  checkCart(
+    @Param('shopId') shopId: string,
+    @Body({ schema: CartCheckRequestSchema }) body: CartCheckRequest,
+  ): Promise<CartCheck> {
+    return this.storefront.checkCart(shopId, body);
   }
 }

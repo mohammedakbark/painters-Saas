@@ -1,6 +1,9 @@
 import 'package:customer_app/app.dart';
 import 'package:customer_app/src/api/api_client.dart';
 import 'package:customer_app/src/auth/auth_repository.dart';
+import 'package:customer_app/src/cart/cart_models.dart';
+import 'package:customer_app/src/cart/cart_providers.dart';
+import 'package:customer_app/src/cart/cart_store.dart';
 import 'package:customer_app/src/features/shops/shop_screen.dart';
 import 'package:customer_app/src/location/location_service.dart';
 import 'package:customer_app/src/profile/customer_profile.dart';
@@ -300,6 +303,30 @@ class FakeStorefrontRepository implements StorefrontRepository {
 
   final Map<String, List<StorefrontProduct>> shops;
   int pageSize = 20;
+
+  /// Shades offered for every product that comes in shades.
+  List<ShadeOption> shadeOptions = const [
+    ShadeOption(
+      code: 'BC-100',
+      name: 'Sunflower',
+      previewHex: '#F2C230',
+      favourite: true,
+    ),
+    ShadeOption(
+      code: 'BC-200',
+      name: 'Sky Blue',
+      previewHex: '#7FB2E5',
+      favourite: false,
+    ),
+  ];
+
+  /// Cart check: today's prices by pack id, packs not available today, and
+  /// packs no longer sold.
+  final Map<String, int> todayPrices = {};
+  final Set<String> unavailableToday = {};
+  final Set<String> noLongerSold = {};
+  bool checkFails = false;
+  int checks = 0;
   final List<(String, String?, String?)> productCalls = [];
 
   List<StorefrontProduct> _of(String shopId) => shops[shopId] ?? const [];
@@ -350,12 +377,66 @@ class FakeStorefrontRepository implements StorefrontRepository {
   }
 
   @override
+  Future<ShadeOptions> shades(
+    String shopId,
+    String productId, {
+    String? query,
+  }) async => ShadeOptions(
+    items: [
+      for (final shade in shadeOptions)
+        if (query == null ||
+            '${shade.code} ${shade.name}'.toLowerCase().contains(
+              query.toLowerCase(),
+            ))
+          shade,
+    ],
+    more: false,
+  );
+
+  @override
+  Future<List<CheckedPack>> checkCart(
+    String shopId,
+    Set<String> packIds,
+  ) async {
+    checks++;
+    if (checkFails) throw const ApiException();
+    final packs = {
+      for (final product in _of(shopId))
+        for (final pack in product.packs) pack.id: pack,
+    };
+    return [
+      for (final id in packIds)
+        if (packs[id] case final pack? when !noLongerSold.contains(id))
+          CheckedPack(
+            packId: id,
+            pricePaise: todayPrices[id] ?? pack.pricePaise,
+            available: pack.available && !unavailableToday.contains(id),
+          ),
+    ];
+  }
+
+  @override
   Future<StorefrontProduct> product(String shopId, String productId) async {
     for (final product in _of(shopId)) {
       if (product.id == productId) return product;
     }
     throw const ApiException(status: 404, code: 'product_not_found');
   }
+}
+
+class FakeCartStore implements CartStore {
+  FakeCartStore([this.cart]);
+
+  Cart? cart;
+
+  @override
+  Future<Cart?> read() async => cart;
+
+  @override
+  Future<void> write(Cart cart) async => this.cart = cart;
+
+  @override
+  Future<void> clear() async => cart = null;
 }
 
 /// Scrolls [finder] into view, taps it and settles.
@@ -375,6 +456,7 @@ Future<void> pumpApp(
   FakeLocationService? location,
   FakeActiveShopStore? activeShop,
   FakeStorefrontRepository? storefront,
+  FakeCartStore? cart,
 }) async {
   tester.view
     ..physicalSize = const Size(1080, 2340)
@@ -399,6 +481,7 @@ Future<void> pumpApp(
         storefrontRepositoryProvider.overrideWithValue(
           storefront ?? FakeStorefrontRepository(),
         ),
+        cartStoreProvider.overrideWithValue(cart ?? FakeCartStore()),
         mapsEnabledProvider.overrideWithValue(false),
       ],
       child: const CustomerApp(),

@@ -184,6 +184,7 @@ class AppIconButton extends StatelessWidget {
     required this.icon,
     required this.tooltip,
     required this.onPressed,
+    this.count,
   });
 
   final IconData icon;
@@ -192,11 +193,21 @@ class AppIconButton extends StatelessWidget {
   /// Null disables the button.
   final VoidCallback? onPressed;
 
+  /// A small count on the icon, such as the items in a cart; hidden at 0.
+  final int? count;
+
   @override
   Widget build(BuildContext context) {
+    final value = count ?? 0;
     return IconButton(
-      icon: Icon(icon),
-      tooltip: tooltip,
+      icon: Badge(
+        isLabelVisible: value > 0,
+        backgroundColor: AppComponentTokens.bottomNavCount,
+        textColor: AppComponentTokens.bottomNavCountForeground,
+        label: Text(value > 99 ? '99+' : '$value'),
+        child: Icon(icon),
+      ),
+      tooltip: value > 0 ? '$tooltip, $value' : tooltip,
       onPressed: onPressed,
       constraints: const BoxConstraints(
         minWidth: AppSpacing.minTouchTarget,

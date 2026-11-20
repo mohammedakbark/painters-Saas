@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/api_client.dart';
+import '../cart/cart_providers.dart';
 import '../location/location_service.dart';
 import '../providers.dart';
 import 'active_shop_store.dart';
@@ -125,6 +126,7 @@ class MyShopsNotifier extends AsyncNotifier<List<PublicShop>> {
 /// Clears what belongs to this person on this phone, then signs out.
 Future<void> signOut(WidgetRef ref) async {
   await ref.read(activeShopIdProvider.notifier).clear();
+  await ref.read(cartProvider.notifier).clear();
   ref.invalidate(myShopsProvider);
   ref.invalidate(shopsNearProvider);
   await ref.read(authRepositoryProvider).signOut();

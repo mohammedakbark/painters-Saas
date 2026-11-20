@@ -325,3 +325,81 @@ class AppChoiceCard extends StatelessWidget {
     );
   }
 }
+
+/// A quantity with minus and plus buttons, such as the number of tins in a
+/// cart (CUS-004). Minus is off at [min], plus at [max]. Screen readers hear
+/// "[label]: 2" and can adjust it.
+class AppQuantityStepper extends StatelessWidget {
+  const AppQuantityStepper({
+    super.key,
+    required this.value,
+    required this.onChanged,
+    this.label = 'Quantity',
+    this.min = 1,
+    this.max = 999,
+  });
+
+  final int value;
+
+  /// Null disables both buttons, for example while saving.
+  final ValueChanged<int>? onChanged;
+  final String label;
+  final int min;
+  final int max;
+
+  @override
+  Widget build(BuildContext context) {
+    final onChanged = this.onChanged;
+    final canLower = onChanged != null && value > min;
+    final canRaise = onChanged != null && value < max;
+    return Semantics(
+      label: label,
+      value: '$value',
+      increasedValue: canRaise ? '${value + 1}' : null,
+      decreasedValue: canLower ? '${value - 1}' : null,
+      onIncrease: canRaise ? () => onChanged(value + 1) : null,
+      onDecrease: canLower ? () => onChanged(value - 1) : null,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: AppComponentTokens.controlBackground,
+          border: Border.all(color: AppComponentTokens.controlBorder),
+          borderRadius: BorderRadius.circular(AppComponentTokens.controlRadius),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ExcludeSemantics(
+              child: IconButton(
+                key: const Key('quantity-minus'),
+                icon: const Icon(Icons.remove),
+                color: AppColors.brandPrimary,
+                onPressed: canLower ? () => onChanged(value - 1) : null,
+              ),
+            ),
+            ExcludeSemantics(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minWidth: AppSpacing.s32),
+                child: Text(
+                  '$value',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.bodyLarge.copyWith(
+                    fontWeight: FontWeight.w700,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ),
+            ),
+            ExcludeSemantics(
+              child: IconButton(
+                key: const Key('quantity-plus'),
+                icon: const Icon(Icons.add),
+                color: AppColors.brandPrimary,
+                onPressed: canRaise ? () => onChanged(value + 1) : null,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

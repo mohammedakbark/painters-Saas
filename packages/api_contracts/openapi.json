@@ -520,6 +520,146 @@
         ]
       }
     },
+    "/v1/discover/shops/{shopId}/products/{productId}/shades": {
+      "get": {
+        "operationId": "StorefrontController_shades",
+        "parameters": [
+          {
+            "name": "shopId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductShades"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "shop_not_found: no Live shop has this id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Shades to pick for a product: the shop's favourites, the brand's shade card and the shop's own codes (at most 60; search to narrow).",
+        "tags": [
+          "discover"
+        ]
+      }
+    },
+    "/v1/discover/shops/{shopId}/cart-check": {
+      "post": {
+        "operationId": "StorefrontController_checkCart",
+        "parameters": [
+          {
+            "name": "shopId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CartCheckRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CartCheck"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "shop_not_found: no Live shop has this id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Today's price and availability of a cart's packs; packs no longer sold are left out. Read-only.",
+        "tags": [
+          "discover"
+        ]
+      }
+    },
     "/v1/me/shops": {
       "get": {
         "operationId": "MyShopsController_list",
@@ -7588,6 +7728,136 @@
           "label",
           "pricePaise",
           "available"
+        ],
+        "additionalProperties": false
+      },
+      "ProductShadesQuery": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "description": "Part of the shade code or name.",
+            "type": "string",
+            "maxLength": 40
+          }
+        }
+      },
+      "ProductShades": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "previewHex": {
+                  "nullable": true,
+                  "type": "string"
+                },
+                "favourite": {
+                  "type": "boolean",
+                  "description": "The shop marked it as a favourite."
+                }
+              },
+              "required": [
+                "code",
+                "name",
+                "previewHex",
+                "favourite"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "more": {
+            "type": "boolean",
+            "description": "More shades match; search to narrow."
+          }
+        },
+        "required": [
+          "items",
+          "more"
+        ],
+        "additionalProperties": false
+      },
+      "CartCheckRequest": {
+        "type": "object",
+        "properties": {
+          "packIds": {
+            "minItems": 1,
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        },
+        "required": [
+          "packIds"
+        ]
+      },
+      "CartCheck": {
+        "type": "object",
+        "properties": {
+          "packs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "packId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "productId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "productName": {
+                  "type": "string"
+                },
+                "brand": {
+                  "nullable": true,
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "pricePaise": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "available": {
+                  "type": "boolean"
+                },
+                "supportsShades": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "packId",
+                "productId",
+                "productName",
+                "brand",
+                "label",
+                "pricePaise",
+                "available",
+                "supportsShades"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "packs"
         ],
         "additionalProperties": false
       },

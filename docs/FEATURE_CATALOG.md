@@ -14,10 +14,10 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 | Active shop selector | Confirmed / **implemented (CUS-002)** | One active storefront at a time: Shop here on a shop page; kept on the phone and shown on Home. |
 | Cross-shop product search | Confirmed | Active shop first, other shops separately. |
 | Other-shop product details | Confirmed | Can view details without switching. |
-| Switch shop before adding to cart | Confirmed | One shop per cart/order is proposed. |
+| Switch shop before adding to cart | Confirmed / **implemented (CUS-004, D-059)** | One shop per cart; adding from another shop asks before starting a new cart. |
 | Catalogue, categories and product details | Confirmed / **storefront implemented (CUS-003)** | The active shop's categories, products, pack sizes, prices and availability on Home; any Live shop's products from its page. Browse only until the cart. No MRP (question 59). Shade choice comes with ordering. Spec: `docs/features/CUS-003-shop-storefront.md`. |
-| Shade selection and colour code | Confirmed | Manufacturer shade integration open. |
-| Cart, checkout and order history | Confirmed | Fulfilment lifecycle open. |
+| Shade selection and colour code | Confirmed / **in the cart (CUS-004)** | Pick from the shop's favourites, the brand's shade card or the shop's own codes, or type the code. Manufacturer shade integration open. |
+| Cart, checkout and order history | Confirmed / **cart implemented (CUS-004, D-059)** | One shop per cart on the phone, shade picked or typed, today's prices checked when the cart opens. Checkout and My Orders: CUS-006. Spec: `docs/features/CUS-004-cart.md`. |
 | Shop-wise bills | Confirmed | Required for normal customers and painters. |
 | Reward points | Confirmed direction | Earn and redeem against eligible bills; policy open. |
 | Shop phone visibility | Later / Open | Possible premium feature; no premium billing in MVP. |

@@ -1,4 +1,5 @@
 import '../api/api_client.dart';
+import '../cart/cart_models.dart';
 
 /// A pack size with the shop's price (CUS-003). No MRP (question 59).
 class StorefrontPack {
@@ -135,6 +136,13 @@ abstract class StorefrontRepository {
   });
 
   Future<StorefrontProduct> product(String shopId, String productId);
+
+  /// Shades to pick for a product that comes in shades (CUS-004).
+  Future<ShadeOptions> shades(String shopId, String productId, {String? query});
+
+  /// Today's price and availability of [packIds]; packs no longer sold are
+  /// left out (CUS-004).
+  Future<List<CheckedPack>> checkCart(String shopId, Set<String> packIds);
 }
 
 class ApiStorefrontRepository implements StorefrontRepository {
@@ -181,4 +189,30 @@ class ApiStorefrontRepository implements StorefrontRepository {
           '${_shop(shopId)}/products/${Uri.encodeComponent(productId)}',
         ),
       );
+
+  @override
+  Future<ShadeOptions> shades(
+    String shopId,
+    String productId, {
+    String? query,
+  }) async => ShadeOptions.fromJson(
+    await _api.getJson(
+      '${_shop(shopId)}/products/${Uri.encodeComponent(productId)}/shades',
+      query: query == null || query.isEmpty ? null : {'q': query},
+    ),
+  );
+
+  @override
+  Future<List<CheckedPack>> checkCart(
+    String shopId,
+    Set<String> packIds,
+  ) async {
+    final json = await _api.postJson('${_shop(shopId)}/cart-check', {
+      'packIds': packIds.toList(),
+    });
+    return [
+      for (final pack in json['packs']! as List<Object?>)
+        CheckedPack.fromJson(pack! as Map<String, Object?>),
+    ];
+  }
 }

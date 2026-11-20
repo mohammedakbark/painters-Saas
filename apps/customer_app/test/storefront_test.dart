@@ -101,14 +101,13 @@ void main() {
     expect(find.text('Asian Colours'), findsOneWidget);
     expect(find.text('₹500  1 L'), findsOneWidget);
     expect(find.text('Available'), findsOneWidget);
-    expect(
-      find.text('Available in shades. You choose the shade when you order.'),
-      findsOneWidget,
-    );
+    // Products in shades ask for one before Add to cart (CUS-004).
+    expect(find.text('Choose a shade'), findsOneWidget);
 
     await tapVisible(tester, find.text('4 L'));
     expect(find.text('₹1,800  4 L'), findsOneWidget);
-    expect(find.text('Not available'), findsOneWidget);
+    // The badge and the disabled Add button both say so.
+    expect(find.text('Not available'), findsNWidgets(2));
     expect(find.text('4 L: ₹1,800 (not available)'), findsOneWidget);
     expect(find.text('Emulsion description'), findsOneWidget);
   });

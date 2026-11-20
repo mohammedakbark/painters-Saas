@@ -102,3 +102,77 @@ export const StorefrontCategoriesSchema = z
   .meta({ id: 'StorefrontCategories' });
 
 export type StorefrontCategories = z.infer<typeof StorefrontCategoriesSchema>;
+
+export const ProductShadesQuerySchema = z
+  .object({
+    q: z
+      .string()
+      .trim()
+      .max(40, { error: 'Search can be at most 40 characters.' })
+      .optional()
+      .meta({ description: 'Part of the shade code or name.' }),
+  })
+  .meta({ id: 'ProductShadesQuery' });
+
+export type ProductShadesQuery = z.infer<typeof ProductShadesQuerySchema>;
+
+export const PRODUCT_SHADES_MAX = 60;
+
+/**
+ * Shades a customer can pick for a product (CUS-004): the shop's favourite
+ * brand shades first, then the brand's shade card and the shop's own codes.
+ * At most 60; search to narrow. Colours are indicative only.
+ */
+export const ProductShadesSchema = z
+  .object({
+    items: z.array(
+      z.object({
+        code: z.string(),
+        name: z.string(),
+        previewHex: z.string().nullable(),
+        favourite: z
+          .boolean()
+          .meta({ description: 'The shop marked it as a favourite.' }),
+      }),
+    ),
+    more: z
+      .boolean()
+      .meta({ description: 'More shades match; search to narrow.' }),
+  })
+  .meta({ id: 'ProductShades' });
+
+export type ProductShades = z.infer<typeof ProductShadesSchema>;
+
+export const CartCheckRequestSchema = z
+  .object({
+    packIds: z
+      .array(z.uuid({ error: 'Each pack must be an id.' }))
+      .min(1, { error: 'Send at least one pack.' })
+      .max(50, { error: 'A cart can have at most 50 lines.' }),
+  })
+  .meta({ id: 'CartCheckRequest' });
+
+export type CartCheckRequest = z.infer<typeof CartCheckRequestSchema>;
+
+/**
+ * Today's price and availability of the packs in a cart (CUS-004). Packs
+ * that are no longer sold (removed, archived or hidden) are left out.
+ */
+export const CartCheckSchema = z
+  .object({
+    packs: z.array(
+      z.object({
+        packId: z.uuid(),
+        productId: z.uuid(),
+        productName: z.string(),
+        brand: z.string().nullable(),
+        label: z.string(),
+        pricePaise: z.int(),
+        available: z.boolean(),
+        supportsShades: z.boolean(),
+      }),
+    ),
+  })
+  .meta({ id: 'CartCheck' });
+
+export type CartCheck = z.infer<typeof CartCheckSchema>;

@@ -8,6 +8,7 @@ import '../../api/api_client.dart';
 import '../../providers.dart';
 import '../../routing/paths.dart';
 import '../../shops/shop_providers.dart';
+import '../cart/cart_button.dart';
 import '../shops/shop_card.dart';
 import '../storefront/storefront_view.dart';
 
@@ -29,6 +30,7 @@ class HomeScreen extends ConsumerWidget {
           tooltip: 'Find shops',
           onPressed: () => context.push(findShopsPath),
         ),
+        const CartButton(),
       ],
       body: switch (activeId) {
         AsyncData(value: final String id) => _ActiveShop(shopId: id),
