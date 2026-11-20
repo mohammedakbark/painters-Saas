@@ -6,9 +6,9 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 
 | Feature | Status | Notes |
 |---|---|---|
-| Mobile registration/login | Confirmed direction | Mobile OTP via Supabase Auth (D-021, D-022); SMS vendor open (question 46). |
-| Customer type | Confirmed (D-036) | Painter/Contractor or Normal Customer, chosen by the customer and changeable. A shop's painter-only information appears only after that shop confirms the painter. |
-| Profile and address | Confirmed | Exact fields to finalize. |
+| Mobile registration/login | **Implemented (CUS-001)** | Mobile OTP via Supabase Auth (D-021, D-022); a new number gets an account when its code is verified. SMS vendor open (question 46). Spec: `docs/features/CUS-001-customer-sign-up-and-profile.md`. |
+| Customer type | Confirmed (D-036) / **choice implemented (CUS-001)** | Painter/Contractor or Normal Customer, chosen by the customer and changeable. A shop's painter-only information appears only after that shop confirms the painter (confirmation step not built yet). Painters get a Sites tab. |
+| Profile and address | **Profile implemented (CUS-001)** | Name and customer type only (owner, 2026-11-20). Addresses come with sites and checkout (D-049). |
 | Identity verification | Confirmed direction / Open details | Separate from shop credit approval; documents and timing open. |
 | Discover shops and My Shops | Confirmed (D-037, D-038) | Any Live shop can be browsed; adding it to My Shops is instant. Find shops lists all Live shops nearest first, or by a chosen district. |
 | Active shop selector | Confirmed | One active storefront at a time. |

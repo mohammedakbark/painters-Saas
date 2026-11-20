@@ -15,6 +15,8 @@ Future<T?> showAppBottomSheet<T>({
 }) {
   return showModalBottomSheet<T>(
     context: context,
+    // Over the whole screen, bottom tabs included (SHP-011 shell, CUS-001).
+    useRootNavigator: true,
     isScrollControlled: true,
     useSafeArea: true,
     showDragHandle: true,

@@ -3,6 +3,7 @@ import type { Prisma } from '../generated/prisma/client.js';
 /** Audited actions. Add new actions here so names stay consistent. */
 export const AuditAction = {
   PlatformAdminGranted: 'platform_admin.granted',
+  CustomerProfileUpdated: 'user.customer_profile_updated',
   ShopRegistered: 'shop.registered',
   ShopMasterAssigned: 'shop_membership.master_assigned',
   ShopProfileUpdated: 'shop.profile_updated',

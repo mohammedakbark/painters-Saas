@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../tokens/app_colors.dart';
 import '../tokens/app_component_tokens.dart';
+import '../tokens/app_spacing.dart';
 import '../tokens/app_typography.dart';
 import 'app_text_field.dart';
 
@@ -208,6 +209,117 @@ class AppSegmentedControl<T> extends StatelessWidget {
         textStyle: WidgetStatePropertyAll(
           Theme.of(context).textTheme.bodyMedium
               ?.copyWith(fontWeight: FontWeight.w600),
+        ),
+      ),
+    );
+  }
+}
+
+/// One of a few options that each need a sentence, shown as a large card
+/// with an icon, such as Painter/Contractor or Normal Customer (CUS-001).
+/// Put two or three in a column; the selected one has the primary border.
+class AppChoiceCard extends StatelessWidget {
+  const AppChoiceCard({
+    super.key,
+    required this.title,
+    required this.description,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String title;
+  final String description;
+  final IconData icon;
+  final bool selected;
+
+  /// Null disables the card, for example while saving.
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final radius = BorderRadius.circular(AppComponentTokens.cardRadius);
+    return Semantics(
+      inMutuallyExclusiveGroup: true,
+      checked: selected,
+      button: true,
+      enabled: onTap != null,
+      label: '$title. $description',
+      excludeSemantics: true,
+      child: Material(
+        color: selected
+            ? AppColors.brandPrimarySoft
+            : AppComponentTokens.cardBackground,
+        shape: RoundedRectangleBorder(
+          borderRadius: radius,
+          side: BorderSide(
+            color: selected
+                ? AppColors.brandPrimary
+                : AppComponentTokens.cardBorder,
+            width: selected ? 2 : 1,
+          ),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: AppComponentTokens.controlMinHeight,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.s16),
+              child: Row(
+                children: [
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: selected
+                          ? AppComponentTokens.cardBackground
+                          : AppColors.brandPrimarySoft,
+                      borderRadius: BorderRadius.circular(
+                        AppComponentTokens.panelRadius,
+                      ),
+                    ),
+                    child: SizedBox.square(
+                      dimension: AppSpacing.s48,
+                      child: Icon(icon, color: AppColors.brandPrimary),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.s16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.s4),
+                        Text(
+                          description,
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.s8),
+                  Icon(
+                    selected
+                        ? Icons.radio_button_checked
+                        : Icons.radio_button_unchecked,
+                    color: selected
+                        ? AppColors.brandPrimary
+                        : AppColors.borderStrong,
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );

@@ -214,7 +214,7 @@ M0 foundation implemented 2026-11-03 (ADR 0004), then AUTH-001 (ADR 0005, ADR 00
 | Database (local/CI) | PostgreSQL in Docker | `postgres:17-alpine` (matches Supabase's Postgres 17 line) |
 | CI | GitHub Actions | checkout v7.0.1, setup-node v7.1.0, pnpm/action-setup v6.1.0, flutter-action v2.23.0, actionlint 1.7.12 (all SHA/digest pinned) |
 
-Shop App (SHP-002): supabase_flutter ^2.18.3, flutter_riverpod ^3.4.3, go_router ^18.1.2, dio ^5.11.1, flutter_secure_storage ^11.2.0; geolocator 14.1.2 (SHP-003). `flutter_shared`: flutter_map 8.3.2 and latlong2 0.10.1 (SHP-006, replacing google_maps_flutter).19.0 (SHP-003). Web: @vis.gl/react-google-maps 1.10.2 and @types/google.maps 3.66.9 (SHP-003). Verified compatible but **not added yet**: freezed 4.0.3, json_serializable 6.15.2. Also deferred on the web: shadcn/ui, TanStack Query, React Hook Form and Playwright.
+Customer App (CUS-001): the same versions of supabase_flutter, flutter_riverpod, go_router, dio and flutter_secure_storage. Shop App (SHP-002): supabase_flutter ^2.18.3, flutter_riverpod ^3.4.3, go_router ^18.1.2, dio ^5.11.1, flutter_secure_storage ^11.2.0; geolocator 14.1.2 (SHP-003). `flutter_shared`: flutter_map 8.3.2 and latlong2 0.10.1 (SHP-006, replacing google_maps_flutter).19.0 (SHP-003). Web: @vis.gl/react-google-maps 1.10.2 and @types/google.maps 3.66.9 (SHP-003). Verified compatible but **not added yet**: freezed 4.0.3, json_serializable 6.15.2. Also deferred on the web: shadcn/ui, TanStack Query, React Hook Form and Playwright.
 
 ### 14.2 Structure
 
@@ -279,7 +279,7 @@ The two toolchains are independent. pnpm manages `apps/api`, `apps/admin_web` an
   - Cache Components is enabled: session reads sit behind `<Suspense>` and `connection()`.
 - **Flutter:**
   - The **Shop App** has mobile OTP sign-in (login-only), the user's shops, a shop home and a shop profile screen with the map and "Use my current location" (SHP-003; Android uses the system location provider). Riverpod providers, go_router redirects on auth state, and a Dio client with a bearer token and problem `code` parsing. The session is stored in the keystore.
-  - The Customer App is still a placeholder.
+  - The Customer App has sign-up, profile and its tabs (CUS-001) and its own palette (`AppPalette.customerApp`, D-057). It mirrors the Shop App's structure (config, Supabase OTP auth with `SecureSessionStorage`, Dio `ApiClient`, Riverpod, go_router); the small auth and API client files are copied, not shared, while the apps stay separate.
   - Both use `AppTheme.light()` from `flutter_shared`. `flutter_shared` holds the tokens, the Material 3 theme and the Inter 4.1 static fonts (OFL 1.1).
 - **Data loading (PERF-001, D-044; rules in `.claude/skills/data-loading`):**
   - Web pages are partially prerendered (Cache Components). Static text sits outside `<Suspense>` and comes from the prerendered shell; request data streams per section (`SectionLoading`).
@@ -306,7 +306,10 @@ pnpm --filter api platform-admin:create --email admin@example.com   # hidden pas
 pnpm --filter api start:dev                    # API on :3000, docs at /docs
 pnpm --filter admin_web dev --port 3001        # web portal; sign in at /platform/sign-in
 cd apps/shop_app && fvm flutter run --dart-define-from-file=config/local.json
+cd apps/customer_app && fvm flutter run --dart-define-from-file=config/local.json   # copy config/local.example.json first
 ```
+
+- **Physical Android phone:** set `127.0.0.1` (not `10.0.2.2`) in `config/local.json` and run `adb reverse tcp:54321 tcp:54321` and `adb reverse tcp:3000 tcp:3000`. Repeat the reverse after the USB connection resets.
 
 - **Postgres port taken:** if 5432 is already used (for example by another project's Postgres), set `POSTGRES_PORT` in `infra/local/.env` and use the same port in `apps/api/.env` and `.env.test`.
 - **API port taken:** if 3000 is used, set `PORT` in `apps/api/.env` and `API_BASE_URL` in `apps/admin_web/.env.local` to match.

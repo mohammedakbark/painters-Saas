@@ -22,16 +22,19 @@ datasource db {
 
 /// Global login identity. One row per Supabase Auth user. Not tenant-owned.
 model User {
-  id          String   @id @default(uuid(7)) @db.Uuid
+  id           String        @id @default(uuid(7)) @db.Uuid
   /// Subject (`sub`) of the identity provider's access token (Supabase Auth user id).
-  authSubject String   @unique @map("auth_subject") @db.Uuid
+  authSubject  String        @unique @map("auth_subject") @db.Uuid
   /// E.164, for example +919999900001.
-  phone       String?  @unique
+  phone        String?       @unique
   /// Lower case.
-  email       String?  @unique
-  displayName String?  @map("display_name")
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  email        String?       @unique
+  displayName  String?       @map("display_name")
+  /// Chosen in the Customer App (D-036, CUS-001); null until the person has
+  /// set up their Customer App profile. Changeable at any time.
+  customerType CustomerType? @map("customer_type")
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   platformAdmin    PlatformAdmin?
   auditEvents      AuditEvent[]
@@ -41,6 +44,16 @@ model User {
   shopCustomers    ShopCustomer[]
 
   @@map("users")
+}
+
+/// How a person uses the Customer App (D-036). Painter features that hold no
+/// shop's private data (such as sites) follow it; a shop's painter-only
+/// information needs that shop's own confirmation.
+enum CustomerType {
+  PAINTER
+  CUSTOMER
+
+  @@map("customer_type")
 }
 
 enum PlatformRole {

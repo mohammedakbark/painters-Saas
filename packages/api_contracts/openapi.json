@@ -38,6 +38,108 @@
         ]
       }
     },
+    "/v1/me/customer-profile": {
+      "get": {
+        "operationId": "CustomerProfileController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerProfileResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The caller's Customer App profile: name and customer type.",
+        "tags": [
+          "me"
+        ]
+      },
+      "put": {
+        "operationId": "CustomerProfileController_update",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCustomerProfileRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerProfileResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "phone_verification_required: the caller did not sign in with a mobile number.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Set the name and the customer type (Painter/Contractor or Normal Customer). Changeable at any time.",
+        "tags": [
+          "me"
+        ]
+      }
+    },
     "/health": {
       "get": {
         "operationId": "HealthController_live",
@@ -6408,6 +6510,61 @@
           "status"
         ],
         "additionalProperties": false
+      },
+      "CustomerProfileResponse": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "nullable": true,
+            "type": "string"
+          },
+          "phone": {
+            "nullable": true,
+            "description": "E.164, for example +919999900001.",
+            "type": "string"
+          },
+          "customerType": {
+            "nullable": true,
+            "description": "PAINTER (Painter/Contractor) or CUSTOMER (Normal Customer); null until chosen.",
+            "type": "string",
+            "enum": [
+              "PAINTER",
+              "CUSTOMER"
+            ]
+          },
+          "complete": {
+            "type": "boolean",
+            "description": "True once the name and the customer type are set. The Customer App asks for them until then."
+          }
+        },
+        "required": [
+          "displayName",
+          "phone",
+          "customerType",
+          "complete"
+        ],
+        "additionalProperties": false
+      },
+      "UpdateCustomerProfileRequest": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "customerType": {
+            "type": "string",
+            "enum": [
+              "PAINTER",
+              "CUSTOMER"
+            ]
+          }
+        },
+        "required": [
+          "displayName",
+          "customerType"
+        ]
       },
       "LivenessResponseDto": {
         "type": "object",
