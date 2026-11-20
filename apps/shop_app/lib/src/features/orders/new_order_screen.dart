@@ -661,7 +661,7 @@ class _ResultCard extends StatelessWidget {
           if (busy)
             const AppSpinner()
           else
-            const Icon(Icons.add_circle_outline, color: AppColors.brandPrimary),
+            Icon(Icons.add_circle_outline, color: AppColors.brandPrimary),
         ],
       ),
     );

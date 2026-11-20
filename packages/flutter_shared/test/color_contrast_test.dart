@@ -15,9 +15,19 @@ double contrastRatio(Color a, Color b) {
 const double wcagAaNormalText = 4.5;
 
 void main() {
+  for (final palette in AppPalette.values) {
+    group('${palette.name} palette', () {
+      setUp(() => AppPalette.use(palette));
+      tearDown(() => AppPalette.use(AppPalette.standard));
+      _contrastTests();
+    });
+  }
+}
+
+void _contrastTests() {
   // Text/background pairs the design system uses for readable text.
   // Disabled text is intentionally excluded (WCAG exempts inactive controls).
-  final pairs = <String, (Color, Color)>{
+  Map<String, (Color, Color)> pairs() => <String, (Color, Color)>{
     'text.primary on surface.default': (
       AppColors.textPrimary,
       AppColors.surfaceDefault,
@@ -70,14 +80,14 @@ void main() {
   };
 
   group('colour tokens meet WCAG AA contrast for normal text', () {
-    pairs.forEach((name, pair) {
+    for (final name in pairs().keys) {
       test(name, () {
-        final (foreground, background) = pair;
+        final (foreground, background) = pairs()[name]!;
         expect(
           contrastRatio(foreground, background),
           greaterThanOrEqualTo(wcagAaNormalText),
         );
       });
-    });
+    }
   });
 }

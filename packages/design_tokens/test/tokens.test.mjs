@@ -14,6 +14,9 @@ import {
   renderCss,
   renderDartColors,
   renderDartComponents,
+  renderDartPalette,
+  resolveTheme,
+  themeNames,
   validate,
 } from '../lib.mjs';
 
@@ -192,15 +195,79 @@ describe('component tokens (D-039)', () => {
     );
   });
 
-  it('emits Dart component tokens that reference the base classes', () => {
+  it('emits Dart component tokens that read the app palette', () => {
     const dart = renderDartComponents(tokens);
     for (const line of [
-      'static const double controlRadius = AppRadius.medium;',
-      'static const double controlMinHeight = AppSpacing.minTouchTarget;',
-      'static const Color cardBorder = AppColors.borderDefault;',
+      'static double get controlRadius => AppPalette.current.controlRadius;',
+      'static Color get cardBorder => AppPalette.current.cardBorder;',
     ]) {
       assert.ok(dart.includes(line), line);
     }
+  });
+});
+
+describe('themes (D-057)', () => {
+  it('lists the standard look first', () => {
+    assert.equal(themeNames(tokens)[0], 'standard');
+    assert.ok(themeNames(tokens).includes('customerApp'));
+  });
+
+  it('overrides only what a theme sets', () => {
+    const resolved = resolveTheme(tokens, 'customerApp');
+    assert.equal(resolved.color['brand.primary'].value, '#1452E0');
+    assert.equal(
+      resolved.color['status.error'].value,
+      tokens.color['status.error'].value,
+    );
+    assert.equal(resolved.font.family, 'Plus Jakarta Sans');
+    assert.equal(resolved.component.button.radius, 'medium');
+    assert.equal(resolved.component.card.radius, tokens.component.card.radius);
+    assert.equal(tokens.color['brand.primary'].value, '#0F6B66');
+  });
+
+  it('rejects an unknown colour token in a theme', () => {
+    const problems = validate(
+      tokensWith((t) => {
+        t.themes.customerApp.color['brand.unknown'] = '#000000';
+      }),
+      brand,
+    );
+    assert.ok(problems.some((p) => p.includes('brand.unknown')));
+  });
+
+  it('rejects a theme whose colours fail WCAG AA', () => {
+    const problems = validate(
+      tokensWith((t) => {
+        t.themes.customerApp.color['text.secondary'] = '#C0C0C0';
+      }),
+      brand,
+    );
+    assert.ok(
+      problems.some(
+        (p) => p.startsWith('theme "customerApp"') && p.includes('WCAG AA'),
+      ),
+    );
+  });
+
+  it('rejects a theme property the base component does not have', () => {
+    const problems = validate(
+      tokensWith((t) => {
+        t.themes.customerApp.component.card = { glow: 'brand.primary' };
+      }),
+      brand,
+    );
+    assert.ok(problems.some((p) => p.includes('card.glow')));
+  });
+
+  it('requires every theme font to be declared in the Flutter pubspec', () => {
+    const problems = validate(
+      tokensWith((t) => {
+        t.themes.customerApp.font.family = 'Comic Neue';
+      }),
+      brand,
+      files,
+    );
+    assert.ok(problems.some((p) => p.includes('"Comic Neue"')));
   });
 });
 
@@ -225,13 +292,29 @@ describe('renderers', () => {
     }
   });
 
-  it('emits Dart colours as opaque ARGB literals', () => {
-    const hex = tokens.color['brand.primary'].value.slice(1).toUpperCase();
+  it('emits Dart colours as getters on the app palette', () => {
     assert.ok(
       renderDartColors(tokens).includes(
-        `static const Color brandPrimary = Color(0xFF${hex});`,
+        'static Color get brandPrimary => AppPalette.current.brandPrimary;',
       ),
     );
+  });
+
+  it('emits every palette with resolved opaque ARGB literals', () => {
+    const dart = renderDartPalette(tokens);
+    const hex = tokens.color['brand.primary'].value.slice(1).toUpperCase();
+    assert.ok(
+      dart.includes('static const AppPalette standard = AppPalette._('),
+    );
+    assert.ok(dart.includes(`    brandPrimary: Color(0xFF${hex}),`));
+    for (const name of themeNames(tokens)) {
+      assert.ok(dart.includes(`static const AppPalette ${name} =`), name);
+    }
+    // A component reference changed by a theme resolves to its own value.
+    assert.ok(
+      dart.includes(`    buttonRadius: ${tokens.radius.medium.value},`),
+    );
+    assert.ok(dart.includes(`    buttonRadius: ${tokens.radius.pill.value},`));
   });
 
   it('keeps Dart code lines within the 80-column dart format limit', () => {

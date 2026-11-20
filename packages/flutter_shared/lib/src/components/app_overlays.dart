@@ -19,7 +19,7 @@ Future<T?> showAppBottomSheet<T>({
     useSafeArea: true,
     showDragHandle: true,
     backgroundColor: AppComponentTokens.sheetBackground,
-    shape: const RoundedRectangleBorder(
+    shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(
         top: Radius.circular(AppComponentTokens.sheetRadius),
       ),

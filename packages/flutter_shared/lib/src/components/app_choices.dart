@@ -181,7 +181,7 @@ class AppSegmentedControl<T> extends StatelessWidget {
       onSelectionChanged: (selection) => onChanged(selection.first),
       showSelectedIcon: false,
       style: ButtonStyle(
-        minimumSize: const WidgetStatePropertyAll(
+        minimumSize: WidgetStatePropertyAll(
           Size.fromHeight(AppComponentTokens.controlMinHeight),
         ),
         shape: WidgetStatePropertyAll(
@@ -191,7 +191,7 @@ class AppSegmentedControl<T> extends StatelessWidget {
             ),
           ),
         ),
-        side: const WidgetStatePropertyAll(
+        side: WidgetStatePropertyAll(
           BorderSide(color: AppComponentTokens.controlBorder),
         ),
         backgroundColor: WidgetStateProperty.resolveWith(

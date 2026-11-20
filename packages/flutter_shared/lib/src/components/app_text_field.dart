@@ -16,7 +16,7 @@ OutlineInputBorder _border(Color color, {double width = 1}) =>
 Widget appRequiredLabel(String label) => Text.rich(
   TextSpan(
     text: label,
-    children: const [
+    children: [
       TextSpan(
         text: ' *',
         semanticsLabel: ', required',
@@ -56,9 +56,7 @@ InputDecoration appInputDecoration({
   counterText: counterText,
   filled: true,
   fillColor: AppComponentTokens.controlBackground,
-  constraints: const BoxConstraints(
-    minHeight: AppComponentTokens.controlMinHeight,
-  ),
+  constraints: BoxConstraints(minHeight: AppComponentTokens.controlMinHeight),
   border: _border(AppComponentTokens.controlBorder),
   enabledBorder: _border(AppComponentTokens.controlBorder),
   disabledBorder: _border(AppColors.borderDefault),

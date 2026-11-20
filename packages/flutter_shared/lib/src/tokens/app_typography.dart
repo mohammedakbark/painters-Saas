@@ -3,11 +3,14 @@
 
 import 'package:flutter/painting.dart';
 
+import 'app_palette.dart';
+
 /// Typography tokens. The font family is applied by `AppTheme`, so the
 /// styles deliberately leave `fontFamily` unset.
 abstract final class AppTypography {
-  /// Bundled in the `flutter_shared` package (see its `pubspec.yaml`).
-  static const String fontFamily = 'Inter';
+  /// The app palette's family, bundled in the `flutter_shared` package (see
+  /// its `pubspec.yaml`).
+  static String get fontFamily => AppPalette.current.fontFamily;
   static const String fontPackage = 'flutter_shared';
 
   /// Public website headline only (desktop).

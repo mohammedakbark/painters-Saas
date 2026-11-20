@@ -48,9 +48,7 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
       scrolledUnderElevation: 0,
       toolbarHeight: kToolbarHeight + 8,
       leading: leading,
-      shape: const Border(
-        bottom: BorderSide(color: AppComponentTokens.topBarBorder),
-      ),
+      shape: Border(bottom: BorderSide(color: AppComponentTokens.topBarBorder)),
       titleSpacing: hasLeading ? AppSpacing.s4 : AppSpacing.screenPadding,
       title: Semantics(
         header: true,
@@ -157,7 +155,7 @@ class AppBottomActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppComponentTokens.actionBarBackground,
         border: Border(
           top: BorderSide(color: AppComponentTokens.actionBarBorder),
@@ -309,7 +307,7 @@ class AppBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(
           top: BorderSide(color: AppComponentTokens.bottomNavBorder),
         ),
@@ -451,7 +449,7 @@ class AppDrawer extends StatelessWidget {
     return Drawer(
       backgroundColor: AppComponentTokens.drawerBackground,
       surfaceTintColor: AppComponentTokens.drawerBackground,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.horizontal(
           right: Radius.circular(AppComponentTokens.drawerRadius),
         ),
@@ -464,7 +462,7 @@ class AppDrawer extends StatelessWidget {
               padding: const EdgeInsets.all(AppSpacing.screenPadding),
               child: header,
             ),
-            const Divider(height: 1, color: AppColors.borderDefault),
+            Divider(height: 1, color: AppColors.borderDefault),
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(
@@ -475,7 +473,7 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
             if (footer != null) ...[
-              const Divider(height: 1, color: AppColors.borderDefault),
+              Divider(height: 1, color: AppColors.borderDefault),
               Padding(
                 padding: const EdgeInsets.all(AppSpacing.screenPadding),
                 child: footer,

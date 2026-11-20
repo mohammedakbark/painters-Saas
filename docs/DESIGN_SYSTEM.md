@@ -46,6 +46,28 @@ The generator fails if a text/background pair listed in `tokens.json` (`contrast
 
 Rules: use one primary action per screen; use accent yellow sparingly and dark text on it; never use color alone for status; verify contrast to WCAG AA; paint shade colors are catalogue data, not app brand tokens.
 
+### App themes (D-042, D-057, DS-005)
+
+The tables above are the **standard** look, used by the web portal and the Shop App. An app with its own identity has a theme under `themes` in `tokens.json`, which overrides only what differs: colour values, the font family and component references. The generator checks every theme against the same contrast pairs and components.
+
+**Customer App (`customerApp`, D-057):** after the owner's reference design (2026-11-20).
+
+| Token | Customer App value |
+|---|---|
+| `brand.primary` | `#1452E0` (blue) |
+| `brand.primaryStrong` | `#0E3DAA` |
+| `brand.primarySoft` | `#E7EEFE` |
+| `brand.accent`, `brand.highlight` | `#FFC629` (brush-stroke yellow; dark text on it, never yellow text) |
+| `surface.subtle` | `#F5F7FC` |
+| `text.primary` | `#0B1B3F` (navy) |
+| `text.secondary` | `#5D6884` |
+| `text.disabled` | `#8C96AE` |
+| `border.default`, `border.strong` | `#E2E7F1`, `#C9D0DE` |
+| Font | Plus Jakarta Sans |
+| Components | buttons with the `medium` radius (not pills); text fields with the light border; the selected bottom tab in blue without a pill |
+
+Status colours and the logo stay the same in every theme. In Flutter, `AppColors`, `AppComponentTokens` and `AppTypography.fontFamily` read `AppPalette.current`. The Customer App calls `AppPalette.use(AppPalette.customerApp)` in `main()` before `runApp`, and its tests do the same in `test/flutter_test_config.dart`. Token values are therefore not compile-time constants: never put them in `const` expressions or `static final` caches. `BrandMark` and `LogoMark` use `AppPalette.standard`, so the logo looks the same everywhere. The web uses only the standard look.
+
 ## 3. Typography
 
 **Proposed font:** Inter across web and mobile. Bundle/localize font assets for Flutter and use a build-time font strategy for Next.js.

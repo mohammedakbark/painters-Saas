@@ -122,7 +122,7 @@ class _MapUnavailable extends StatelessWidget {
         tone: AppCardTone.subtle,
         child: Row(
           children: [
-            const Icon(Icons.map_outlined, color: AppColors.textSecondary),
+            Icon(Icons.map_outlined, color: AppColors.textSecondary),
             const SizedBox(width: AppSpacing.s12),
             Expanded(
               child: Column(

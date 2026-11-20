@@ -24,7 +24,8 @@ The generator (`generate.mjs`, logic in `lib.mjs`, no dependencies) refuses to w
 |---|---|
 | `apps/admin_web/src/app/tokens.css` | Tailwind v4 `@theme`, imported by `globals.css` |
 | `apps/admin_web/src/lib/brand.ts` | `BRAND` constants (titles, `BrandMark`) |
-| `packages/flutter_shared/lib/src/tokens/app_colors.dart`, `app_typography.dart`, `app_radius.dart`, `app_spacing.dart`, `app_layout.dart` | `AppColors`, `AppTypography`, `AppRadius`, `AppSpacing`, `AppLayout` |
+| `packages/flutter_shared/lib/src/tokens/app_colors.dart`, `app_typography.dart`, `app_radius.dart`, `app_spacing.dart`, `app_layout.dart`, `app_component_tokens.dart` | `AppColors`, `AppTypography`, `AppRadius`, `AppSpacing`, `AppLayout`, `AppComponentTokens` |
+| `packages/flutter_shared/lib/src/tokens/app_palette.dart` | `AppPalette`: one resolved set of colours, component values and font per theme (`standard`, `customerApp`). `AppColors`, `AppComponentTokens` and `AppTypography.fontFamily` read `AppPalette.current` |
 | `packages/flutter_shared/lib/src/brand/app_brand.dart` | `AppBrand` constants |
 
 Hand-written code that maps tokens onto widgets stays outside the generated files: `AppTheme` (Material theme) and `BrandMark` (Flutter), and the components in `apps/admin_web/src/components` (web).
@@ -35,6 +36,12 @@ Hand-written code that maps tokens onto widgets stays outside the generated file
 1. Edit `tokens.json`. To restyle one kind of component everywhere (for example rounder buttons and fields, or another primary button colour), change its entry under `component` (for example `control.radius` or `buttonPrimary.background`); each entry names a base token.
 2. Run `pnpm tokens:generate`. Fix any contrast failure it reports.
 3. Run the checks (`pnpm test`, `fvm flutter test` in `packages/flutter_shared`) and look at the main screens.
+
+### An app's own look (themes, D-057)
+1. Add or edit the theme under `themes` in `tokens.json`. Set only what differs from the base: `color` (token name to `#RRGGBB`), `font.family`, and `component` (component name to the properties it changes, each naming a base token).
+2. A new font needs its files in `packages/flutter_shared/fonts/` and a `- family:` entry in `packages/flutter_shared/pubspec.yaml`. The generator checks this.
+3. Run `pnpm tokens:generate`. It checks the theme against the same contrast pairs and components.
+4. The app picks the theme in `main()` with `AppPalette.use(AppPalette.<theme>)` before `runApp`, and in `test/flutter_test_config.dart` for its tests.
 
 ### Product or app names
 Edit `brand.json` and run `pnpm tokens:generate`. Two native labels are separate, because the platforms read them from their own files:

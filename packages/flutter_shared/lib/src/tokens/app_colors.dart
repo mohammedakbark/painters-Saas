@@ -3,84 +3,86 @@
 
 import 'package:flutter/painting.dart';
 
-/// Colour tokens. Paint shade colours are catalogue data and never belong
-/// here.
+import 'app_palette.dart';
+
+/// Colour tokens of the app's palette (`AppPalette.current`). Paint shade
+/// colours are catalogue data and never belong here.
 abstract final class AppColors {
   /// Main actions, selected navigation, links.
-  static const Color brandPrimary = Color(0xFF0F6B66);
+  static Color get brandPrimary => AppPalette.current.brandPrimary;
 
   /// Pressed/strong primary states.
-  static const Color brandPrimaryStrong = Color(0xFF0B4F4B);
+  static Color get brandPrimaryStrong => AppPalette.current.brandPrimaryStrong;
 
   /// Selected backgrounds/highlights.
-  static const Color brandPrimarySoft = Color(0xFFE3F2EF);
+  static Color get brandPrimarySoft => AppPalette.current.brandPrimarySoft;
 
   /// Limited highlights and offers only; always use dark text on it.
-  static const Color brandAccent = Color(0xFFF7C344);
+  static Color get brandAccent => AppPalette.current.brandAccent;
 
   /// Coral from the brand poster: decorative marks only (underlines, dots, small shapes). Never text, never the only signal.
-  static const Color brandHighlight = Color(0xFFF25C3B);
+  static Color get brandHighlight => AppPalette.current.brandHighlight;
 
   /// SevenPalette fan logo strip only (DS-003); never text or UI.
-  static const Color logoTealMid = Color(0xFF3E8C86);
+  static Color get logoTealMid => AppPalette.current.logoTealMid;
 
   /// SevenPalette fan logo strip only (DS-003); never text or UI.
-  static const Color logoTealLight = Color(0xFF7FB8B2);
+  static Color get logoTealLight => AppPalette.current.logoTealLight;
 
   /// SevenPalette fan logo strip only (DS-003); never text or UI.
-  static const Color logoOrange = Color(0xFFF59A3F);
+  static Color get logoOrange => AppPalette.current.logoOrange;
 
   /// SevenPalette fan logo strip on dark surfaces only (DS-003).
-  static const Color logoMint = Color(0xFFA9D3CE);
+  static Color get logoMint => AppPalette.current.logoMint;
 
   /// SevenPalette fan logo strip on the app icon only (DS-003).
-  static const Color logoMist = Color(0xFFCFE3DF);
+  static Color get logoMist => AppPalette.current.logoMist;
 
   /// Main surfaces.
-  static const Color surfaceDefault = Color(0xFFFFFFFF);
+  static Color get surfaceDefault => AppPalette.current.surfaceDefault;
 
   /// Page backgrounds/secondary sections.
-  static const Color surfaceSubtle = Color(0xFFFAF6EE);
+  static Color get surfaceSubtle => AppPalette.current.surfaceSubtle;
 
   /// Cards/dialogs.
-  static const Color surfaceRaised = Color(0xFFFFFFFF);
+  static Color get surfaceRaised => AppPalette.current.surfaceRaised;
 
   /// Main text.
-  static const Color textPrimary = Color(0xFF132A29);
+  static Color get textPrimary => AppPalette.current.textPrimary;
 
   /// Supporting text.
-  static const Color textSecondary = Color(0xFF566A68);
+  static Color get textSecondary => AppPalette.current.textSecondary;
 
   /// Disabled text.
-  static const Color textDisabled = Color(0xFF9AA8A6);
+  static Color get textDisabled => AppPalette.current.textDisabled;
 
   /// Borders/dividers.
-  static const Color borderDefault = Color(0xFFECE5D8);
+  static Color get borderDefault => AppPalette.current.borderDefault;
 
   /// Emphasized borders.
-  static const Color borderStrong = Color(0xFFD3CBBB);
+  static Color get borderStrong => AppPalette.current.borderStrong;
 
   /// Success; always paired with text or an icon.
-  static const Color statusSuccess = Color(0xFF15803D);
+  static Color get statusSuccess => AppPalette.current.statusSuccess;
 
   /// Warning; always paired with text or an icon.
-  static const Color statusWarning = Color(0xFFB45309);
+  static Color get statusWarning => AppPalette.current.statusWarning;
 
   /// Error/destructive; always paired with text or an icon.
-  static const Color statusError = Color(0xFFB42318);
+  static Color get statusError => AppPalette.current.statusError;
 
   /// Informational; always paired with text or an icon.
-  static const Color statusInfo = Color(0xFF2563EB);
+  static Color get statusInfo => AppPalette.current.statusInfo;
 
   /// Background of a success badge (e.g. Available); text in status.success.
-  static const Color statusSuccessSoft = Color(0xFFE7F7EC);
+  static Color get statusSuccessSoft => AppPalette.current.statusSuccessSoft;
 
   /// Background of a warning badge (e.g. Not available); text in status.warning.
-  static const Color statusWarningSoft = Color(0xFFFEF3C7);
+  static Color get statusWarningSoft => AppPalette.current.statusWarningSoft;
 
   /// Background of an error badge; text in status.error.
-  static const Color statusErrorSoft = Color(0xFFFDECEA);
+  static Color get statusErrorSoft => AppPalette.current.statusErrorSoft;
 
   /// Background of an info badge (e.g. In review); text in status.info.
-  static const Color statusInfoSoft = Color(0xFFEAF2FE);
+  static Color get statusInfoSoft => AppPalette.current.statusInfoSoft;
 }

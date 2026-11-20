@@ -11,7 +11,7 @@ import '../tokens/app_typography.dart';
 /// only make the Material widgets *inside* them, such as menus, dialogs and
 /// sheets, follow the same component tokens.
 abstract final class AppTheme {
-  static const ColorScheme lightColorScheme = ColorScheme(
+  static ColorScheme get lightColorScheme => ColorScheme(
     brightness: Brightness.light,
     primary: AppColors.brandPrimary,
     onPrimary: AppColors.surfaceDefault,
@@ -68,7 +68,7 @@ abstract final class AppTheme {
       textTheme: textTheme,
       scaffoldBackgroundColor: AppColors.surfaceSubtle,
       disabledColor: AppColors.textDisabled,
-      dividerTheme: const DividerThemeData(
+      dividerTheme: DividerThemeData(
         color: AppColors.borderDefault,
         space: 1,
         thickness: 1,
@@ -79,7 +79,7 @@ abstract final class AppTheme {
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppComponentTokens.cardRadius),
-          side: const BorderSide(color: AppComponentTokens.cardBorder),
+          side: BorderSide(color: AppComponentTokens.cardBorder),
         ),
       ),
       inputDecorationTheme: InputDecorationThemeData(
@@ -93,7 +93,7 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.circular(AppComponentTokens.dialogRadius),
         ),
       ),
-      bottomSheetTheme: const BottomSheetThemeData(
+      bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: AppComponentTokens.sheetBackground,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(

@@ -3,108 +3,126 @@
 
 import 'package:flutter/painting.dart';
 
-import 'app_colors.dart';
-import 'app_radius.dart';
-import 'app_spacing.dart';
+import 'app_palette.dart';
 
-/// What each shared component uses (D-039). The components read these, so
-/// one change in tokens.json restyles every screen.
+/// What each shared component uses (D-039), from the app's palette
+/// (`AppPalette.current`). The components read these, so one change in
+/// tokens.json restyles every screen.
 abstract final class AppComponentTokens {
   /// Text fields, dropdowns and search fields; buttons share its height and take their shape from `button`.
-  static const double controlRadius = AppRadius.medium;
-  static const double controlMinHeight = AppSpacing.minTouchTarget;
-  static const Color controlBackground = AppColors.surfaceDefault;
-  static const Color controlBorder = AppColors.borderStrong;
-  static const Color controlBorderError = AppColors.statusError;
+  static double get controlRadius => AppPalette.current.controlRadius;
+  static double get controlMinHeight => AppPalette.current.controlMinHeight;
+  static Color get controlBackground => AppPalette.current.controlBackground;
+  static Color get controlBorder => AppPalette.current.controlBorder;
+  static Color get controlBorderError => AppPalette.current.controlBorderError;
 
   /// Every button (web Button, ButtonLink, StoreButton; Flutter AppButton and the Material button themes): fully rounded pills (product owner, 2026-11-05).
-  static const double buttonRadius = AppRadius.pill;
+  static double get buttonRadius => AppPalette.current.buttonRadius;
 
   /// Cards, list panels, sections and empty states.
-  static const double cardRadius = AppRadius.large;
-  static const Color cardBackground = AppColors.surfaceRaised;
-  static const Color cardBorder = AppColors.borderDefault;
+  static double get cardRadius => AppPalette.current.cardRadius;
+  static Color get cardBackground => AppPalette.current.cardBackground;
+  static Color get cardBorder => AppPalette.current.cardBorder;
 
   /// Boxes inside a card, such as pack, shade and review rows.
-  static const double panelRadius = AppRadius.medium;
-  static const Color panelBorder = AppColors.borderDefault;
+  static double get panelRadius => AppPalette.current.panelRadius;
+  static Color get panelBorder => AppPalette.current.panelBorder;
 
   /// Photos and image previews.
-  static const double imageRadius = AppRadius.medium;
-
-  /// A shade's indicative screen colour next to its code (SHP-014).
-  static const double swatchRadius = AppRadius.small;
-  static const Color swatchBorder = AppColors.borderDefault;
-  static const Color swatchBackground = AppColors.surfaceSubtle;
+  static double get imageRadius => AppPalette.current.imageRadius;
 
   /// Navigation links in the console sidebar.
-  static const double navItemRadius = AppRadius.small;
+  static double get navItemRadius => AppPalette.current.navItemRadius;
 
   /// Inline alerts and status messages.
-  static const double inlineMessageRadius = AppRadius.medium;
-  static const Color inlineMessageBackground = AppColors.surfaceDefault;
-  static const Color inlineMessageBorder = AppColors.borderDefault;
+  static double get inlineMessageRadius =>
+      AppPalette.current.inlineMessageRadius;
+  static Color get inlineMessageBackground =>
+      AppPalette.current.inlineMessageBackground;
+  static Color get inlineMessageBorder =>
+      AppPalette.current.inlineMessageBorder;
 
   /// Bottom sheets.
-  static const double sheetRadius = AppRadius.xlarge;
-  static const Color sheetBackground = AppColors.surfaceRaised;
+  static double get sheetRadius => AppPalette.current.sheetRadius;
+  static Color get sheetBackground => AppPalette.current.sheetBackground;
 
   /// Dialogs and confirmations.
-  static const double dialogRadius = AppRadius.large;
-  static const Color dialogBackground = AppColors.surfaceRaised;
+  static double get dialogRadius => AppPalette.current.dialogRadius;
+  static Color get dialogBackground => AppPalette.current.dialogBackground;
 
   /// Snack bars (short confirmations).
-  static const double snackbarRadius = AppRadius.medium;
-  static const Color snackbarBackground = AppColors.textPrimary;
-  static const Color snackbarForeground = AppColors.surfaceDefault;
-  static const Color snackbarAction = AppColors.brandPrimarySoft;
+  static double get snackbarRadius => AppPalette.current.snackbarRadius;
+  static Color get snackbarBackground => AppPalette.current.snackbarBackground;
+  static Color get snackbarForeground => AppPalette.current.snackbarForeground;
+  static Color get snackbarAction => AppPalette.current.snackbarAction;
+
+  /// A shade's indicative screen colour next to its code (SHP-014).
+  static double get swatchRadius => AppPalette.current.swatchRadius;
+  static Color get swatchBorder => AppPalette.current.swatchBorder;
+  static Color get swatchBackground => AppPalette.current.swatchBackground;
 
   /// Status badges.
-  static const double badgeRadius = AppRadius.pill;
-  static const Color badgeBackground = AppColors.surfaceDefault;
+  static double get badgeRadius => AppPalette.current.badgeRadius;
+  static Color get badgeBackground => AppPalette.current.badgeBackground;
 
   /// The top bar of every app screen (title, back or menu, actions).
-  static const Color topBarBackground = AppColors.surfaceRaised;
-  static const Color topBarForeground = AppColors.textPrimary;
-  static const Color topBarBorder = AppColors.borderDefault;
+  static Color get topBarBackground => AppPalette.current.topBarBackground;
+  static Color get topBarForeground => AppPalette.current.topBarForeground;
+  static Color get topBarBorder => AppPalette.current.topBarBorder;
 
   /// The app's bottom tabs; the selected tab shows a filled pill behind its icon and a bold label.
-  static const double bottomNavRadius = AppRadius.pill;
-  static const Color bottomNavBackground = AppColors.surfaceRaised;
-  static const Color bottomNavBorder = AppColors.borderDefault;
-  static const Color bottomNavActive = AppColors.brandPrimaryStrong;
-  static const Color bottomNavActiveBackground = AppColors.brandPrimarySoft;
-  static const Color bottomNavInactive = AppColors.textSecondary;
-  static const Color bottomNavCount = AppColors.statusError;
-  static const Color bottomNavCountForeground = AppColors.surfaceDefault;
+  static double get bottomNavRadius => AppPalette.current.bottomNavRadius;
+  static Color get bottomNavBackground =>
+      AppPalette.current.bottomNavBackground;
+  static Color get bottomNavBorder => AppPalette.current.bottomNavBorder;
+  static Color get bottomNavActive => AppPalette.current.bottomNavActive;
+  static Color get bottomNavActiveBackground =>
+      AppPalette.current.bottomNavActiveBackground;
+  static Color get bottomNavInactive => AppPalette.current.bottomNavInactive;
+  static Color get bottomNavCount => AppPalette.current.bottomNavCount;
+  static Color get bottomNavCountForeground =>
+      AppPalette.current.bottomNavCountForeground;
 
   /// The app's side menu with the person, the shop and the less frequent areas.
-  static const double drawerRadius = AppRadius.large;
-  static const Color drawerBackground = AppColors.surfaceRaised;
-  static const Color drawerSelectedBackground = AppColors.brandPrimarySoft;
+  static double get drawerRadius => AppPalette.current.drawerRadius;
+  static Color get drawerBackground => AppPalette.current.drawerBackground;
+  static Color get drawerSelectedBackground =>
+      AppPalette.current.drawerSelectedBackground;
 
   /// The bar under a screen that holds its main action, above the bottom tabs.
-  static const Color actionBarBackground = AppColors.surfaceRaised;
-  static const Color actionBarBorder = AppColors.borderDefault;
+  static Color get actionBarBackground =>
+      AppPalette.current.actionBarBackground;
+  static Color get actionBarBorder => AppPalette.current.actionBarBorder;
 
   /// The main action on a screen.
-  static const Color buttonPrimaryBackground = AppColors.brandPrimary;
-  static const Color buttonPrimaryBackgroundHover =
-      AppColors.brandPrimaryStrong;
-  static const Color buttonPrimaryForeground = AppColors.surfaceDefault;
+  static Color get buttonPrimaryBackground =>
+      AppPalette.current.buttonPrimaryBackground;
+  static Color get buttonPrimaryBackgroundHover =>
+      AppPalette.current.buttonPrimaryBackgroundHover;
+  static Color get buttonPrimaryForeground =>
+      AppPalette.current.buttonPrimaryForeground;
 
   /// Other actions.
-  static const Color buttonSecondaryBackground = AppColors.surfaceDefault;
-  static const Color buttonSecondaryBackgroundHover = AppColors.surfaceSubtle;
-  static const Color buttonSecondaryForeground = AppColors.textPrimary;
-  static const Color buttonSecondaryBorder = AppColors.borderStrong;
+  static Color get buttonSecondaryBackground =>
+      AppPalette.current.buttonSecondaryBackground;
+  static Color get buttonSecondaryBackgroundHover =>
+      AppPalette.current.buttonSecondaryBackgroundHover;
+  static Color get buttonSecondaryForeground =>
+      AppPalette.current.buttonSecondaryForeground;
+  static Color get buttonSecondaryBorder =>
+      AppPalette.current.buttonSecondaryBorder;
 
   /// Low-emphasis actions such as Try again (no background).
-  static const Color buttonTertiaryBackgroundHover = AppColors.brandPrimarySoft;
-  static const Color buttonTertiaryForeground = AppColors.brandPrimary;
+  static Color get buttonTertiaryBackgroundHover =>
+      AppPalette.current.buttonTertiaryBackgroundHover;
+  static Color get buttonTertiaryForeground =>
+      AppPalette.current.buttonTertiaryForeground;
 
   /// Actions that remove or archive something.
-  static const Color buttonDestructiveBackground = AppColors.statusError;
-  static const Color buttonDestructiveBackgroundHover = AppColors.statusError;
-  static const Color buttonDestructiveForeground = AppColors.surfaceDefault;
+  static Color get buttonDestructiveBackground =>
+      AppPalette.current.buttonDestructiveBackground;
+  static Color get buttonDestructiveBackgroundHover =>
+      AppPalette.current.buttonDestructiveBackgroundHover;
+  static Color get buttonDestructiveForeground =>
+      AppPalette.current.buttonDestructiveForeground;
 }

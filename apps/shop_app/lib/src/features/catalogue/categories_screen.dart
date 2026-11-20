@@ -209,7 +209,7 @@ class _CategoryCard extends StatelessWidget {
             ],
           ),
           if (onEdit != null)
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(left: AppSpacing.s4),
               child: Icon(Icons.chevron_right, color: AppColors.textSecondary),
             ),

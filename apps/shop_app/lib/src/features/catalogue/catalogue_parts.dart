@@ -56,14 +56,14 @@ class ProductPhotoPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const icon = Icon(
+    final icon = Icon(
       Icons.image_outlined,
       color: AppColors.textSecondary,
       semanticLabel: 'No photo',
     );
     // A thumbnail is its own small card; the large version fills a card.
     if (compact) {
-      return const AppCard(
+      return AppCard(
         tone: AppCardTone.subtle,
         padding: EdgeInsets.zero,
         child: Center(child: icon),
@@ -75,7 +75,7 @@ class ProductPhotoPlaceholder extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const ExcludeSemantics(child: icon),
+            ExcludeSemantics(child: icon),
             const SizedBox(height: AppSpacing.s8),
             Text(
               CatalogueMessages.noPhoto,

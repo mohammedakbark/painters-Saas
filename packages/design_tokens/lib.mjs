@@ -25,6 +25,7 @@ export const OUTPUT_PATHS = {
   dartLayout: 'packages/flutter_shared/lib/src/tokens/app_layout.dart',
   dartComponents:
     'packages/flutter_shared/lib/src/tokens/app_component_tokens.dart',
+  dartPalette: 'packages/flutter_shared/lib/src/tokens/app_palette.dart',
   dartBrand: 'packages/flutter_shared/lib/src/brand/app_brand.dart',
 };
 
@@ -110,7 +111,40 @@ function positiveNumber(value) {
 }
 
 function entries(group) {
-  return Object.entries(group).filter(([key]) => !key.startsWith('$'));
+  return Object.entries(group ?? {}).filter(([key]) => !key.startsWith('$'));
+}
+
+/** The name of the base look (web portal and Shop App). */
+export const STANDARD_THEME = 'standard';
+
+/** `standard` followed by every theme in tokens.json `themes`. */
+export function themeNames(tokens) {
+  return [STANDARD_THEME, ...entries(tokens.themes).map(([name]) => name)];
+}
+
+/**
+ * The tokens as one theme sees them: the base tokens with that theme's colour
+ * values, font family and component references applied (D-057).
+ */
+export function resolveTheme(tokens, name) {
+  if (name === STANDARD_THEME) return tokens;
+  const theme = tokens.themes?.[name];
+  if (theme === undefined) throw new Error(`unknown theme "${name}"`);
+  const resolved = structuredClone(tokens);
+  for (const [token, value] of entries(theme.color)) {
+    if (resolved.color[token] !== undefined) {
+      resolved.color[token] = { ...resolved.color[token], value };
+    }
+  }
+  resolved.font = { ...resolved.font, ...theme.font };
+  for (const [component, properties] of entries(theme.component)) {
+    if (resolved.component[component] === undefined) continue;
+    resolved.component[component] = {
+      ...resolved.component[component],
+      ...properties,
+    };
+  }
+  return resolved;
 }
 
 /**
@@ -127,21 +161,7 @@ export function validate(tokens, brand, files = {}) {
     }
   }
 
-  for (const [fg, bg] of tokens.contrastPairs.pairs) {
-    const a = tokens.color[fg]?.value;
-    const b = tokens.color[bg]?.value;
-    if (!a || !b) {
-      problems.push(`contrast pair ${fg} on ${bg}: unknown colour token`);
-      continue;
-    }
-    if (!HEX.test(a) || !HEX.test(b)) continue;
-    const ratio = contrastRatio(a, b);
-    if (ratio < WCAG_AA_NORMAL_TEXT) {
-      problems.push(
-        `contrast pair ${fg} on ${bg}: ${ratio.toFixed(2)}:1 is below WCAG AA (${WCAG_AA_NORMAL_TEXT}:1)`,
-      );
-    }
-  }
+  problems.push(...validateContrast(tokens));
 
   for (const [name, style] of entries(tokens.typography)) {
     if (!IDENTIFIER.test(name)) {
@@ -166,6 +186,7 @@ export function validate(tokens, brand, files = {}) {
   }
 
   problems.push(...validateComponents(tokens));
+  problems.push(...validateThemes(tokens));
 
   for (const [name, value] of entries(tokens.breakpoint)) {
     if (!IDENTIFIER.test(name) || !positiveNumber(value)) {
@@ -192,14 +213,20 @@ export function validate(tokens, brand, files = {}) {
     problems.push('font.webVariable must be a CSS custom property name');
   }
   if (files.flutterPubspec !== undefined) {
-    const declared = new RegExp(
-      `^\\s*- family: ${escapeRegExp(family)}\\s*$`,
-      'm',
+    const families = new Set(
+      themeNames(tokens).map((name) => resolveTheme(tokens, name).font.family),
     );
-    if (!declared.test(files.flutterPubspec)) {
-      problems.push(
-        `font "${family}" is not declared in ${FONT_CONSUMERS.flutterPubspec} (add its font files there)`,
+    for (const themeFamily of families) {
+      if (typeof themeFamily !== 'string') continue;
+      const declared = new RegExp(
+        `^\\s*- family: ${escapeRegExp(themeFamily)}\\s*$`,
+        'm',
       );
+      if (!declared.test(files.flutterPubspec)) {
+        problems.push(
+          `font "${themeFamily}" is not declared in ${FONT_CONSUMERS.flutterPubspec} (add its font files there)`,
+        );
+      }
     }
   }
   if (
@@ -217,6 +244,86 @@ export function validate(tokens, brand, files = {}) {
     }
   }
 
+  return problems;
+}
+
+/** Every readable text pair must meet WCAG AA. */
+function validateContrast(tokens) {
+  const problems = [];
+  for (const [fg, bg] of tokens.contrastPairs.pairs) {
+    const a = tokens.color[fg]?.value;
+    const b = tokens.color[bg]?.value;
+    if (!a || !b) {
+      problems.push(`contrast pair ${fg} on ${bg}: unknown colour token`);
+      continue;
+    }
+    if (!HEX.test(a) || !HEX.test(b)) continue;
+    const ratio = contrastRatio(a, b);
+    if (ratio < WCAG_AA_NORMAL_TEXT) {
+      problems.push(
+        `contrast pair ${fg} on ${bg}: ${ratio.toFixed(2)}:1 is below WCAG AA (${WCAG_AA_NORMAL_TEXT}:1)`,
+      );
+    }
+  }
+  return problems;
+}
+
+/**
+ * A theme may only override existing tokens and component properties, and
+ * the resolved theme must pass the same contrast and component checks.
+ */
+function validateThemes(tokens) {
+  const problems = [];
+  for (const [name, theme] of entries(tokens.themes)) {
+    const at = `theme "${name}"`;
+    const before = problems.length;
+    if (!IDENTIFIER.test(name) || name === STANDARD_THEME) {
+      problems.push(`${at}: invalid name`);
+      continue;
+    }
+    if (typeof theme.use !== 'string' || theme.use.trim() === '') {
+      problems.push(`${at}: "use" is required`);
+    }
+    for (const [token, value] of entries(theme.color)) {
+      if (tokens.color[token] === undefined) {
+        problems.push(`${at} color "${token}": not a base colour token`);
+      } else if (!HEX.test(value ?? '')) {
+        problems.push(`${at} color "${token}": value must be #RRGGBB`);
+      }
+    }
+    if (theme.font !== undefined) {
+      const keys = Object.keys(theme.font);
+      if (
+        keys.some((key) => key !== 'family') ||
+        typeof theme.font.family !== 'string' ||
+        theme.font.family.trim() === ''
+      ) {
+        problems.push(`${at}: font may only set a non-empty "family"`);
+      }
+    }
+    for (const [component, properties] of entries(theme.component)) {
+      const base = tokens.component?.[component];
+      if (base === undefined) {
+        problems.push(`${at} component "${component}": not a base component`);
+        continue;
+      }
+      for (const property of Object.keys(properties)) {
+        if (property === 'use' || !Object.hasOwn(base, property)) {
+          problems.push(
+            `${at} component "${component}.${property}": not a property of the base component`,
+          );
+        }
+      }
+    }
+    if (problems.length > before) continue;
+    const resolved = resolveTheme(tokens, name);
+    for (const problem of [
+      ...validateContrast(resolved),
+      ...validateComponents(resolved),
+    ]) {
+      problems.push(`${at}: ${problem}`);
+    }
+  }
   return problems;
 }
 
@@ -382,8 +489,39 @@ function dartConst(type, name, expression) {
   return [`  static const ${type} ${name} =`, `      ${expression};`];
 }
 
+/** A `static` getter, split after `=>` like `dart format` when too long. */
+function dartGetter(type, name, expression) {
+  const line = `  static ${type} get ${name} => ${expression};`;
+  if (line.length <= DART_LINE) return [line];
+  return [`  static ${type} get ${name} =>`, `      ${expression};`];
+}
+
 function dartNumber(value) {
   return String(value);
+}
+
+function dartColor(hex) {
+  return `Color(0xFF${hex.slice(1).toUpperCase()})`;
+}
+
+/** `bottomNav` + `activeBackground` → `bottomNavActiveBackground`. */
+function componentField(name, property) {
+  return name + property[0].toUpperCase() + property.slice(1);
+}
+
+/** Every component property as `[component, property]`. */
+function componentFields(tokens) {
+  return entries(tokens.component).flatMap(([name, component]) =>
+    componentProperties(component).map(([property]) => [name, property]),
+  );
+}
+
+/** The resolved Dart literal of one component property in `tokens`. */
+function componentValue(tokens, name, property) {
+  const reference = tokens.component[name][property];
+  const group = componentPropertyGroup(property);
+  if (group === 'color') return dartColor(tokens.color[reference].value);
+  return dartNumber(tokens[group][reference].value);
 }
 
 function dartDoc(text) {
@@ -398,22 +536,110 @@ function dartHeader(extra = []) {
   ];
 }
 
+export function renderDartPalette(tokens) {
+  const themes = themeNames(tokens).map((name) => [
+    name,
+    resolveTheme(tokens, name),
+  ]);
+  const colors = entries(tokens.color);
+  const components = componentFields(tokens);
+  const lines = [
+    ...dartHeader(),
+    '',
+    "import 'package:flutter/painting.dart';",
+    '',
+    '/// The colours, component values and font of one app identity (D-042,',
+    '/// D-057). `AppColors`, `AppComponentTokens` and `AppTypography.fontFamily`',
+    '/// read [current]. Each app picks its palette once with [use] in `main()`,',
+    '/// before `runApp`; the identity never changes while the app runs.',
+    'final class AppPalette {',
+    '  const AppPalette._({',
+    '    required this.name,',
+    '    required this.fontFamily,',
+    ...colors.map(([name]) => `    required this.${camelName(name)},`),
+    ...components.map(
+      ([name, property]) =>
+        `    required this.${componentField(name, property)},`,
+    ),
+    '  });',
+    '',
+    '  /// The theme name in tokens.json.',
+    '  final String name;',
+    '',
+    '  /// The font family, bundled in the `flutter_shared` package.',
+    '  final String fontFamily;',
+  ];
+  for (const [name, token] of colors) {
+    lines.push('', dartDoc(token.use), `  final Color ${camelName(name)};`);
+  }
+  for (const [name, property] of components) {
+    const type =
+      componentPropertyGroup(property) === 'color' ? 'Color' : 'double';
+    lines.push(
+      '',
+      dartDoc(`Component token ${name}.${property}`),
+      `  final ${type} ${componentField(name, property)};`,
+    );
+  }
+  for (const [name, resolved] of themes) {
+    const use =
+      name === STANDARD_THEME
+        ? 'The standard look: Admin Web and Shop App'
+        : tokens.themes[name].use;
+    lines.push(
+      '',
+      dartDoc(use),
+      `  static const AppPalette ${name} = AppPalette._(`,
+      `    name: ${dartString(name)},`,
+      `    fontFamily: ${dartString(resolved.font.family)},`,
+    );
+    for (const [color, token] of entries(resolved.color)) {
+      lines.push(`    ${camelName(color)}: ${dartColor(token.value)},`);
+    }
+    for (const [component, property] of components) {
+      lines.push(
+        `    ${componentField(component, property)}: ${componentValue(resolved, component, property)},`,
+      );
+    }
+    lines.push('  );');
+  }
+  lines.push(
+    '',
+    '  /// Every palette in tokens.json.',
+    `  static const List<AppPalette> values = [${themes.map(([name]) => name).join(', ')}];`,
+    '',
+    `  static AppPalette _current = ${STANDARD_THEME};`,
+    '',
+    `  /// The app's palette ([${STANDARD_THEME}] until [use] is called).`,
+    '  static AppPalette get current => _current;',
+    '',
+    "  /// Picks the app's palette. Call once in `main()` before `runApp`.",
+    '  static void use(AppPalette palette) {',
+    '    _current = palette;',
+    '  }',
+    '}',
+    '',
+  );
+  return lines.join('\n');
+}
+
 export function renderDartColors(tokens) {
   const lines = [
     ...dartHeader(),
     '',
     "import 'package:flutter/painting.dart';",
     '',
-    '/// Colour tokens. Paint shade colours are catalogue data and never belong',
-    '/// here.',
+    "import 'app_palette.dart';",
+    '',
+    "/// Colour tokens of the app's palette (`AppPalette.current`). Paint shade",
+    '/// colours are catalogue data and never belong here.',
     'abstract final class AppColors {',
   ];
-  const all = entries(tokens.color);
-  all.forEach(([name, token], index) => {
+  entries(tokens.color).forEach(([name, token], index) => {
     if (index > 0) lines.push('');
     lines.push(dartDoc(token.use));
-    const argb = `0xFF${token.value.slice(1).toUpperCase()}`;
-    lines.push(...dartConst('Color', camelName(name), `Color(${argb})`));
+    const field = camelName(name);
+    lines.push(...dartGetter('Color', field, `AppPalette.current.${field}`));
   });
   lines.push('}', '');
   return lines.join('\n');
@@ -425,11 +651,14 @@ export function renderDartTypography(tokens) {
     '',
     "import 'package:flutter/painting.dart';",
     '',
+    "import 'app_palette.dart';",
+    '',
     '/// Typography tokens. The font family is applied by `AppTheme`, so the',
     '/// styles deliberately leave `fontFamily` unset.',
     'abstract final class AppTypography {',
-    '  /// Bundled in the `flutter_shared` package (see its `pubspec.yaml`).',
-    ...dartConst('String', 'fontFamily', dartString(tokens.font.family)),
+    "  /// The app palette's family, bundled in the `flutter_shared` package (see",
+    '  /// its `pubspec.yaml`).',
+    ...dartGetter('String', 'fontFamily', 'AppPalette.current.fontFamily'),
     ...dartConst(
       'String',
       'fontPackage',
@@ -517,36 +746,27 @@ export function renderDartLayout(tokens) {
   return lines.join('\n');
 }
 
-const DART_COMPONENT_SOURCE = {
-  radius: (name) => `AppRadius.${name}`,
-  layout: (name) => `AppSpacing.${name}`,
-  color: (name) => `AppColors.${camelName(name)}`,
-};
-
 export function renderDartComponents(tokens) {
   const lines = [
     ...dartHeader(),
     '',
     "import 'package:flutter/painting.dart';",
     '',
-    "import 'app_colors.dart';",
-    "import 'app_radius.dart';",
-    "import 'app_spacing.dart';",
+    "import 'app_palette.dart';",
     '',
-    '/// What each shared component uses (D-039). The components read these, so',
-    '/// one change in tokens.json restyles every screen.',
+    "/// What each shared component uses (D-039), from the app's palette",
+    '/// (`AppPalette.current`). The components read these, so one change in',
+    '/// tokens.json restyles every screen.',
     'abstract final class AppComponentTokens {',
   ];
   entries(tokens.component).forEach(([name, component], index) => {
     if (index > 0) lines.push('');
     lines.push(dartDoc(component.use));
-    for (const [property, reference] of componentProperties(component)) {
+    for (const [property] of componentProperties(component)) {
       const group = componentPropertyGroup(property);
       const type = group === 'color' ? 'Color' : 'double';
-      const field = name + property[0].toUpperCase() + property.slice(1);
-      lines.push(
-        ...dartConst(type, field, DART_COMPONENT_SOURCE[group](reference)),
-      );
+      const field = componentField(name, property);
+      lines.push(...dartGetter(type, field, `AppPalette.current.${field}`));
     }
   });
   lines.push('}', '');
@@ -587,6 +807,7 @@ export function renderAll(tokens, brand) {
       path: OUTPUT_PATHS.dartComponents,
       content: renderDartComponents(tokens),
     },
+    { path: OUTPUT_PATHS.dartPalette, content: renderDartPalette(tokens) },
     { path: OUTPUT_PATHS.dartBrand, content: renderDartBrand(brand) },
   ];
 }

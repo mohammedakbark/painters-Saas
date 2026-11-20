@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../tokens/app_colors.dart';
+import '../tokens/app_palette.dart';
 import 'app_brand.dart';
 
 /// The product mark shown at the top of entry screens (DS-001, DS-003): the
@@ -45,7 +46,9 @@ class BrandMark extends StatelessWidget {
                   const TextSpan(text: 'Seven'),
                   TextSpan(
                     text: 'Palette',
-                    style: wordStyle?.copyWith(color: AppColors.brandPrimary),
+                    style: wordStyle?.copyWith(
+                      color: AppPalette.standard.brandPrimary,
+                    ),
                   ),
                 ],
               ),
@@ -90,14 +93,15 @@ class LogoMark extends StatelessWidget {
 class _FanPainter extends CustomPainter {
   const _FanPainter();
 
-  static const List<Color> _strips = [
-    AppColors.brandPrimaryStrong,
-    AppColors.brandPrimary,
-    AppColors.logoTealMid,
-    AppColors.logoTealLight,
-    AppColors.brandAccent,
-    AppColors.logoOrange,
-    AppColors.brandHighlight,
+  // The SevenPalette logo keeps its own colours in every app palette (D-057).
+  static final List<Color> _strips = [
+    AppPalette.standard.brandPrimaryStrong,
+    AppPalette.standard.brandPrimary,
+    AppPalette.standard.logoTealMid,
+    AppPalette.standard.logoTealLight,
+    AppPalette.standard.brandAccent,
+    AppPalette.standard.logoOrange,
+    AppPalette.standard.brandHighlight,
   ];
 
   @override
@@ -123,7 +127,7 @@ class _FanPainter extends CustomPainter {
     canvas.drawCircle(
       Offset.zero,
       7,
-      Paint()..color = AppColors.brandPrimaryStrong,
+      Paint()..color = AppPalette.standard.brandPrimaryStrong,
     );
   }
 

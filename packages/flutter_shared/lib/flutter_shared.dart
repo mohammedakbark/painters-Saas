@@ -26,6 +26,7 @@ export 'src/theme/app_theme.dart';
 export 'src/tokens/app_colors.dart';
 export 'src/tokens/app_component_tokens.dart';
 export 'src/tokens/app_layout.dart';
+export 'src/tokens/app_palette.dart';
 export 'src/tokens/app_radius.dart';
 export 'src/tokens/app_spacing.dart';
 export 'src/tokens/app_typography.dart';

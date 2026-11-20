@@ -37,25 +37,25 @@ class _ButtonColors {
 }
 
 _ButtonColors _colors(AppButtonVariant variant) => switch (variant) {
-  AppButtonVariant.primary => const _ButtonColors(
+  AppButtonVariant.primary => _ButtonColors(
     AppComponentTokens.buttonPrimaryBackground,
     AppComponentTokens.buttonPrimaryBackgroundHover,
     AppComponentTokens.buttonPrimaryForeground,
     null,
   ),
-  AppButtonVariant.secondary => const _ButtonColors(
+  AppButtonVariant.secondary => _ButtonColors(
     AppComponentTokens.buttonSecondaryBackground,
     AppComponentTokens.buttonSecondaryBackgroundHover,
     AppComponentTokens.buttonSecondaryForeground,
     AppComponentTokens.buttonSecondaryBorder,
   ),
-  AppButtonVariant.tertiary => const _ButtonColors(
+  AppButtonVariant.tertiary => _ButtonColors(
     null,
     AppComponentTokens.buttonTertiaryBackgroundHover,
     AppComponentTokens.buttonTertiaryForeground,
     null,
   ),
-  AppButtonVariant.destructive => const _ButtonColors(
+  AppButtonVariant.destructive => _ButtonColors(
     AppComponentTokens.buttonDestructiveBackground,
     AppComponentTokens.buttonDestructiveBackgroundHover,
     AppComponentTokens.buttonDestructiveForeground,
@@ -96,7 +96,7 @@ class AppButton extends StatelessWidget {
     final colors = _colors(variant);
     final enabled = onPressed != null && !loading;
     final style = ButtonStyle(
-      minimumSize: const WidgetStatePropertyAll(
+      minimumSize: WidgetStatePropertyAll(
         Size(
           AppComponentTokens.controlMinHeight,
           AppComponentTokens.controlMinHeight,

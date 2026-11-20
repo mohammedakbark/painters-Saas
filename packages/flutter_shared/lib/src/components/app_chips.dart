@@ -103,7 +103,7 @@ class _Chip<T> extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(
+            constraints: BoxConstraints(
               minHeight: AppComponentTokens.controlMinHeight,
             ),
             child: Padding(

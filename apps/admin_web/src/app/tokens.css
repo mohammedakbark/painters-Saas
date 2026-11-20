@@ -47,8 +47,6 @@
   --color-card-background: var(--color-surface-raised);
   --color-card-border: var(--color-border-default);
   --color-panel-border: var(--color-border-default);
-  --color-swatch-border: var(--color-border-default);
-  --color-swatch-background: var(--color-surface-subtle);
   --color-inline-message-background: var(--color-surface-default);
   --color-inline-message-border: var(--color-border-default);
   --color-sheet-background: var(--color-surface-raised);
@@ -56,6 +54,8 @@
   --color-snackbar-background: var(--color-text-primary);
   --color-snackbar-foreground: var(--color-surface-default);
   --color-snackbar-action: var(--color-brand-primary-soft);
+  --color-swatch-border: var(--color-border-default);
+  --color-swatch-background: var(--color-surface-subtle);
   --color-badge-background: var(--color-surface-default);
   --color-top-bar-background: var(--color-surface-raised);
   --color-top-bar-foreground: var(--color-text-primary);
@@ -112,12 +112,12 @@
   --radius-card: var(--radius-large);
   --radius-panel: var(--radius-medium);
   --radius-image: var(--radius-medium);
-  --radius-swatch: var(--radius-small);
   --radius-nav-item: var(--radius-small);
   --radius-inline-message: var(--radius-medium);
   --radius-sheet: var(--radius-xlarge);
   --radius-dialog: var(--radius-large);
   --radius-snackbar: var(--radius-medium);
+  --radius-swatch: var(--radius-small);
   --radius-badge: var(--radius-pill);
   --radius-bottom-nav: var(--radius-pill);
   --radius-drawer: var(--radius-large);
