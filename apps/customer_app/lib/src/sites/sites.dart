@@ -83,8 +83,7 @@ class ApiSitesRepository implements SitesRepository {
 
   final ApiClient _api;
 
-  static String _site(String siteId) =>
-      '$_path/${Uri.encodeComponent(siteId)}';
+  static String _site(String siteId) => '$_path/${Uri.encodeComponent(siteId)}';
 
   @override
   Future<List<CustomerSite>> list({bool archived = false}) async {
@@ -104,7 +103,9 @@ class ApiSitesRepository implements SitesRepository {
 
   @override
   Future<CustomerSite> update(String siteId, SiteDraft draft) async =>
-      CustomerSite.fromJson(await _api.patchJson(_site(siteId), draft.toJson()));
+      CustomerSite.fromJson(
+        await _api.patchJson(_site(siteId), draft.toJson()),
+      );
 
   @override
   Future<CustomerSite> archive(String siteId) async => CustomerSite.fromJson(

@@ -10,6 +10,8 @@ import '../features/shops/find_shops_screen.dart';
 import '../features/shops/my_shops_screen.dart';
 import '../features/shops/shop_screen.dart';
 import '../features/sign_in/sign_in_screen.dart';
+import '../features/sites/site_form_screen.dart';
+import '../features/sites/sites_screen.dart';
 import '../features/storefront/product_screen.dart';
 import '../features/storefront/shop_products_screen.dart';
 import '../features/welcome/welcome_screen.dart';
@@ -53,6 +55,19 @@ final routerProvider = Provider<GoRouter>((ref) {
       _tabs,
       // Above the tabs, with a back arrow.
       GoRoute(path: cartPath, builder: (context, state) => const CartScreen()),
+      GoRoute(
+        path: newSitePath,
+        builder: (context, state) => const SiteFormScreen(),
+      ),
+      GoRoute(
+        path: archivedSitesPath,
+        builder: (context, state) => const ArchivedSitesScreen(),
+      ),
+      GoRoute(
+        path: '/site/:siteId',
+        builder: (context, state) =>
+            SiteFormScreen(siteId: state.pathParameters['siteId']),
+      ),
       GoRoute(
         path: findShopsPath,
         builder: (context, state) => const FindShopsScreen(),

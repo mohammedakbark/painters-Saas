@@ -309,6 +309,7 @@ class AppMenuButton extends StatelessWidget {
           PopupMenuItem<int>(
             value: index,
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 if (item.icon != null) ...[
                   Icon(
@@ -319,10 +320,13 @@ class AppMenuButton extends StatelessWidget {
                   ),
                   const SizedBox(width: AppSpacing.s12),
                 ],
-                Text(
-                  item.label,
-                  style: AppTypography.bodyLarge.copyWith(
-                    color: item.destructive ? AppColors.statusError : null,
+                // Long labels wrap instead of overflowing the menu.
+                Flexible(
+                  child: Text(
+                    item.label,
+                    style: AppTypography.bodyLarge.copyWith(
+                      color: item.destructive ? AppColors.statusError : null,
+                    ),
                   ),
                 ),
               ],

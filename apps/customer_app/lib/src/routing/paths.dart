@@ -9,6 +9,11 @@ const homePath = '/home';
 const ordersPath = '/orders';
 const myShopsPath = '/shops';
 const sitesPath = '/sites';
+
+// A painter's sites (CUS-005), above the tabs.
+const newSitePath = '/site/new';
+const archivedSitesPath = '/site/archived';
+String editSitePath(String siteId) => '/site/${Uri.encodeComponent(siteId)}';
 const morePath = '/more';
 
 /// Above the tabs: Find shops and a shop's page (CUS-002).

@@ -16,6 +16,7 @@ import 'src/providers.dart';
 import 'src/shops/active_shop_store.dart';
 import 'src/shops/shop_providers.dart';
 import 'src/shops/shops_repository.dart';
+import 'src/sites/sites.dart';
 import 'src/storefront/storefront_models.dart';
 import 'src/storefront/storefront_providers.dart';
 
@@ -64,6 +65,7 @@ Future<void> main() async {
           const SecureActiveShopStore(),
         ),
         cartStoreProvider.overrideWithValue(const SecureCartStore()),
+        sitesRepositoryProvider.overrideWithValue(ApiSitesRepository(api)),
       ],
       child: const CustomerApp(),
     ),

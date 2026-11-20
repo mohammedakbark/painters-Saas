@@ -12,6 +12,7 @@ import 'package:customer_app/src/shops/active_shop_store.dart';
 import 'package:customer_app/src/shops/shop_models.dart';
 import 'package:customer_app/src/shops/shop_providers.dart';
 import 'package:customer_app/src/shops/shops_repository.dart';
+import 'package:customer_app/src/sites/sites.dart';
 import 'package:customer_app/src/storefront/storefront_models.dart';
 import 'package:customer_app/src/storefront/storefront_providers.dart';
 import 'package:flutter/widgets.dart';
@@ -451,6 +452,81 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
 }
 
 /// Pumps the whole app with fakes on a phone-sized screen and settles.
+/// Sites kept in memory (CUS-005); [rejectNextSave] makes the next save
+/// fail with these field messages, as the API would.
+class FakeSitesRepository implements SitesRepository {
+  FakeSitesRepository([List<CustomerSite>? sites]) : sites = sites ?? [];
+
+  final List<CustomerSite> sites;
+  Map<String, String>? rejectNextSave;
+  int _next = 1;
+
+  CustomerSite _store(CustomerSite site) {
+    sites
+      ..removeWhere((item) => item.id == site.id)
+      ..add(site);
+    return site;
+  }
+
+  CustomerSite _from(String id, SiteDraft draft, {bool archived = false}) =>
+      CustomerSite(
+        id: id,
+        name: draft.name,
+        ownerName: draft.ownerName.isEmpty ? null : draft.ownerName,
+        address: draft.address,
+        latitude: draft.latitude,
+        longitude: draft.longitude,
+        archived: archived,
+      );
+
+  void _maybeReject() {
+    final fields = rejectNextSave;
+    if (fields == null) return;
+    rejectNextSave = null;
+    throw ApiException(status: 422, fieldErrors: fields);
+  }
+
+  CustomerSite _withArchived(String siteId, bool archived) {
+    final site = sites.firstWhere((item) => item.id == siteId);
+    return _store(
+      CustomerSite(
+        id: site.id,
+        name: site.name,
+        ownerName: site.ownerName,
+        address: site.address,
+        latitude: site.latitude,
+        longitude: site.longitude,
+        archived: archived,
+      ),
+    );
+  }
+
+  @override
+  Future<List<CustomerSite>> list({bool archived = false}) async =>
+      sites.where((site) => site.archived == archived).toList()
+        ..sort((a, b) => a.name.compareTo(b.name));
+
+  @override
+  Future<CustomerSite> create(SiteDraft draft) async {
+    _maybeReject();
+    return _store(_from('site-${_next++}', draft));
+  }
+
+  @override
+  Future<CustomerSite> update(String siteId, SiteDraft draft) async {
+    _maybeReject();
+    return _store(_from(siteId, draft));
+  }
+
+  @override
+  Future<CustomerSite> archive(String siteId) async =>
+      _withArchived(siteId, true);
+
+  @override
+  Future<CustomerSite> restore(String siteId) async =>
+      _withArchived(siteId, false);
+}
+
 Future<void> pumpApp(
   WidgetTester tester, {
   required FakeAuthRepository auth,
@@ -460,6 +536,7 @@ Future<void> pumpApp(
   FakeActiveShopStore? activeShop,
   FakeStorefrontRepository? storefront,
   FakeCartStore? cart,
+  FakeSitesRepository? sites,
 }) async {
   tester.view
     ..physicalSize = const Size(1080, 2340)
@@ -486,6 +563,9 @@ Future<void> pumpApp(
         ),
         cartStoreProvider.overrideWithValue(cart ?? FakeCartStore()),
         mapsEnabledProvider.overrideWithValue(false),
+        sitesRepositoryProvider.overrideWithValue(
+          sites ?? FakeSitesRepository(),
+        ),
       ],
       child: const CustomerApp(),
     ),

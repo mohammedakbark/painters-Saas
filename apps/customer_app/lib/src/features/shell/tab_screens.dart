@@ -120,19 +120,4 @@ class OrdersScreen extends StatelessWidget {
   );
 }
 
-/// Sites, painters only (CUS-001): empty until the sites feature.
-class SitesScreen extends StatelessWidget {
-  const SitesScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) => const AppScaffold(
-    title: 'Sites',
-    body: MessageView(
-      icon: Icons.location_on_outlined,
-      title: 'No sites yet',
-      message: 'The sites you work on will appear here.',
-    ),
-  );
-}
-
 String _firstName(String name) => name.trim().split(RegExp(r'\s+')).first;
