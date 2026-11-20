@@ -15,12 +15,21 @@ import { StatTile } from '@/components/ui/stat-tile';
 import { getShopOnboarding } from '@/lib/api/shop-profile';
 import { getShopReview } from '@/lib/api/shop-review';
 import { getShopSettings } from '@/lib/api/shop-settings';
-import { getOrderSummary } from '@/lib/api/orders';
+import { getOrderSummary, listOrders } from '@/lib/api/orders';
 import { getCatalogueSummary } from '@/lib/api/shop-summary';
 import { requireShopAccess, requireShopSession } from '@/lib/auth/shop-access';
 import { countLabel } from '@/lib/format';
 import { formatRupees } from '@/lib/money';
-import { ordersBase } from '@/lib/orders/labels';
+import {
+  FULFILMENT_LABEL,
+  ORDER_STATUS,
+  formatOrderTime,
+  orderNumber,
+  ordersBase,
+} from '@/lib/orders/labels';
+import { DataTable } from '@/components/ui/data-table';
+import { Section } from '@/components/ui/section';
+import { StateMessage } from '@/components/ui/state-message';
 import { shopStatusLabel } from '@/lib/shops/labels';
 import { submitForReviewAction, withdrawReviewAction } from './review-actions';
 import { can } from '@/lib/api/shops';
@@ -69,14 +78,19 @@ export default function ShopOverviewPage(props: Props) {
         eyebrow="Overview"
         title="Your shop at a glance"
         description="Status, orders, products and anything that needs your attention."
+        actions={
+          <Suspense fallback={null}>
+            <HeaderActions {...props} />
+          </Suspense>
+        }
       />
       <SectionBoundary what="the shop status">
-        <Suspense fallback={<CardSkeleton label="Loading the status…" />}>
+        <Suspense fallback={null}>
           <Status {...props} />
         </Suspense>
       </SectionBoundary>
       <section aria-labelledby="orders-heading" className="flex flex-col gap-3">
-        <h2 id="orders-heading" className="text-heading3 font-semibold">
+        <h2 id="orders-heading" className="sr-only">
           Orders
         </h2>
         <SectionBoundary what="order figures">
@@ -85,11 +99,30 @@ export default function ShopOverviewPage(props: Props) {
           </Suspense>
         </SectionBoundary>
       </section>
+      <div className="grid items-start gap-6 wide:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+        <SectionBoundary what="the latest orders">
+          <Suspense fallback={<CardSkeleton label="Loading orders…" />}>
+            <LatestOrders {...props} />
+          </Suspense>
+        </SectionBoundary>
+        <div className="flex flex-col gap-6">
+          <SectionBoundary what="your to-dos">
+            <Suspense fallback={<CardSkeleton label="Loading to-dos…" />}>
+              <ToDos {...props} />
+            </Suspense>
+          </SectionBoundary>
+          <SectionBoundary what="delivery details">
+            <Suspense fallback={<CardSkeleton label="Loading delivery…" />}>
+              <PickupAndDelivery {...props} />
+            </Suspense>
+          </SectionBoundary>
+        </div>
+      </div>
       <section
         aria-labelledby="products-heading"
         className="flex flex-col gap-3"
       >
-        <h2 id="products-heading" className="text-heading3 font-semibold">
+        <h2 id="products-heading" className="text-title font-semibold">
           Products
         </h2>
         <SectionBoundary what="product figures">
@@ -98,18 +131,6 @@ export default function ShopOverviewPage(props: Props) {
           </Suspense>
         </SectionBoundary>
       </section>
-      <div className="grid items-start gap-6 desktop:grid-cols-[minmax(0,1fr)_20rem]">
-        <SectionBoundary what="your to-dos">
-          <Suspense fallback={<CardSkeleton label="Loading to-dos…" />}>
-            <ToDos {...props} />
-          </Suspense>
-        </SectionBoundary>
-        <SectionBoundary what="delivery details">
-          <Suspense fallback={<CardSkeleton label="Loading delivery…" />}>
-            <PickupAndDelivery {...props} />
-          </Suspense>
-        </SectionBoundary>
-      </div>
     </div>
   );
 }
@@ -130,6 +151,8 @@ async function Status({ params, searchParams }: Props) {
   const status = shopStatusLabel(review.status);
   const justRegistered = (await searchParams).registered === '1';
   const live = review.status === 'ACTIVE';
+  // A live shop shows its status in the sidebar; the card is for the way there.
+  if (live && !justRegistered) return null;
 
   return (
     <>
@@ -174,6 +197,7 @@ async function OrderTiles({ params }: Props) {
     <div className="flex flex-col gap-3">
       <div className="grid grid-cols-2 gap-4 wide:grid-cols-4">
         <StatTile
+          lead
           label="New orders"
           value={orders.new}
           status={
@@ -260,6 +284,120 @@ async function ProductTiles({ params }: Props) {
         href={`${list}?show=none`}
       />
     </div>
+  );
+}
+
+/** The page's main actions, by permission (D-056). */
+async function HeaderActions({ params }: Props) {
+  const { shopId } = await params;
+  const { shop } = await loadShop(shopId);
+  return (
+    <>
+      {can(shop, 'orders.record') ? (
+        <ButtonLink href={`${ordersBase(shopId)}/new`} variant="secondary">
+          Record an order
+        </ButtonLink>
+      ) : null}
+      {can(shop, 'catalogue.manage') ? (
+        <ButtonLink href={`${base(shopId)}/catalogue/add`}>
+          <Icon name="plus" className="size-5" />
+          Add product
+        </ButtonLink>
+      ) : null}
+    </>
+  );
+}
+
+/** The five most recent orders, each opening its order page. */
+async function LatestOrders({ params }: Props) {
+  const { shopId } = await params;
+  const { shop, token } = await loadShop(shopId);
+  if (!can(shop, 'orders.handle')) return null;
+  // The API pages by 10, 25 or 50; the Overview shows the first five.
+  const items = (
+    await listOrders(token, shopId, { status: 'all', page: 1, pageSize: 10 })
+  ).items.slice(0, 5);
+  const list = ordersBase(shopId);
+
+  return (
+    <Section
+      title="Latest orders"
+      actions={
+        <Link
+          href={`${list}?status=all`}
+          className="rounded-nav-item text-body font-semibold text-brand-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-brand-primary"
+        >
+          All orders
+        </Link>
+      }
+    >
+      <DataTable
+        caption="Latest orders"
+        columns={[
+          {
+            key: 'order',
+            header: 'Order',
+            width: 'w-36',
+            cell: (row) => (
+              <div className="flex flex-col items-end gap-0.5 desktop:items-start">
+                <Link
+                  href={`${list}/${row.id}`}
+                  className="w-fit rounded-nav-item font-semibold text-brand-primary tabular-nums underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-brand-primary"
+                >
+                  {orderNumber(row.number)}
+                </Link>
+                <span className="text-caption whitespace-nowrap text-text-secondary">
+                  {formatOrderTime(row.placedAt)}
+                </span>
+              </div>
+            ),
+          },
+          {
+            key: 'customer',
+            header: 'Customer',
+            cell: (row) => (
+              <div className="flex min-w-0 flex-col items-end gap-0.5 desktop:items-start">
+                <span className="font-semibold">{row.customer.name}</span>
+                <span className="text-caption text-text-secondary">
+                  {row.siteLabel ?? FULFILMENT_LABEL[row.fulfilment]}
+                </span>
+              </div>
+            ),
+          },
+          {
+            key: 'step',
+            header: 'Step',
+            width: 'w-44',
+            cell: (row) => (
+              <Badge tone={ORDER_STATUS[row.status].tone}>
+                {ORDER_STATUS[row.status].label}
+              </Badge>
+            ),
+          },
+          {
+            key: 'total',
+            header: 'Total',
+            align: 'end',
+            width: 'w-28',
+            cell: (row) => (
+              <span className="font-semibold tabular-nums">
+                {formatRupees(row.totalPaise)}
+              </span>
+            ),
+          },
+        ]}
+        rows={items}
+        rowKey={(row) => row.id}
+        empty={
+          <StateMessage
+            variant="plain"
+            icon="receipt"
+            title="No orders yet"
+            description="Orders from the app and the ones you record show here."
+          />
+        }
+      />
+    </Section>
   );
 }
 

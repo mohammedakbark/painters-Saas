@@ -96,26 +96,28 @@ export function AppShell({
           : 'desktop:grid-cols-[var(--container-sidebar)_minmax(0,1fr)]',
       )}
     >
-      <aside className="hidden border-r border-border-default bg-surface-default desktop:sticky desktop:top-0 desktop:flex desktop:h-dvh desktop:flex-col">
+      <aside className="hidden bg-sidebar-background text-sidebar-foreground desktop:sticky desktop:top-0 desktop:flex desktop:h-dvh desktop:flex-col">
         <div
           className={cn(
             'flex items-center pt-5 pb-4',
             collapsed ? 'justify-center px-2' : 'px-5',
           )}
         >
-          {collapsed ? <LogoMark className="h-6" /> : <BrandMark />}
+          {collapsed ? (
+            <LogoMark tone="inverse" className="h-6" />
+          ) : (
+            <BrandMark tone="inverse" />
+          )}
         </div>
         <div className={cn('mb-4', collapsed ? 'px-2' : 'px-3')}>
-          <AreaSwitcher area={area} collapsed={collapsed} />
+          <AreaSwitcher area={area} collapsed={collapsed} inverse />
         </div>
-        <NavLinks items={nav} orientation="vertical" collapsed={collapsed} />
-        <div
-          className={cn(
-            'mt-auto flex',
-            collapsed ? 'justify-center px-2' : 'px-3',
-          )}
-        >
+        <div className="min-h-0 flex-1 overflow-y-auto pb-3">
+          <NavLinks items={nav} orientation="vertical" collapsed={collapsed} />
+        </div>
+        <div className={cn('flex', collapsed ? 'justify-center px-2' : 'px-3')}>
           <IconButton
+            tone="inverse"
             icon="panelLeft"
             label={collapsed ? 'Expand the sidebar' : 'Collapse the sidebar'}
             aria-expanded={!collapsed}
@@ -124,7 +126,7 @@ export function AppShell({
         </div>
         <div
           className={cn(
-            'border-t border-border-default',
+            'border-t border-sidebar-foreground/15',
             collapsed ? 'p-2' : 'p-3',
           )}
         >
@@ -134,6 +136,7 @@ export function AppShell({
             signOutAction={signOutAction}
             collapsed={collapsed}
             side="top"
+            inverse
           />
         </div>
       </aside>
@@ -155,7 +158,8 @@ export function AppShell({
           </div>
           <NavLinks items={nav} orientation="horizontal" />
         </header>
-        <main className="mx-auto flex w-full max-w-page flex-1 flex-col gap-6 px-4 py-6 medium:px-6 desktop:px-10 desktop:py-10">
+        {/* PageHeader is the white page bar at the top of main (UI-101). */}
+        <main className="flex w-full flex-1 flex-col gap-6 px-4 pb-10 medium:px-6">
           {children}
         </main>
       </div>
@@ -173,16 +177,17 @@ function Avatar({
   tone,
 }: {
   children: ReactNode;
-  tone: 'brand' | 'soft';
+  /** `accent`: sunflower, for the person on the sidebar. */
+  tone: 'brand' | 'soft' | 'accent';
 }) {
   return (
     <span
       aria-hidden="true"
       className={cn(
         'flex size-9 shrink-0 items-center justify-center rounded-badge text-body font-bold',
-        tone === 'brand'
-          ? 'bg-brand-primary text-surface-default'
-          : 'bg-brand-primary-soft text-brand-primary',
+        tone === 'brand' && 'bg-brand-primary text-surface-default',
+        tone === 'soft' && 'bg-brand-primary-soft text-brand-primary',
+        tone === 'accent' && 'bg-sidebar-count text-sidebar-count-foreground',
       )}
     >
       {children}
@@ -194,27 +199,46 @@ function Avatar({
 function AreaSwitcher({
   area,
   collapsed,
+  inverse = false,
 }: {
   area: ShellArea;
   collapsed: boolean;
+  /** On the deep-teal sidebar: a translucent card with white text. */
+  inverse?: boolean;
 }) {
+  const surface = inverse
+    ? 'border border-sidebar-foreground/15 bg-sidebar-foreground/10'
+    : 'bg-surface-subtle';
   const summary = (
     <span className="flex w-full min-w-0 items-center gap-3 text-left">
-      <Avatar tone="brand">{initial(area.name)}</Avatar>
+      <Avatar tone={inverse ? 'accent' : 'brand'}>{initial(area.name)}</Avatar>
       {collapsed ? null : (
         <>
           <span className="flex min-w-0 flex-1 flex-col">
-            <span className="text-caption font-semibold tracking-wide text-text-secondary uppercase">
+            <span
+              className={cn(
+                'text-caption font-semibold tracking-wide uppercase',
+                inverse ? 'text-sidebar-muted' : 'text-text-secondary',
+              )}
+            >
               {area.caption}
             </span>
-            <span className="truncate text-body font-semibold text-text-primary">
+            <span
+              className={cn(
+                'truncate text-body font-semibold',
+                inverse ? 'text-sidebar-foreground' : 'text-text-primary',
+              )}
+            >
               {area.name}
             </span>
           </span>
           {area.switcher ? (
             <Icon
               name="chevronsUpDown"
-              className="size-4 text-text-secondary"
+              className={cn(
+                'size-4',
+                inverse ? 'text-sidebar-muted' : 'text-text-secondary',
+              )}
             />
           ) : null}
         </>
@@ -227,7 +251,8 @@ function AreaSwitcher({
       <div
         title={collapsed ? area.name : undefined}
         className={cn(
-          'rounded-panel bg-surface-subtle',
+          'rounded-panel',
+          surface,
           collapsed ? 'p-1.5' : 'px-3 py-2.5',
         )}
       >
@@ -241,8 +266,13 @@ function AreaSwitcher({
       label={`${area.caption}: ${area.name}. Switch`}
       align="start"
       className="w-full"
+      inverse={inverse}
       triggerClassName={cn(
-        'w-full rounded-panel bg-surface-subtle hover:bg-brand-primary-soft',
+        'w-full rounded-panel',
+        surface,
+        inverse
+          ? 'hover:bg-sidebar-foreground/15'
+          : 'hover:bg-brand-primary-soft',
         collapsed ? 'justify-center p-1.5' : 'px-3 py-2.5',
       )}
       trigger={summary}
@@ -274,12 +304,15 @@ function AccountMenu({
   signOutAction,
   collapsed,
   side,
+  inverse = false,
 }: {
   account: string;
   links: readonly ShellLink[];
   signOutAction: () => Promise<void>;
   collapsed: boolean;
   side: 'top' | 'bottom';
+  /** On the deep-teal sidebar. */
+  inverse?: boolean;
 }) {
   const [pending, startTransition] = useTransition();
   return (
@@ -288,22 +321,33 @@ function AccountMenu({
       align={side === 'top' ? 'start' : 'end'}
       side={side}
       className={side === 'top' ? 'w-full' : undefined}
+      inverse={inverse}
       triggerClassName={cn(
-        'hover:bg-surface-subtle',
+        inverse ? 'hover:bg-sidebar-foreground/10' : 'hover:bg-surface-subtle',
         side === 'top' ? 'w-full px-2 py-2' : 'px-1',
         collapsed && side === 'top' && 'justify-center px-0',
       )}
       trigger={
         <span className="flex min-w-0 items-center gap-3 text-left">
-          <Avatar tone="soft">
+          <Avatar tone={inverse ? 'accent' : 'soft'}>
             <Icon name="user" className="size-5" />
           </Avatar>
           {collapsed ? null : (
             <span className="flex min-w-0 flex-col">
-              <span className="text-caption text-text-secondary">
+              <span
+                className={cn(
+                  'text-caption',
+                  inverse ? 'text-sidebar-muted' : 'text-text-secondary',
+                )}
+              >
                 Signed in as
               </span>
-              <span className="truncate text-body font-medium text-text-primary">
+              <span
+                className={cn(
+                  'truncate text-body font-medium',
+                  inverse ? 'text-sidebar-foreground' : 'text-text-primary',
+                )}
+              >
                 {account}
               </span>
             </span>

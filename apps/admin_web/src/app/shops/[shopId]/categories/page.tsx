@@ -171,7 +171,8 @@ async function Categories({ params, searchParams }: Props) {
           label="Category type"
           segments={VIEWS.map((value) => ({
             href: listLink(base, { view: value }, { view: 'all' }),
-            label: `${VIEW_LABELS[value]} (${counts[value]})`,
+            label: VIEW_LABELS[value],
+            count: counts[value],
             current: view === value,
           }))}
         />

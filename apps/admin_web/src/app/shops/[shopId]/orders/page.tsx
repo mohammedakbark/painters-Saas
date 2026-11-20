@@ -243,7 +243,8 @@ async function Orders({ params, searchParams }: Props) {
         label="Order status"
         segments={ORDER_TABS.map((tab) => ({
           href: link({ status: tab, page: 1 }),
-          label: `${TAB_LABELS[tab]} (${tabCount(data.counts, tab)})`,
+          label: TAB_LABELS[tab],
+          count: tabCount(data.counts, tab),
           current: state.status === tab,
         }))}
       />

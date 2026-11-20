@@ -381,7 +381,8 @@ async function Products({
               label="Product type"
               segments={PACK_TABS.map((tab) => ({
                 href: link({ tab, size: undefined, page: 1 }),
-                label: `${TAB_LABELS[tab]} (${data.tabCounts[tab]})`,
+                label: TAB_LABELS[tab],
+                count: data.tabCounts[tab],
                 current: state.tab === tab,
               }))}
             />

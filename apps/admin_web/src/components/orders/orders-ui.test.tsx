@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Badge } from '@/components/ui/badge';
 import { Combobox } from '@/components/ui/combobox';
 import { ToastHost } from '@/components/ui/toast';
+import { orderProgress } from '@/lib/orders/labels';
 import {
   newOrders,
   OrdersAutoRefresh,
@@ -74,5 +75,32 @@ describe('order UI pieces', () => {
       />,
     );
     expect(screen.getByRole('combobox')).toBeTruthy();
+  });
+});
+
+describe('orderProgress', () => {
+  it('follows the pickup or delivery path and marks the current step', () => {
+    const steps = orderProgress('PACKING', 'DELIVERY');
+    expect(steps?.map((step) => step.label)).toEqual([
+      'New',
+      'Packing',
+      'Out for delivery',
+      'Completed',
+    ]);
+    expect(steps?.map((step) => step.state)).toEqual([
+      'done',
+      'current',
+      'todo',
+      'todo',
+    ]);
+  });
+
+  it('has every step done when completed and none when cancelled', () => {
+    expect(
+      orderProgress('COMPLETED', 'PICKUP')?.every(
+        (step) => step.state === 'done',
+      ),
+    ).toBe(true);
+    expect(orderProgress('CANCELLED', 'PICKUP')).toBeNull();
   });
 });

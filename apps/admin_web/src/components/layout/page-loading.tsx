@@ -8,8 +8,12 @@ import { Skeleton, DetailSkeleton } from '@/components/ui/skeleton';
 export function PageLoading({ label = 'Loading…' }: { label?: string }) {
   return (
     <div className="flex flex-col gap-6">
-      <div aria-hidden="true" className="flex flex-col gap-3">
-        <Skeleton className="h-9 w-64 max-w-full bg-border-default" />
+      {/* Shaped like the page bar (PageHeader), so nothing jumps. */}
+      <div
+        aria-hidden="true"
+        className="-mx-4 flex flex-col gap-2 border-b border-top-bar-border bg-top-bar-background px-4 py-4 medium:-mx-6 medium:px-6"
+      >
+        <Skeleton className="h-7 w-64 max-w-full bg-border-default" />
         <Skeleton className="h-5 w-96 max-w-full bg-border-default" />
       </div>
       <DetailSkeleton label={label} />

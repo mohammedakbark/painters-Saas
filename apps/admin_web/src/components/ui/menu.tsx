@@ -17,6 +17,7 @@ export function Menu({
   side = 'bottom',
   triggerClassName,
   className,
+  inverse = false,
 }: {
   /** Spoken name of the trigger, e.g. "Actions for Silk Emulsion 4 L". */
   label: string;
@@ -27,6 +28,8 @@ export function Menu({
   side?: 'top' | 'bottom';
   triggerClassName?: string;
   className?: string;
+  /** The trigger sits on the deep-teal sidebar: a light focus ring. */
+  inverse?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
@@ -65,7 +68,10 @@ export function Menu({
         aria-controls={id}
         onClick={() => setOpen((value) => !value)}
         className={cn(
-          'flex min-h-11 items-center rounded-nav-item focus-visible:outline-2 focus-visible:outline-brand-primary',
+          'flex min-h-11 items-center rounded-nav-item focus-visible:outline-2',
+          inverse
+            ? 'focus-visible:outline-sidebar-foreground'
+            : 'focus-visible:outline-brand-primary',
           triggerClassName,
         )}
       >

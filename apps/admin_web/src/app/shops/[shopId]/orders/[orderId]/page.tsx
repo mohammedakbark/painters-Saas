@@ -9,6 +9,7 @@ import {
   PaymentSheet,
 } from '@/components/orders/order-forms';
 import { StepButton } from '@/components/orders/step-button';
+import { ProgressSteps } from '@/components/ui/progress-steps';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { FlashToast } from '@/components/ui/flash-toast';
@@ -26,6 +27,7 @@ import {
   formatOrderTime,
   ORDER_STATUS,
   orderNumber,
+  orderProgress,
   ordersBase,
   PAYMENT_METHOD_LABEL,
   STEP_ACTION,
@@ -79,6 +81,7 @@ async function OrderView({ params, searchParams }: Props) {
   const steps = order.nextSteps.filter((step) => step !== 'CANCELLED');
   const canCancel = order.nextSteps.includes('CANCELLED');
   const justRecorded = (await searchParams).recorded === '1';
+  const progress = orderProgress(order.status, order.fulfilment);
 
   return (
     <div className="flex flex-col gap-6">
@@ -122,6 +125,11 @@ async function OrderView({ params, searchParams }: Props) {
           param="recorded"
           message={`${orderNumber(order.number)} is recorded for ${order.customer.name}.${order.status === 'COMPLETED' ? ' It is saved as handed over.' : ''}`}
         />
+      ) : null}
+      {progress ? (
+        <Card className="px-5 py-4">
+          <ProgressSteps label="Order progress" steps={progress} />
+        </Card>
       ) : null}
       {order.cancelled ? (
         <Card tone="subtle" className="flex flex-col gap-1 p-5">

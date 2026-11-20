@@ -173,3 +173,31 @@ export function eventSentence(event: {
 /** "2 × ₹450.00". */
 export const quantityTimesPrice = (quantity: number, paise: number) =>
   `${quantity} × ${formatRupees(paise)}`;
+
+/**
+ * The order's steps for the progress indicator (UI-101): New, Packing,
+ * Ready for pickup or Out for delivery, Completed. A completed order has every
+ * step done; a cancelled order has no progress (null).
+ */
+export function orderProgress(
+  status: OrderStatus,
+  fulfilment: 'PICKUP' | 'DELIVERY',
+): { label: string; state: 'done' | 'current' | 'todo' }[] | null {
+  if (status === 'CANCELLED') return null;
+  const steps: OrderStatus[] = [
+    'NEW',
+    'PACKING',
+    fulfilment === 'PICKUP' ? 'READY_FOR_PICKUP' : 'OUT_FOR_DELIVERY',
+    'COMPLETED',
+  ];
+  const at = steps.indexOf(status);
+  return steps.map((step, index) => ({
+    label: ORDER_STATUS[step].label,
+    state:
+      index < at || status === 'COMPLETED'
+        ? 'done'
+        : index === at
+          ? 'current'
+          : 'todo',
+  }));
+}

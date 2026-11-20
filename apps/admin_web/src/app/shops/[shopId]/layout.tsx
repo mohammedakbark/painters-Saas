@@ -8,6 +8,7 @@ import {
   requireShopSession,
 } from '@/lib/auth/shop-access';
 import { formatIndianMobile } from '@/lib/phone';
+import { shopStatusLabel } from '@/lib/shops/labels';
 import { signOutOfShop } from '../actions';
 
 /**
@@ -47,7 +48,7 @@ async function ShopConsole({
   return (
     <AppShell
       area={{
-        caption: 'Shop',
+        caption: `Shop · ${shopStatusLabel(shop.status).label}`,
         name: shop.name,
         switcher: {
           items: me.shopMemberships.map((membership) => ({
@@ -62,33 +63,75 @@ async function ShopConsole({
         },
       }}
       nav={[
-        { href: base, label: 'Overview', exact: true, icon: 'home' },
+        {
+          href: base,
+          label: 'Overview',
+          exact: true,
+          icon: 'home',
+          group: 'Daily work',
+        },
         {
           href: `${base}/orders`,
           label: 'Orders',
           icon: 'receipt',
           count: newOrders,
           countLabel: 'new orders',
+          group: 'Daily work',
         },
-        { href: `${base}/customers`, label: 'Customers', icon: 'user' },
+        {
+          href: `${base}/customers`,
+          label: 'Customers',
+          icon: 'user',
+          group: 'Daily work',
+        },
         {
           href: `${base}/catalogue`,
           label: 'Products',
           icon: 'tag',
           exclude: `${base}/catalogue/shades`,
+          group: 'Catalogue',
         },
-        { href: `${base}/catalogue/shades`, label: 'Shades', icon: 'palette' },
-        { href: `${base}/categories`, label: 'Categories', icon: 'notebook' },
-      ]}
-      accountLinks={[
+        {
+          href: `${base}/catalogue/shades`,
+          label: 'Shades',
+          icon: 'palette',
+          group: 'Catalogue',
+        },
+        {
+          href: `${base}/categories`,
+          label: 'Categories',
+          icon: 'notebook',
+          group: 'Catalogue',
+        },
+        {
+          href: `${base}/settings`,
+          label: 'Settings',
+          icon: 'settings',
+          group: 'Shop',
+        },
         {
           href: `${base}/profile`,
           label: 'Shop profile',
           icon: 'store',
+          group: 'Shop',
         },
-        { href: `${base}/settings`, label: 'Shop settings', icon: 'settings' },
-        { href: '/shops', label: 'My shops', icon: 'home' },
+        // Later phases, greyed out with no page (D-060).
+        {
+          href: `${base}#bills`,
+          label: 'Bills & credit',
+          icon: 'wallet',
+          later: 'Phase 3',
+          group: 'Coming in later phases',
+        },
+        {
+          href: `${base}#rewards`,
+          label: 'Rewards & offers',
+          icon: 'sparkle',
+          later: 'Phase 4',
+          group: 'Coming in later phases',
+        },
       ]}
+      accountLinks={[{ href: '/shops', label: 'My shops', icon: 'home' }]}
       account={account}
       signOutAction={signOutOfShop}
     >

@@ -34,7 +34,7 @@ const editMessage = (index: number) => `edit-order-message-${index}`;
  */
 export default function ShopSettingsPage(props: Props) {
   return (
-    <div className="flex max-w-content flex-col gap-6">
+    <div className="flex flex-col gap-6 [&>*:not(header)]:w-full [&>*:not(header)]:max-w-content">
       <PageHeader
         title="Shop settings"
         description="Your shop details, how customers get their orders, and the messages you send about items."

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { Fragment } from 'react';
 import { usePathname } from 'next/navigation';
 import { Icon, type IconName } from '@/components/ui/icon';
 import { cn } from '@/lib/cn';
@@ -23,21 +24,24 @@ export interface NavItem {
    * e.g. "Phase 3", and not a link.
    */
   later?: string;
+  /** Sidebar caption shown above the first item of a group, e.g. "Catalogue". */
+  group?: string;
 }
 
 const LIST = {
-  vertical: 'flex flex-col gap-1 px-3',
+  vertical: 'flex flex-col gap-0.5 px-3',
   horizontal: 'flex gap-2 overflow-x-auto px-4 pb-3',
   tabs: 'flex gap-6 overflow-x-auto border-b border-border-default',
 } as const;
 
 const ITEM = {
+  // The console sidebar on deep teal (UI-101, `component.sidebar`).
   vertical: {
-    base: 'relative flex min-h-11 items-center gap-3 rounded-nav-item px-3 text-body font-medium transition-colors',
+    base: 'relative flex min-h-10 items-center gap-3 rounded-nav-item px-3 text-body font-medium transition-colors',
     active:
-      'bg-brand-primary-soft font-semibold text-brand-primary before:absolute before:inset-y-2.5 before:-left-3 before:w-1 before:rounded-badge before:bg-brand-primary',
-    idle: 'text-text-secondary hover:bg-surface-subtle hover:text-text-primary',
-    later: 'text-text-disabled',
+      'bg-sidebar-active-background font-bold text-sidebar-active-foreground',
+    idle: 'text-sidebar-foreground/85 hover:bg-sidebar-foreground/10 hover:text-sidebar-foreground',
+    later: 'text-sidebar-muted/60',
   },
   horizontal: {
     base: 'flex min-h-11 items-center gap-2 rounded-badge border px-4 text-body font-medium whitespace-nowrap transition-colors',
@@ -76,7 +80,22 @@ export function NavLinks({
   return (
     <nav aria-label={label}>
       <ul className={LIST[orientation]}>
-        {items.map((item) => {
+        {items.map((item, index) => {
+          const caption =
+            orientation === 'vertical' &&
+            item.group &&
+            item.group !== items[index - 1]?.group ? (
+              <li
+                key={`group-${item.group}`}
+                aria-hidden={collapsed ? 'true' : undefined}
+                className={cn(
+                  'px-3 pt-4 pb-1 text-caption font-bold tracking-widest text-sidebar-muted/70 uppercase first:pt-0',
+                  collapsed && 'sr-only',
+                )}
+              >
+                {item.group}
+              </li>
+            ) : null;
           const excluded =
             item.exclude !== undefined &&
             (pathname === item.exclude ||
@@ -88,77 +107,89 @@ export function NavLinks({
               : pathname === item.href || pathname.startsWith(`${item.href}/`));
           if (item.later) {
             return (
-              <li key={item.href} className="shrink-0">
-                <span
-                  aria-disabled="true"
-                  title={
-                    collapsed ? `${item.label} (${item.later})` : undefined
-                  }
+              <Fragment key={item.href}>
+                {caption}
+                <li className="shrink-0">
+                  <span
+                    aria-disabled="true"
+                    title={
+                      collapsed ? `${item.label} (${item.later})` : undefined
+                    }
+                    className={cn(
+                      styles.base,
+                      collapsed && 'justify-center px-0',
+                      'cursor-not-allowed',
+                      styles.later,
+                    )}
+                  >
+                    {item.icon ? (
+                      <Icon name={item.icon} className="size-5" />
+                    ) : null}
+                    <span className={collapsed ? 'sr-only' : undefined}>
+                      {item.label}
+                    </span>
+                    <span
+                      className={cn(
+                        'ml-auto rounded-badge border border-current px-1.5 text-caption font-semibold whitespace-nowrap',
+                        collapsed && 'sr-only',
+                      )}
+                    >
+                      {item.later}
+                    </span>
+                  </span>
+                </li>
+              </Fragment>
+            );
+          }
+          return (
+            <Fragment key={item.href}>
+              {caption}
+              <li className="shrink-0">
+                <Link
+                  href={item.href}
+                  aria-current={active ? 'page' : undefined}
+                  title={collapsed ? item.label : undefined}
                   className={cn(
                     styles.base,
                     collapsed && 'justify-center px-0',
-                    'cursor-not-allowed',
-                    styles.later,
+                    'focus-visible:outline-2 focus-visible:outline-offset-2',
+                    orientation === 'vertical'
+                      ? 'focus-visible:outline-sidebar-foreground'
+                      : 'focus-visible:outline-brand-primary',
+                    active ? styles.active : styles.idle,
                   )}
                 >
                   {item.icon ? (
-                    <Icon name={item.icon} className="size-5" />
+                    <span className="relative">
+                      <Icon name={item.icon} className="size-5" />
+                      {collapsed && item.count ? (
+                        <span
+                          aria-hidden="true"
+                          className="absolute -top-1 -right-1 size-2.5 rounded-full bg-brand-highlight ring-2 ring-sidebar-background"
+                        />
+                      ) : null}
+                    </span>
                   ) : null}
                   <span className={collapsed ? 'sr-only' : undefined}>
                     {item.label}
                   </span>
-                  <span
-                    className={cn(
-                      'ml-auto rounded-badge border border-current px-1.5 text-caption font-semibold whitespace-nowrap',
-                      collapsed && 'sr-only',
-                    )}
-                  >
-                    {item.later}
-                  </span>
-                </span>
+                  {item.count ? (
+                    <span
+                      className={cn(
+                        'ml-auto min-w-6 rounded-badge px-1.5 py-0.5 text-center text-caption font-bold tabular-nums',
+                        orientation === 'vertical'
+                          ? 'bg-sidebar-count text-sidebar-count-foreground'
+                          : 'bg-brand-primary text-surface-default',
+                        collapsed && 'sr-only',
+                      )}
+                    >
+                      {item.count > 99 ? '99+' : item.count}
+                      <span className="sr-only"> {item.countLabel ?? ''}</span>
+                    </span>
+                  ) : null}
+                </Link>
               </li>
-            );
-          }
-          return (
-            <li key={item.href} className="shrink-0">
-              <Link
-                href={item.href}
-                aria-current={active ? 'page' : undefined}
-                title={collapsed ? item.label : undefined}
-                className={cn(
-                  styles.base,
-                  collapsed && 'justify-center px-0',
-                  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary',
-                  active ? styles.active : styles.idle,
-                )}
-              >
-                {item.icon ? (
-                  <span className="relative">
-                    <Icon name={item.icon} className="size-5" />
-                    {collapsed && item.count ? (
-                      <span
-                        aria-hidden="true"
-                        className="absolute -top-1 -right-1 size-2.5 rounded-full bg-brand-highlight ring-2 ring-surface-default"
-                      />
-                    ) : null}
-                  </span>
-                ) : null}
-                <span className={collapsed ? 'sr-only' : undefined}>
-                  {item.label}
-                </span>
-                {item.count ? (
-                  <span
-                    className={cn(
-                      'ml-auto min-w-6 rounded-badge bg-brand-primary px-1.5 py-0.5 text-center text-caption font-semibold text-surface-default tabular-nums',
-                      collapsed && 'sr-only',
-                    )}
-                  >
-                    {item.count > 99 ? '99+' : item.count}
-                    <span className="sr-only"> {item.countLabel ?? ''}</span>
-                  </span>
-                ) : null}
-              </Link>
-            </li>
+            </Fragment>
           );
         })}
       </ul>

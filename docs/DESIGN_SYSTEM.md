@@ -272,7 +272,7 @@ Token implementations (generated since DS-001, 2026-11-04):
 
 ## 11. UI redesign (2026-11-20)
 
-The owner's design artifact "SevenPalette Screens" (claude.ai `VrnTXsW7v9hiNEWEHngTqr`) is the visual reference for all four surfaces. It uses the tokens above; the changes are layout and components: a deep-teal console sidebar with a white current item, a white page bar with breadcrumb, title and actions, a filled lead KPI tile, segments with counts and order progress steps. Rolled out one surface at a time: DS-006 (shared foundation), UI-101 Shop Admin web, UI-102 Platform Admin web, UI-103 Shop App, UI-104 Customer App. Its sample data is illustration only.
+The owner's design artifact "SevenPalette Screens" (claude.ai `VrnTXsW7v9hiNEWEHngTqr`) is the visual reference for all four surfaces. It uses the tokens above; the changes are layout and components: a deep-teal console sidebar with a white current item, a white page bar with breadcrumb, title and actions, a filled lead KPI tile, segments with counts and order progress steps. Since UI-101 the console `AppShell` has the deep-teal grouped sidebar (`NavItem.group`) and `PageHeader` is the white page bar at the top of every console page (it must be the page's first element; the console's main area has no top padding or maximum width). Rolled out one surface at a time: DS-006 (shared foundation), UI-101 Shop Admin web, UI-102 Platform Admin web, UI-103 Shop App, UI-104 Customer App. Its sample data is illustration only.
 
 ## 12. States and page anatomy (UX-001, 2026-11-08)
 
