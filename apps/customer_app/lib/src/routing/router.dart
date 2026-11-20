@@ -9,6 +9,8 @@ import '../features/shops/find_shops_screen.dart';
 import '../features/shops/my_shops_screen.dart';
 import '../features/shops/shop_screen.dart';
 import '../features/sign_in/sign_in_screen.dart';
+import '../features/storefront/product_screen.dart';
+import '../features/storefront/shop_products_screen.dart';
 import '../features/welcome/welcome_screen.dart';
 import '../providers.dart';
 import 'paths.dart';
@@ -57,6 +59,20 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/shop/:shopId',
         builder: (context, state) =>
             ShopScreen(shopId: state.pathParameters['shopId']!),
+        routes: [
+          GoRoute(
+            path: 'products',
+            builder: (context, state) =>
+                ShopProductsScreen(shopId: state.pathParameters['shopId']!),
+          ),
+          GoRoute(
+            path: 'product/:productId',
+            builder: (context, state) => ProductScreen(
+              shopId: state.pathParameters['shopId']!,
+              productId: state.pathParameters['productId']!,
+            ),
+          ),
+        ],
       ),
     ],
   );

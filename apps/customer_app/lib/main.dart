@@ -14,6 +14,8 @@ import 'src/providers.dart';
 import 'src/shops/active_shop_store.dart';
 import 'src/shops/shop_providers.dart';
 import 'src/shops/shops_repository.dart';
+import 'src/storefront/storefront_models.dart';
+import 'src/storefront/storefront_providers.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,6 +52,9 @@ Future<void> main() async {
           ApiCustomerProfileRepository(api),
         ),
         shopsRepositoryProvider.overrideWithValue(ApiShopsRepository(api)),
+        storefrontRepositoryProvider.overrideWithValue(
+          ApiStorefrontRepository(api),
+        ),
         locationServiceProvider.overrideWithValue(
           const GeolocatorLocationService(),
         ),

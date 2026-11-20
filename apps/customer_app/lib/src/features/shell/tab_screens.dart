@@ -9,9 +9,10 @@ import '../../providers.dart';
 import '../../routing/paths.dart';
 import '../../shops/shop_providers.dart';
 import '../shops/shop_card.dart';
+import '../storefront/storefront_view.dart';
 
-/// Home: the shop the person is shopping from, or a way to choose one
-/// (CUS-002). The shop's products come with the storefront (CUS-003).
+/// Home: the storefront of the shop the person is shopping from (CUS-003),
+/// or a way to choose a shop (CUS-002).
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -63,46 +64,53 @@ class _ActiveShop extends ConsumerWidget {
       // The shop is no longer Live: forget it and offer to choose again.
       Future.microtask(() => ref.read(activeShopIdProvider.notifier).clear());
     }
-    return ListView(
-      padding: const EdgeInsets.all(AppSpacing.screenPadding),
-      children: [
-        Text(
-          'Shopping from',
-          style: textTheme.labelLarge?.copyWith(color: AppColors.textSecondary),
-        ),
-        const SizedBox(height: AppSpacing.s8),
-        switch (shop) {
-          AsyncData(:final value) => ShopCard(
-            shop: value,
-            active: true,
-            onTap: () => context.push(shopPath(value.id)),
-          ),
-          AsyncError() => AppInlineMessage(
-            message: "We couldn't load your shop.",
-            tone: AppTone.error,
-            action: AppButton(
-              label: 'Try again',
-              variant: AppButtonVariant.tertiary,
-              onPressed: () => ref.invalidate(shopProvider(shopId)),
+    return StorefrontView(
+      key: ValueKey('storefront-$shopId'),
+      shopId: shopId,
+      header: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'Shopping from',
+            style: textTheme.labelLarge?.copyWith(
+              color: AppColors.textSecondary,
             ),
           ),
-          _ => const LoadingView(),
-        },
-        const SizedBox(height: AppSpacing.s12),
-        AppButton(
-          key: const Key('change-shop'),
-          label: 'Change shop',
-          icon: Icons.swap_horiz,
-          variant: AppButtonVariant.secondary,
-          onPressed: () => context.push(findShopsPath),
-        ),
-        const SizedBox(height: AppSpacing.s24),
-        Text(
-          "This shop's products will be listed here.",
-          textAlign: TextAlign.center,
-          style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
-        ),
-      ],
+          const SizedBox(height: AppSpacing.s8),
+          switch (shop) {
+            AsyncData(:final value) => ShopCard(
+              shop: value,
+              active: true,
+              onTap: () => context.push(shopPath(value.id)),
+            ),
+            AsyncError() => AppInlineMessage(
+              message: "We couldn't load your shop.",
+              tone: AppTone.error,
+              action: AppButton(
+                label: 'Try again',
+                variant: AppButtonVariant.tertiary,
+                onPressed: () => ref.invalidate(shopProvider(shopId)),
+              ),
+            ),
+            _ => const SizedBox(
+              height: AppSpacing.s48,
+              child: Center(child: AppSpinner.small()),
+            ),
+          },
+          const SizedBox(height: AppSpacing.s8),
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: AppButton(
+              key: const Key('change-shop'),
+              label: 'Change shop',
+              icon: Icons.swap_horiz,
+              variant: AppButtonVariant.tertiary,
+              onPressed: () => context.push(findShopsPath),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.s8),
+        ],
+      ),
     );
   }
 }

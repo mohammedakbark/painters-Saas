@@ -15,7 +15,7 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 | Cross-shop product search | Confirmed | Active shop first, other shops separately. |
 | Other-shop product details | Confirmed | Can view details without switching. |
 | Switch shop before adding to cart | Confirmed | One shop per cart/order is proposed. |
-| Catalogue, categories and product details | Confirmed | Include brand, pack, price, colour/shade details. |
+| Catalogue, categories and product details | Confirmed / **storefront implemented (CUS-003)** | The active shop's categories, products, pack sizes, prices and availability on Home; any Live shop's products from its page. Browse only until the cart. No MRP (question 59). Shade choice comes with ordering. Spec: `docs/features/CUS-003-shop-storefront.md`. |
 | Shade selection and colour code | Confirmed | Manufacturer shade integration open. |
 | Cart, checkout and order history | Confirmed | Fulfilment lifecycle open. |
 | Shop-wise bills | Confirmed | Required for normal customers and painters. |

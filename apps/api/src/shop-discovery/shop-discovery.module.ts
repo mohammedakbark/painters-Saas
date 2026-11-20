@@ -3,13 +3,19 @@ import { PrismaModule } from '../prisma/prisma.module.js';
 import {
   MyShopsController,
   ShopDiscoveryController,
+  StorefrontController,
 } from './shop-discovery.controller.js';
 import { ShopDiscoveryService } from './shop-discovery.service.js';
+import { StorefrontService } from './storefront.service.js';
 
-/** Finding shops and My Shops in the Customer App (CUS-002). */
+/** Finding shops, My Shops (CUS-002) and the storefront (CUS-003). */
 @Module({
   imports: [PrismaModule],
-  controllers: [ShopDiscoveryController, MyShopsController],
-  providers: [ShopDiscoveryService],
+  controllers: [
+    ShopDiscoveryController,
+    StorefrontController,
+    MyShopsController,
+  ],
+  providers: [ShopDiscoveryService, StorefrontService],
 })
 export class ShopDiscoveryModule {}

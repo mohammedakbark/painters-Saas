@@ -192,6 +192,17 @@ class _Details extends StatelessWidget {
             child: AppBadge(label: 'In My Shops', tone: AppTone.info),
           ),
         ],
+        const SizedBox(height: AppSpacing.s12),
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: AppButton(
+            key: const Key('browse-products'),
+            label: 'See products',
+            icon: Icons.format_paint_outlined,
+            variant: AppButtonVariant.secondary,
+            onPressed: () => context.push(shopProductsPath(shop.id)),
+          ),
+        ),
         const SizedBox(height: AppSpacing.s16),
         AppSection(
           title: 'Pickup and delivery',

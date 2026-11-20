@@ -9,6 +9,8 @@ import 'package:customer_app/src/shops/active_shop_store.dart';
 import 'package:customer_app/src/shops/shop_models.dart';
 import 'package:customer_app/src/shops/shop_providers.dart';
 import 'package:customer_app/src/shops/shops_repository.dart';
+import 'package:customer_app/src/storefront/storefront_models.dart';
+import 'package:customer_app/src/storefront/storefront_providers.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -256,6 +258,106 @@ class FakeActiveShopStore implements ActiveShopStore {
   Future<void> clear() async => value = null;
 }
 
+StorefrontProduct testProduct(
+  String id,
+  String name, {
+  String category = 'Interior',
+  String? brand = 'Asian Colours',
+  List<StorefrontPack>? packs,
+  bool supportsShades = false,
+}) {
+  final list =
+      packs ??
+      const [
+        StorefrontPack(
+          id: 'p1',
+          label: '1 L',
+          pricePaise: 50000,
+          available: true,
+        ),
+      ];
+  final buyable = list.where((p) => p.available).toList();
+  final prices = (buyable.isEmpty ? list : buyable).map((p) => p.pricePaise);
+  return StorefrontProduct(
+    id: id,
+    name: name,
+    brand: brand,
+    categoryName: category,
+    description: '$name description',
+    supportsShades: supportsShades,
+    thumbUrl: null,
+    imageUrl: null,
+    packs: list,
+    available: buyable.isNotEmpty,
+    fromPricePaise: prices.reduce((a, b) => a < b ? a : b),
+  );
+}
+
+/// Products per shop id; categories are worked out from the products.
+class FakeStorefrontRepository implements StorefrontRepository {
+  FakeStorefrontRepository([Map<String, List<StorefrontProduct>>? shops])
+    : shops = shops ?? {};
+
+  final Map<String, List<StorefrontProduct>> shops;
+  int pageSize = 20;
+  final List<(String, String?, String?)> productCalls = [];
+
+  List<StorefrontProduct> _of(String shopId) => shops[shopId] ?? const [];
+
+  String _categoryId(String name) => 'cat-${name.toLowerCase()}';
+
+  @override
+  Future<List<StorefrontCategory>> categories(String shopId) async {
+    final counts = <String, int>{};
+    for (final product in _of(shopId)) {
+      counts.update(product.categoryName, (n) => n + 1, ifAbsent: () => 1);
+    }
+    return [
+      for (final entry in counts.entries)
+        StorefrontCategory(
+          id: _categoryId(entry.key),
+          name: entry.key,
+          productCount: entry.value,
+        ),
+    ];
+  }
+
+  @override
+  Future<StorefrontPage> products(
+    String shopId, {
+    String? query,
+    String? categoryId,
+    int page = 1,
+  }) async {
+    productCalls.add((shopId, query, categoryId));
+    final list = _of(shopId)
+        .where(
+          (p) =>
+              (categoryId == null ||
+                  _categoryId(p.categoryName) == categoryId) &&
+              (query == null ||
+                  query.isEmpty ||
+                  '${p.name} ${p.brand}'.toLowerCase().contains(
+                    query.toLowerCase(),
+                  )),
+        )
+        .toList();
+    return StorefrontPage(
+      items: list.skip((page - 1) * pageSize).take(pageSize).toList(),
+      total: list.length,
+      page: page,
+    );
+  }
+
+  @override
+  Future<StorefrontProduct> product(String shopId, String productId) async {
+    for (final product in _of(shopId)) {
+      if (product.id == productId) return product;
+    }
+    throw const ApiException(status: 404, code: 'product_not_found');
+  }
+}
+
 /// Scrolls [finder] into view, taps it and settles.
 Future<void> tapVisible(WidgetTester tester, Finder finder) async {
   await tester.ensureVisible(finder);
@@ -272,6 +374,7 @@ Future<void> pumpApp(
   FakeShopsRepository? shops,
   FakeLocationService? location,
   FakeActiveShopStore? activeShop,
+  FakeStorefrontRepository? storefront,
 }) async {
   tester.view
     ..physicalSize = const Size(1080, 2340)
@@ -292,6 +395,9 @@ Future<void> pumpApp(
         ),
         activeShopStoreProvider.overrideWithValue(
           activeShop ?? FakeActiveShopStore(),
+        ),
+        storefrontRepositoryProvider.overrideWithValue(
+          storefront ?? FakeStorefrontRepository(),
         ),
         mapsEnabledProvider.overrideWithValue(false),
       ],

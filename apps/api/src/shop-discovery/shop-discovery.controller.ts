@@ -35,6 +35,17 @@ import {
   ShopDistrictsSchema,
 } from './shop-discovery.schemas.js';
 import { ShopDiscoveryService } from './shop-discovery.service.js';
+import {
+  type StorefrontCategories,
+  StorefrontCategoriesSchema,
+  type StorefrontPage,
+  StorefrontPageSchema,
+  type StorefrontProduct,
+  StorefrontProductSchema,
+  type StorefrontQuery,
+  StorefrontQuerySchema,
+} from './storefront.schemas.js';
+import { StorefrontService } from './storefront.service.js';
 
 const PROBLEM = { standardSchema: ProblemDetailsSchema } as const;
 const NOT_FOUND = {
@@ -125,5 +136,54 @@ export class MyShopsController {
     @Param('shopId') shopId: string,
   ): Promise<void> {
     return this.discovery.remove(user, shopId);
+  }
+}
+
+/** A Live shop's storefront (CUS-003): browse only, no adding needed. */
+@ApiTags('discover')
+@ApiBearerAuth()
+@ApiUnauthorizedResponse(PROBLEM)
+@Controller('discover/shops/:shopId')
+export class StorefrontController {
+  constructor(private readonly storefront: StorefrontService) {}
+
+  @Get('categories')
+  @ApiOperation({
+    summary: 'Categories that have products in this shop, with counts.',
+  })
+  @ApiOkResponse({ standardSchema: StorefrontCategoriesSchema })
+  @ApiNotFoundResponse(NOT_FOUND)
+  categories(@Param('shopId') shopId: string): Promise<StorefrontCategories> {
+    return this.storefront.categories(shopId);
+  }
+
+  @Get('products')
+  @ApiOperation({
+    summary:
+      "The shop's products by name, with pack sizes, prices and availability.",
+  })
+  @ApiOkResponse({ standardSchema: StorefrontPageSchema })
+  @ApiBadRequestResponse(PROBLEM)
+  @ApiNotFoundResponse(NOT_FOUND)
+  products(
+    @Param('shopId') shopId: string,
+    @Query({ schema: StorefrontQuerySchema }) query: StorefrontQuery,
+  ): Promise<StorefrontPage> {
+    return this.storefront.products(shopId, query);
+  }
+
+  @Get('products/:productId')
+  @ApiOperation({ summary: 'One product of the shop.' })
+  @ApiOkResponse({ standardSchema: StorefrontProductSchema })
+  @ApiNotFoundResponse({
+    standardSchema: ProblemDetailsSchema,
+    description:
+      'shop_not_found or product_not_found (archived, hidden or not in this shop).',
+  })
+  product(
+    @Param('shopId') shopId: string,
+    @Param('productId') productId: string,
+  ): Promise<StorefrontProduct> {
+    return this.storefront.product(shopId, productId);
   }
 }
