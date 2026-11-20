@@ -10,8 +10,8 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 | Customer type | Confirmed (D-036) / **choice implemented (CUS-001)** | Painter/Contractor or Normal Customer, chosen by the customer and changeable. A shop's painter-only information appears only after that shop confirms the painter (confirmation step not built yet). Painters get a Sites tab. |
 | Profile and address | **Profile implemented (CUS-001)** | Name and customer type only (owner, 2026-11-20). Addresses come with sites and checkout (D-049). |
 | Identity verification | Confirmed direction / Open details | Separate from shop credit approval; documents and timing open. |
-| Discover shops and My Shops | Confirmed (D-037, D-038) | Any Live shop can be browsed; adding it to My Shops is instant. Find shops lists all Live shops nearest first, or by a chosen district. |
-| Active shop selector | Confirmed | One active storefront at a time. |
+| Discover shops and My Shops | Confirmed (D-037, D-038, D-058) / **implemented (CUS-002)** | Any Live shop can be opened; adding it to My Shops is instant and private. Find shops lists all Live shops nearest first, or by a chosen district. Spec: `docs/features/CUS-002-find-shops-and-my-shops.md`. |
+| Active shop selector | Confirmed / **implemented (CUS-002)** | One active storefront at a time: Shop here on a shop page; kept on the phone and shown on Home. |
 | Cross-shop product search | Confirmed | Active shop first, other shops separately. |
 | Other-shop product details | Confirmed | Can view details without switching. |
 | Switch shop before adding to cart | Confirmed | One shop per cart/order is proposed. |

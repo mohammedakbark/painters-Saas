@@ -4,6 +4,7 @@ import 'package:flutter_shared/flutter_shared.dart';
 
 import '../../profile/customer_profile.dart';
 import '../../providers.dart';
+import '../../shops/shop_providers.dart';
 import 'profile_form.dart';
 
 /// More (CUS-001): the person's profile with Edit profile, and Sign out.
@@ -60,7 +61,7 @@ class MoreScreen extends ConsumerWidget {
             label: 'Sign out',
             icon: Icons.logout,
             variant: AppButtonVariant.tertiary,
-            onPressed: () => ref.read(authRepositoryProvider).signOut(),
+            onPressed: () => signOut(ref),
           ),
           const SizedBox(height: AppSpacing.s24),
           Text(

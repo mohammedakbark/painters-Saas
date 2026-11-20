@@ -8,8 +8,12 @@ import 'src/api/api_client.dart';
 import 'src/auth/secure_session_storage.dart';
 import 'src/auth/supabase_auth_repository.dart';
 import 'src/config/app_config.dart';
+import 'src/location/location_service.dart';
 import 'src/profile/customer_profile.dart';
 import 'src/providers.dart';
+import 'src/shops/active_shop_store.dart';
+import 'src/shops/shop_providers.dart';
+import 'src/shops/shops_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,6 +48,13 @@ Future<void> main() async {
         authRepositoryProvider.overrideWithValue(auth),
         customerProfileRepositoryProvider.overrideWithValue(
           ApiCustomerProfileRepository(api),
+        ),
+        shopsRepositoryProvider.overrideWithValue(ApiShopsRepository(api)),
+        locationServiceProvider.overrideWithValue(
+          const GeolocatorLocationService(),
+        ),
+        activeShopStoreProvider.overrideWithValue(
+          const SecureActiveShopStore(),
         ),
       ],
       child: const CustomerApp(),

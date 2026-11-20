@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_shared/flutter_shared.dart';
 
 import '../../profile/customer_profile.dart';
-import '../../providers.dart';
+import '../../shops/shop_providers.dart';
 import 'profile_form.dart';
 
 /// First-time setup after the first sign-in: the name and the customer type
@@ -34,8 +34,7 @@ class ProfileSetupScreen extends ConsumerWidget {
                     child: AppButton(
                       label: 'Sign out',
                       variant: AppButtonVariant.tertiary,
-                      onPressed: () =>
-                          ref.read(authRepositoryProvider).signOut(),
+                      onPressed: () => signOut(ref),
                     ),
                   ),
                   const BrandMark(appName: AppBrand.customerAppName),

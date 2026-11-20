@@ -194,6 +194,276 @@
         ]
       }
     },
+    "/v1/discover/shops": {
+      "get": {
+        "operationId": "ShopDiscoveryController_find",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindShopsPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Live shops: nearest first with lat/lng, the chosen district first without them, otherwise by name. The position is only used to sort.",
+        "tags": [
+          "discover"
+        ]
+      }
+    },
+    "/v1/discover/shops/districts": {
+      "get": {
+        "operationId": "ShopDiscoveryController_districts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopDistricts"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Districts that have Live shops, by name.",
+        "tags": [
+          "discover"
+        ]
+      }
+    },
+    "/v1/discover/shops/{shopId}": {
+      "get": {
+        "operationId": "ShopDiscoveryController_get",
+        "parameters": [
+          {
+            "name": "shopId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicShop"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "shop_not_found: no Live shop has this id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "A Live shop's public page.",
+        "tags": [
+          "discover"
+        ]
+      }
+    },
+    "/v1/me/shops": {
+      "get": {
+        "operationId": "MyShopsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyShopsList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "My Shops, most recently added first.",
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/v1/me/shops/{shopId}": {
+      "put": {
+        "operationId": "MyShopsController_add",
+        "parameters": [
+          {
+            "name": "shopId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicShop"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "shop_not_found: no Live shop has this id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Add a Live shop to My Shops (instant, no approval). The shop is not told.",
+        "tags": [
+          "me"
+        ]
+      },
+      "delete": {
+        "operationId": "MyShopsController_remove",
+        "parameters": [
+          {
+            "name": "shopId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Removed, or was not in My Shops."
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Remove a shop from My Shops.",
+        "tags": [
+          "me"
+        ]
+      }
+    },
     "/v1/platform/shops": {
       "get": {
         "operationId": "PlatformShopsController_list",
@@ -6616,6 +6886,305 @@
           "status",
           "checks"
         ]
+      },
+      "FindShopsQuery": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lng": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "district": {
+            "description": "Used when there is no position: shops in this district come first (D-038).",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "q": {
+            "description": "Part of the shop name.",
+            "type": "string",
+            "maxLength": 60
+          },
+          "page": {
+            "default": 1,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "pageSize": {
+            "default": 20,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50
+          }
+        }
+      },
+      "FindShopsPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicShop"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "page": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "distance",
+              "district",
+              "name"
+            ],
+            "description": "distance: nearest first; district: the chosen district first, then by name; name: by name."
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize",
+          "sort"
+        ],
+        "additionalProperties": false
+      },
+      "PublicShop": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "name": {
+            "type": "string"
+          },
+          "photo": {
+            "nullable": true,
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "format": "uri",
+                "description": "WebP, at most 1600 px."
+              },
+              "thumbUrl": {
+                "type": "string",
+                "format": "uri",
+                "description": "WebP, at most 480 px."
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              }
+            },
+            "required": [
+              "url",
+              "thumbUrl",
+              "updatedAt"
+            ],
+            "additionalProperties": false
+          },
+          "address": {
+            "type": "object",
+            "properties": {
+              "line1": {
+                "nullable": true,
+                "type": "string"
+              },
+              "line2": {
+                "nullable": true,
+                "type": "string"
+              },
+              "landmark": {
+                "nullable": true,
+                "type": "string"
+              },
+              "city": {
+                "nullable": true,
+                "type": "string"
+              },
+              "district": {
+                "nullable": true,
+                "type": "string"
+              },
+              "stateCode": {
+                "nullable": true,
+                "type": "string"
+              },
+              "postalCode": {
+                "nullable": true,
+                "type": "string"
+              }
+            },
+            "required": [
+              "line1",
+              "line2",
+              "landmark",
+              "city",
+              "district",
+              "stateCode",
+              "postalCode"
+            ],
+            "additionalProperties": false
+          },
+          "location": {
+            "nullable": true,
+            "type": "object",
+            "properties": {
+              "latitude": {
+                "type": "number"
+              },
+              "longitude": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "latitude",
+              "longitude"
+            ],
+            "additionalProperties": false
+          },
+          "delivery": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              },
+              "chargePaise": {
+                "nullable": true,
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "freeAbovePaise": {
+                "nullable": true,
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "radiusKm": {
+                "nullable": true,
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "enabled",
+              "chargePaise",
+              "freeAbovePaise",
+              "radiusKm"
+            ],
+            "additionalProperties": false,
+            "description": "Pickup is always offered (D-046). When delivery is off the other values are null."
+          },
+          "distanceKm": {
+            "nullable": true,
+            "description": "Straight-line distance from the position sent, rounded to 0.1 km; null without a position.",
+            "type": "number"
+          },
+          "inMyShops": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "photo",
+          "address",
+          "location",
+          "delivery",
+          "distanceKm",
+          "inMyShops"
+        ],
+        "additionalProperties": false
+      },
+      "ShopDistricts": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "district": {
+                  "type": "string"
+                },
+                "stateCode": {
+                  "nullable": true,
+                  "type": "string"
+                },
+                "shopCount": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "district",
+                "stateCode",
+                "shopCount"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "additionalProperties": false
+      },
+      "NearQuery": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lng": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180
+          }
+        }
+      },
+      "MyShopsList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicShop"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "additionalProperties": false
       },
       "ShopRegistryQuery": {
         "type": "object",

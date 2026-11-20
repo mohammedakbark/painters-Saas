@@ -10,3 +10,7 @@ const ordersPath = '/orders';
 const myShopsPath = '/shops';
 const sitesPath = '/sites';
 const morePath = '/more';
+
+/// Above the tabs: Find shops and a shop's page (CUS-002).
+const findShopsPath = '/find-shops';
+String shopPath(String shopId) => '/shop/${Uri.encodeComponent(shopId)}';

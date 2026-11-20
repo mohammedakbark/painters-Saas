@@ -42,6 +42,7 @@ model User {
   reviewsSubmitted ShopReview[]     @relation("ShopReviewSubmittedBy")
   reviewsDecided   ShopReview[]     @relation("ShopReviewDecidedBy")
   shopCustomers    ShopCustomer[]
+  myShops          CustomerShop[]
 
   @@map("users")
 }
@@ -223,6 +224,7 @@ model Shop {
   categories      CatalogueCategory[]
   customers       ShopCustomer[]
   orders          Order[]
+  savedBy         CustomerShop[]
 
   @@map("shops")
 }
@@ -754,4 +756,20 @@ model OrderEvent {
 
   @@index([shopId, orderId, createdAt])
   @@map("order_events")
+}
+
+/// A shop in a person's My Shops list (CUS-002, D-037). Private to that
+/// person: the shop is not told and cannot read it (owner, 2026-11-20).
+/// Adding is instant; painter confirmation and credit are separate steps.
+model CustomerShop {
+  userId    String   @map("user_id") @db.Uuid
+  shopId    String   @map("shop_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  shop Shop @relation(fields: [shopId], references: [id], onDelete: Restrict)
+
+  @@id([userId, shopId])
+  @@index([shopId])
+  @@map("customer_shops")
 }

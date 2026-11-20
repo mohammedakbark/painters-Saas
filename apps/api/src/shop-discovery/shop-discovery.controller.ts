@@ -1,0 +1,129 @@
+import {
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Put,
+  Query,
+} from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { CurrentUser, type CurrentUserContext } from '../auth/current-user.js';
+import { ProblemDetailsSchema } from '../common/http/problem-details.js';
+import {
+  type FindShopsPage,
+  FindShopsPageSchema,
+  type FindShopsQuery,
+  FindShopsQuerySchema,
+  type MyShopsList,
+  MyShopsListSchema,
+  type NearQuery,
+  NearQuerySchema,
+  type PublicShop,
+  PublicShopSchema,
+  type ShopDistricts,
+  ShopDistrictsSchema,
+} from './shop-discovery.schemas.js';
+import { ShopDiscoveryService } from './shop-discovery.service.js';
+
+const PROBLEM = { standardSchema: ProblemDetailsSchema } as const;
+const NOT_FOUND = {
+  standardSchema: ProblemDetailsSchema,
+  description: 'shop_not_found: no Live shop has this id.',
+} as const;
+
+/** Finding Live shops in the Customer App (CUS-002, D-037, D-038). */
+@ApiTags('discover')
+@ApiBearerAuth()
+@ApiUnauthorizedResponse(PROBLEM)
+@Controller('discover/shops')
+export class ShopDiscoveryController {
+  constructor(private readonly discovery: ShopDiscoveryService) {}
+
+  @Get()
+  @ApiOperation({
+    summary:
+      'Live shops: nearest first with lat/lng, the chosen district first without them, otherwise by name. The position is only used to sort.',
+  })
+  @ApiOkResponse({ standardSchema: FindShopsPageSchema })
+  @ApiBadRequestResponse(PROBLEM)
+  find(
+    @CurrentUser() user: CurrentUserContext,
+    @Query({ schema: FindShopsQuerySchema }) query: FindShopsQuery,
+  ): Promise<FindShopsPage> {
+    return this.discovery.find(user, query);
+  }
+
+  @Get('districts')
+  @ApiOperation({ summary: 'Districts that have Live shops, by name.' })
+  @ApiOkResponse({ standardSchema: ShopDistrictsSchema })
+  districts(): Promise<ShopDistricts> {
+    return this.discovery.districts();
+  }
+
+  @Get(':shopId')
+  @ApiOperation({ summary: "A Live shop's public page." })
+  @ApiOkResponse({ standardSchema: PublicShopSchema })
+  @ApiNotFoundResponse(NOT_FOUND)
+  get(
+    @CurrentUser() user: CurrentUserContext,
+    @Param('shopId') shopId: string,
+    @Query({ schema: NearQuerySchema }) query: NearQuery,
+  ): Promise<PublicShop> {
+    return this.discovery.get(user, shopId, query);
+  }
+}
+
+/** The caller's private My Shops list (CUS-002, D-037). */
+@ApiTags('me')
+@ApiBearerAuth()
+@ApiUnauthorizedResponse(PROBLEM)
+@Controller('me/shops')
+export class MyShopsController {
+  constructor(private readonly discovery: ShopDiscoveryService) {}
+
+  @Get()
+  @ApiOperation({ summary: 'My Shops, most recently added first.' })
+  @ApiOkResponse({ standardSchema: MyShopsListSchema })
+  list(
+    @CurrentUser() user: CurrentUserContext,
+    @Query({ schema: NearQuerySchema }) query: NearQuery,
+  ): Promise<MyShopsList> {
+    return this.discovery.myShops(user, query);
+  }
+
+  @Put(':shopId')
+  @ApiOperation({
+    summary:
+      'Add a Live shop to My Shops (instant, no approval). The shop is not told.',
+  })
+  @ApiOkResponse({ standardSchema: PublicShopSchema })
+  @ApiNotFoundResponse(NOT_FOUND)
+  add(
+    @CurrentUser() user: CurrentUserContext,
+    @Param('shopId') shopId: string,
+  ): Promise<PublicShop> {
+    return this.discovery.add(user, shopId);
+  }
+
+  @Delete(':shopId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Remove a shop from My Shops.' })
+  @ApiNoContentResponse({ description: 'Removed, or was not in My Shops.' })
+  remove(
+    @CurrentUser() user: CurrentUserContext,
+    @Param('shopId') shopId: string,
+  ): Promise<void> {
+    return this.discovery.remove(user, shopId);
+  }
+}

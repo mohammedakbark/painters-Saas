@@ -42,11 +42,17 @@ class AppBadge extends StatelessWidget {
               ),
             ),
             const SizedBox(width: AppSpacing.s8),
-            Text(
-              label,
-              style: AppTypography.caption.copyWith(
-                color: tone.color,
-                fontWeight: FontWeight.w600,
+            // Shrinks with an ellipsis in narrow places or with large text
+            // instead of overflowing.
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.caption.copyWith(
+                  color: tone.color,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],

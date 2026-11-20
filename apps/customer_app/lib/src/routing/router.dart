@@ -5,6 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../features/profile/more_screen.dart';
 import '../features/shell/customer_shell.dart';
 import '../features/shell/tab_screens.dart';
+import '../features/shops/find_shops_screen.dart';
+import '../features/shops/my_shops_screen.dart';
+import '../features/shops/shop_screen.dart';
 import '../features/sign_in/sign_in_screen.dart';
 import '../features/welcome/welcome_screen.dart';
 import '../providers.dart';
@@ -45,6 +48,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SignInScreen(),
       ),
       _tabs,
+      // Above the tabs, with a back arrow.
+      GoRoute(
+        path: findShopsPath,
+        builder: (context, state) => const FindShopsScreen(),
+      ),
+      GoRoute(
+        path: '/shop/:shopId',
+        builder: (context, state) =>
+            ShopScreen(shopId: state.pathParameters['shopId']!),
+      ),
     ],
   );
   ref.onDispose(router.dispose);
