@@ -78,6 +78,16 @@ class ApiClient {
     Map<String, Object?> body,
   ) => _send(() => _dio.post<Object?>(path, data: body));
 
+  /// POSTs an empty JSON object when the API answers 204 No Content.
+  /// Throws [ApiException].
+  Future<void> postNoContent(String path) async {
+    try {
+      await _dio.post<Object?>(path, data: const <String, Object?>{});
+    } on DioException catch (error) {
+      throw apiExceptionFrom(error);
+    }
+  }
+
   /// PATCHes [path] with a JSON [body]. Throws [ApiException].
   Future<Map<String, Object?>> patchJson(
     String path,

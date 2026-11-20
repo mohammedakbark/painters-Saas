@@ -9,7 +9,7 @@ import '../../routing/paths.dart';
 
 /// The cart (CUS-004): one shop's items with size, shade, price and
 /// quantity. Opening it checks today's prices and availability with the
-/// shop. Checkout (pickup or delivery, placing the order) comes next.
+/// shop. Checkout opens from here once nothing blocks the order (CUS-006).
 class CartScreen extends ConsumerStatefulWidget {
   const CartScreen({super.key});
 
@@ -97,7 +97,13 @@ class _CartScreenState extends ConsumerState<CartScreen> {
       },
       bottomBar: value == null
           ? null
-          : AppBottomActionBar(child: _Summary(cart: value)),
+          : AppBottomActionBar(
+              child: _Summary(
+                cart: value,
+                // Fresh prices first; nothing that can't be ordered.
+                canCheckout: !_checking && !_checkFailed && !value.hasIssues,
+              ),
+            ),
     );
   }
 }
@@ -288,9 +294,10 @@ class _LineCard extends ConsumerWidget {
 }
 
 class _Summary extends StatelessWidget {
-  const _Summary({required this.cart});
+  const _Summary({required this.cart, required this.canCheckout});
 
   final Cart cart;
+  final bool canCheckout;
 
   @override
   Widget build(BuildContext context) {
@@ -320,10 +327,19 @@ class _Summary extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.s4),
         Text(
-          'Pickup or delivery and the delivery charge are chosen at checkout, '
-          'which comes in the next update. You pay the shop at pickup or '
-          'delivery.',
+          cart.hasIssues
+              ? 'Remove the items that cannot be ordered to check out.'
+              : 'Choose pickup or delivery at checkout. You pay the shop at '
+                    'pickup or delivery.',
           style: textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+        ),
+        const SizedBox(height: AppSpacing.s12),
+        AppButton(
+          key: const Key('checkout'),
+          label: 'Checkout',
+          icon: Icons.arrow_forward,
+          expand: true,
+          onPressed: canCheckout ? () => context.push(checkoutPath) : null,
         ),
       ],
     );

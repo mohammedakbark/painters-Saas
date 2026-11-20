@@ -23,6 +23,13 @@ String shopPath(String shopId) => '/shop/${Uri.encodeComponent(shopId)}';
 /// Above the tabs: the cart (CUS-004).
 const cartPath = '/cart';
 
+// Checkout and orders (CUS-006), above the tabs.
+const checkoutPath = '/checkout';
+const newDeliveryPlacePath = '/delivery-place/new';
+String orderPath(String orderId) => '/order/${Uri.encodeComponent(orderId)}';
+String orderPlacedPath(String orderId, int number) =>
+    '${orderPath(orderId)}/placed?number=$number';
+
 /// Above the tabs: a shop's products and one product (CUS-003).
 String shopProductsPath(String shopId) => '${shopPath(shopId)}/products';
 String productPath(String shopId, String productId) =>

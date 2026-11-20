@@ -291,9 +291,9 @@ Every feature with UI finds its screens below, records them in its spec's Design
 | Shop App › Home, Orders, Order page, Record an order, Products, Product page, Shades, Customers, Customer page, Shop settings, Side menu | UI-103 and earlier | Built; greeting and "Newest orders" on Home not yet |
 | Customer App › Sign up and type, Home storefront, Product and shade, Cart, My Shops, Find shops, Shop page, More | UI-104 and earlier | Built |
 | Customer App › Sites | CUS-005 | Built (list, add or edit with map pin, archive) |
-| Customer App › Site spend, painter's site card on Home | CUS-006 or later (needs orders) | To build |
-| Customer App › Checkout (pickup or delivery radio cards, site for painters, totals) | CUS-006 | To build |
-| Customer App › My Orders, Order tracking (steps) | CUS-006 | To build |
+| Customer App › Site spend, painter's site card on Home | CUS-007 | To build next |
+| Customer App › Checkout, Order placed | CUS-006 | Built (choices in one column; site-spend line waits for CUS-007) |
+| Customer App › My Orders, Order tracking (steps) | CUS-006 | Built (`AppProgressSteps`; no item thumbnails) |
 | Customer App › Search all shops (active shop first, other shops apart) | Search feature (confirmed rule, CLAUDE.md §3) | To build |
 
 ## 12. States and page anatomy (UX-001, 2026-11-08)

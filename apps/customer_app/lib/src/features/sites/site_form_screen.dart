@@ -299,9 +299,16 @@ class _SiteFormScreenState extends ConsumerState<SiteFormScreen> {
 /// Put the site's pin on the map: move the map under the pin, or use the
 /// phone's precise location (asked only on tap). Returns the point.
 class SitePinScreen extends ConsumerStatefulWidget {
-  const SitePinScreen({super.key, this.initial});
+  const SitePinScreen({
+    super.key,
+    this.initial,
+    this.title = 'Site on the map',
+    this.subtitle = 'Move the map until the pin is on the site',
+  });
 
   final SitePin? initial;
+  final String title;
+  final String subtitle;
 
   @override
   ConsumerState<SitePinScreen> createState() => _SitePinScreenState();
@@ -346,8 +353,8 @@ class _SitePinScreenState extends ConsumerState<SitePinScreen> {
   Widget build(BuildContext context) {
     final pin = _pin;
     return AppScaffold(
-      title: 'Site on the map',
-      subtitle: 'Move the map until the pin is on the site',
+      title: widget.title,
+      subtitle: widget.subtitle,
       bottomBar: AppBottomActionBar(
         child: Row(
           children: [

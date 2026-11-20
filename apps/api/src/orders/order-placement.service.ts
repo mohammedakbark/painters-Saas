@@ -2,6 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { AuditAction, recordAuditEvent } from '../audit/audit.js';
 import type { OrderFulfilment } from '../generated/prisma/enums.js';
 import { Prisma } from '../generated/prisma/client.js';
+import { isUniqueViolation } from '../prisma/prisma-errors.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { problem } from '../shop-catalogue/shop-catalogue-mapping.js';
 import {
@@ -30,6 +31,15 @@ export interface PlaceOrderInput {
     shadeName?: string;
   }[];
   delivery?: { address: string; latitude: number; longitude: number };
+  /** The painter's own site (CUS-006, D-049); checked by the caller. */
+  customerSiteId?: string;
+  /** The app's key for this checkout: a repeat returns the same order. */
+  clientRequestId?: string;
+  /**
+   * The total the person saw at checkout. When today's prices or the
+   * delivery charge give another total, nothing is placed (409).
+   */
+  expectedTotalPaise?: number;
 }
 
 /**
@@ -44,7 +54,38 @@ export class OrderPlacementService {
 
   async place(input: PlaceOrderInput): Promise<{ id: string; number: number }> {
     checkLineCount(input.items);
+    const repeated = await this.earlierPlacement(input);
+    if (repeated) return repeated;
+    try {
+      return await this.placeOnce(input);
+    } catch (error) {
+      // Two identical requests at once: the second finds the first's order.
+      if (isUniqueViolation(error)) {
+        const first = await this.earlierPlacement(input);
+        if (first) return first;
+      }
+      throw error;
+    }
+  }
 
+  /** The order an earlier request with the same key placed, if any. */
+  private async earlierPlacement(
+    input: PlaceOrderInput,
+  ): Promise<{ id: string; number: number } | null> {
+    if (!input.clientRequestId) return null;
+    return this.prisma.order.findFirst({
+      where: {
+        shopId: input.shopId,
+        clientRequestId: input.clientRequestId,
+        customer: { userId: input.userId },
+      },
+      select: { id: true, number: true },
+    });
+  }
+
+  private placeOnce(
+    input: PlaceOrderInput,
+  ): Promise<{ id: string; number: number }> {
     return this.prisma.$transaction(async (tx) => {
       const shop = await lockShopForOrder(tx, input.shopId);
       const customerId = await this.customerFor(tx, input.shopId, input.userId);
@@ -102,6 +143,17 @@ export class OrderPlacementService {
         };
       }
 
+      if (
+        input.expectedTotalPaise !== undefined &&
+        input.expectedTotalPaise !== itemsPaise + chargePaise
+      ) {
+        throw problem(
+          HttpStatus.CONFLICT,
+          'order_total_changed',
+          'Prices, availability or the delivery charge changed. Check your cart and try again.',
+        );
+      }
+
       const number = await takeOrderNumber(tx, input.shopId, shop);
       const order = await tx.order.create({
         data: {
@@ -110,6 +162,8 @@ export class OrderPlacementService {
           number,
           customerId,
           siteLabel: input.siteLabel?.trim() || null,
+          customerSiteId: input.customerSiteId ?? null,
+          clientRequestId: input.clientRequestId ?? null,
           fulfilment: input.fulfilment,
           itemsTotalPaise: itemsPaise,
           deliveryChargePaise: chargePaise,

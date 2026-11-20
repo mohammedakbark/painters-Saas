@@ -28,7 +28,7 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 |---|---|---|
 | Multiple work sites | **Implemented (CUS-005)** | Painter only; normal customers do not need sites. Each site has an accurate map pin (D-049). |
 | Create/edit/archive sites | **Implemented (CUS-005)** | Add, edit, archive and restore; never deleted. Spec: `docs/features/CUS-005-painter-sites.md`. |
-| Attach orders to sites | Confirmed | A painter's order may be site-linked. |
+| Attach orders to sites | **Implemented (CUS-006)** | A painter's order is always for one of their sites (D-049). |
 | Combined site expenditure | Confirmed | Across shops, visible to the painter. |
 | Separate shop bills within a site | Confirmed | Preserve shop-wise transaction detail. |
 | Shop-specific credit | Confirmed | Each shop independently approves and sets terms. |

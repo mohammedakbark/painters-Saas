@@ -4,8 +4,10 @@ import 'package:customer_app/src/auth/auth_repository.dart';
 import 'package:customer_app/src/cart/cart_models.dart';
 import 'package:customer_app/src/cart/cart_providers.dart';
 import 'package:customer_app/src/cart/cart_store.dart';
+import 'package:customer_app/src/delivery/delivery_locations.dart';
 import 'package:customer_app/src/features/shops/shop_screen.dart';
 import 'package:customer_app/src/location/location_service.dart';
+import 'package:customer_app/src/orders/my_orders.dart';
 import 'package:customer_app/src/profile/customer_profile.dart';
 import 'package:customer_app/src/providers.dart';
 import 'package:customer_app/src/shops/active_shop_store.dart';
@@ -527,6 +529,171 @@ class FakeSitesRepository implements SitesRepository {
       _withArchived(siteId, false);
 }
 
+class FakeDeliveryLocationsRepository implements DeliveryLocationsRepository {
+  FakeDeliveryLocationsRepository([List<DeliveryLocation>? places])
+    : places = places ?? [];
+
+  final List<DeliveryLocation> places;
+  int _next = 1;
+
+  @override
+  Future<List<DeliveryLocation>> list() async => [...places];
+
+  @override
+  Future<DeliveryLocation> create(DeliveryLocationDraft draft) async {
+    final place = DeliveryLocation(
+      id: 'place-${_next++}',
+      label: draft.label,
+      address: draft.address,
+      latitude: draft.latitude,
+      longitude: draft.longitude,
+    );
+    places.add(place);
+    return place;
+  }
+
+  @override
+  Future<void> archive(String locationId) async =>
+      places.removeWhere((place) => place.id == locationId);
+}
+
+/// Orders kept in memory (CUS-006). [placed] records every draft;
+/// [rejectNextPlace] fails the next one like the API would.
+class FakeMyOrdersRepository implements MyOrdersRepository {
+  FakeMyOrdersRepository({List<MyOrder>? orders}) : orders = orders ?? [];
+
+  final List<MyOrder> orders;
+  final List<PlaceOrderDraft> placed = [];
+  ApiException? rejectNextPlace;
+
+  @override
+  Future<({String id, int number})> place(PlaceOrderDraft draft) async {
+    final rejection = rejectNextPlace;
+    if (rejection != null) {
+      rejectNextPlace = null;
+      throw rejection;
+    }
+    placed.add(draft);
+    return (id: 'order-${placed.length}', number: 1000 + placed.length);
+  }
+
+  @override
+  Future<({List<MyOrderSummary> items, bool hasMore})> list({
+    int page = 1,
+  }) async => (
+    items: [
+      for (final order in orders)
+        MyOrderSummary(
+          id: order.id,
+          number: order.number,
+          shopId: order.shopId,
+          shopName: order.shopName,
+          placedAt: order.placedAt,
+          status: order.status,
+          fulfilment: order.fulfilment,
+          siteLabel: order.siteLabel,
+          itemCount: order.items.length,
+          totalPaise: order.totalPaise,
+          needsAnswer: order.openSubstitutes.isNotEmpty,
+        ),
+    ],
+    hasMore: false,
+  );
+
+  @override
+  Future<MyOrder> get(String orderId) async {
+    final order = orders.where((o) => o.id == orderId).firstOrNull;
+    if (order == null) {
+      throw const ApiException(status: 404, code: 'order_not_found');
+    }
+    return order;
+  }
+
+  MyOrder _replace(MyOrder updated) {
+    orders
+      ..removeWhere((o) => o.id == updated.id)
+      ..add(updated);
+    return updated;
+  }
+
+  @override
+  Future<MyOrder> cancel(String orderId) async {
+    final o = await get(orderId);
+    return _replace(
+      MyOrder.fromJson({
+        ...orderJson(o),
+        'status': 'CANCELLED',
+        'canCancel': false,
+        'cancelled': {
+          'by': 'CUSTOMER',
+          'reason': null,
+          'at': '2026-11-20T10:00:00.000Z',
+        },
+      }),
+    );
+  }
+
+  @override
+  Future<MyOrder> answerSubstitute(
+    String orderId,
+    String itemId, {
+    required bool accept,
+  }) async {
+    final o = await get(orderId);
+    final offer = o.items.firstWhere((item) => item.id == itemId);
+    final json = orderJson(o);
+    json['items'] = [
+      for (final item in o.items)
+        {
+          ...itemJson(item),
+          if (item.id == itemId)
+            'status': accept ? 'OK' : 'SUBSTITUTE_DECLINED',
+          if (accept && item.id == offer.substituteForId)
+            'status': 'SUBSTITUTED',
+        },
+    ];
+    return _replace(MyOrder.fromJson(json));
+  }
+}
+
+Map<String, Object?> itemJson(MyOrderItem item) => {
+  'id': item.id,
+  'productName': item.productName,
+  'brandName': item.brandName,
+  'packLabel': item.packLabel,
+  'shadeCode': item.shadeCode,
+  'shadeName': item.shadeName,
+  'unitPricePaise': item.unitPricePaise,
+  'quantity': item.quantity,
+  'returnedQuantity': item.returnedQuantity,
+  'status': item.status.apiValue,
+  'shopNote': item.shopNote,
+  'substituteForId': item.substituteForId,
+};
+
+Map<String, Object?> orderJson(MyOrder order) => {
+  'id': order.id,
+  'number': order.number,
+  'shop': {'id': order.shopId, 'name': order.shopName},
+  'status': order.status.apiValue,
+  'fulfilment': order.fulfilment.apiValue,
+  'siteLabel': order.siteLabel,
+  'deliveryAddress': order.deliveryAddress,
+  'items': [for (final item in order.items) itemJson(item)],
+  'totals': {
+    'itemsPaise': order.itemsPaise,
+    'deliveryPaise': order.deliveryPaise,
+    'totalPaise': order.totalPaise,
+  },
+  'payment': {
+    'status': order.paid ? 'PAID' : 'UNPAID',
+    'method': order.paymentMethod,
+  },
+  'cancelled': null,
+  'placedAt': order.placedAt.toIso8601String(),
+  'canCancel': order.canCancel,
+};
+
 Future<void> pumpApp(
   WidgetTester tester, {
   required FakeAuthRepository auth,
@@ -537,6 +704,8 @@ Future<void> pumpApp(
   FakeStorefrontRepository? storefront,
   FakeCartStore? cart,
   FakeSitesRepository? sites,
+  FakeDeliveryLocationsRepository? places,
+  FakeMyOrdersRepository? orders,
 }) async {
   tester.view
     ..physicalSize = const Size(1080, 2340)
@@ -565,6 +734,12 @@ Future<void> pumpApp(
         mapsEnabledProvider.overrideWithValue(false),
         sitesRepositoryProvider.overrideWithValue(
           sites ?? FakeSitesRepository(),
+        ),
+        deliveryLocationsRepositoryProvider.overrideWithValue(
+          places ?? FakeDeliveryLocationsRepository(),
+        ),
+        myOrdersRepositoryProvider.overrideWithValue(
+          orders ?? FakeMyOrdersRepository(),
         ),
       ],
       child: const CustomerApp(),

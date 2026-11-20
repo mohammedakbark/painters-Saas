@@ -15,6 +15,7 @@ export 'src/components/app_choices.dart';
 export 'src/components/app_feedback.dart';
 export 'src/components/app_navigation.dart';
 export 'src/components/app_overlays.dart';
+export 'src/components/app_progress_steps.dart';
 export 'src/components/app_spinner.dart';
 export 'src/components/app_swatch.dart';
 export 'src/components/app_text_field.dart';

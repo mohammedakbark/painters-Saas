@@ -105,19 +105,4 @@ class _ActiveShop extends ConsumerWidget {
   }
 }
 
-/// Orders (CUS-001): empty until ordering comes to the Customer App.
-class OrdersScreen extends StatelessWidget {
-  const OrdersScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) => const AppScaffold(
-    title: 'Orders',
-    body: MessageView(
-      icon: Icons.receipt_long_outlined,
-      title: 'No orders yet',
-      message: 'Orders you place with a shop will appear here.',
-    ),
-  );
-}
-
 String _firstName(String name) => name.trim().split(RegExp(r'\s+')).first;

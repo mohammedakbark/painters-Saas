@@ -10,7 +10,9 @@ import 'src/auth/supabase_auth_repository.dart';
 import 'src/cart/cart_providers.dart';
 import 'src/cart/cart_store.dart';
 import 'src/config/app_config.dart';
+import 'src/delivery/delivery_locations.dart';
 import 'src/location/location_service.dart';
+import 'src/orders/my_orders.dart';
 import 'src/profile/customer_profile.dart';
 import 'src/providers.dart';
 import 'src/shops/active_shop_store.dart';
@@ -66,6 +68,12 @@ Future<void> main() async {
         ),
         cartStoreProvider.overrideWithValue(const SecureCartStore()),
         sitesRepositoryProvider.overrideWithValue(ApiSitesRepository(api)),
+        deliveryLocationsRepositoryProvider.overrideWithValue(
+          ApiDeliveryLocationsRepository(api),
+        ),
+        myOrdersRepositoryProvider.overrideWithValue(
+          ApiMyOrdersRepository(api),
+        ),
       ],
       child: const CustomerApp(),
     ),

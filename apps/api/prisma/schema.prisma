@@ -36,14 +36,15 @@ model User {
   createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt    DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  platformAdmin    PlatformAdmin?
-  auditEvents      AuditEvent[]
-  shopMemberships  ShopMembership[]
-  reviewsSubmitted ShopReview[]     @relation("ShopReviewSubmittedBy")
-  reviewsDecided   ShopReview[]     @relation("ShopReviewDecidedBy")
-  shopCustomers    ShopCustomer[]
-  myShops          CustomerShop[]
-  sites            CustomerSite[]
+  platformAdmin     PlatformAdmin?
+  auditEvents       AuditEvent[]
+  shopMemberships   ShopMembership[]
+  reviewsSubmitted  ShopReview[]               @relation("ShopReviewSubmittedBy")
+  reviewsDecided    ShopReview[]               @relation("ShopReviewDecidedBy")
+  shopCustomers     ShopCustomer[]
+  myShops           CustomerShop[]
+  sites             CustomerSite[]
+  deliveryLocations CustomerDeliveryLocation[]
 
   @@map("users")
 }
@@ -554,6 +555,7 @@ model ShopCustomer {
   /// WHERE user_id IS NULL in the migration); an app-linked record with the
   /// same mobile can exist beside it (D-054, D-055).
   @@index([shopId, phone])
+  @@index([userId])
   @@map("shop_customers")
 }
 
@@ -650,6 +652,12 @@ model Order {
   siteLabel           String?            @map("site_label")
   /// A site the shop recorded (ORD-004).
   siteId              String?            @map("site_id") @db.Uuid
+  /// The painter's own site the order is for (CUS-006, D-049), for site
+  /// spend across shops (CUS-007). Set only on app orders by painters.
+  customerSiteId      String?            @map("customer_site_id") @db.Uuid
+  /// The app's key for one checkout, so a repeated request never places a
+  /// second order (CUS-006).
+  clientRequestId     String?            @map("client_request_id") @db.Uuid
   source              OrderSource        @default(APP)
   /// The shop member who recorded the order (source SHOP).
   createdByUserId     String?            @map("created_by_user_id") @db.Uuid
@@ -677,17 +685,20 @@ model Order {
   cancelledAt         DateTime?          @map("cancelled_at") @db.Timestamptz(3)
   updatedAt           DateTime           @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  shop     Shop         @relation(fields: [shopId], references: [id], onDelete: Restrict)
-  customer ShopCustomer @relation(fields: [shopId, customerId], references: [shopId, id], onDelete: Restrict)
-  site     ShopSite?    @relation(fields: [shopId, siteId], references: [shopId, id], onDelete: Restrict)
-  items    OrderItem[]
-  events   OrderEvent[]
+  shop         Shop          @relation(fields: [shopId], references: [id], onDelete: Restrict)
+  customer     ShopCustomer  @relation(fields: [shopId, customerId], references: [shopId, id], onDelete: Restrict)
+  site         ShopSite?     @relation(fields: [shopId, siteId], references: [shopId, id], onDelete: Restrict)
+  customerSite CustomerSite? @relation(fields: [customerSiteId], references: [id], onDelete: Restrict)
+  items        OrderItem[]
+  events       OrderEvent[]
 
   @@unique([shopId, id])
   @@unique([shopId, number])
+  @@unique([shopId, clientRequestId])
   @@index([shopId, status, placedAt])
   @@index([shopId, placedAt])
   @@index([shopId, customerId])
+  @@index([customerSiteId])
   @@map("orders")
 }
 
@@ -793,8 +804,32 @@ model CustomerSite {
   createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
 
+  orders Order[]
+
   user User @relation(fields: [userId], references: [id], onDelete: Restrict)
 
   @@index([userId, archivedAt])
   @@map("customer_sites")
+}
+
+/// A normal customer's saved delivery place (CUS-006, D-049, D-061), such as
+/// "Home": a label, the house or business name and place, and a map pin.
+/// Private to the person; archived, never deleted.
+model CustomerDeliveryLocation {
+  id         String    @id @default(uuid(7)) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  /// For example "Home" or "Office". Trimmed, 1–40 characters.
+  label      String
+  /// House or business name, street and place. 5–300 characters.
+  address    String
+  latitude   Decimal   @db.Decimal(9, 6)
+  longitude  Decimal   @db.Decimal(9, 6)
+  archivedAt DateTime? @map("archived_at") @db.Timestamptz(3)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId, archivedAt])
+  @@map("customer_delivery_locations")
 }
