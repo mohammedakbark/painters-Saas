@@ -87,6 +87,11 @@ final class AppPalette {
     required this.topBarBrandBackground,
     required this.topBarBrandForeground,
     required this.topBarBrandMuted,
+    required this.contextBannerRadius,
+    required this.contextBannerBackground,
+    required this.contextBannerForeground,
+    required this.contextBannerMuted,
+    required this.contextBannerAction,
     required this.chipRadius,
     required this.chipBackground,
     required this.chipForeground,
@@ -349,6 +354,21 @@ final class AppPalette {
   /// Component token topBarBrand.muted.
   final Color topBarBrandMuted;
 
+  /// Component token contextBanner.radius.
+  final double contextBannerRadius;
+
+  /// Component token contextBanner.background.
+  final Color contextBannerBackground;
+
+  /// Component token contextBanner.foreground.
+  final Color contextBannerForeground;
+
+  /// Component token contextBanner.muted.
+  final Color contextBannerMuted;
+
+  /// Component token contextBanner.action.
+  final Color contextBannerAction;
+
   /// Component token chip.radius.
   final double chipRadius;
 
@@ -507,6 +527,11 @@ final class AppPalette {
     topBarBrandBackground: Color(0xFF0B4F4B),
     topBarBrandForeground: Color(0xFFFFFFFF),
     topBarBrandMuted: Color(0xFFE3F2EF),
+    contextBannerRadius: 16,
+    contextBannerBackground: Color(0xFF132A29),
+    contextBannerForeground: Color(0xFFFFFFFF),
+    contextBannerMuted: Color(0xFFD3CBBB),
+    contextBannerAction: Color(0xFFF7C344),
     chipRadius: 999,
     chipBackground: Color(0xFFFFFFFF),
     chipForeground: Color(0xFF566A68),
@@ -615,6 +640,11 @@ final class AppPalette {
     topBarBrandBackground: Color(0xFF0E3DAA),
     topBarBrandForeground: Color(0xFFFFFFFF),
     topBarBrandMuted: Color(0xFFE7EEFE),
+    contextBannerRadius: 16,
+    contextBannerBackground: Color(0xFF0B1B3F),
+    contextBannerForeground: Color(0xFFFFFFFF),
+    contextBannerMuted: Color(0xFFC9D0DE),
+    contextBannerAction: Color(0xFFFFC629),
     chipRadius: 999,
     chipBackground: Color(0xFFFFFFFF),
     chipForeground: Color(0xFF5D6884),

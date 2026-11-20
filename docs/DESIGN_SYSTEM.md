@@ -162,6 +162,7 @@ Each property names a base token: `radius` a radius token, `minHeight` a layout 
 | `buttonPrimary`, `buttonSecondary`, `buttonTertiary`, `buttonDestructive` | button variants | background, hover, foreground (and border) |
 | `sidebar` (DS-006) | the web console sidebar in the redesign | filled `brand.primaryStrong`, white text, muted `brand.primarySoft`; current item white with `brand.primaryStrong` text; counts `brand.accent` with `text.primary` |
 | `chip` (UI-103) | `AppChoiceChips` | selected filled `brand.primaryStrong` (Customer App `brand.primary`) with white text; others white with `border.strong` |
+| `contextBanner` (UI-104) | `AppContextBanner` | dark `text.primary` with white text, muted `border.strong`, action in `brand.accent` |
 | `topBarBrand` (UI-103) | `AppScaffold(brandBar: true)`, `AppBrandBand` | filled `brand.primaryStrong`, white text, muted `brand.primarySoft` |
 | `statTileLead` (DS-006) | the first tile of a KPI row (`StatTile lead`) | filled `brand.primaryStrong`, white figures, muted `brand.primarySoft` |
 

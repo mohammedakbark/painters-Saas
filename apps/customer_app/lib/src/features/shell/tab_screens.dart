@@ -9,7 +9,6 @@ import '../../providers.dart';
 import '../../routing/paths.dart';
 import '../../shops/shop_providers.dart';
 import '../cart/cart_button.dart';
-import '../shops/shop_card.dart';
 import '../storefront/storefront_view.dart';
 
 /// Home: the storefront of the shop the person is shopping from (CUS-003),
@@ -60,7 +59,6 @@ class _ActiveShop extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final shop = ref.watch(shopProvider(shopId));
-    final textTheme = Theme.of(context).textTheme;
     if (shop case AsyncError(:final error)
         when error is ApiException && error.status == 404) {
       // The shop is no longer Live: forget it and offer to choose again.
@@ -69,49 +67,39 @@ class _ActiveShop extends ConsumerWidget {
     return StorefrontView(
       key: ValueKey('storefront-$shopId'),
       shopId: shopId,
-      header: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            'Shopping from',
-            style: textTheme.labelLarge?.copyWith(
-              color: AppColors.textSecondary,
-            ),
+      header: Padding(
+        padding: const EdgeInsets.only(bottom: AppSpacing.s12),
+        child: switch (shop) {
+          // The design (UI-104): a dark "Shopping from" banner; tapping it
+          // changes the shop.
+          AsyncData(:final value) => AppContextBanner(
+            key: const Key('change-shop'),
+            caption: 'Shopping from',
+            title: value.name,
+            actionLabel: 'Change',
+            leading: value.thumbUrl == null
+                ? null
+                : AppNetworkImage(
+                    url: value.thumbUrl!,
+                    semanticLabel: value.name,
+                    rounded: true,
+                  ),
+            onTap: () => context.push(findShopsPath),
           ),
-          const SizedBox(height: AppSpacing.s8),
-          switch (shop) {
-            AsyncData(:final value) => ShopCard(
-              shop: value,
-              active: true,
-              onTap: () => context.push(shopPath(value.id)),
-            ),
-            AsyncError() => AppInlineMessage(
-              message: "We couldn't load your shop.",
-              tone: AppTone.error,
-              action: AppButton(
-                label: 'Try again',
-                variant: AppButtonVariant.tertiary,
-                onPressed: () => ref.invalidate(shopProvider(shopId)),
-              ),
-            ),
-            _ => const SizedBox(
-              height: AppSpacing.s48,
-              child: Center(child: AppSpinner.small()),
-            ),
-          },
-          const SizedBox(height: AppSpacing.s8),
-          Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: AppButton(
-              key: const Key('change-shop'),
-              label: 'Change shop',
-              icon: Icons.swap_horiz,
+          AsyncError() => AppInlineMessage(
+            message: "We couldn't load your shop.",
+            tone: AppTone.error,
+            action: AppButton(
+              label: 'Try again',
               variant: AppButtonVariant.tertiary,
-              onPressed: () => context.push(findShopsPath),
+              onPressed: () => ref.invalidate(shopProvider(shopId)),
             ),
           ),
-          const SizedBox(height: AppSpacing.s8),
-        ],
+          _ => const SizedBox(
+            height: AppSpacing.s48,
+            child: Center(child: AppSpinner.small()),
+          ),
+        },
       ),
     );
   }

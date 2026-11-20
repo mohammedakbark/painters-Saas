@@ -50,21 +50,23 @@ class ProductCard extends StatelessWidget {
                   ),
           ),
           const SizedBox(height: AppSpacing.s8),
+          // Brand above the name, as in the design (UI-104); shown as entered.
+          if (brand != null)
+            Text(
+              brand,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: textTheme.labelSmall?.copyWith(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           Text(
             product.name,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
           ),
-          if (brand != null)
-            Text(
-              brand,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: textTheme.bodySmall?.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
           const Spacer(),
           const SizedBox(height: AppSpacing.s8),
           Text(

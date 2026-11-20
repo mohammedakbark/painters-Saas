@@ -190,3 +190,95 @@ class AppNavRow extends StatelessWidget {
     );
   }
 }
+
+/// A dark banner naming the current context, such as "Shopping at ABC
+/// Paints", with a short action in the accent colour, such as "Change"
+/// (UI-104, `component.contextBanner`). The whole banner is one touch target
+/// for that action.
+class AppContextBanner extends StatelessWidget {
+  const AppContextBanner({
+    super.key,
+    required this.caption,
+    required this.title,
+    required this.actionLabel,
+    required this.onTap,
+    this.leading,
+  });
+
+  final String caption;
+  final String title;
+  final String actionLabel;
+  final VoidCallback onTap;
+
+  /// For example the shop's photo.
+  final Widget? leading;
+
+  @override
+  Widget build(BuildContext context) {
+    final leading = this.leading;
+    final foreground = AppComponentTokens.contextBannerForeground;
+    return Semantics(
+      button: true,
+      label: '$caption $title. $actionLabel',
+      excludeSemantics: true,
+      child: Material(
+        color: AppComponentTokens.contextBannerBackground,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(
+            AppComponentTokens.contextBannerRadius,
+          ),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.s12),
+            child: Row(
+              children: [
+                if (leading != null) ...[
+                  SizedBox.square(dimension: AppSpacing.s48, child: leading),
+                  const SizedBox(width: AppSpacing.s12),
+                ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        caption,
+                        style: AppTypography.caption.copyWith(
+                          color: AppComponentTokens.contextBannerMuted,
+                        ),
+                      ),
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.bodyLarge.copyWith(
+                          color: foreground,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.s8),
+                Text(
+                  actionLabel,
+                  style: AppTypography.body.copyWith(
+                    color: AppComponentTokens.contextBannerAction,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                Icon(
+                  Icons.expand_more,
+                  size: AppSpacing.s16 + AppSpacing.s4,
+                  color: AppComponentTokens.contextBannerAction,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

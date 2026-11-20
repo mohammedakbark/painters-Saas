@@ -102,6 +102,17 @@ abstract final class AppComponentTokens {
       AppPalette.current.topBarBrandForeground;
   static Color get topBarBrandMuted => AppPalette.current.topBarBrandMuted;
 
+  /// The dark banner that names the current context, such as the shop the customer is shopping at, with a short action in the accent colour (UI-104).
+  static double get contextBannerRadius =>
+      AppPalette.current.contextBannerRadius;
+  static Color get contextBannerBackground =>
+      AppPalette.current.contextBannerBackground;
+  static Color get contextBannerForeground =>
+      AppPalette.current.contextBannerForeground;
+  static Color get contextBannerMuted => AppPalette.current.contextBannerMuted;
+  static Color get contextBannerAction =>
+      AppPalette.current.contextBannerAction;
+
   /// One-of-many chips in the apps (AppChoiceChips): the selected chip is filled with white text and a translucent count (UI-103).
   static double get chipRadius => AppPalette.current.chipRadius;
   static Color get chipBackground => AppPalette.current.chipBackground;

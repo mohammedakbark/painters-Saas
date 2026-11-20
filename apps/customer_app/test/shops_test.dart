@@ -196,7 +196,8 @@ void main() {
     expect(store.value, 't');
     expect(find.text("You're shopping from Thrissur Colours."), findsOneWidget);
     expect(find.text('Shopping from'), findsOneWidget);
-    expect(find.text('Shopping here'), findsOneWidget);
+    // The Home banner names the shop and offers to change it (UI-104).
+    expect(find.byKey(const Key('change-shop')), findsOneWidget);
     expect(find.text('Thrissur Colours'), findsOneWidget);
   });
 

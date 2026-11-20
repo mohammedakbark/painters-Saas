@@ -77,6 +77,10 @@
   --color-top-bar-brand-background: var(--color-brand-primary-strong);
   --color-top-bar-brand-foreground: var(--color-surface-default);
   --color-top-bar-brand-muted: var(--color-brand-primary-soft);
+  --color-context-banner-background: var(--color-text-primary);
+  --color-context-banner-foreground: var(--color-surface-default);
+  --color-context-banner-muted: var(--color-border-strong);
+  --color-context-banner-action: var(--color-brand-accent);
   --color-chip-background: var(--color-surface-default);
   --color-chip-foreground: var(--color-text-secondary);
   --color-chip-border: var(--color-border-strong);
@@ -138,6 +142,7 @@
   --radius-swatch: var(--radius-small);
   --radius-badge: var(--radius-pill);
   --radius-bottom-nav: var(--radius-pill);
+  --radius-context-banner: var(--radius-large);
   --radius-chip: var(--radius-pill);
   --radius-drawer: var(--radius-large);
 
