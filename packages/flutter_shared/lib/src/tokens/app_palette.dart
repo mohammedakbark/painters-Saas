@@ -77,6 +77,16 @@ final class AppPalette {
     required this.bottomNavInactive,
     required this.bottomNavCount,
     required this.bottomNavCountForeground,
+    required this.sidebarBackground,
+    required this.sidebarForeground,
+    required this.sidebarMuted,
+    required this.sidebarActiveBackground,
+    required this.sidebarActiveForeground,
+    required this.sidebarCount,
+    required this.sidebarCountForeground,
+    required this.statTileLeadBackground,
+    required this.statTileLeadForeground,
+    required this.statTileLeadMuted,
     required this.drawerRadius,
     required this.drawerBackground,
     required this.drawerSelectedBackground,
@@ -300,6 +310,36 @@ final class AppPalette {
   /// Component token bottomNav.countForeground.
   final Color bottomNavCountForeground;
 
+  /// Component token sidebar.background.
+  final Color sidebarBackground;
+
+  /// Component token sidebar.foreground.
+  final Color sidebarForeground;
+
+  /// Component token sidebar.muted.
+  final Color sidebarMuted;
+
+  /// Component token sidebar.activeBackground.
+  final Color sidebarActiveBackground;
+
+  /// Component token sidebar.activeForeground.
+  final Color sidebarActiveForeground;
+
+  /// Component token sidebar.count.
+  final Color sidebarCount;
+
+  /// Component token sidebar.countForeground.
+  final Color sidebarCountForeground;
+
+  /// Component token statTileLead.background.
+  final Color statTileLeadBackground;
+
+  /// Component token statTileLead.foreground.
+  final Color statTileLeadForeground;
+
+  /// Component token statTileLead.muted.
+  final Color statTileLeadMuted;
+
   /// Component token drawer.radius.
   final double drawerRadius;
 
@@ -421,6 +461,16 @@ final class AppPalette {
     bottomNavInactive: Color(0xFF566A68),
     bottomNavCount: Color(0xFFB42318),
     bottomNavCountForeground: Color(0xFFFFFFFF),
+    sidebarBackground: Color(0xFF0B4F4B),
+    sidebarForeground: Color(0xFFFFFFFF),
+    sidebarMuted: Color(0xFFE3F2EF),
+    sidebarActiveBackground: Color(0xFFFFFFFF),
+    sidebarActiveForeground: Color(0xFF0B4F4B),
+    sidebarCount: Color(0xFFF7C344),
+    sidebarCountForeground: Color(0xFF132A29),
+    statTileLeadBackground: Color(0xFF0B4F4B),
+    statTileLeadForeground: Color(0xFFFFFFFF),
+    statTileLeadMuted: Color(0xFFE3F2EF),
     drawerRadius: 16,
     drawerBackground: Color(0xFFFFFFFF),
     drawerSelectedBackground: Color(0xFFE3F2EF),
@@ -510,6 +560,16 @@ final class AppPalette {
     bottomNavInactive: Color(0xFF5D6884),
     bottomNavCount: Color(0xFFB42318),
     bottomNavCountForeground: Color(0xFFFFFFFF),
+    sidebarBackground: Color(0xFF0E3DAA),
+    sidebarForeground: Color(0xFFFFFFFF),
+    sidebarMuted: Color(0xFFE7EEFE),
+    sidebarActiveBackground: Color(0xFFFFFFFF),
+    sidebarActiveForeground: Color(0xFF0E3DAA),
+    sidebarCount: Color(0xFFFFC629),
+    sidebarCountForeground: Color(0xFF0B1B3F),
+    statTileLeadBackground: Color(0xFF0E3DAA),
+    statTileLeadForeground: Color(0xFFFFFFFF),
+    statTileLeadMuted: Color(0xFFE7EEFE),
     drawerRadius: 16,
     drawerBackground: Color(0xFFFFFFFF),
     drawerSelectedBackground: Color(0xFFE7EEFE),

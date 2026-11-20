@@ -18,6 +18,11 @@ export interface NavItem {
   count?: number;
   /** Read out with the count, e.g. "new orders". */
   countLabel?: string;
+  /**
+   * An area planned for a later phase (D-060): shown greyed out with this tag,
+   * e.g. "Phase 3", and not a link.
+   */
+  later?: string;
 }
 
 const LIST = {
@@ -32,16 +37,19 @@ const ITEM = {
     active:
       'bg-brand-primary-soft font-semibold text-brand-primary before:absolute before:inset-y-2.5 before:-left-3 before:w-1 before:rounded-badge before:bg-brand-primary',
     idle: 'text-text-secondary hover:bg-surface-subtle hover:text-text-primary',
+    later: 'text-text-disabled',
   },
   horizontal: {
     base: 'flex min-h-11 items-center gap-2 rounded-badge border px-4 text-body font-medium whitespace-nowrap transition-colors',
     active: 'border-brand-primary bg-brand-primary text-surface-default',
     idle: 'border-border-default bg-surface-default text-text-secondary hover:text-text-primary',
+    later: 'border-border-default text-text-disabled',
   },
   tabs: {
     base: '-mb-px flex min-h-11 items-center gap-2 border-b-2 text-body font-semibold whitespace-nowrap transition-colors',
     active: 'border-brand-primary text-brand-primary',
     idle: 'border-transparent text-text-secondary hover:border-border-strong hover:text-text-primary',
+    later: 'border-transparent text-text-disabled',
   },
 } as const;
 
@@ -78,6 +86,39 @@ export function NavLinks({
             (item.exact
               ? pathname === item.href
               : pathname === item.href || pathname.startsWith(`${item.href}/`));
+          if (item.later) {
+            return (
+              <li key={item.href} className="shrink-0">
+                <span
+                  aria-disabled="true"
+                  title={
+                    collapsed ? `${item.label} (${item.later})` : undefined
+                  }
+                  className={cn(
+                    styles.base,
+                    collapsed && 'justify-center px-0',
+                    'cursor-not-allowed',
+                    styles.later,
+                  )}
+                >
+                  {item.icon ? (
+                    <Icon name={item.icon} className="size-5" />
+                  ) : null}
+                  <span className={collapsed ? 'sr-only' : undefined}>
+                    {item.label}
+                  </span>
+                  <span
+                    className={cn(
+                      'ml-auto rounded-badge border border-current px-1.5 text-caption font-semibold whitespace-nowrap',
+                      collapsed && 'sr-only',
+                    )}
+                  >
+                    {item.later}
+                  </span>
+                </span>
+              </li>
+            );
+          }
           return (
             <li key={item.href} className="shrink-0">
               <Link

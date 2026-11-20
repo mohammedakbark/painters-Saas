@@ -30,4 +30,11 @@ describe('StatTile', () => {
     render(<StatTile label="Today's sales" value="₹2,450" />);
     expect(screen.getByText('₹2,450')).toBeTruthy();
   });
+
+  it('fills the lead tile and keeps it a link', () => {
+    render(<StatTile lead label="New orders" value={3} href="/o" />);
+    const link = screen.getByRole('link');
+    expect(link.className).toContain('bg-stat-tile-lead-background');
+    expect(link.textContent).toContain('3');
+  });
 });

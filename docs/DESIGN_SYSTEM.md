@@ -1,7 +1,7 @@
 # Design System
 
 **Status:** Provisional visual foundation — review before detailed screen design  
-**Last updated:** 2026-11-04
+**Last updated:** 2026-11-20 (DS-006: UI redesign foundation)
 
 The product should feel clear, dependable and practical for local paint shops, painters and customers. Avoid a generic admin-template appearance. Prioritize product information, readable prices, clear shop context and simple actions. Product name SevenPalette with the shade-card fan logo (D-040, DS-003).
 
@@ -160,6 +160,8 @@ Each property names a base token: `radius` a radius token, `minHeight` a layout 
 | `badge` | status badges | radius `pill` |
 | `image`, `swatch`, `navItem` | photos, shade swatches, sidebar links | radius `medium`, `small`, `small` |
 | `buttonPrimary`, `buttonSecondary`, `buttonTertiary`, `buttonDestructive` | button variants | background, hover, foreground (and border) |
+| `sidebar` (DS-006) | the web console sidebar in the redesign | filled `brand.primaryStrong`, white text, muted `brand.primarySoft`; current item white with `brand.primaryStrong` text; counts `brand.accent` with `text.primary` |
+| `statTileLead` (DS-006) | the first tile of a KPI row (`StatTile lead`) | filled `brand.primaryStrong`, white figures, muted `brand.primarySoft` |
 
 Web utilities: `rounded-control`, `min-h-control`, `rounded-card`, `border-card-border`, `bg-button-primary-background` and so on. Flutter: `AppComponentTokens.controlRadius`, `cardBorder`, `buttonPrimaryBackground` and so on.
 
@@ -185,6 +187,8 @@ Web utilities: `rounded-control`, `min-h-control`, `rounded-card`, `border-card-
 | `StateMessage variant="plain"` (UX-001) | empty states inside a card or table (no second border) |
 | `Combobox` (CAT-005) | search with suggestions and a "create new" option, ARIA combobox |
 | `SegmentedLinks` | switching a list between views (e.g. Selling and Archived), links with `aria-current`; scrolls sideways inside itself when the segments don't fit |
+| `ProgressSteps` (DS-006) | where a record is in a fixed sequence (an order's steps): done green with a tick, current with a ring, later grey; state also in words |
+| `StatTile` `lead`, `SegmentedLinks` `count`, `NavItem.later` (DS-006) | the filled headline tile; a count beside a segment (the current one on `brand.primarySoft`); a later-phase area greyed out with a tag such as "Phase 3", not a link (D-060) |
 | `Button` size `compact` (ORD-002) | a quiet action inside a table row (e.g. the order's next step); everywhere else the default size |
 | `showToast` / `ToastHost` (ORD-002) | a page-level toast for actions whose own component may disappear after the change (a row leaving the current tab) |
 | `AppShell` (`area` with caption, name and switch link; icon `nav`), `NavLinks` (`vertical`, `horizontal`, `tabs`; optional `icon`), `PageLoading` (placeholder skeleton) | console frame, navigation, page loading |
@@ -265,6 +269,10 @@ Token implementations (generated since DS-001, 2026-11-04):
 - Flutter shared widget added in SHP-003: `ShopLocationMap` (a static OpenStreetMap preview with the shop pin and the attribution since SHP-006, or a bordered panel with the coordinates when maps are turned off); the only place the apps use a map provider.
 - Flutter shared widgets (since SHP-002, `packages/flutter_shared`): `LoadingView` (spinner with a visible message), `MessageView` (title, explanation and action for empty, access and not-found states) and `ErrorView` (with "Try again"). The Shop App shows status as text (a badge since DS-002), uses 48 px minimum touch targets, and lets error text wrap instead of truncating.
 - DS-002 (D-039): component tokens and the component library in §8. The web and Flutter now share one definition per component: the Flutter secondary button uses dark text like the web (it was brand blue), buttons use the body-large semibold label on both, the shop status is a pill badge (was a chip), and location messages in the Shop App sit in an inline message box (were coloured text).
+
+## 11. UI redesign (2026-11-20)
+
+The owner's design artifact "SevenPalette Screens" (claude.ai `VrnTXsW7v9hiNEWEHngTqr`) is the visual reference for all four surfaces. It uses the tokens above; the changes are layout and components: a deep-teal console sidebar with a white current item, a white page bar with breadcrumb, title and actions, a filled lead KPI tile, segments with counts and order progress steps. Rolled out one surface at a time: DS-006 (shared foundation), UI-101 Shop Admin web, UI-102 Platform Admin web, UI-103 Shop App, UI-104 Customer App. Its sample data is illustration only.
 
 ## 12. States and page anatomy (UX-001, 2026-11-08)
 

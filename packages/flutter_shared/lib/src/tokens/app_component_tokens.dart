@@ -83,6 +83,25 @@ abstract final class AppComponentTokens {
   static Color get bottomNavCountForeground =>
       AppPalette.current.bottomNavCountForeground;
 
+  /// The web console sidebar (UI redesign, 2026-11-20): filled deep teal with white text; the current item is a white tile with teal text; counts in sunflower with dark text.
+  static Color get sidebarBackground => AppPalette.current.sidebarBackground;
+  static Color get sidebarForeground => AppPalette.current.sidebarForeground;
+  static Color get sidebarMuted => AppPalette.current.sidebarMuted;
+  static Color get sidebarActiveBackground =>
+      AppPalette.current.sidebarActiveBackground;
+  static Color get sidebarActiveForeground =>
+      AppPalette.current.sidebarActiveForeground;
+  static Color get sidebarCount => AppPalette.current.sidebarCount;
+  static Color get sidebarCountForeground =>
+      AppPalette.current.sidebarCountForeground;
+
+  /// The first, headline tile of a KPI row: filled deep teal with white figures.
+  static Color get statTileLeadBackground =>
+      AppPalette.current.statTileLeadBackground;
+  static Color get statTileLeadForeground =>
+      AppPalette.current.statTileLeadForeground;
+  static Color get statTileLeadMuted => AppPalette.current.statTileLeadMuted;
+
   /// The app's side menu with the person, the shop and the less frequent areas.
   static double get drawerRadius => AppPalette.current.drawerRadius;
   static Color get drawerBackground => AppPalette.current.drawerBackground;

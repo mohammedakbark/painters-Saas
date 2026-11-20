@@ -67,6 +67,16 @@
   --color-bottom-nav-inactive: var(--color-text-secondary);
   --color-bottom-nav-count: var(--color-status-error);
   --color-bottom-nav-count-foreground: var(--color-surface-default);
+  --color-sidebar-background: var(--color-brand-primary-strong);
+  --color-sidebar-foreground: var(--color-surface-default);
+  --color-sidebar-muted: var(--color-brand-primary-soft);
+  --color-sidebar-active-background: var(--color-surface-default);
+  --color-sidebar-active-foreground: var(--color-brand-primary-strong);
+  --color-sidebar-count: var(--color-brand-accent);
+  --color-sidebar-count-foreground: var(--color-text-primary);
+  --color-stat-tile-lead-background: var(--color-brand-primary-strong);
+  --color-stat-tile-lead-foreground: var(--color-surface-default);
+  --color-stat-tile-lead-muted: var(--color-brand-primary-soft);
   --color-drawer-background: var(--color-surface-raised);
   --color-drawer-selected-background: var(--color-brand-primary-soft);
   --color-action-bar-background: var(--color-surface-raised);

@@ -322,4 +322,23 @@ describe('Required fields', () => {
       'Fields marked *with an asterisk are required.',
     );
   });
+
+  it('shows a later-phase area greyed out with its tag, not as a link', () => {
+    render(
+      <NavLinks
+        orientation="vertical"
+        items={[
+          {
+            href: '/shops/shop-1/bills',
+            label: 'Bills & credit',
+            later: 'Phase 3',
+          },
+        ]}
+      />,
+    );
+    expect(screen.queryByRole('link', { name: /Bills/ })).toBeNull();
+    const item = screen.getByText('Bills & credit').parentElement;
+    expect(item?.getAttribute('aria-disabled')).toBe('true');
+    expect(item?.textContent).toContain('Phase 3');
+  });
 });
