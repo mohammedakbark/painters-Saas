@@ -23,10 +23,17 @@ sealed class LocationResult {
 }
 
 final class LocationFound extends LocationResult {
-  const LocationFound({required this.latitude, required this.longitude});
+  const LocationFound({
+    required this.latitude,
+    required this.longitude,
+    this.accuracyMeters = 0,
+  });
 
   final double latitude;
   final double longitude;
+
+  /// How far off the point may be (the phone's estimate).
+  final double accuracyMeters;
 }
 
 final class LocationUnavailable extends LocationResult {
@@ -35,11 +42,11 @@ final class LocationUnavailable extends LocationResult {
   final LocationProblem problem;
 }
 
-/// The phone's approximate position, asked for only when the person taps
-/// "Near me" in Find shops (CUS-002). It is sent to the API only to sort
-/// shops and is never saved. A port so widgets are testable.
+/// The phone's position, asked for only when the person taps "Near me" in
+/// Find shops (CUS-002, approximate, never saved) or "My location" when
+/// pinning a site (CUS-005, [precise]). A port so widgets are testable.
 abstract interface class LocationService {
-  Future<LocationResult> currentLocation();
+  Future<LocationResult> currentLocation({bool precise = false});
 
   Future<void> openAppSettings();
 }
@@ -48,7 +55,7 @@ class GeolocatorLocationService implements LocationService {
   const GeolocatorLocationService();
 
   @override
-  Future<LocationResult> currentLocation() async {
+  Future<LocationResult> currentLocation({bool precise = false}) async {
     if (!await Geolocator.isLocationServiceEnabled()) {
       return const LocationUnavailable(LocationProblem.serviceDisabled);
     }
@@ -70,11 +77,12 @@ class GeolocatorLocationService implements LocationService {
     }
     try {
       final position = await Geolocator.getCurrentPosition(
-        locationSettings: _settings,
+        locationSettings: _settings(precise),
       );
       return LocationFound(
         latitude: position.latitude,
         longitude: position.longitude,
+        accuracyMeters: position.accuracy,
       );
     } on LocationServiceDisabledException {
       return const LocationUnavailable(LocationProblem.serviceDisabled);
@@ -89,20 +97,19 @@ class GeolocatorLocationService implements LocationService {
     }
   }
 
-  /// Approximate is enough to sort shops. On Android the system location
-  /// manager is used, as in the Shop App (no Google consent prompt).
-  static LocationSettings get _settings {
-    const timeLimit = Duration(seconds: 20);
+  /// Approximate is enough to sort shops; a site pin needs GPS. On Android
+  /// the system location manager is used, as in the Shop App (no Google
+  /// consent prompt).
+  static LocationSettings _settings(bool precise) {
+    final accuracy = precise ? LocationAccuracy.high : LocationAccuracy.low;
+    final timeLimit = Duration(seconds: precise ? 30 : 20);
     return defaultTargetPlatform == TargetPlatform.android
         ? AndroidSettings(
-            accuracy: LocationAccuracy.low,
+            accuracy: accuracy,
             timeLimit: timeLimit,
             forceLocationManager: true,
           )
-        : const LocationSettings(
-            accuracy: LocationAccuracy.low,
-            timeLimit: timeLimit,
-          );
+        : LocationSettings(accuracy: accuracy, timeLimit: timeLimit);
   }
 
   @override

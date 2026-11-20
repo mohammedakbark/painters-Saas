@@ -236,8 +236,11 @@ class FakeLocationService implements LocationService {
   int requests = 0;
   int settingsOpened = 0;
 
+  bool? lastPrecise;
+
   @override
-  Future<LocationResult> currentLocation() async {
+  Future<LocationResult> currentLocation({bool precise = false}) async {
+    lastPrecise = precise;
     requests++;
     return result;
   }

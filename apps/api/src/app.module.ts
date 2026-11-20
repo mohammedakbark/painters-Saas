@@ -10,6 +10,7 @@ import { validateEnv } from './config/env.js';
 import { HealthModule } from './health/health.module.js';
 import { PlatformAdminModule } from './platform-admin/platform-admin.module.js';
 import { PlatformShopsModule } from './platform-shops/platform-shops.module.js';
+import { CustomerSitesModule } from './customer-sites/customer-sites.module.js';
 import { ShopDiscoveryModule } from './shop-discovery/shop-discovery.module.js';
 import { ShopsModule } from './shops/shops.module.js';
 import { MediaModule } from './media/media.module.js';
@@ -30,6 +31,7 @@ import { UsersModule } from './users/users.module.js';
     HealthModule,
     UsersModule,
     ShopDiscoveryModule,
+    CustomerSitesModule,
     PlatformAdminModule,
     PlatformShopsModule,
     ShopsModule,

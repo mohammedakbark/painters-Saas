@@ -1,8 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Sign-in (Supabase Auth) and the API need network access in every build. -->
     <uses-permission android:name="android.permission.INTERNET"/>
-    <!-- "Near me" in Find shops (CUS-002); approximate is enough, asked only on tap. -->
+    <!-- Asked only on tap: "Near me" in Find shops (CUS-002, approximate) and
+         "My location" when pinning a painter's site (CUS-005, precise). -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <application
         android:label="SevenPalette"
         android:allowBackup="false"
