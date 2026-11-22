@@ -89,6 +89,16 @@ class ApiClient {
   Future<Map<String, Object?>> deleteJson(String path) =>
       _send(() => _dio.delete<Object?>(path));
 
+  /// POSTs a JSON [body] when the API answers 204 No Content.
+  /// Throws [ApiException].
+  Future<void> post(String path, Map<String, Object?> body) async {
+    try {
+      await _dio.post<Object?>(path, data: body);
+    } on DioException catch (error) {
+      throw apiExceptionFrom(error);
+    }
+  }
+
   /// DELETEs [path] when the API answers 204 No Content.
   /// Throws [ApiException].
   Future<void> delete(String path) async {

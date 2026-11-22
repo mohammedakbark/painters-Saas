@@ -1,7 +1,7 @@
 # CON-001: Connecting a shop's records to the app
 
 - **Feature ID:** CON-001
-- **Status:** Complete on the server, shop web and Customer App (local; API e2e, web and Flutter tests). Not seen in a browser or on a device. The Shop App's approve screen is CON-002.
+- **Status:** Complete on the server, shop web, Customer App and Shop App (CON-002) (local; API e2e, web and Flutter tests). Not seen in a browser or on a device.
 - **Last updated:** 2026-11-22
 - **Related modules:** API, shop admin web, Customer App
 - **Decisions:** D-054 (shop records private until connected), D-055, D-062 (running bill), D-063 (how connecting works)
@@ -31,7 +31,7 @@ Someone the shop recorded by mobile before they used the app sees those orders a
 | Our screen | Design screen | Status |
 |---|---|---|
 | Shop page › connect card | Customer App › Shop page | Added below Address as an `AppSection`; the design has no such card |
-| Customers › Connection requests | (none) | Card above the customers table; confirmations for both answers |
+| Customers › Connection requests (web) and Customers tab (Shop App, CON-002) | (none) | Card above the customers list; confirmations for both answers |
 
 ## 7. API contract
 
@@ -56,7 +56,7 @@ API: `connect.e2e-spec.ts` (3 tests). Customer App: `shops_test.dart` connect te
 
 ## 12. Not included
 
-- CON-002: the requests in the Shop App.
+- ~~CON-002: the requests in the Shop App.~~ Done: a Connection requests card on the Customers tab (customers permission) with Connect and Decline after a confirmation; `test/connect_test.dart` (3 tests).
 - A notification to the shop when someone asks (push is postponed).
 
 ## 14. Change history

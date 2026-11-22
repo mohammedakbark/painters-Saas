@@ -8,9 +8,11 @@ import '../../customers/customer_providers.dart';
 import '../../orders/order_labels.dart';
 import '../../providers.dart';
 import '../../shops/shop_access_repository.dart';
+import '../../shops/shop_permissions.dart';
 import '../../shops/shop_review.dart';
 import '../catalogue/catalogue_parts.dart';
 import '../shell/shop_shell.dart';
+import 'connect_requests_card.dart';
 import 'customer_labels.dart';
 import 'customer_sheets.dart';
 
@@ -67,6 +69,9 @@ class _CustomerListScreenState extends ConsumerState<CustomerListScreen> {
       body = Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // CON-002: answered by members who manage customers.
+          if (shop?.can(ShopPermission.customersManage) ?? false)
+            ConnectRequestsCard(shopId: widget.shopId),
           Padding(
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.screenPadding,

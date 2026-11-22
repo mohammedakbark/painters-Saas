@@ -10,6 +10,7 @@ import 'package:shop_app/src/catalogue/categories_repository.dart';
 import 'package:shop_app/src/catalogue/product_photo_picker.dart';
 import 'package:shop_app/src/catalogue/shades_repository.dart';
 import 'package:shop_app/src/catalogue/shop_catalogue_repository.dart';
+import 'package:shop_app/src/customers/connect_requests.dart';
 import 'package:shop_app/src/customers/shop_customers_repository.dart';
 import 'package:shop_app/src/location/location_service.dart';
 import 'package:shop_app/src/orders/shop_orders_repository.dart';
@@ -330,6 +331,7 @@ Widget testApp({
   ShopOrdersRepository? orders,
   ShopCustomersRepository? customers,
   ShopBillsRepository? bills,
+  ConnectRequestsRepository? connect,
   ShopSettingsRepository? settings,
   ShadesRepository? shades,
   CategoriesRepository? categories,
@@ -345,6 +347,9 @@ Widget testApp({
     ),
     shopBillsRepositoryProvider.overrideWithValue(
       bills ?? FakeShopBillsRepository(),
+    ),
+    connectRequestsRepositoryProvider.overrideWithValue(
+      connect ?? FakeConnectRequestsRepository(),
     ),
     shadesRepositoryProvider.overrideWithValue(
       shades ?? FakeShadesRepository(),
@@ -394,4 +399,26 @@ Future<void> openFromDrawer(WidgetTester tester, String label) async {
     find.descendant(of: find.byType(AppDrawer), matching: find.text(label)),
   );
   await tester.pumpAndSettle();
+}
+
+/// Connection requests in memory (CON-002).
+class FakeConnectRequestsRepository implements ConnectRequestsRepository {
+  FakeConnectRequestsRepository([List<ConnectRequest>? requests])
+    : requests = requests ?? [];
+
+  final List<ConnectRequest> requests;
+  final List<({String id, bool approve})> answered = [];
+
+  @override
+  Future<List<ConnectRequest>> list(String shopId) async => [...requests];
+
+  @override
+  Future<void> answer(
+    String shopId,
+    String requestId, {
+    required bool approve,
+  }) async {
+    answered.add((id: requestId, approve: approve));
+    requests.removeWhere((request) => request.id == requestId);
+  }
 }
