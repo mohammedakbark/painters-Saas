@@ -79,7 +79,7 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 | Customer/painter management | Confirmed | Shop sees only its own relationships. |
 | Credit approval and limits | Confirmed | Shop-specific. |
 | Orders and fulfilment | Confirmed direction / Open lifecycle | Pickup/delivery and partial fulfilment need clarification. |
-| Bills and manual payment records | **Implemented on the server and shop web (BIL-001, D-062)** | Running bill per customer, payments of any amount, refunds after returns; Shop App (BIL-002) and Customer App (BIL-003) next. Online gateway later. Spec: `docs/features/BIL-001-running-bill.md`. |
+| Bills and manual payment records | **Implemented on the server and shop web (BIL-001, D-062)** | Running bill per customer, payments of any amount, refunds after returns; also in the Shop App (BIL-002); Customer App (BIL-003) next. Online gateway later. Spec: `docs/features/BIL-001-running-bill.md`. |
 | Reward-point rules | Confirmed direction / Open rules | Shop-specific ledger proposed. |
 | Staff accounts and roles | Confirmed direction | Paid-seat billing later. |
 | Reports/analytics | Confirmed direction | Exact metrics/permissions open. |

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/api_client.dart';
+import '../bills/bill_providers.dart';
 import '../providers.dart';
 import 'order_draft.dart';
 import 'order_models.dart';
@@ -228,7 +229,10 @@ final orderProvider = AsyncNotifierProvider.autoDispose
 void ordersChanged(Ref ref, String shopId) {
   ref
     ..invalidate(orderListProvider)
-    ..invalidate(orderSummaryProvider(shopId));
+    ..invalidate(orderSummaryProvider(shopId))
+    // Completing, paying and returns change the customer's bill (BIL-001).
+    ..invalidate(billProvider)
+    ..invalidate(billListProvider);
 }
 
 /// [ordersChanged] for widgets.

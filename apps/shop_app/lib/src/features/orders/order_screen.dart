@@ -146,7 +146,8 @@ class _OrderDetailsState extends ConsumerState<_OrderDetails> {
     if (await showPaymentSheet(
       context,
       orderKey: widget.orderKey,
-      totalPaise: _order.totalPaise,
+      // What is left; part may be paid from the bill (BIL-001).
+      totalPaise: _order.totalPaise - _order.paidPaise,
     )) {
       _tell(OrderMessages.paymentSaved);
     }
@@ -323,10 +324,27 @@ class _OrderDetailsState extends ConsumerState<_OrderDetails> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AppBadge(
-                  label: order.paid ? 'Paid' : 'Unpaid',
-                  tone: order.paid ? AppTone.success : AppTone.warning,
+                  label: order.paid
+                      ? 'Paid'
+                      : order.partPaid
+                      ? 'Part paid'
+                      : 'Unpaid',
+                  tone: order.paid
+                      ? AppTone.success
+                      : order.partPaid
+                      ? AppTone.info
+                      : AppTone.warning,
                 ),
                 const SizedBox(height: AppSpacing.s8),
+                if (order.partPaid) ...[
+                  Text(
+                    '${formatRupees(order.paidPaise)} of '
+                    '${formatRupees(order.totalPaise)} paid from the '
+                    'customer’s bill.',
+                    style: textTheme.bodyLarge,
+                  ),
+                  const SizedBox(height: AppSpacing.s8),
+                ],
                 if (order.paid)
                   Text(
                     [

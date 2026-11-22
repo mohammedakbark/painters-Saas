@@ -234,6 +234,16 @@ class ShopDrawer extends ConsumerWidget {
             detail: 'Delivery and order messages',
             onTap: () => open(shopMenuPath(shopId, 'settings')),
           ),
+        if ((shop?.can(ShopPermission.ordersPayments) ?? false) ||
+            (shop?.can(ShopPermission.reportsView) ?? false)) ...[
+          const AppDrawerSection(title: 'Money'),
+          AppDrawerRow(
+            icon: Icons.account_balance_wallet_outlined,
+            label: 'Bills',
+            detail: 'What customers owe and payments',
+            onTap: () => open(shopMenuPath(shopId, 'bills')),
+          ),
+        ],
         if (shop?.can(ShopPermission.catalogueView) ?? false) ...[
           const AppDrawerSection(title: 'Catalogue'),
           AppDrawerRow(

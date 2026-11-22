@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/bills/bills_screen.dart';
 import '../features/catalogue/add_from_catalogue_screen.dart';
 import '../features/catalogue/catalogue_listing_screen.dart';
 import '../features/catalogue/categories_screen.dart';
@@ -131,6 +132,15 @@ final _shopTabs = StatefulShellRoute.indexedStack(
               title: 'Shop settings',
               anyOf: const [ShopPermission.shopSettings],
               build: (state) => ShopSettingsScreen(shopId: _shopId(state)),
+            ),
+            _detail(
+              'bills',
+              title: 'Bills',
+              anyOf: const [
+                ShopPermission.ordersPayments,
+                ShopPermission.reportsView,
+              ],
+              build: (state) => BillsScreen(shopId: _shopId(state)),
             ),
             _detail(
               'shades',

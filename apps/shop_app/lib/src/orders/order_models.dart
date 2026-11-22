@@ -320,6 +320,7 @@ class OrderDetail {
     required this.paid,
     required this.paymentMethod,
     required this.paidAt,
+    this.paidPaise = 0,
     required this.cancelledByCustomer,
     required this.cancelReason,
     required this.placedAt,
@@ -358,6 +359,7 @@ class OrderDetail {
       paid: payment['status'] == 'PAID',
       paymentMethod: PaymentMethod.maybeFromApi(payment['method']),
       paidAt: _date(payment['paidAt']),
+      paidPaise: (payment['paidPaise'] as int?) ?? 0,
       cancelledByCustomer: cancelled is Map<String, Object?>
           ? cancelled['by'] == 'CUSTOMER'
           : null,
@@ -394,6 +396,13 @@ class OrderDetail {
   final bool paid;
   final PaymentMethod? paymentMethod;
   final DateTime? paidAt;
+
+  /// Paid so far from the running bill (BIL-001); 0 < paid < total is
+  /// "part paid".
+  final int paidPaise;
+
+  /// Part paid from the customer's bill.
+  bool get partPaid => !paid && paidPaise > 0;
 
   /// Null unless the order is cancelled.
   final bool? cancelledByCustomer;

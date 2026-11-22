@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_shared/flutter_shared.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../bills/bill_providers.dart';
 import '../../customers/customer_models.dart';
 import '../../customers/customer_providers.dart';
 import '../../customers/shop_customers_repository.dart';
@@ -10,6 +11,7 @@ import '../../orders/order_labels.dart';
 import '../../providers.dart';
 import '../../shops/shop_access_repository.dart';
 import '../../shops/shop_permissions.dart';
+import '../bills/bill_section.dart';
 import '../catalogue/catalogue_parts.dart';
 import '../orders/order_messages.dart';
 import 'customer_labels.dart';
@@ -79,7 +81,9 @@ class CustomerScreen extends ConsumerWidget {
         },
         data: (detail) => RefreshIndicator(
           onRefresh: () async {
-            ref.invalidate(customerOrdersProvider(_key));
+            ref
+              ..invalidate(customerOrdersProvider(_key))
+              ..invalidate(billProvider(_key));
             await ref.refresh(customerProvider(_key).future).then((_) {});
           },
           child: ListView(
@@ -87,6 +91,15 @@ class CustomerScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(AppSpacing.screenPadding),
             children: [
               _Header(customer: detail.customer),
+              // The bill is money: payments or money figures (BIL-001).
+              if ((shop?.can(ShopPermission.ordersPayments) ?? false) ||
+                  (shop?.can(ShopPermission.reportsView) ?? false)) ...[
+                const SizedBox(height: AppSpacing.s16),
+                BillSection(
+                  billKey: (shopId: shopId, customerId: customerId),
+                  canRecord: shop!.can(ShopPermission.ordersPayments),
+                ),
+              ],
               if (shop?.can(ShopPermission.ordersHandle) ?? false) ...[
                 const SizedBox(height: AppSpacing.s16),
                 _LatestOrders(customerKey: _key),

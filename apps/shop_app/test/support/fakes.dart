@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shop_app/app.dart';
 import 'package:shop_app/src/api/api_client.dart';
 import 'package:shop_app/src/auth/auth_repository.dart';
+import 'package:shop_app/src/bills/shop_bills_repository.dart';
 import 'package:shop_app/src/catalogue/categories_repository.dart';
 import 'package:shop_app/src/catalogue/product_photo_picker.dart';
 import 'package:shop_app/src/catalogue/shades_repository.dart';
@@ -19,11 +20,13 @@ import 'package:shop_app/src/shops/shop_profile.dart';
 import 'package:shop_app/src/shops/shop_review.dart';
 import 'package:shop_app/src/shops/shop_settings.dart';
 
+import 'bill_fakes.dart';
 import 'catalogue_fakes.dart';
 import 'order_fakes.dart';
 import 'settings_fakes.dart';
 import 'setup_fakes.dart';
 
+export 'bill_fakes.dart';
 export 'catalogue_fakes.dart';
 export 'order_fakes.dart';
 export 'settings_fakes.dart';
@@ -326,6 +329,7 @@ Widget testApp({
   ProductPhotoPicker? photos,
   ShopOrdersRepository? orders,
   ShopCustomersRepository? customers,
+  ShopBillsRepository? bills,
   ShopSettingsRepository? settings,
   ShadesRepository? shades,
   CategoriesRepository? categories,
@@ -338,6 +342,9 @@ Widget testApp({
     ),
     shopCustomersRepositoryProvider.overrideWithValue(
       customers ?? FakeShopCustomersRepository(),
+    ),
+    shopBillsRepositoryProvider.overrideWithValue(
+      bills ?? FakeShopBillsRepository(),
     ),
     shadesRepositoryProvider.overrideWithValue(
       shades ?? FakeShadesRepository(),

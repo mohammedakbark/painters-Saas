@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'auth/auth_repository.dart';
+import 'bills/shop_bills_repository.dart';
 import 'catalogue/categories_repository.dart';
 import 'catalogue/product_photo_picker.dart';
 import 'catalogue/shades_repository.dart';
@@ -70,6 +71,12 @@ final shopOrdersRepositoryProvider = Provider<ShopOrdersRepository>(
 final shopCustomersRepositoryProvider = Provider<ShopCustomersRepository>(
   (ref) =>
       throw UnimplementedError('shopCustomersRepositoryProvider is overridden'),
+);
+
+/// Running bills and payments (BIL-001 API, D-062).
+final shopBillsRepositoryProvider = Provider<ShopBillsRepository>(
+  (ref) =>
+      throw UnimplementedError('shopBillsRepositoryProvider is overridden'),
 );
 
 /// Opens a `tel:` or map link in the phone's own app. Returns false when

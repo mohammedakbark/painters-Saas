@@ -108,15 +108,3 @@ double distanceKm(
       cos(rad(fromLatitude)) * cos(rad(toLatitude)) * pow(sin(dLng / 2), 2);
   return 2 * 6371 * asin(sqrt(a));
 }
-
-/// A random version-4 UUID: one per checkout, so a repeated tap or a retry
-/// after a lost answer never places a second order.
-String newRequestId([Random? random]) {
-  final r = random ?? Random.secure();
-  final bytes = List<int>.generate(16, (_) => r.nextInt(256));
-  bytes[6] = (bytes[6] & 0x0f) | 0x40;
-  bytes[8] = (bytes[8] & 0x3f) | 0x80;
-  final hex = bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
-  return '${hex.substring(0, 8)}-${hex.substring(8, 12)}-'
-      '${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20)}';
-}

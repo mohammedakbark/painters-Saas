@@ -47,6 +47,7 @@ class FakeOrder {
     this.paymentMethod,
     this.recordedByShop = false,
     this.cancelReason,
+    this.paidPaise = 0,
     List<OrderItem>? items,
     DateTime? placedAt,
   }) : items = items ?? [testItem('$id-1', 'Silk Emulsion')],
@@ -61,6 +62,9 @@ class FakeOrder {
   PaymentMethod? paymentMethod;
   final bool recordedByShop;
   String? cancelReason;
+
+  /// Paid from the customer's bill (BIL-001).
+  int paidPaise;
   List<OrderItem> items;
   final DateTime placedAt;
 
@@ -138,6 +142,7 @@ class FakeOrder {
     paid: paid,
     paymentMethod: paymentMethod,
     paidAt: paid ? DateTime.utc(2026, 11, 10, 7) : null,
+    paidPaise: paid ? itemsPaise + deliveryPaise : paidPaise,
     cancelledByCustomer: status == OrderStatus.cancelled ? false : null,
     cancelReason: cancelReason,
     placedAt: placedAt,

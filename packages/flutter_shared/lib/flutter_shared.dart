@@ -20,6 +20,7 @@ export 'src/components/app_spinner.dart';
 export 'src/components/app_swatch.dart';
 export 'src/components/app_text_field.dart';
 export 'src/components/app_tone.dart';
+export 'src/ids/request_id.dart';
 export 'src/maps/location_picker.dart';
 export 'src/maps/shop_location_map.dart';
 export 'src/money/rupees.dart';
