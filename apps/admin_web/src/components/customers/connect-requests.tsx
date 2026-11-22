@@ -89,6 +89,7 @@ export async function ConnectRequests({ shopId }: { shopId: string }) {
                     : 'They will see the orders and bill of this record in their app. This can’t be undone.'
                 }
                 confirmLabel="Connect"
+                tone="default"
               />
             </div>
           </li>

@@ -20,6 +20,7 @@ export function ConfirmActionButton({
   confirmLabel,
   variant = 'tertiary',
   size = 'compact',
+  tone = 'danger',
   className,
 }: {
   action: () => Promise<CatalogueFormState>;
@@ -30,6 +31,8 @@ export function ConfirmActionButton({
   confirmLabel: string;
   variant?: 'secondary' | 'tertiary';
   size?: 'default' | 'compact';
+  /** `default` for a positive but hard-to-undo action, such as Connect. */
+  tone?: 'danger' | 'default';
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
@@ -52,6 +55,7 @@ export function ConfirmActionButton({
         title={title}
         message={message}
         confirmLabel={confirmLabel}
+        tone={tone}
         pending={pending}
         onCancel={() => setOpen(false)}
         onConfirm={() =>
