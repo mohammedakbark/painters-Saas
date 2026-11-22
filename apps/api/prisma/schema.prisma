@@ -45,6 +45,7 @@ model User {
   myShops           CustomerShop[]
   sites             CustomerSite[]
   deliveryLocations CustomerDeliveryLocation[]
+  connectRequests   CustomerConnectRequest[]
 
   @@map("users")
 }
@@ -227,6 +228,7 @@ model Shop {
   customers       ShopCustomer[]
   orders          Order[]
   billEntries     BillEntry[]
+  connectRequests CustomerConnectRequest[]
   savedBy         CustomerShop[]
 
   @@map("shops")
@@ -532,24 +534,32 @@ model ShopReview {
 /// the customer orders in the app; shop-recorded customers (ORD-004) have no
 /// link until the person connects with an OTP. Other shops never see it.
 model ShopCustomer {
-  id        String       @id @default(uuid(7)) @db.Uuid
-  shopId    String       @map("shop_id") @db.Uuid
+  id           String       @id @default(uuid(7)) @db.Uuid
+  shopId       String       @map("shop_id") @db.Uuid
   /// The app account, when there is one.
-  userId    String?      @map("user_id") @db.Uuid
+  userId       String?      @map("user_id") @db.Uuid
   /// As the shop knows them. Trimmed, 1–120 characters.
-  name      String
+  name         String
   /// E.164, for example +919999900001.
-  phone     String
+  phone        String
   /// The shop's own label (D-055); sites are for painters only.
-  kind      CustomerKind @default(CUSTOMER)
-  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+  kind         CustomerKind @default(CUSTOMER)
+  /// Set when this shop record was merged into the person's app record
+  /// (CON-001, D-063): its orders, bill entries and sites moved there, and
+  /// it no longer shows. Kept for the audit trail, never deleted.
+  mergedIntoId String?      @map("merged_into_id") @db.Uuid
+  mergedAt     DateTime?    @map("merged_at") @db.Timestamptz(3)
+  createdAt    DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  shop        Shop        @relation(fields: [shopId], references: [id], onDelete: Restrict)
-  user        User?       @relation(fields: [userId], references: [id], onDelete: Restrict)
-  orders      Order[]
-  sites       ShopSite[]
-  billEntries BillEntry[]
+  shop                    Shop                     @relation(fields: [shopId], references: [id], onDelete: Restrict)
+  user                    User?                    @relation(fields: [userId], references: [id], onDelete: Restrict)
+  orders                  Order[]
+  sites                   ShopSite[]
+  billEntries             BillEntry[]
+  connectRequestsApproved CustomerConnectRequest[]
+  mergedInto              ShopCustomer?            @relation("MergedInto", fields: [shopId, mergedIntoId], references: [shopId, id], onDelete: Restrict, map: "shop_customers_merged_into_fkey")
+  mergedRecords           ShopCustomer[]           @relation("MergedInto")
 
   @@unique([shopId, id])
   @@unique([shopId, userId])
@@ -826,6 +836,40 @@ model BillEntry {
   @@index([shopId, customerId, createdAt])
   @@index([orderId])
   @@map("bill_entries")
+}
+
+enum ConnectRequestStatus {
+  PENDING
+  APPROVED
+  DECLINED
+
+  @@map("connect_request_status")
+}
+
+/// A person asks a shop to connect the records it keeps of their mobile to
+/// their app account (CON-001, D-054, D-063). The person is never told
+/// whether a record exists; the shop sees the request only on a record of
+/// the same verified mobile, and approves or declines it.
+model CustomerConnectRequest {
+  id          String               @id @default(uuid(7)) @db.Uuid
+  shopId      String               @map("shop_id") @db.Uuid
+  userId      String               @map("user_id") @db.Uuid
+  /// The account's verified mobile when asked (E.164).
+  phone       String
+  status      ConnectRequestStatus @default(PENDING)
+  /// The shop record that was connected, once approved.
+  customerId  String?              @map("customer_id") @db.Uuid
+  decidedAt   DateTime?            @map("decided_at") @db.Timestamptz(3)
+  decidedById String?              @map("decided_by_id") @db.Uuid
+  createdAt   DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  shop     Shop          @relation(fields: [shopId], references: [id], onDelete: Restrict)
+  user     User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  customer ShopCustomer? @relation(fields: [shopId, customerId], references: [shopId, id], onDelete: Restrict)
+
+  @@index([shopId, phone, status])
+  @@index([userId, shopId])
+  @@map("customer_connect_requests")
 }
 
 /// A shop in a person's My Shops list (CUS-002, D-037). Private to that

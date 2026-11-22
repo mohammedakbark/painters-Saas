@@ -2,6 +2,7 @@ import 'package:customer_app/src/features/shops/find_shops_screen.dart';
 import 'package:customer_app/src/features/shops/shop_screen.dart';
 import 'package:customer_app/src/location/location_service.dart';
 import 'package:customer_app/src/profile/customer_profile.dart';
+import 'package:customer_app/src/shops/connect.dart';
 import 'package:customer_app/src/shops/shop_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_shared/flutter_shared.dart';
@@ -25,6 +26,7 @@ Future<void> _signedIn(
   FakeLocationService? location,
   FakeActiveShopStore? activeShop,
   FakeAuthRepository? auth,
+  FakeConnectRepository? connect,
 }) => pumpApp(
   tester,
   auth: auth ?? FakeAuthRepository(signedIn: true),
@@ -34,6 +36,7 @@ Future<void> _signedIn(
   shops: shops ?? FakeShopsRepository(_shops()),
   location: location,
   activeShop: activeShop,
+  connect: connect,
 );
 
 List<String> _listedNames(WidgetTester tester) => [
@@ -226,4 +229,27 @@ void main() {
     expect(auth.signedIn, isFalse);
     expect(store.value, isNull);
   });
+
+  // CON-001: ask a shop to connect the records it keeps of your mobile.
+  testWidgets(
+    'asks the shop to connect my records; it never says if any exist',
+    (tester) async {
+      final connect = FakeConnectRepository();
+      await _signedIn(tester, connect: connect);
+      await tapVisible(tester, find.byKey(const Key('home-find-shops')));
+      await tapVisible(tester, find.text('Kochi Paints'));
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('ask-connect')),
+        200,
+        scrollable: find.byType(Scrollable).last,
+      );
+
+      expect(find.text('Ordered here before the app?'), findsOneWidget);
+      await tapVisible(tester, find.byKey(const Key('ask-connect')));
+      expect(connect.asked, hasLength(1));
+      expect(find.text('Request sent'), findsOneWidget);
+      expect(find.byKey(const Key('ask-connect')), findsNothing);
+      expect(connect.statuses.values.single, ConnectStatus.pending);
+    },
+  );
 }

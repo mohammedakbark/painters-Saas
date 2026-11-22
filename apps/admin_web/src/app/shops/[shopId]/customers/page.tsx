@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import { ConnectRequests } from '@/components/customers/connect-requests';
 import { CustomerForm } from '@/components/customers/customer-forms';
 import { Badge } from '@/components/ui/badge';
 import { ButtonLink } from '@/components/ui/button-link';
@@ -20,6 +21,7 @@ import {
   type CustomerRow,
   listCustomers,
 } from '@/lib/api/customers';
+import { can } from '@/lib/api/shops';
 import { requireShopAccess, requireShopSession } from '@/lib/auth/shop-access';
 import {
   customerPath,
@@ -50,6 +52,9 @@ export default function CustomersPage(props: Props) {
     <div className="flex flex-col gap-6">
       <Suspense fallback={<HeaderShell />}>
         <Header {...props} />
+      </Suspense>
+      <Suspense fallback={null}>
+        <Requests {...props} />
       </Suspense>
       <Suspense fallback={<SectionLoading label="Loading customers…" />}>
         <Customers {...props} />
@@ -95,6 +100,15 @@ async function Header({ params }: Props) {
       </SideSheet>
     </>
   );
+}
+
+/** Connection requests (CON-001), for members who manage customers. */
+async function Requests({ params }: Props) {
+  const { shopId } = await params;
+  const shop = await requireShopAccess(shopId);
+  return can(shop, 'customers.manage') ? (
+    <ConnectRequests shopId={shopId} />
+  ) : null;
 }
 
 async function Customers({ params, searchParams }: Props) {

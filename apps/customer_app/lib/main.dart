@@ -17,6 +17,7 @@ import 'src/orders/my_orders.dart';
 import 'src/profile/customer_profile.dart';
 import 'src/providers.dart';
 import 'src/shops/active_shop_store.dart';
+import 'src/shops/connect.dart';
 import 'src/shops/shop_providers.dart';
 import 'src/shops/shops_repository.dart';
 import 'src/sites/sites.dart';
@@ -70,6 +71,7 @@ Future<void> main() async {
         cartStoreProvider.overrideWithValue(const SecureCartStore()),
         sitesRepositoryProvider.overrideWithValue(ApiSitesRepository(api)),
         myBillsRepositoryProvider.overrideWithValue(ApiMyBillsRepository(api)),
+        connectRepositoryProvider.overrideWithValue(ApiConnectRepository(api)),
         deliveryLocationsRepositoryProvider.overrideWithValue(
           ApiDeliveryLocationsRepository(api),
         ),

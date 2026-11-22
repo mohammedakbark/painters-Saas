@@ -58,6 +58,9 @@ export const AuditAction = {
   BillRefundRecorded: 'bill.refund_recorded',
   ShopCustomerCreated: 'shop_customer.created',
   ShopCustomerUpdated: 'shop_customer.updated',
+  ConnectRequested: 'shop_customer.connect_requested',
+  ConnectApproved: 'shop_customer.connected',
+  ConnectDeclined: 'shop_customer.connect_declined',
   ShopSiteCreated: 'shop_site.created',
   ShopSiteUpdated: 'shop_site.updated',
 } as const;

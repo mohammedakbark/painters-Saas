@@ -386,7 +386,7 @@ describe('Running bills (BIL-001, e2e, real Postgres)', () => {
     const abc = await liveShop('+919999900001', 'ABC Paints');
     const kochi = await liveShop('+919999900002', 'Kochi Colours');
     const ravi = await appCustomer('+919999900011');
-    const auth = `Bearer ${await issuer.sign({ sub: ravi.authSubject, phone: ravi.phone })}`;
+    const auth = `Bearer ${await issuer.sign({ sub: ravi.authSubject, phone: ravi.phone ?? undefined })}`;
     const atAbc = await order(abc, ravi.id, 3); // ₹1,500
     await order(kochi, ravi.id, 1); // ₹500
     await post(abc, `/customers/${atAbc.customerId}/bill/payments`, {
@@ -447,7 +447,7 @@ describe('Running bills (BIL-001, e2e, real Postgres)', () => {
     }).expect(201);
 
     const meena = await appCustomer('+919999900012');
-    const auth = `Bearer ${await issuer.sign({ sub: meena.authSubject, phone: meena.phone })}`;
+    const auth = `Bearer ${await issuer.sign({ sub: meena.authSubject, phone: meena.phone ?? undefined })}`;
     const list = await request(server())
       .get('/v1/me/bills')
       .set('Authorization', auth)

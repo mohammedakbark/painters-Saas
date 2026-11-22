@@ -45,7 +45,11 @@ export class OrderRecordingService {
     return this.prisma.$transaction(async (tx) => {
       const locked = await lockShopForOrder(tx, shop.shopId);
       const customer = await tx.shopCustomer.findFirst({
-        where: { id: input.customerId, shopId: shop.shopId },
+        where: {
+          id: input.customerId,
+          shopId: shop.shopId,
+          mergedIntoId: null,
+        },
         select: { id: true },
       });
       if (!customer) {

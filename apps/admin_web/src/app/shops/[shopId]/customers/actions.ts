@@ -13,6 +13,10 @@ import {
   updateCustomer,
   updateSite,
 } from '@/lib/api/customers';
+import {
+  approveConnectRequest,
+  declineConnectRequest,
+} from '@/lib/api/connect';
 import { recordOrder, type RecordOrderBody } from '@/lib/api/orders';
 import { ApiError } from '@/lib/api/problem';
 import { requireShopSession, SHOP_SIGN_IN_PATH } from '@/lib/auth/shop-access';
@@ -230,6 +234,35 @@ export async function setSiteArchivedAction(
   }
   refresh();
   return { saved: archived ? 'Site archived.' : 'Site restored.' };
+}
+
+/**
+ * Answers a person's request to connect your record of their mobile to
+ * their app account (CON-001, D-063). The API checks the customers
+ * permission and that the request is this shop's.
+ */
+export async function answerConnectRequestAction(
+  shopId: string,
+  requestId: string,
+  name: string,
+  approve: boolean,
+): Promise<CatalogueFormState> {
+  try {
+    const token = await requireShopSession();
+    if (approve) {
+      await approveConnectRequest(token, shopId, requestId);
+    } else {
+      await declineConnectRequest(token, shopId, requestId);
+    }
+  } catch (error) {
+    return failure(error);
+  }
+  refresh();
+  return {
+    saved: approve
+      ? `${name}'s records are connected to their app.`
+      : `Request declined. ${name}'s records stay private.`,
+  };
 }
 
 /** Customers for the new-order search: name or mobile. */

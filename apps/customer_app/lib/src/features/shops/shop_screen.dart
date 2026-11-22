@@ -7,6 +7,7 @@ import '../../api/api_client.dart';
 import '../../routing/paths.dart';
 import '../../shops/shop_models.dart';
 import '../../shops/shop_providers.dart';
+import 'connect_card.dart';
 import 'shop_card.dart';
 
 /// Whether maps are drawn (false in widget tests).
@@ -227,6 +228,8 @@ class _Details extends StatelessWidget {
                   ],
                 ),
         ),
+        const SizedBox(height: AppSpacing.s16),
+        ConnectCard(shopId: shop.id),
       ],
     );
   }

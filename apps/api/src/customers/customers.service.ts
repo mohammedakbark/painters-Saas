@@ -94,7 +94,11 @@ export class CustomersService {
   ): Promise<CustomerListPage> {
     // Recording an order finds or adds the customer.
     requireAnyShopPermission(shop, ['customers.manage', 'orders.record']);
-    const where: Prisma.ShopCustomerWhereInput = { shopId: shop.shopId };
+    // A record merged into an app record (CON-001) no longer shows.
+    const where: Prisma.ShopCustomerWhereInput = {
+      shopId: shop.shopId,
+      mergedIntoId: null,
+    };
     if (query.kind) {
       where.kind = query.kind;
     }
@@ -151,7 +155,7 @@ export class CustomersService {
     // Recording an order finds or adds the customer.
     requireAnyShopPermission(shop, ['customers.manage', 'orders.record']);
     const row = await this.prisma.shopCustomer.findFirst({
-      where: { id: customerId, shopId: shop.shopId },
+      where: { id: customerId, shopId: shop.shopId, mergedIntoId: null },
       select: {
         id: true,
         name: true,
@@ -231,7 +235,7 @@ export class CustomersService {
   ): Promise<CustomerDetail> {
     requireShopPermission(shop, 'customers.manage');
     const current = await this.prisma.shopCustomer.findFirst({
-      where: { id: customerId, shopId: shop.shopId },
+      where: { id: customerId, shopId: shop.shopId, mergedIntoId: null },
       select: { id: true, userId: true },
     });
     if (!current) {
@@ -392,6 +396,7 @@ export class CustomersService {
     >`
       SELECT kind, user_id FROM shop_customers
       WHERE id = ${customerId}::uuid AND shop_id = ${shopId}::uuid
+        AND merged_into_id IS NULL
       FOR UPDATE`;
     if (!row) {
       throw customerNotFound();

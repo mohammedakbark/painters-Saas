@@ -12,6 +12,7 @@ import 'package:customer_app/src/orders/my_orders.dart';
 import 'package:customer_app/src/profile/customer_profile.dart';
 import 'package:customer_app/src/providers.dart';
 import 'package:customer_app/src/shops/active_shop_store.dart';
+import 'package:customer_app/src/shops/connect.dart';
 import 'package:customer_app/src/shops/shop_models.dart';
 import 'package:customer_app/src/shops/shop_providers.dart';
 import 'package:customer_app/src/shops/shops_repository.dart';
@@ -727,6 +728,7 @@ Future<void> pumpApp(
   FakeDeliveryLocationsRepository? places,
   FakeMyOrdersRepository? orders,
   FakeMyBillsRepository? bills,
+  FakeConnectRepository? connect,
 }) async {
   tester.view
     ..physicalSize = const Size(1080, 2340)
@@ -759,6 +761,9 @@ Future<void> pumpApp(
         myBillsRepositoryProvider.overrideWithValue(
           bills ?? FakeMyBillsRepository(),
         ),
+        connectRepositoryProvider.overrideWithValue(
+          connect ?? FakeConnectRepository(),
+        ),
         deliveryLocationsRepositoryProvider.overrideWithValue(
           places ?? FakeDeliveryLocationsRepository(),
         ),
@@ -789,5 +794,21 @@ class FakeMyBillsRepository implements MyBillsRepository {
     final bill = one[shopId];
     if (bill == null) throw const ApiException(status: 404);
     return bill;
+  }
+}
+
+/// Connect requests in memory (CON-001).
+class FakeConnectRepository implements ConnectRepository {
+  final Map<String, ConnectStatus> statuses = {};
+  final List<String> asked = [];
+
+  @override
+  Future<ConnectStatus> status(String shopId) async =>
+      statuses[shopId] ?? ConnectStatus.none;
+
+  @override
+  Future<ConnectStatus> ask(String shopId) async {
+    asked.add(shopId);
+    return statuses[shopId] = ConnectStatus.pending;
   }
 }

@@ -120,7 +120,7 @@ export class BillsService {
   ): Promise<Bill> {
     requireAnyShopPermission(shop, ['orders.payments', 'reports.view']);
     const customer = await this.prisma.shopCustomer.findFirst({
-      where: { id: customerId, shopId: shop.shopId },
+      where: { id: customerId, shopId: shop.shopId, mergedIntoId: null },
       select: { id: true },
     });
     if (!customer) throw customerNotFound();

@@ -64,6 +64,6 @@ Shops take many orders by phone or at the counter from people who don't use the 
   - no horizontal scroll and no console errors.
 
 ## Limits
-- Connecting a shop record to the person's app account (OTP) comes with the Customer App.
+- Connecting a shop record to the person's app account: done in CON-001 (D-063).
 - Customers are not deleted; sites are archived.
 - Adding a site from the New order page links to the customer page.
