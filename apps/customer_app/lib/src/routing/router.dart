@@ -14,6 +14,7 @@ import '../features/shops/my_shops_screen.dart';
 import '../features/shops/shop_screen.dart';
 import '../features/sign_in/sign_in_screen.dart';
 import '../features/sites/site_form_screen.dart';
+import '../features/sites/site_spend_screen.dart';
 import '../features/sites/sites_screen.dart';
 import '../features/storefront/product_screen.dart';
 import '../features/storefront/shop_products_screen.dart';
@@ -76,6 +77,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => OrderPlacedScreen(
               orderId: state.pathParameters['orderId']!,
               number: int.tryParse(state.uri.queryParameters['number'] ?? ''),
+              siteName: state.uri.queryParameters['site'],
             ),
           ),
         ],
@@ -91,7 +93,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/site/:siteId',
         builder: (context, state) =>
-            SiteFormScreen(siteId: state.pathParameters['siteId']),
+            SiteSpendScreen(siteId: state.pathParameters['siteId']!),
+        routes: [
+          GoRoute(
+            path: 'edit',
+            builder: (context, state) =>
+                SiteFormScreen(siteId: state.pathParameters['siteId']),
+          ),
+        ],
       ),
       GoRoute(
         path: findShopsPath,

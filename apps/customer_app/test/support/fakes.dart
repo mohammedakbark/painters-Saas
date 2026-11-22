@@ -461,6 +461,9 @@ class FakeSitesRepository implements SitesRepository {
 
   final List<CustomerSite> sites;
   Map<String, String>? rejectNextSave;
+
+  /// Each site's spend by shop (CUS-007); a site without one has no orders.
+  final Map<String, SiteSpend> spends = {};
   int _next = 1;
 
   CustomerSite _store(CustomerSite site) {
@@ -499,6 +502,7 @@ class FakeSitesRepository implements SitesRepository {
         latitude: site.latitude,
         longitude: site.longitude,
         archived: archived,
+        spend: site.spend,
       ),
     );
   }
@@ -527,6 +531,21 @@ class FakeSitesRepository implements SitesRepository {
   @override
   Future<CustomerSite> restore(String siteId) async =>
       _withArchived(siteId, false);
+
+  @override
+  Future<SiteSpend> spend(String siteId) async {
+    final site = sites.where((item) => item.id == siteId).firstOrNull;
+    if (site == null) throw const ApiException(status: 404);
+    return spends[siteId] ??
+        SiteSpend(
+          siteId: site.id,
+          siteName: site.name,
+          archived: site.archived,
+          totalPaise: 0,
+          shops: const [],
+          ordersTruncated: false,
+        );
+  }
 }
 
 class FakeDeliveryLocationsRepository implements DeliveryLocationsRepository {

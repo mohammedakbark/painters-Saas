@@ -40,7 +40,7 @@ All screens use shared components. New shared component: `AppProgressSteps` (Flu
 | Our screen | Design screen | Status |
 |---|---|---|
 | Checkout | Customer App › Checkout | Matches: radio cards, deliver to site / location, payment card, totals, Place order with the total. Differs: choices are full-width cards (one column) for long site names and 48 px targets |
-| Order placed | Customer App › Order placed | Matches. Differs: the painter's "Added to site spend" line waits for CUS-007 |
+| Order placed | Customer App › Order placed | Matches (the painter's "Added to site spend" line came with CUS-007) |
 | My Orders | Customer App › My Orders | Matches |
 | Order page | Customer App › Order tracking | Matches: steps, substitute card, items, totals, Cancel. Differs: no product thumbnails (orders keep text snapshots only) |
 | New delivery place | (none) | Follows Customer App › Sites form pattern (CUS-005) |
@@ -75,7 +75,7 @@ API: 12 new e2e in `customer-orders.e2e-spec.ts` (all 220 e2e and 122 unit pass)
 
 ## 12. Not included
 
-- Site spend on Sites and the site page (CUS-007, D-061).
+- Site spend on Sites and the site page (done in CUS-007, D-061).
 - Push notifications for order changes (postponed); orders update on pull to refresh.
 - Editing or removing saved places from a settings screen (only add and choose at checkout; the API supports rename and archive).
 

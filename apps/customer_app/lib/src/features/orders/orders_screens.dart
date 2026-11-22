@@ -206,14 +206,19 @@ class OrderPlacedScreen extends StatelessWidget {
     super.key,
     required this.orderId,
     required this.number,
+    this.siteName,
   });
 
   final String orderId;
   final int? number;
 
+  /// The painter's site the order is for (CUS-007).
+  final String? siteName;
+
   @override
   Widget build(BuildContext context) {
     final number = this.number;
+    final siteName = this.siteName;
     return AppScaffold(
       title: 'Order placed',
       bottomBar: AppBottomActionBar(
@@ -247,6 +252,12 @@ class OrderPlacedScreen extends StatelessWidget {
             ? 'The shop starts packing it now. You pay at pickup or delivery.'
             : '#$number is with the shop. They start packing it now. You pay '
                   'at pickup or delivery.',
+        action: siteName == null
+            ? null
+            : AppInlineMessage(
+                key: const Key('added-to-site-spend'),
+                message: "Added to $siteName's spend.",
+              ),
       ),
     );
   }

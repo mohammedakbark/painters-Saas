@@ -2,7 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { AuditAction, recordAuditEvent } from '../audit/audit.js';
 import type { CurrentUserContext } from '../auth/current-user.js';
 import { ProblemException } from '../common/http/problem-details.js';
-import type { Prisma } from '../generated/prisma/client.js';
+import type { OrderStatus, Prisma } from '../generated/prisma/client.js';
 import { isUniqueViolation } from '../prisma/prisma-errors.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import {
@@ -11,6 +11,9 @@ import {
   type CustomerSiteList,
   type CustomerSiteListQuery,
   MAX_ACTIVE_SITES,
+  MAX_SPEND_ORDERS,
+  type SiteSpend,
+  type SiteSpendTotals,
   type UpdateCustomerSiteRequest,
 } from './customer-sites.schemas.js';
 
@@ -30,7 +33,35 @@ const SITE_SELECT = {
 
 type SiteRow = Prisma.CustomerSiteGetPayload<{ select: typeof SITE_SELECT }>;
 
-function toSite(row: SiteRow): CustomerSite {
+const NO_SPEND: SiteSpendTotals = {
+  totalPaise: 0,
+  shopCount: 0,
+  orderCount: 0,
+  lastOrderAt: null,
+};
+
+/**
+ * Orders that count towards a site's spend (CUS-007): the caller's own
+ * orders for the site, from any shop, except cancelled ones. Keyed by the
+ * caller through `shop_customers.user_id` as well as the site.
+ */
+function spendWhere(userId: string, siteIds: string[]): Prisma.OrderWhereInput {
+  return {
+    customerSiteId: { in: siteIds },
+    customer: { userId },
+    status: { not: 'CANCELLED' },
+  };
+}
+
+type CountedStatus = SiteSpend['shops'][number]['orders'][number]['status'];
+
+/** The spend query leaves cancelled orders out (see `spendWhere`). */
+function countedStatus(status: OrderStatus): CountedStatus {
+  if (status === 'CANCELLED') throw new Error('Cancelled orders are not spend');
+  return status;
+}
+
+function toSite(row: SiteRow, spend: SiteSpendTotals = NO_SPEND): CustomerSite {
   return {
     id: row.id,
     name: row.name,
@@ -41,6 +72,7 @@ function toSite(row: SiteRow): CustomerSite {
       longitude: row.longitude.toNumber(),
     },
     archived: row.archivedAt !== null,
+    spend,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
@@ -91,12 +123,131 @@ export class CustomerSitesService {
       orderBy: query.archived ? { archivedAt: 'desc' } : { name: 'asc' },
       select: SITE_SELECT,
     });
-    return { items: rows.map(toSite) };
+    const spend = await this.spendTotals(
+      user,
+      rows.map((row) => row.id),
+    );
+    return { items: rows.map((row) => toSite(row, spend.get(row.id))) };
   }
 
   async get(user: CurrentUserContext, siteId: string): Promise<CustomerSite> {
     await this.requirePainter(user);
-    return toSite(await this.own(this.prisma, user, siteId));
+    const row = await this.own(this.prisma, user, siteId);
+    const spend = await this.spendTotals(user, [row.id]);
+    return toSite(row, spend.get(row.id));
+  }
+
+  /**
+   * A site's spend by shop (CUS-007, D-008): exact totals per shop and the
+   * latest orders. Archived sites keep their history.
+   */
+  async spend(user: CurrentUserContext, siteId: string): Promise<SiteSpend> {
+    await this.requirePainter(user);
+    const site = await this.own(this.prisma, user, siteId);
+    const where = spendWhere(user.id, [site.id]);
+    const [groups, orders] = await Promise.all([
+      this.prisma.order.groupBy({
+        by: ['shopId'],
+        where,
+        _sum: { totalPaise: true },
+        _count: { _all: true },
+        _max: { placedAt: true },
+      }),
+      this.prisma.order.findMany({
+        where,
+        orderBy: [{ placedAt: 'desc' }, { id: 'desc' }],
+        take: MAX_SPEND_ORDERS,
+        select: {
+          id: true,
+          number: true,
+          placedAt: true,
+          status: true,
+          totalPaise: true,
+          shop: { select: { id: true, name: true } },
+        },
+      }),
+    ]);
+    const names = new Map(orders.map((order) => [order.shop.id, order.shop]));
+    const missing = groups
+      .map((group) => group.shopId)
+      .filter((shopId) => !names.has(shopId));
+    if (missing.length > 0) {
+      const shops = await this.prisma.shop.findMany({
+        where: { id: { in: missing } },
+        select: { id: true, name: true },
+      });
+      for (const shop of shops) names.set(shop.id, shop);
+    }
+    // The shop ordered from most recently first.
+    const latest = (group: (typeof groups)[number]) =>
+      group._max.placedAt?.getTime() ?? 0;
+    const shops = [...groups]
+      .sort((a, b) => latest(b) - latest(a))
+      .map((group) => ({
+        shop: names.get(group.shopId) ?? { id: group.shopId, name: 'Shop' },
+        totalPaise: group._sum.totalPaise ?? 0,
+        orderCount: group._count._all,
+        orders: orders
+          .filter((order) => order.shop.id === group.shopId)
+          .map((order) => ({
+            id: order.id,
+            number: order.number,
+            placedAt: order.placedAt.toISOString(),
+            status: countedStatus(order.status),
+            totalPaise: order.totalPaise,
+          })),
+      }));
+    const orderCount = shops.reduce((sum, shop) => sum + shop.orderCount, 0);
+    return {
+      site: {
+        id: site.id,
+        name: site.name,
+        archived: site.archivedAt !== null,
+      },
+      totalPaise: shops.reduce((sum, shop) => sum + shop.totalPaise, 0),
+      shops,
+      ordersTruncated: orderCount > orders.length,
+    };
+  }
+
+  private async withSpend(
+    user: CurrentUserContext,
+    site: CustomerSite,
+  ): Promise<CustomerSite> {
+    const spend = await this.spendTotals(user, [site.id]);
+    return { ...site, spend: spend.get(site.id) ?? NO_SPEND };
+  }
+
+  /** Spend totals per site, from grouped order totals (never stored). */
+  private async spendTotals(
+    user: CurrentUserContext,
+    siteIds: string[],
+  ): Promise<Map<string, SiteSpendTotals>> {
+    const totals = new Map<string, SiteSpendTotals>();
+    if (siteIds.length === 0) return totals;
+    const groups = await this.prisma.order.groupBy({
+      by: ['customerSiteId', 'shopId'],
+      where: spendWhere(user.id, siteIds),
+      _sum: { totalPaise: true },
+      _count: { _all: true },
+      _max: { placedAt: true },
+    });
+    for (const group of groups) {
+      if (group.customerSiteId === null) continue;
+      const current = totals.get(group.customerSiteId) ?? NO_SPEND;
+      const last = group._max.placedAt?.toISOString() ?? null;
+      totals.set(group.customerSiteId, {
+        totalPaise: current.totalPaise + (group._sum.totalPaise ?? 0),
+        shopCount: current.shopCount + 1,
+        orderCount: current.orderCount + group._count._all,
+        lastOrderAt:
+          current.lastOrderAt === null ||
+          (last !== null && last > current.lastOrderAt)
+            ? last
+            : current.lastOrderAt,
+      });
+    }
+    return totals;
   }
 
   async create(
@@ -147,7 +298,7 @@ export class CustomerSitesService {
   ): Promise<CustomerSite> {
     await this.requirePainter(user);
     try {
-      return await this.prisma.$transaction(async (tx) => {
+      const site = await this.prisma.$transaction(async (tx) => {
         const current = await this.own(tx, user, siteId);
         if (current.archivedAt !== null) {
           throw new ProblemException(HttpStatus.CONFLICT, {
@@ -185,6 +336,7 @@ export class CustomerSitesService {
         });
         return toSite(row);
       });
+      return await this.withSpend(user, site);
     } catch (error) {
       if (isUniqueViolation(error)) throw nameTaken();
       throw error;
@@ -199,7 +351,7 @@ export class CustomerSitesService {
   ): Promise<CustomerSite> {
     await this.requirePainter(user);
     try {
-      return await this.prisma.$transaction(async (tx) => {
+      const site = await this.prisma.$transaction(async (tx) => {
         const current = await this.own(tx, user, siteId);
         if ((current.archivedAt !== null) === archived) return toSite(current);
         if (!archived) {
@@ -228,6 +380,7 @@ export class CustomerSitesService {
         });
         return toSite(row);
       });
+      return await this.withSpend(user, site);
     } catch (error) {
       // Restoring next to an active site with the same name.
       if (isUniqueViolation(error)) throw nameTaken();

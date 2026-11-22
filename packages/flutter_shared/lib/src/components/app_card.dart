@@ -282,3 +282,61 @@ class AppContextBanner extends StatelessWidget {
     );
   }
 }
+
+/// A dark banner with one large figure, such as "Total spent on this site"
+/// (CUS-007). Looks come from `component.contextBanner`, like
+/// [AppContextBanner].
+class AppTotalBanner extends StatelessWidget {
+  const AppTotalBanner({
+    super.key,
+    required this.caption,
+    required this.value,
+    this.detail,
+  });
+
+  final String caption;
+  final String value;
+
+  /// A short line under the figure, such as "2 shops · 5 orders".
+  final String? detail;
+
+  @override
+  Widget build(BuildContext context) {
+    final detail = this.detail;
+    final foreground = AppComponentTokens.contextBannerForeground;
+    final muted = AppComponentTokens.contextBannerMuted;
+    return Semantics(
+      label: [caption, value, ?detail].join('. '),
+      excludeSemantics: true,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: AppComponentTokens.contextBannerBackground,
+          borderRadius: BorderRadius.circular(
+            AppComponentTokens.contextBannerRadius,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.s16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(caption, style: AppTypography.body.copyWith(color: muted)),
+              const SizedBox(height: AppSpacing.s4),
+              Text(
+                value,
+                style: AppTypography.heading1.copyWith(
+                  color: foreground,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+              if (detail != null) ...[
+                const SizedBox(height: AppSpacing.s4),
+                Text(detail, style: AppTypography.body.copyWith(color: muted)),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

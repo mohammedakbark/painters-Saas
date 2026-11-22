@@ -29,8 +29,8 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 | Multiple work sites | **Implemented (CUS-005)** | Painter only; normal customers do not need sites. Each site has an accurate map pin (D-049). |
 | Create/edit/archive sites | **Implemented (CUS-005)** | Add, edit, archive and restore; never deleted. Spec: `docs/features/CUS-005-painter-sites.md`. |
 | Attach orders to sites | **Implemented (CUS-006)** | A painter's order is always for one of their sites (D-049). |
-| Combined site expenditure | Confirmed | Across shops, visible to the painter. |
-| Separate shop bills within a site | Confirmed | Preserve shop-wise transaction detail. |
+| Combined site expenditure | **Implemented (CUS-007)** | Across shops, visible to the painter; cancelled orders left out. Spec: `docs/features/CUS-007-site-spend.md`. |
+| Separate shop bills within a site | Confirmed; **shop-wise orders shown (CUS-007)** | Each shop's total and orders stay separate on the site page; bills come with Phase 3 billing. |
 | Shop-specific credit | Confirmed | Each shop independently approves and sets terms. |
 | Painter offers and commission/incentives | Confirmed direction / Open rules | Separate from customer reward points. |
 | Shop references/ratings | Confirmed direction / Open safeguards | Only genuine shop relationships should rate. No automatic credit score. |

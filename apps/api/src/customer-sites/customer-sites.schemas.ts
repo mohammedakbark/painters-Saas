@@ -79,6 +79,21 @@ export const CustomerSiteListQuerySchema = z
 
 export type CustomerSiteListQuery = z.infer<typeof CustomerSiteListQuerySchema>;
 
+/**
+ * What a site has cost so far (CUS-007, D-008): the totals of the painter's
+ * orders for it, from every shop, cancelled orders left out.
+ */
+export const SiteSpendTotalsSchema = z
+  .object({
+    totalPaise: z.int(),
+    shopCount: z.int(),
+    orderCount: z.int(),
+    lastOrderAt: z.iso.datetime().nullable(),
+  })
+  .meta({ id: 'SiteSpendTotals' });
+
+export type SiteSpendTotals = z.infer<typeof SiteSpendTotalsSchema>;
+
 export const CustomerSiteSchema = z
   .object({
     id: z.uuid(),
@@ -87,6 +102,7 @@ export const CustomerSiteSchema = z
     address: z.string(),
     pin: z.object({ latitude: z.number(), longitude: z.number() }),
     archived: z.boolean(),
+    spend: SiteSpendTotalsSchema,
     createdAt: z.iso.datetime(),
     updatedAt: z.iso.datetime(),
   })
@@ -99,3 +115,40 @@ export const CustomerSiteListSchema = z
   .meta({ id: 'CustomerSiteList' });
 
 export type CustomerSiteList = z.infer<typeof CustomerSiteListSchema>;
+
+/** At most this many orders are listed on a site's spend page. */
+export const MAX_SPEND_ORDERS = 200;
+
+/** A site's spend by shop (CUS-007): each shop's orders stay separate. */
+export const SiteSpendSchema = z
+  .object({
+    site: z.object({ id: z.uuid(), name: z.string(), archived: z.boolean() }),
+    totalPaise: z.int(),
+    shops: z.array(
+      z.object({
+        shop: z.object({ id: z.uuid(), name: z.string() }),
+        totalPaise: z.int(),
+        orderCount: z.int(),
+        orders: z.array(
+          z.object({
+            id: z.uuid(),
+            number: z.int(),
+            placedAt: z.iso.datetime(),
+            status: z.enum([
+              'NEW',
+              'PACKING',
+              'READY_FOR_PICKUP',
+              'OUT_FOR_DELIVERY',
+              'COMPLETED',
+            ]),
+            totalPaise: z.int(),
+          }),
+        ),
+      }),
+    ),
+    /** True when more than MAX_SPEND_ORDERS orders exist; totals stay exact. */
+    ordersTruncated: z.boolean(),
+  })
+  .meta({ id: 'SiteSpend' });
+
+export type SiteSpend = z.infer<typeof SiteSpendSchema>;

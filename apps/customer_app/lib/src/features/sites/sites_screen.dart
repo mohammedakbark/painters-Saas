@@ -6,10 +6,11 @@ import 'package:go_router/go_router.dart';
 import '../../api/api_client.dart';
 import '../../routing/paths.dart';
 import '../../sites/sites.dart';
+import 'site_spend_screen.dart';
 
 /// The Sites tab, painters only (CUS-005, D-049): the painter's active work
-/// sites by name, Add site, and the archived sites from the menu. Orders and
-/// spend per site come with checkout (CUS-006).
+/// sites by name with what each has cost so far (CUS-007), Add site, and the
+/// archived sites from the menu. A site opens its spend by shop.
 class SitesScreen extends ConsumerWidget {
   const SitesScreen({super.key});
 
@@ -18,7 +19,7 @@ class SitesScreen extends ConsumerWidget {
     final sites = ref.watch(sitesProvider);
     return AppScaffold(
       title: 'Sites',
-      subtitle: 'Your work sites',
+      subtitle: 'What each site has cost',
       actions: [
         AppMenuButton(
           items: [
@@ -63,7 +64,8 @@ class SitesScreen extends ConsumerWidget {
                       const SizedBox(height: AppSpacing.s12),
                   itemBuilder: (context, index) => SiteCard(
                     site: list[index],
-                    onTap: () => context.push(editSitePath(list[index].id)),
+                    showSpend: true,
+                    onTap: () => context.push(sitePath(list[index].id)),
                   ),
                 ),
               ),
@@ -72,13 +74,21 @@ class SitesScreen extends ConsumerWidget {
   }
 }
 
-/// One site: name, owner and address. Opens the site.
+/// One site: name, owner and address, and with [showSpend] what it has
+/// cost so far (CUS-007). Opens the site.
 class SiteCard extends StatelessWidget {
-  const SiteCard({super.key, required this.site, this.onTap, this.trailing});
+  const SiteCard({
+    super.key,
+    required this.site,
+    this.onTap,
+    this.trailing,
+    this.showSpend = false,
+  });
 
   final CustomerSite site;
   final VoidCallback? onTap;
   final Widget? trailing;
+  final bool showSpend;
 
   @override
   Widget build(BuildContext context) {
@@ -116,6 +126,10 @@ class SiteCard extends StatelessWidget {
                     color: AppColors.textSecondary,
                   ),
                 ),
+                if (showSpend) ...[
+                  const SizedBox(height: AppSpacing.s8),
+                  _SpendLine(spend: site.spend),
+                ],
               ],
             ),
           ),
@@ -128,7 +142,55 @@ class SiteCard extends StatelessWidget {
   }
 }
 
-/// Archived sites, with Restore (CUS-005).
+/// "Spent so far ₹12,400" with the number of shops.
+class _SpendLine extends StatelessWidget {
+  const _SpendLine({required this.spend});
+
+  final SiteSpendTotals spend;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final detail = spendDetail(spend.shopCount, spend.orderCount);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Spent so far',
+                style: textTheme.bodySmall?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              Text(
+                formatRupees(spend.totalPaise),
+                style: textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: AppSpacing.s8),
+        Flexible(
+          child: Text(
+            detail ?? 'No orders yet',
+            textAlign: TextAlign.end,
+            style: textTheme.bodyMedium?.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Archived sites, with Restore (CUS-005). A site still opens its spend.
 class ArchivedSitesScreen extends ConsumerStatefulWidget {
   const ArchivedSitesScreen({super.key});
 
@@ -184,6 +246,7 @@ class _ArchivedSitesScreenState extends ConsumerState<ArchivedSitesScreen> {
                   final site = list[index];
                   return SiteCard(
                     site: site,
+                    onTap: () => context.push(sitePath(site.id)),
                     trailing: AppButton(
                       key: ValueKey('restore-${site.id}'),
                       label: 'Restore',

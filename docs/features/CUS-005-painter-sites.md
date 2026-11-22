@@ -25,7 +25,7 @@ Android adds `ACCESS_FINE_LOCATION` for "My location"; iOS updates the location 
 
 ## Not in this feature
 
-- Orders and spend per site (needs checkout, CUS-006), the site-spend card on Home.
+- Orders and spend per site and the site-spend card on Home (done in CUS-006 and CUS-007). A site now opens its spend page; Edit site is in its menu.
 - A painter's site linking with a shop-recorded site (D-055): later.
 
 ## Checks

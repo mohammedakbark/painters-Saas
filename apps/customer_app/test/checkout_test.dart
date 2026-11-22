@@ -262,6 +262,8 @@ void main() {
     await tapVisible(tester, find.byKey(const Key('choice-v')));
     await tapVisible(tester, find.byKey(const Key('place-order')));
     expect(orders.placed.single.siteId, 'v');
+    // CUS-007: the order counts towards the site's spend.
+    expect(find.text("Added to Green Villa's spend."), findsOneWidget);
   });
 
   testWidgets('a changed total places nothing and says so', (tester) async {

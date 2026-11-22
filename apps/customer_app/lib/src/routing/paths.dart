@@ -13,7 +13,10 @@ const sitesPath = '/sites';
 // A painter's sites (CUS-005), above the tabs.
 const newSitePath = '/site/new';
 const archivedSitesPath = '/site/archived';
-String editSitePath(String siteId) => '/site/${Uri.encodeComponent(siteId)}';
+
+/// A site's spend by shop (CUS-007).
+String sitePath(String siteId) => '/site/${Uri.encodeComponent(siteId)}';
+String editSitePath(String siteId) => '${sitePath(siteId)}/edit';
 const morePath = '/more';
 
 /// Above the tabs: Find shops and a shop's page (CUS-002).
@@ -27,8 +30,10 @@ const cartPath = '/cart';
 const checkoutPath = '/checkout';
 const newDeliveryPlacePath = '/delivery-place/new';
 String orderPath(String orderId) => '/order/${Uri.encodeComponent(orderId)}';
-String orderPlacedPath(String orderId, int number) =>
-    '${orderPath(orderId)}/placed?number=$number';
+String orderPlacedPath(String orderId, int number, {String? siteName}) => Uri(
+  path: '${orderPath(orderId)}/placed',
+  queryParameters: {'number': '$number', 'site': ?siteName},
+).toString();
 
 /// Above the tabs: a shop's products and one product (CUS-003).
 String shopProductsPath(String shopId) => '${shopPath(shopId)}/products';

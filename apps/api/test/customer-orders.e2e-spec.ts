@@ -308,6 +308,124 @@ describe('Checkout and My Orders (CUS-006, e2e, real Postgres)', () => {
     expect(refused.body.code).toBe('site_not_allowed');
   });
 
+  it('adds up site spend by shop, without cancelled orders (CUS-007)', async () => {
+    const kochi = await seedShop('Kochi Paints');
+    const aluva = await seedShop('Aluva Colours');
+    const painter = await person('PAINTER');
+    const site = await addSite(painter);
+    const siteId = site.body.id as string;
+    expect(site.body.spend).toEqual({
+      totalPaise: 0,
+      shopCount: 0,
+      orderCount: 0,
+      lastOrderAt: null,
+    });
+
+    const pickup = (shopId: string, packId: string, totalPaise: number) =>
+      place(painter, {
+        shopId,
+        fulfilment: 'PICKUP',
+        siteId,
+        items: [{ shopProductPackId: packId, quantity: 1 }],
+        expectedTotalPaise: totalPaise,
+      }).expect(201);
+    const first = await pickup(kochi.shop.id, kochi.oneLitre.id, 30000);
+    await pickup(kochi.shop.id, kochi.fourLitre.id, 110000);
+    const cancelled = await pickup(aluva.shop.id, aluva.fourLitre.id, 110000);
+    const aluvaOrder = await pickup(aluva.shop.id, aluva.oneLitre.id, 30000);
+    await request(server())
+      .post(`/v1/me/orders/${cancelled.body.id}/cancel`)
+      .set('Authorization', painter)
+      .send({})
+      .expect(200);
+    await testApp.prisma.order.update({
+      where: { id: first.body.id },
+      data: { status: 'COMPLETED', completedAt: new Date() },
+    });
+
+    const list = await request(server())
+      .get('/v1/me/sites')
+      .set('Authorization', painter)
+      .expect(200);
+    expect(list.body.items[0].spend).toMatchObject({
+      totalPaise: 170000,
+      shopCount: 2,
+      orderCount: 3,
+    });
+
+    const spend = await request(server())
+      .get(`/v1/me/sites/${siteId}/spend`)
+      .set('Authorization', painter)
+      .expect(200);
+    expect(spend.body).toMatchObject({
+      site: { id: siteId, name: 'Green Villa', archived: false },
+      totalPaise: 170000,
+      ordersTruncated: false,
+    });
+    // The shop ordered from most recently comes first.
+    expect(spend.body.shops).toHaveLength(2);
+    expect(spend.body.shops[0]).toMatchObject({
+      shop: { id: aluva.shop.id, name: 'Aluva Colours' },
+      totalPaise: 30000,
+      orderCount: 1,
+      orders: [{ id: aluvaOrder.body.id, status: 'NEW', totalPaise: 30000 }],
+    });
+    expect(spend.body.shops[1]).toMatchObject({
+      shop: { id: kochi.shop.id, name: 'Kochi Paints' },
+      totalPaise: 140000,
+      orderCount: 2,
+    });
+    expect(
+      spend.body.shops[1].orders.map((o: { status: string }) => o.status),
+    ).toEqual(['NEW', 'COMPLETED']);
+
+    // An archived site keeps its history.
+    const archived = await request(server())
+      .post(`/v1/me/sites/${siteId}/archive`)
+      .set('Authorization', painter)
+      .expect(200);
+    expect(archived.body.spend.totalPaise).toBe(170000);
+    const after = await request(server())
+      .get(`/v1/me/sites/${siteId}/spend`)
+      .set('Authorization', painter)
+      .expect(200);
+    expect(after.body).toMatchObject({
+      site: { archived: true },
+      totalPaise: 170000,
+    });
+  });
+
+  it("keeps a site's spend private to its painter (CUS-007)", async () => {
+    const { shop, oneLitre } = await seedShop();
+    const painter = await person('PAINTER');
+    const site = await addSite(painter);
+    await place(painter, {
+      shopId: shop.id,
+      fulfilment: 'PICKUP',
+      siteId: site.body.id,
+      items: [{ shopProductPackId: oneLitre.id, quantity: 1 }],
+      expectedTotalPaise: 30000,
+    }).expect(201);
+
+    const other = await person('PAINTER', '+919999900002');
+    const notFound = await request(server())
+      .get(`/v1/me/sites/${site.body.id}/spend`)
+      .set('Authorization', other)
+      .expect(404);
+    expect(notFound.body.code).toBe('site_not_found');
+
+    const customer = await person('CUSTOMER', '+919999900003');
+    const refused = await request(server())
+      .get(`/v1/me/sites/${site.body.id}/spend`)
+      .set('Authorization', customer)
+      .expect(403);
+    expect(refused.body.code).toBe('painter_only');
+
+    await request(server())
+      .get(`/v1/me/sites/${site.body.id}/spend`)
+      .expect(401);
+  });
+
   it("can't use another person's site or delivery place", async () => {
     const { shop, oneLitre } = await seedShop();
     const owner = await person('PAINTER');

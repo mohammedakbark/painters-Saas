@@ -7,7 +7,9 @@ import 'package:go_router/go_router.dart';
 import '../../api/api_client.dart';
 import '../../providers.dart';
 import '../../routing/paths.dart';
+import '../../shops/shop_models.dart';
 import '../../shops/shop_providers.dart';
+import '../../sites/sites.dart';
 import '../cart/cart_button.dart';
 import '../storefront/storefront_view.dart';
 
@@ -67,39 +69,78 @@ class _ActiveShop extends ConsumerWidget {
     return StorefrontView(
       key: ValueKey('storefront-$shopId'),
       shopId: shopId,
-      header: Padding(
-        padding: const EdgeInsets.only(bottom: AppSpacing.s12),
-        child: switch (shop) {
-          // The design (UI-104): a dark "Shopping from" banner; tapping it
-          // changes the shop.
-          AsyncData(:final value) => AppContextBanner(
-            key: const Key('change-shop'),
-            caption: 'Shopping from',
-            title: value.name,
-            actionLabel: 'Change',
-            leading: value.thumbUrl == null
-                ? null
-                : AppNetworkImage(
-                    url: value.thumbUrl!,
-                    semanticLabel: value.name,
-                    rounded: true,
-                  ),
-            onTap: () => context.push(findShopsPath),
+      header: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.s12),
+            child: _shopBanner(context, ref, shop),
           ),
-          AsyncError() => AppInlineMessage(
-            message: "We couldn't load your shop.",
-            tone: AppTone.error,
-            action: AppButton(
-              label: 'Try again',
-              variant: AppButtonVariant.tertiary,
-              onPressed: () => ref.invalidate(shopProvider(shopId)),
+          if (ref.watch(customerProfileProvider).value?.isPainter ?? false)
+            const _SiteSpendCard(),
+        ],
+      ),
+    );
+  }
+
+  Widget _shopBanner(
+    BuildContext context,
+    WidgetRef ref,
+    AsyncValue<PublicShop> shop,
+  ) => switch (shop) {
+    // The design (UI-104): a dark "Shopping from" banner; tapping it
+    // changes the shop.
+    AsyncData(:final value) => AppContextBanner(
+      key: const Key('change-shop'),
+      caption: 'Shopping from',
+      title: value.name,
+      actionLabel: 'Change',
+      leading: value.thumbUrl == null
+          ? null
+          : AppNetworkImage(
+              url: value.thumbUrl!,
+              semanticLabel: value.name,
+              rounded: true,
             ),
-          ),
-          _ => const SizedBox(
-            height: AppSpacing.s48,
-            child: Center(child: AppSpinner.small()),
-          ),
-        },
+      onTap: () => context.push(findShopsPath),
+    ),
+    AsyncError() => AppInlineMessage(
+      message: "We couldn't load your shop.",
+      tone: AppTone.error,
+      action: AppButton(
+        label: 'Try again',
+        variant: AppButtonVariant.tertiary,
+        onPressed: () => ref.invalidate(shopProvider(shopId)),
+      ),
+    ),
+    _ => const SizedBox(
+      height: AppSpacing.s48,
+      child: Center(child: AppSpinner.small()),
+    ),
+  };
+}
+
+/// A painter's Home (design "Customer App › Home", CUS-007): the site they
+/// ordered for most recently and what it has cost so far. Hidden until the
+/// first site order, and while the sites load or fail (Home still works).
+class _SiteSpendCard extends ConsumerWidget {
+  const _SiteSpendCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final site = latestSpendSite(ref.watch(sitesProvider).value ?? const []);
+    if (site == null) return const SizedBox.shrink();
+    final shops = site.spend.shopCount == 1
+        ? '1 shop'
+        : '${site.spend.shopCount} shops';
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.s12),
+      child: AppNavRow(
+        key: const Key('home-site-spend'),
+        icon: Icons.location_on_outlined,
+        title: '${site.name} · ${formatRupees(site.spend.totalPaise)} so far',
+        subtitle: "$shops · tap to see each shop's orders",
+        onTap: () => context.push(sitePath(site.id)),
       ),
     );
   }

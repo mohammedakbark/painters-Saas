@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/api_client.dart';
 import '../providers.dart';
+import '../sites/sites.dart';
 import 'checkout.dart';
 
 /// The order steps (D-053) with the words the app shows.
@@ -418,7 +419,7 @@ class MyOrderNotifier extends AsyncNotifier<MyOrder> {
   /// Throws [ApiException].
   Future<void> cancel() async {
     state = AsyncData(await _repository.cancel(orderId));
-    ref.invalidate(myOrdersProvider);
+    _ordersChanged();
   }
 
   /// Throws [ApiException].
@@ -426,6 +427,13 @@ class MyOrderNotifier extends AsyncNotifier<MyOrder> {
     state = AsyncData(
       await _repository.answerSubstitute(orderId, itemId, accept: accept),
     );
+    _ordersChanged();
+  }
+
+  /// My Orders and the site spend (CUS-007) show this order's total.
+  void _ordersChanged() {
     ref.invalidate(myOrdersProvider);
+    ref.invalidate(sitesProvider);
+    ref.invalidate(siteSpendProvider);
   }
 }

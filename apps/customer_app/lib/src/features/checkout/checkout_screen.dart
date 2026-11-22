@@ -92,8 +92,15 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           );
       await ref.read(cartProvider.notifier).clear();
       ref.invalidate(myOrdersProvider);
+      final siteName = painter ? _siteName() : null;
+      if (painter) {
+        ref.invalidate(sitesProvider);
+        ref.invalidate(siteSpendProvider);
+      }
       if (!mounted) return;
-      context.pushReplacement(orderPlacedPath(placed.id, placed.number));
+      context.pushReplacement(
+        orderPlacedPath(placed.id, placed.number, siteName: siteName),
+      );
     } on ApiException catch (error) {
       if (!mounted) return;
       if (error.code == 'order_total_changed') {
@@ -154,6 +161,13 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       _ => const AppScaffold(title: 'Checkout', body: LoadingView()),
     };
   }
+
+  String? _siteName() => ref
+      .read(sitesProvider)
+      .value
+      ?.where((s) => s.id == _siteId)
+      .firstOrNull
+      ?.name;
 
   Widget _content(Cart cart, PublicShop shop, bool painter) {
     ({double latitude, double longitude})? destination;

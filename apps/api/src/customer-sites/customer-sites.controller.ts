@@ -32,6 +32,8 @@ import {
   CustomerSiteListQuerySchema,
   CustomerSiteListSchema,
   CustomerSiteSchema,
+  type SiteSpend,
+  SiteSpendSchema,
   type UpdateCustomerSiteRequest,
   UpdateCustomerSiteRequestSchema,
 } from './customer-sites.schemas.js';
@@ -97,6 +99,20 @@ export class CustomerSitesController {
     @Param('siteId') siteId: string,
   ): Promise<CustomerSite> {
     return this.sites.get(user, siteId);
+  }
+
+  @Get(':siteId/spend')
+  @ApiOperation({
+    summary:
+      "What a site has cost, by shop: each shop's total and latest orders, cancelled orders left out (CUS-007).",
+  })
+  @ApiOkResponse({ standardSchema: SiteSpendSchema })
+  @ApiNotFoundResponse(NOT_FOUND)
+  spend(
+    @CurrentUser() user: CurrentUserContext,
+    @Param('siteId') siteId: string,
+  ): Promise<SiteSpend> {
+    return this.sites.spend(user, siteId);
   }
 
   @Patch(':siteId')

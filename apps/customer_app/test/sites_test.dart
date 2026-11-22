@@ -38,6 +38,13 @@ Future<void> _painter(
   await tester.pumpAndSettle();
 }
 
+/// Opens [name]'s page, then Edit site from its menu (CUS-007).
+Future<void> _edit(WidgetTester tester, String name) async {
+  await tapVisible(tester, find.text(name));
+  await tapVisible(tester, find.byTooltip('More options'));
+  await tapVisible(tester, find.text('Edit site'));
+}
+
 Future<void> _type(WidgetTester tester, String key, String text) async {
   await tester.ensureVisible(find.byKey(Key(key)));
   await tester.enterText(
@@ -89,7 +96,7 @@ void main() {
       ..rejectNextSave = {'name': 'You already have a site with this name.'};
     await _painter(tester, sites: sites);
 
-    await tapVisible(tester, find.text('Green Villa'));
+    await _edit(tester, 'Green Villa');
     await tapVisible(tester, find.byKey(const Key('save-site')));
     expect(
       find.text('You already have a site with this name.'),
@@ -103,11 +110,15 @@ void main() {
     final sites = FakeSitesRepository([_villa]);
     await _painter(tester, sites: sites);
 
-    await tapVisible(tester, find.text('Green Villa'));
+    await _edit(tester, 'Green Villa');
     await tapVisible(tester, find.byTooltip('More options'));
     await tapVisible(tester, find.text('Archive site'));
     await tapVisible(tester, find.text('Archive'));
     expect(sites.sites.single.archived, isTrue);
+    // Back on the site's page, which keeps its history.
+    expect(find.text('Archived site'), findsOneWidget);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
     expect(find.text('No sites yet'), findsOneWidget);
 
     await tapVisible(tester, find.byTooltip('More options'));
