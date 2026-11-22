@@ -110,6 +110,8 @@ const detailSchema = z.object({
     status: paymentStatus,
     method: z.enum(['CASH', 'UPI', 'BANK_TRANSFER']).nullable(),
     paidAt: z.string().nullable(),
+    /** BIL-001: paid so far from the running bill. */
+    paidPaise: z.number().int().default(0),
   }),
   cancelled: z
     .object({

@@ -11,6 +11,13 @@ import {
   requireShopPermission,
 } from '../shop-access/shop-permissions.js';
 import { problem } from '../shop-catalogue/shop-catalogue-mapping.js';
+import {
+  adjustOrder,
+  chargeOrder,
+  lockOrderAndBill,
+  payOrder,
+  settleBill,
+} from '../bills/bill-ledger.js';
 import { lockOrder, orderNotFound, recalculateTotals } from './order-locks.js';
 import { loadSellablePack } from './order-packs.js';
 import {
@@ -59,6 +66,7 @@ const DETAIL_SELECT = {
   paymentStatus: true,
   paymentMethod: true,
   paidAt: true,
+  paidPaise: true,
   cancelledBy: true,
   cancelReason: true,
   cancelledAt: true,
@@ -214,7 +222,7 @@ export class OrdersService {
         count(*) FILTER (WHERE o.status IN ('READY_FOR_PICKUP', 'OUT_FOR_DELIVERY')) AS ready,
         count(*) FILTER (WHERE o.payment_status = 'UNPAID'
           AND o.status IN ('READY_FOR_PICKUP', 'OUT_FOR_DELIVERY', 'COMPLETED')) AS unpaid_count,
-        sum(o.total_paise) FILTER (WHERE o.payment_status = 'UNPAID'
+        sum(o.total_paise - o.paid_paise) FILTER (WHERE o.payment_status = 'UNPAID'
           AND o.status IN ('READY_FOR_PICKUP', 'OUT_FOR_DELIVERY', 'COMPLETED')) AS unpaid_paise,
         count(*) FILTER (WHERE o.placed_at >= day.starts) AS placed_today,
         count(*) FILTER (WHERE o.status = 'COMPLETED' AND o.completed_at >= day.starts) AS completed_today,
@@ -267,7 +275,11 @@ export class OrdersService {
   ): Promise<OrderDetail> {
     requireShopPermission(shop, 'orders.handle');
     await this.prisma.$transaction(async (tx) => {
-      const order = await lockOrder(tx, shop.shopId, orderId);
+      // Completing puts the order on the running bill (BIL-001).
+      const order =
+        input.to === 'COMPLETED'
+          ? await lockOrderAndBill(tx, shop.shopId, orderId)
+          : await lockOrder(tx, shop.shopId, orderId);
       if (!canShopMove(order.status, input.to, order.fulfilment)) {
         throw statusInvalid();
       }
@@ -294,6 +306,13 @@ export class OrdersService {
         action: AuditAction.OrderStatusChanged,
         data: { from: order.status, to: input.to },
       });
+      if (input.to === 'COMPLETED') {
+        await chargeOrder(tx, shop.shopId, orderId, now);
+        // Money the shop already holds for this customer covers it first.
+        await settleBill(tx, shop.shopId, order.customerId, {
+          userId: user.id,
+        });
+      }
     });
     return this.detail(shop, orderId);
   }
@@ -420,7 +439,7 @@ export class OrdersService {
   ): Promise<OrderDetail> {
     requireShopPermission(shop, 'orders.payments');
     await this.prisma.$transaction(async (tx) => {
-      const order = await lockOrder(tx, shop.shopId, orderId);
+      const order = await lockOrderAndBill(tx, shop.shopId, orderId);
       if (order.paymentStatus === 'PAID') {
         throw problem(
           HttpStatus.CONFLICT,
@@ -435,19 +454,15 @@ export class OrdersService {
           'Record the payment when the order is ready, out for delivery or completed.',
         );
       }
-      await tx.order.update({
-        where: { id: orderId },
-        data: {
-          paymentStatus: 'PAID',
-          paymentMethod: input.method,
-          paidAt: new Date(),
-          paidByUserId: user.id,
-        },
+      // What is left on the order, as a bill payment (BIL-001).
+      const amountPaise = await payOrder(tx, shop.shopId, orderId, {
+        userId: user.id,
+        method: input.method,
       });
       await this.record(tx, user, shop, orderId, {
         type: 'paid',
         action: AuditAction.OrderPaymentRecorded,
-        data: { method: input.method },
+        data: { method: input.method, amountPaise },
       });
     });
     return this.detail(shop, orderId);
@@ -462,7 +477,7 @@ export class OrdersService {
   ): Promise<OrderDetail> {
     requireShopPermission(shop, 'orders.payments');
     await this.prisma.$transaction(async (tx) => {
-      const order = await lockOrder(tx, shop.shopId, orderId);
+      const order = await lockOrderAndBill(tx, shop.shopId, orderId);
       if (order.status !== 'COMPLETED') {
         throw problem(
           HttpStatus.CONFLICT,
@@ -486,8 +501,26 @@ export class OrdersService {
         where: { id: item.id },
         data: { returnedQuantity: item.returnedQuantity + input.quantity },
       });
+      const before = await tx.order.findUniqueOrThrow({
+        where: { id: orderId },
+        select: { totalPaise: true },
+      });
       await recalculateTotals(tx, shop.shopId, orderId);
-      // Money records (refunds, bills) follow with billing in Phase 3 (D-047).
+      const after = await tx.order.findUniqueOrThrow({
+        where: { id: orderId },
+        select: { totalPaise: true },
+      });
+      // The bill goes down by the returned amount (BIL-001, D-047); money
+      // already paid beyond the new total moves to the customer's other
+      // orders or is owed back.
+      await adjustOrder(tx, {
+        shopId: shop.shopId,
+        orderId,
+        deltaPaise: after.totalPaise - before.totalPaise,
+        reason: input.reason ?? 'Return',
+        userId: user.id,
+      });
+      await settleBill(tx, shop.shopId, order.customerId);
       await this.record(tx, user, shop, orderId, {
         type: 'item_returned',
         action: AuditAction.OrderItemReturned,
@@ -667,6 +700,7 @@ function toDetail(row: DetailRow): OrderDetail {
       status: row.paymentStatus,
       method: row.paymentMethod,
       paidAt: iso(row.paidAt),
+      paidPaise: row.paidPaise,
     },
     cancelled:
       row.status === 'CANCELLED' && row.cancelledBy && row.cancelledAt

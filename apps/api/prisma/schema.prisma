@@ -226,6 +226,7 @@ model Shop {
   categories      CatalogueCategory[]
   customers       ShopCustomer[]
   orders          Order[]
+  billEntries     BillEntry[]
   savedBy         CustomerShop[]
 
   @@map("shops")
@@ -544,10 +545,11 @@ model ShopCustomer {
   createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  shop   Shop       @relation(fields: [shopId], references: [id], onDelete: Restrict)
-  user   User?      @relation(fields: [userId], references: [id], onDelete: Restrict)
-  orders Order[]
-  sites  ShopSite[]
+  shop        Shop        @relation(fields: [shopId], references: [id], onDelete: Restrict)
+  user        User?       @relation(fields: [userId], references: [id], onDelete: Restrict)
+  orders      Order[]
+  sites       ShopSite[]
+  billEntries BillEntry[]
 
   @@unique([shopId, id])
   @@unique([shopId, userId])
@@ -674,6 +676,13 @@ model Order {
   deliveryChargePaise Int                @default(0) @map("delivery_charge_paise")
   totalPaise          Int                @map("total_paise")
   paymentStatus       OrderPaymentStatus @default(UNPAID) @map("payment_status")
+  /// How much of the total is paid (BIL-001): payments fill the oldest
+  /// charged orders first. PAID once it reaches the total; 0 < paid < total
+  /// is "part paid".
+  paidPaise           Int                @default(0) @map("paid_paise")
+  /// When the order went on the customer's running bill (BIL-001): on
+  /// completion, or earlier when it was paid on the order itself.
+  chargedAt           DateTime?          @map("charged_at") @db.Timestamptz(3)
   paymentMethod       PaymentMethod?     @map("payment_method")
   paidAt              DateTime?          @map("paid_at") @db.Timestamptz(3)
   paidByUserId        String?            @map("paid_by_user_id") @db.Uuid
@@ -691,6 +700,7 @@ model Order {
   customerSite CustomerSite? @relation(fields: [customerSiteId], references: [id], onDelete: Restrict)
   items        OrderItem[]
   events       OrderEvent[]
+  billEntries  BillEntry[]
 
   @@unique([shopId, id])
   @@unique([shopId, number])
@@ -768,6 +778,54 @@ model OrderEvent {
 
   @@index([shopId, orderId, createdAt])
   @@map("order_events")
+}
+
+/// What changed a customer's running bill with one shop (BIL-001, D-062).
+enum BillEntryKind {
+  /// An order went on the bill (+ its total).
+  CHARGE
+  /// The order total changed after it was charged, such as a return (±).
+  ADJUSTMENT
+  /// The customer paid the shop (−).
+  PAYMENT
+  /// The shop paid money back (+), at most what it owed.
+  REFUND
+
+  @@map("bill_entry_kind")
+}
+
+/// One line of a customer's running bill with a shop (BIL-001, D-062).
+/// Append-only (trigger): entries are never changed or deleted. The balance
+/// is the sum of `amount_paise`: positive means the customer owes the shop,
+/// negative that the shop owes the customer.
+model BillEntry {
+  id              String         @id @default(uuid(7)) @db.Uuid
+  shopId          String         @map("shop_id") @db.Uuid
+  customerId      String         @map("customer_id") @db.Uuid
+  kind            BillEntryKind
+  /// Signed: CHARGE ≥ 0, PAYMENT < 0, REFUND > 0, ADJUSTMENT either way.
+  amountPaise     Int            @map("amount_paise")
+  /// Required for CHARGE and ADJUSTMENT; set for a payment made on an order.
+  orderId         String?        @map("order_id") @db.Uuid
+  /// PAYMENT and REFUND only.
+  method          PaymentMethod?
+  /// The shop's note on a payment or refund, or the reason of an adjustment.
+  note            String?
+  /// The shop app's key for one payment or refund, so a repeated request
+  /// never records it twice.
+  clientRequestId String?        @map("client_request_id") @db.Uuid
+  /// The shop member; null for back-filled entries.
+  createdByUserId String?        @map("created_by_user_id") @db.Uuid
+  createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  shop     Shop         @relation(fields: [shopId], references: [id], onDelete: Restrict)
+  customer ShopCustomer @relation(fields: [shopId, customerId], references: [shopId, id], onDelete: Restrict)
+  order    Order?       @relation(fields: [shopId, orderId], references: [shopId, id], onDelete: Restrict)
+
+  @@unique([shopId, clientRequestId])
+  @@index([shopId, customerId, createdAt])
+  @@index([orderId])
+  @@map("bill_entries")
 }
 
 /// A shop in a person's My Shops list (CUS-002, D-037). Private to that

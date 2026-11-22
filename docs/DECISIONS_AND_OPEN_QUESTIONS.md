@@ -67,6 +67,7 @@ This document prevents assumptions from silently becoming requirements.
 | D-059 | **Cart and the order of the ordering features.** One cart at a time on the phone: adding a product from another shop asks "Start a new cart?", and Yes replaces the old shop's items (a cart never mixes shops). Products in shades need a shade before they go in the cart: picked from the shop's favourites, the brand's shade card or the shop's own codes, or typed when it is not listed. Requests for unavailable items (D-029) are a separate feature after notifications are decided (question 53). The work goes cart (CUS-004), then the painter's sites (CUS-005), then checkout and My Orders (CUS-006), so painters can order for a site from the start (D-049). | Confirmed (product owner, 2026-11-20); CUS-004 |
 | D-060 | **UI redesign from the owner's design, and later areas shown greyed out.** The whole UI follows the "SevenPalette Screens" design (claude.ai artifact `VrnTXsW7v9hiNEWEHngTqr`), one surface at a time: shop admin web, platform admin web, Shop App, Customer App. Areas planned for later phases appear in the web sidebars greyed out with a tag and no page: Shop Admin "Bills & credit" (Phase 3) and "Rewards & offers" (Phase 4), Platform Admin "Plans and seats" (Later). The design's sample prices and delivery figures are illustration, not rules. CUS-005 is parked until the redesign is done. | Confirmed (product owner, 2026-11-20); DS-006 |
 | D-061 | **Saved delivery places and site spend after checkout.** A normal customer saves named delivery places (for example Home or Office) with an address and an accurate map pin, and picks one at checkout or adds a new one; places are private and archived, never deleted. Painters deliver to their sites (D-049). Site spend (Sites tab and site page, by shop) is its own feature, CUS-007, right after checkout and My Orders (CUS-006). | Confirmed (product owner, 2026-11-20); CUS-006 |
+| D-062 | **Running bill and payments.** Each shop keeps one running bill per customer: an order goes on it when completed (or earlier when it is paid on the order itself), returns after that lower it, and the shop records payments of any amount up to what is owed (no advances). Payments pay the customer's oldest orders first, so orders show Paid or Part paid. A painter's bill shows what each site was billed; payments go against the one balance, not a site. A return that leaves the shop owing money is either refunded (recorded, at most what is owed) or used by the customer's next orders. Bills are append-only entries in a transaction; the balance is their sum, never a stored number. No GST invoices yet (question 35 stays open). | Confirmed (product owner, 2026-11-22); BIL-001 |
 
 ## 2. Proposed technical decisions — require approval
 
@@ -161,9 +162,9 @@ Do not treat proposals as approved until the product owner confirms them.
 30. ~~Does the shop approve every order before it is accepted?~~ **Resolved (D-045).**
 31. ~~Is pickup, delivery or both required at launch? What delivery zones/charges apply?~~ **Resolved (D-046).**
 32. ~~Are partial fulfilment, substitutions, cancellations and returns supported?~~ **Resolved (D-047).**
-33. Can a bill be paid in multiple partial payments?
-34. What is the running-bill and final-bill workflow?
-35. What GST/tax invoice, numbering, rounding and credit-note rules apply?
+33. ~~Can a bill be paid in multiple partial payments?~~ **Resolved (D-062):** yes, any amount up to what is owed.
+34. ~~What is the running-bill and final-bill workflow?~~ **Resolved (D-062):** one running bill per customer per shop; a numbered final bill is not part of it.
+35. What GST/tax invoice, numbering, rounding and credit-note rules apply? (Postponed by D-062: no GST invoices yet.)
 36. Which offline payment methods can be recorded?
 
 ### Staff, web and premium features

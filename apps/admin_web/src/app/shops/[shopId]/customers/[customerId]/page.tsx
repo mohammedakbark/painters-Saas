@@ -5,6 +5,7 @@ import {
   CustomerForm,
   SitesPanel,
 } from '@/components/customers/customer-forms';
+import { BillSection } from '@/components/bills/bill-section';
 import { PageLoading } from '@/components/layout/page-loading';
 import { ActionButtonForm } from '@/components/shop-catalogue/shop-catalogue-forms';
 import { Badge } from '@/components/ui/badge';
@@ -13,12 +14,18 @@ import { ButtonLink } from '@/components/ui/button-link';
 import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { SideSheet, SideSheetButton } from '@/components/ui/side-sheet';
+import { SectionLoading } from '@/components/ui/section-loading';
 import { StateMessage } from '@/components/ui/state-message';
 import { getCustomer } from '@/lib/api/customers';
+import { can } from '@/lib/api/shops';
 import { orNotFound } from '@/lib/api/or-not-found';
 import { listOrders } from '@/lib/api/orders';
 import { requireShopAccess, requireShopSession } from '@/lib/auth/shop-access';
-import { customersBase, KIND_LABEL } from '@/lib/customers/customer-forms';
+import {
+  customerPath,
+  customersBase,
+  KIND_LABEL,
+} from '@/lib/customers/customer-forms';
 import { formatRupees } from '@/lib/money';
 import {
   FULFILMENT_LABEL,
@@ -27,6 +34,7 @@ import {
   orderNumber,
   ordersBase,
 } from '@/lib/orders/labels';
+import { text } from '@/lib/list-params';
 import { formatIndianMobile } from '@/lib/phone';
 import {
   saveSiteAction,
@@ -60,9 +68,14 @@ export default function CustomerPage(props: Props) {
   );
 }
 
-async function CustomerView({ params }: Props) {
+async function CustomerView({ params, searchParams }: Props) {
   const { shopId, customerId } = await params;
-  await requireShopAccess(shopId);
+  const shop = await requireShopAccess(shopId);
+  const billPageNumber = Number(text((await searchParams).billPage));
+  const billPage =
+    Number.isInteger(billPageNumber) && billPageNumber > 0 ? billPageNumber : 1;
+  // The bill is money: payments or money figures only (D-056, BIL-001).
+  const seesBill = can(shop, 'orders.payments') || can(shop, 'reports.view');
   const token = await requireShopSession();
   const customer = await loadCustomer(shopId, customerId);
   const orders = await listOrders(token, shopId, {
@@ -108,65 +121,80 @@ async function CustomerView({ params }: Props) {
       />
 
       <div className="grid items-start gap-6 desktop:grid-cols-[minmax(0,1fr)_22rem]">
-        <Card
-          as="section"
-          aria-labelledby="orders-heading"
-          className="flex flex-col gap-3 p-5 medium:p-6"
-        >
-          <h2 id="orders-heading" className="text-heading3 font-semibold">
-            Orders
-          </h2>
-          {orders.items.length === 0 ? (
-            <StateMessage
-              variant="plain"
-              icon="receipt"
-              title="No orders yet"
-              description="Record an order for this customer with New order."
-            />
-          ) : (
-            <ul className="flex flex-col divide-y divide-border-default">
-              {orders.items.map((order) => (
-                <li
-                  key={order.id}
-                  className="flex flex-wrap items-center justify-between gap-3 py-3"
-                >
-                  <div className="flex flex-col gap-1">
-                    <Link
-                      href={`${ordersBase(shopId)}/${order.id}`}
-                      className="w-fit rounded-nav-item font-semibold text-brand-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-brand-primary"
-                    >
-                      {orderNumber(order.number)}
-                    </Link>
-                    <span className="text-caption text-text-secondary">
-                      {formatOrderTime(order.placedAt)} ·{' '}
-                      {FULFILMENT_LABEL[order.fulfilment]}
-                      {order.siteLabel ? ` · ${order.siteLabel}` : ''}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="font-semibold tabular-nums">
-                      {formatRupees(order.totalPaise)}
-                    </span>
-                    <Badge tone={ORDER_STATUS[order.status].tone}>
-                      {ORDER_STATUS[order.status].label}
-                    </Badge>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-          {orders.total > orders.items.length ? (
-            <p className="text-body text-text-secondary">
-              Showing the latest {orders.items.length} of {orders.total}.{' '}
-              <Link
-                href={`${ordersBase(shopId)}?status=all&customerId=${encodeURIComponent(customer.id)}`}
-                className="rounded-nav-item font-semibold text-brand-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-brand-primary"
-              >
-                See all orders
-              </Link>
-            </p>
+        <div className="flex min-w-0 flex-col gap-6">
+          {seesBill ? (
+            <Suspense fallback={<SectionLoading label="Loading the bill…" />}>
+              <BillSection
+                shopId={shopId}
+                customerId={customer.id}
+                page={billPage}
+                pageHref={(page) =>
+                  `${customerPath(shopId, customer.id)}${page > 1 ? `?billPage=${page}` : ''}#bill-heading`
+                }
+                canRecord={can(shop, 'orders.payments')}
+              />
+            </Suspense>
           ) : null}
-        </Card>
+          <Card
+            as="section"
+            aria-labelledby="orders-heading"
+            className="flex flex-col gap-3 p-5 medium:p-6"
+          >
+            <h2 id="orders-heading" className="text-heading3 font-semibold">
+              Orders
+            </h2>
+            {orders.items.length === 0 ? (
+              <StateMessage
+                variant="plain"
+                icon="receipt"
+                title="No orders yet"
+                description="Record an order for this customer with New order."
+              />
+            ) : (
+              <ul className="flex flex-col divide-y divide-border-default">
+                {orders.items.map((order) => (
+                  <li
+                    key={order.id}
+                    className="flex flex-wrap items-center justify-between gap-3 py-3"
+                  >
+                    <div className="flex flex-col gap-1">
+                      <Link
+                        href={`${ordersBase(shopId)}/${order.id}`}
+                        className="w-fit rounded-nav-item font-semibold text-brand-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-brand-primary"
+                      >
+                        {orderNumber(order.number)}
+                      </Link>
+                      <span className="text-caption text-text-secondary">
+                        {formatOrderTime(order.placedAt)} ·{' '}
+                        {FULFILMENT_LABEL[order.fulfilment]}
+                        {order.siteLabel ? ` · ${order.siteLabel}` : ''}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="font-semibold tabular-nums">
+                        {formatRupees(order.totalPaise)}
+                      </span>
+                      <Badge tone={ORDER_STATUS[order.status].tone}>
+                        {ORDER_STATUS[order.status].label}
+                      </Badge>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {orders.total > orders.items.length ? (
+              <p className="text-body text-text-secondary">
+                Showing the latest {orders.items.length} of {orders.total}.{' '}
+                <Link
+                  href={`${ordersBase(shopId)}?status=all&customerId=${encodeURIComponent(customer.id)}`}
+                  className="rounded-nav-item font-semibold text-brand-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-brand-primary"
+                >
+                  See all orders
+                </Link>
+              </p>
+            ) : null}
+          </Card>
+        </div>
 
         <Card
           as="section"

@@ -667,7 +667,9 @@ describe('Orders (ORD-001, e2e, real Postgres)', () => {
         new: 1,
         packing: 1,
         ready: 1,
-        unpaid: { count: 2, totalPaise: 130000 + 130000 },
+        // BIL-001: the ₹500 paid beyond the returned order's new total pays
+        // part of the older completed order, so ₹800 of it is still owed.
+        unpaid: { count: 2, totalPaise: 130000 + 80000 },
         today: { placed: 5, completed: 1, salesPaise: 50000 },
       });
 

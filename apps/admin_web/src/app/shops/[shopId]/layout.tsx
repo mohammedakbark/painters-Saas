@@ -85,6 +85,12 @@ async function ShopConsole({
           group: 'Daily work',
         },
         {
+          href: `${base}/bills`,
+          label: 'Bills',
+          icon: 'wallet',
+          group: 'Daily work',
+        },
+        {
           href: `${base}/catalogue`,
           label: 'Products',
           icon: 'tag',
@@ -117,9 +123,9 @@ async function ShopConsole({
         },
         // Later phases, greyed out with no page (D-060).
         {
-          href: `${base}#bills`,
-          label: 'Bills & credit',
-          icon: 'wallet',
+          href: `${base}#credit`,
+          label: 'Credit',
+          icon: 'shield',
           later: 'Phase 3',
           group: 'Coming in later phases',
         },

@@ -259,6 +259,8 @@ async function OrderView({ params, searchParams }: Props) {
               </h2>
               {order.payment.status === 'PAID' ? (
                 <Badge tone="success">Paid</Badge>
+              ) : order.payment.paidPaise > 0 ? (
+                <Badge tone="warning">Part paid</Badge>
               ) : (
                 <Badge tone="neutral">Unpaid</Badge>
               )}
@@ -269,6 +271,12 @@ async function OrderView({ params, searchParams }: Props) {
                 {order.payment.paidAt
                   ? `, ${formatDateTime(order.payment.paidAt)}`
                   : ''}
+              </p>
+            ) : order.payment.paidPaise > 0 ? (
+              <p className="text-body">
+                {formatRupees(order.payment.paidPaise)} of{' '}
+                {formatRupees(order.totals.totalPaise)} paid from the customer’s
+                bill.
               </p>
             ) : (
               <p className="text-body text-text-secondary">

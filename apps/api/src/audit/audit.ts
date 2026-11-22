@@ -54,6 +54,8 @@ export const AuditAction = {
   OrderPaymentRecorded: 'order.payment_recorded',
   OrderItemReturned: 'order.item_returned',
   OrderRecordedByShop: 'order.recorded_by_shop',
+  BillPaymentRecorded: 'bill.payment_recorded',
+  BillRefundRecorded: 'bill.refund_recorded',
   ShopCustomerCreated: 'shop_customer.created',
   ShopCustomerUpdated: 'shop_customer.updated',
   ShopSiteCreated: 'shop_site.created',

@@ -58,7 +58,7 @@ Shops should generally see verification status, not unrestricted access to raw d
 - Do not share one shop's outstanding balance with another shop.
 - Do not create a platform-wide automatic painter credit score.
 - A painter's shop reference may be one decision input, but each shop decides independently.
-- Use auditable ledger entries for credit purchases, payments, adjustments and reversals.
+- Use auditable ledger entries for credit purchases, payments, adjustments and reversals. Bills (BIL-001): `bill_entries` is append-only (trigger), each change runs in a transaction that locks the customer's bill row first, payments and refunds carry a request id so a repeat records once, and audit events hold the amount and method, never the note.
 - Use database transactions for bill settlement and payment allocation.
 - Use idempotency protection where duplicate requests could create duplicate financial records.
 - Record actor, timestamp and reason for sensitive adjustments.

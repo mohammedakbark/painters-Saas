@@ -159,6 +159,14 @@ export function eventSentence(event: {
         ? `Paid by ${PAYMENT_METHOD_LABEL[method as keyof typeof PAYMENT_METHOD_LABEL]}.`
         : 'Payment recorded.';
     }
+    case 'bill_applied': {
+      // BIL-001: a payment on the customer's bill covered this order.
+      const paid = Number(event.data.paidPaise);
+      const total = Number(event.data.totalPaise);
+      return Number.isFinite(paid) && Number.isFinite(total) && paid < total
+        ? `${formatRupees(paid)} of ${formatRupees(total)} paid from the bill.`
+        : 'Paid from the bill.';
+    }
     case 'item_returned': {
       const quantity = Number(event.data.quantity);
       const reason =

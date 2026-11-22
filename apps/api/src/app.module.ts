@@ -6,6 +6,7 @@ import { ShopCatalogueModule } from './shop-catalogue/shop-catalogue.module.js';
 import { ShopReviewModule } from './shop-review/shop-review.module.js';
 import { OrdersModule } from './orders/orders.module.js';
 import { CustomersModule } from './customers/customers.module.js';
+import { BillsModule } from './bills/bills.module.js';
 import { validateEnv } from './config/env.js';
 import { HealthModule } from './health/health.module.js';
 import { PlatformAdminModule } from './platform-admin/platform-admin.module.js';
@@ -46,6 +47,7 @@ import { UsersModule } from './users/users.module.js';
     ShopReviewModule,
     OrdersModule,
     CustomersModule,
+    BillsModule,
   ],
 })
 export class AppModule {}

@@ -1,3 +1,9 @@
+import {
+  chargeOrder,
+  lockBill,
+  payOrder,
+  settleBill,
+} from '../bills/bill-ledger.js';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { AuditAction, recordAuditEvent } from '../audit/audit.js';
 import type { CurrentUserContext } from '../auth/current-user.js';
@@ -154,14 +160,6 @@ export class OrderRecordingService {
           ...(input.handedOver
             ? { status: 'COMPLETED', readyAt: now, completedAt: now }
             : {}),
-          ...(input.paymentMethod
-            ? {
-                paymentStatus: 'PAID',
-                paymentMethod: input.paymentMethod,
-                paidAt: now,
-                paidByUserId: user.id,
-              }
-            : {}),
           items: { create: lines },
         },
         select: { id: true, number: true },
@@ -181,6 +179,20 @@ export class OrderRecordingService {
           data,
         },
       });
+      // Handed over: on the running bill now; paid: paid on the order
+      // (BIL-001). The new order's customer row is locked first.
+      if (input.handedOver) {
+        await lockBill(tx, shop.shopId, customer.id);
+        await chargeOrder(tx, shop.shopId, order.id, now);
+        if (input.paymentMethod) {
+          await payOrder(tx, shop.shopId, order.id, {
+            userId: user.id,
+            method: input.paymentMethod,
+          });
+        } else {
+          await settleBill(tx, shop.shopId, customer.id, { userId: user.id });
+        }
+      }
       if (input.paymentMethod) {
         await tx.orderEvent.create({
           data: {

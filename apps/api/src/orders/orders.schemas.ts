@@ -161,6 +161,8 @@ export const OrderDetailSchema = z
       status: z.enum(OrderPaymentStatus),
       method: z.enum(PaymentMethod).nullable(),
       paidAt: z.iso.datetime().nullable(),
+      /** Paid so far from the running bill (BIL-001); below the total is "part paid". */
+      paidPaise: z.int(),
     }),
     cancelled: z
       .object({
