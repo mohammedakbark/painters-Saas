@@ -382,6 +382,85 @@ describe('Running bills (BIL-001, e2e, real Postgres)', () => {
     expect((await bill(abc, done.customerId)).balancePaise).toBe(100000);
   });
 
+  it("a customer sees their own bills with each shop, without the shop's notes (BIL-003)", async () => {
+    const abc = await liveShop('+919999900001', 'ABC Paints');
+    const kochi = await liveShop('+919999900002', 'Kochi Colours');
+    const ravi = await appCustomer('+919999900011');
+    const auth = `Bearer ${await issuer.sign({ sub: ravi.authSubject, phone: ravi.phone })}`;
+    const atAbc = await order(abc, ravi.id, 3); // ₹1,500
+    await order(kochi, ravi.id, 1); // ₹500
+    await post(abc, `/customers/${atAbc.customerId}/bill/payments`, {
+      amountPaise: 50000,
+      method: 'UPI',
+      note: 'Shop-only note',
+      clientRequestId: randomUUID(),
+    }).expect(200);
+
+    const list = await request(server())
+      .get('/v1/me/bills')
+      .set('Authorization', auth)
+      .expect(200);
+    expect(list.body.items).toEqual([
+      expect.objectContaining({
+        shop: { id: abc.shopId, name: 'ABC Paints' },
+        balancePaise: 100000,
+      }),
+      expect.objectContaining({
+        shop: { id: kochi.shopId, name: 'Kochi Colours' },
+        balancePaise: 50000,
+      }),
+    ]);
+
+    const one = await request(server())
+      .get(`/v1/me/bills/${abc.shopId}`)
+      .set('Authorization', auth)
+      .expect(200);
+    expect(one.body.balancePaise).toBe(100000);
+    expect(one.body.entries.items.map((e: { kind: string }) => e.kind)).toEqual(
+      ['PAYMENT', 'CHARGE'],
+    );
+    expect(JSON.stringify(one.body)).not.toContain('Shop-only note');
+
+    // The order shows what is paid from the bill.
+    const detail = await request(server())
+      .get(`/v1/me/orders/${atAbc.id}`)
+      .set('Authorization', auth)
+      .expect(200);
+    expect(detail.body.payment.paidPaise).toBe(50000);
+  });
+
+  it("nobody sees another person's bills, nor a shop's unconnected record of their mobile", async () => {
+    const abc = await liveShop('+919999900001', 'ABC Paints');
+    const ravi = await appCustomer('+919999900011');
+    await order(abc, ravi.id, 1);
+    // The shop records the same mobile itself, and bills it.
+    const recorded = await post(abc, '/customers', {
+      name: 'Meena',
+      phone: '9999900012',
+      kind: 'CUSTOMER',
+    }).expect(201);
+    await post(abc, '/orders', {
+      customerId: recorded.body.id,
+      fulfilment: 'PICKUP',
+      items: [{ shopProductPackId: abc.pack, quantity: 1 }],
+      handedOver: true,
+    }).expect(201);
+
+    const meena = await appCustomer('+919999900012');
+    const auth = `Bearer ${await issuer.sign({ sub: meena.authSubject, phone: meena.phone })}`;
+    const list = await request(server())
+      .get('/v1/me/bills')
+      .set('Authorization', auth)
+      .expect(200);
+    expect(list.body.items).toEqual([]);
+    const other = await request(server())
+      .get(`/v1/me/bills/${abc.shopId}`)
+      .set('Authorization', auth)
+      .expect(404);
+    expect(other.body.code).toBe('bill_not_found');
+    await request(server()).get('/v1/me/bills').expect(401);
+  });
+
   it('bill entries can never be changed or deleted', async () => {
     const shop = await liveShop('+919999900001', 'ABC Paints');
     const ravi = await appCustomer('+919999900011');

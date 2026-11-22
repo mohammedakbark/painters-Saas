@@ -154,6 +154,7 @@ class MyOrder {
     required this.totalPaise,
     required this.paid,
     required this.paymentMethod,
+    this.paidPaise = 0,
     required this.cancelledByShop,
     required this.cancelReason,
     required this.placedAt,
@@ -183,6 +184,7 @@ class MyOrder {
       totalPaise: totals['totalPaise']! as int,
       paid: payment['status'] == 'PAID',
       paymentMethod: payment['method'] as String?,
+      paidPaise: (payment['paidPaise'] as int?) ?? 0,
       cancelledByShop: cancelled?['by'] == 'SHOP',
       cancelReason: cancelled?['reason'] as String?,
       placedAt: DateTime.parse(json['placedAt']! as String),
@@ -203,6 +205,9 @@ class MyOrder {
   final int deliveryPaise;
   final int totalPaise;
   final bool paid;
+
+  /// Paid so far from the running bill (BIL-001); part paid below the total.
+  final int paidPaise;
 
   /// CASH, UPI or BANK_TRANSFER once paid.
   final String? paymentMethod;

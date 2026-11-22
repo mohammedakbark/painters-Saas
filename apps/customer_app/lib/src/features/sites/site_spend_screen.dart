@@ -4,6 +4,7 @@ import 'package:flutter_shared/flutter_shared.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../api/api_client.dart';
+import '../../bills/my_bills.dart';
 import '../../routing/paths.dart';
 import '../../sites/sites.dart';
 import '../orders/orders_screens.dart';
@@ -59,6 +60,12 @@ class _SiteSpendView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
+    // Each shop's whole bill (BIL-003); the page works without it.
+    final bills = {
+      for (final bill
+          in ref.watch(myBillsProvider).value ?? const <MyBillSummary>[])
+        bill.shopId: bill,
+    };
     return AppScaffold(
       title: spend.siteName,
       subtitle: spend.archived ? 'Archived site' : 'Site spend',
@@ -110,7 +117,7 @@ class _SiteSpendView extends ConsumerWidget {
               ),
               for (final shop in spend.shops) ...[
                 const SizedBox(height: AppSpacing.s16),
-                _ShopSpend(shop: shop),
+                _ShopSpend(shop: shop, bill: bills[shop.shopId]),
               ],
               if (spend.ordersTruncated) ...[
                 const SizedBox(height: AppSpacing.s16),
@@ -121,11 +128,13 @@ class _SiteSpendView extends ConsumerWidget {
                 ),
               ],
               const SizedBox(height: AppSpacing.s16),
-              // Billing is Phase 3 (FEATURE_CATALOG); the design notes it.
-              const AppInlineMessage(
-                message:
-                    'Running bills, payments and what you owe each shop come '
-                    'with billing later.',
+              // BIL-003: what the painter owes each shop, all sites together.
+              AppNavRow(
+                key: const Key('site-bills'),
+                icon: Icons.receipt_long_outlined,
+                title: 'Your bills with these shops',
+                subtitle: 'What you owe each shop, for all your sites',
+                onTap: () => context.push(myBillsPath),
               ),
             ],
           ],
@@ -137,9 +146,12 @@ class _SiteSpendView extends ConsumerWidget {
 
 /// One shop: its name and total, then its orders, newest first.
 class _ShopSpend extends StatelessWidget {
-  const _ShopSpend({required this.shop});
+  const _ShopSpend({required this.shop, this.bill});
 
   final SiteShopSpend shop;
+
+  /// The painter's whole bill with this shop (BIL-003), when loaded.
+  final MyBillSummary? bill;
 
   @override
   Widget build(BuildContext context) {
@@ -166,6 +178,20 @@ class _ShopSpend extends StatelessWidget {
             Text(formatRupees(shop.totalPaise), style: amount),
           ],
         ),
+        if (bill case final bill? when bill.balancePaise != 0)
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.s4),
+            child: Text(
+              bill.balancePaise > 0
+                  ? 'Your bill with this shop: you owe '
+                        '${formatRupees(bill.balancePaise)} for all sites.'
+                  : 'This shop owes you ${formatRupees(-bill.balancePaise)}.',
+              key: ValueKey('site-shop-bill-${shop.shopId}'),
+              style: textTheme.bodyMedium?.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ),
         for (final order in shop.orders) ...[
           const SizedBox(height: AppSpacing.s8),
           AppCard(

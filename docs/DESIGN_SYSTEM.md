@@ -285,7 +285,7 @@ Every feature with UI finds its screens below, records them in its spec's Design
 |---|---|---|
 | Shop Admin › Overview, Orders, order page, Products, Shades, Categories, Customers, Settings, Shop profile, side sheets | UI-101 and earlier features | Built |
 | Shop Admin › Users and permission matrix | Staff accounts (postponed) | Later |
-| Shop Admin › Bills and Shop App › Bills (no design screens yet; follow Customers and the customer page) | BIL-001, BIL-002 | Built; Credit, Rewards & offers stay greyed out (Phase 3, Phase 4) |
+| Shop Admin › Bills, Shop App › Bills, Customer App › My bills (no design screens yet; follow existing list and detail patterns) | BIL-001, BIL-002, BIL-003 | Built; Credit, Rewards & offers stay greyed out (Phase 3, Phase 4) |
 | Platform Admin › Overview, Shops, shop page, Reviews, Request changes, Brand catalogue, CSV import | UI-102 and earlier | Built; Overview's review queue with photos and "Shops by district" need API data |
 | Platform Admin › Plans and seats | Later | Greyed out in the sidebar |
 | Shop App › Home, Orders, Order page, Record an order, Products, Product page, Shades, Customers, Customer page, Shop settings, Side menu | UI-103 and earlier | Built; greeting and "Newest orders" on Home not yet |

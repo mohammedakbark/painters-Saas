@@ -44,6 +44,7 @@ const DETAIL_SELECT = {
   totalPaise: true,
   paymentStatus: true,
   paymentMethod: true,
+  paidPaise: true,
   cancelledBy: true,
   cancelReason: true,
   cancelledAt: true,
@@ -236,7 +237,11 @@ export class CustomerOrdersService {
         deliveryPaise: row.deliveryChargePaise,
         totalPaise: row.totalPaise,
       },
-      payment: { status: row.paymentStatus, method: row.paymentMethod },
+      payment: {
+        status: row.paymentStatus,
+        method: row.paymentMethod,
+        paidPaise: row.paidPaise,
+      },
       cancelled:
         row.cancelledBy && row.cancelledAt
           ? {

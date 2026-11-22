@@ -1,6 +1,7 @@
 import 'package:customer_app/app.dart';
 import 'package:customer_app/src/api/api_client.dart';
 import 'package:customer_app/src/auth/auth_repository.dart';
+import 'package:customer_app/src/bills/my_bills.dart';
 import 'package:customer_app/src/cart/cart_models.dart';
 import 'package:customer_app/src/cart/cart_providers.dart';
 import 'package:customer_app/src/cart/cart_store.dart';
@@ -725,6 +726,7 @@ Future<void> pumpApp(
   FakeSitesRepository? sites,
   FakeDeliveryLocationsRepository? places,
   FakeMyOrdersRepository? orders,
+  FakeMyBillsRepository? bills,
 }) async {
   tester.view
     ..physicalSize = const Size(1080, 2340)
@@ -754,6 +756,9 @@ Future<void> pumpApp(
         sitesRepositoryProvider.overrideWithValue(
           sites ?? FakeSitesRepository(),
         ),
+        myBillsRepositoryProvider.overrideWithValue(
+          bills ?? FakeMyBillsRepository(),
+        ),
         deliveryLocationsRepositoryProvider.overrideWithValue(
           places ?? FakeDeliveryLocationsRepository(),
         ),
@@ -765,4 +770,24 @@ Future<void> pumpApp(
     ),
   );
   await tester.pumpAndSettle();
+}
+
+/// The person's bills in memory (BIL-003).
+class FakeMyBillsRepository implements MyBillsRepository {
+  FakeMyBillsRepository({List<MyBillSummary>? bills, Map<String, MyBill>? one})
+    : bills = bills ?? [],
+      one = one ?? {};
+
+  final List<MyBillSummary> bills;
+  final Map<String, MyBill> one;
+
+  @override
+  Future<List<MyBillSummary>> list() async => [...bills];
+
+  @override
+  Future<MyBill> fetch(String shopId, {int page = 1}) async {
+    final bill = one[shopId];
+    if (bill == null) throw const ApiException(status: 404);
+    return bill;
+  }
 }

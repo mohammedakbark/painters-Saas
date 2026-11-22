@@ -19,6 +19,11 @@ String sitePath(String siteId) => '/site/${Uri.encodeComponent(siteId)}';
 String editSitePath(String siteId) => '${sitePath(siteId)}/edit';
 const morePath = '/more';
 
+// The person's bills (BIL-003), above the tabs.
+const myBillsPath = '/bills';
+String myBillPath(String shopId) =>
+    '$myBillsPath/${Uri.encodeComponent(shopId)}';
+
 /// Above the tabs: Find shops and a shop's page (CUS-002).
 const findShopsPath = '/find-shops';
 String shopPath(String shopId) => '/shop/${Uri.encodeComponent(shopId)}';

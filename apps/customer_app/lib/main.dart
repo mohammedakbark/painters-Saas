@@ -7,6 +7,7 @@ import 'app.dart';
 import 'src/api/api_client.dart';
 import 'src/auth/secure_session_storage.dart';
 import 'src/auth/supabase_auth_repository.dart';
+import 'src/bills/my_bills.dart';
 import 'src/cart/cart_providers.dart';
 import 'src/cart/cart_store.dart';
 import 'src/config/app_config.dart';
@@ -68,6 +69,7 @@ Future<void> main() async {
         ),
         cartStoreProvider.overrideWithValue(const SecureCartStore()),
         sitesRepositoryProvider.overrideWithValue(ApiSitesRepository(api)),
+        myBillsRepositoryProvider.overrideWithValue(ApiMyBillsRepository(api)),
         deliveryLocationsRepositoryProvider.overrideWithValue(
           ApiDeliveryLocationsRepository(api),
         ),

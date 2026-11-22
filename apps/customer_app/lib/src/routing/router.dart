@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/bills/my_bills_screens.dart';
 import '../features/cart/cart_screen.dart';
 import '../features/checkout/checkout_screen.dart';
 import '../features/checkout/delivery_place_form_screen.dart';
@@ -99,6 +100,17 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: 'edit',
             builder: (context, state) =>
                 SiteFormScreen(siteId: state.pathParameters['siteId']),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: myBillsPath,
+        builder: (context, state) => const MyBillsScreen(),
+        routes: [
+          GoRoute(
+            path: ':shopId',
+            builder: (context, state) =>
+                MyBillScreen(shopId: state.pathParameters['shopId']!),
           ),
         ],
       ),

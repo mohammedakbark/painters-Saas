@@ -499,10 +499,17 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
                     child: AppBadge(
                       label: order.paid
                           ? 'Paid · ${_method(order.paymentMethod)}'
+                          : order.paidPaise > 0
+                          ? 'Part paid · ${formatRupees(order.paidPaise)} of '
+                                '${formatRupees(order.totalPaise)}'
                           : order.fulfilment == Fulfilment.pickup
                           ? 'Pay at pickup'
                           : 'Pay at delivery',
-                      tone: order.paid ? AppTone.success : AppTone.neutral,
+                      tone: order.paid
+                          ? AppTone.success
+                          : order.paidPaise > 0
+                          ? AppTone.info
+                          : AppTone.neutral,
                     ),
                   ),
                 ],

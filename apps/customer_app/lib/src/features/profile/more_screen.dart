@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_shared/flutter_shared.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../profile/customer_profile.dart';
 import '../../providers.dart';
+import '../../routing/paths.dart';
 import '../../shops/shop_providers.dart';
 import 'profile_form.dart';
 
@@ -55,6 +57,14 @@ class MoreScreen extends ConsumerWidget {
                 ],
               ),
             ),
+          const SizedBox(height: AppSpacing.s12),
+          AppNavRow(
+            key: const Key('more-bills'),
+            icon: Icons.receipt_long_outlined,
+            title: 'Bills',
+            subtitle: 'What you owe each shop',
+            onTap: () => context.push(myBillsPath),
+          ),
           const SizedBox(height: AppSpacing.s24),
           AppButton(
             key: const Key('sign-out'),

@@ -137,6 +137,8 @@ export const MyOrderSchema = z
     payment: z.object({
       status: z.enum(['UNPAID', 'PAID']),
       method: z.enum(['CASH', 'UPI', 'BANK_TRANSFER']).nullable(),
+      /** Paid so far from the running bill (BIL-001); below the total is part paid. */
+      paidPaise: z.number().int(),
     }),
     cancelled: z
       .object({
