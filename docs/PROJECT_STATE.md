@@ -1,7 +1,7 @@
 # Project State — Living Document
 
 **Last updated:** 2026-11-27  
-**Current stage:** Phase 1 (shop onboarding), Phase 2 (ordering) and the UI redesign (D-060) are complete on every surface. Phase 3: painter sites and site spend (CUS-005, CUS-007), the running bill (BIL-001 to BIL-003, D-062) and connecting a shop's records to the app (CON-001, CON-002, D-063) are done. Credit waits for the ID-document rules (question 57); push notifications (NOT-001) are postponed. The next feature is for the owner to choose.  
+**Current stage:** Phase 1 (shop onboarding), Phase 2 (ordering) and the UI redesign (D-060) are complete on every surface. Phase 3: painter sites and site spend (CUS-005, CUS-007), the running bill (BIL-001 to BIL-003, D-062) and connecting a shop's records to the app (CON-001, CON-002, D-063) are done. Credit rules are decided (D-064, 2026-11-27) and credit (CRD-001) can be planned; push notifications (NOT-001) are postponed. The next feature is for the owner to choose.  
 **Overall status:** Foundation complete with CI green on GitHub. Implemented and verified locally: platform admin sign-in, shop self-registration with tenant-scoped access, the platform shop registry, and Shop App sign-in (Android emulator).  
 **Product name:** SevenPalette (D-040, 2026-11-06), a product of zero.byt
 
@@ -556,7 +556,7 @@ Android emulator (`emulator-5554`, 1080 x 1920), local Postgres, local Supabase 
 | Painter sites | **Complete (local):** shop-recorded sites (ORD-004), painters' own sites (CUS-005) and site spend (CUS-007) | |
 | Bills/payments | **Complete (local):** running bill, manual payments and refunds on every surface (BIL-001 to BIL-003, D-062) | GST invoices open (question 35); online gateway later |
 | Connecting records | **Complete (local):** shop-recorded customer linked to the person's app (CON-001, CON-002, D-063) | |
-| Shop credit | Not started; blocked | Needs the ID-document rules (question 57, D-050) |
+| Shop credit | Not started; rules decided (D-064) | ID checked in person, any approved customer with an app account, warn over the limit |
 | Rewards | Not started | Earning/redemption rules open |
 | Painter references | Not started | Visibility/dispute rules open |
 | Online payment gateway | Deferred | Later phase |
@@ -673,3 +673,4 @@ Android emulator (`emulator-5554`, 1080 x 1920), local Postgres, local Supabase 
 | 2026-11-22 | CON-002: Connection requests on the Shop App Customers tab; `ApiClient.post` for 204 answers. |
 | 2026-11-22 | Chrome check of BIL-001 and CON-001 on the shop web: all worked; Connect's confirm button now uses the primary style (`ConfirmActionButton` tone). |
 | 2026-11-27 | PROJECT_STATE brought up to date: current stage, Customer App done in §5, §7 item 2 and §8 feature progress (customer sign-in, orders, sites, bills, connecting records, credit blocked). |
+| 2026-11-27 | Owner decided the credit rules (D-064): ID checked in person with only the type and last 4 digits kept, credit for any approved customer with a connected app account, credit permission with audited limit changes, warn (not block) over the limit or without credit. Questions 28, 29 and 57 resolved. |
