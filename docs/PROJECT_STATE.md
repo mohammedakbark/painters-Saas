@@ -1,7 +1,7 @@
 # Project State — Living Document
 
-**Last updated:** 2026-11-22  
-**Current stage:** UI redesign from the owner's design (D-060): DS-006, UI-101 Shop Admin web and UI-102 Platform Admin web, UI-103 Shop App and UI-104 Customer App done. CUS-005 painter sites, CUS-006 checkout and My Orders and CUS-007 site spend done. Phase 3 billing has started (owner, 2026-11-22, D-062): BIL-001 running bill (server and shop web), BIL-002 bills in the Shop App and BIL-003 My bills in the Customer App are done; billing is in every surface. CON-001 and CON-002 connecting a shop's records to the app (D-063) are done on the server, shop web, Customer App and Shop App; the next feature is for the owner to choose. Credit waits for the ID-document rules (question 57). Credit waits for the ID-document rules (question 57). Phase 2: ordering. Phase 1 (shop onboarding) is complete and the web is finished for now. The Shop App has orders (SHP-007) and recording orders (SHP-009). Push notifications are postponed (owner, 2026-11-15); the Shop App redesign comes first: SHP-010 permissions (done), SHP-011 app shell and navigation (done), SHP-012 customers (done), SHP-013 profile and settings (done), SHP-014 shades and categories (done). The Customer App has started: DS-005 gives it its own look from the owner's reference design (D-057, done); CUS-001 sign-up, profile and tabs (done); CUS-002 Find shops, shop page and My Shops (done); CUS-003 shop storefront (done); CUS-004 cart (done, D-059); next CUS-005 painter's sites, then CUS-006 checkout and My Orders.  
+**Last updated:** 2026-11-27  
+**Current stage:** Phase 1 (shop onboarding), Phase 2 (ordering) and the UI redesign (D-060) are complete on every surface. Phase 3: painter sites and site spend (CUS-005, CUS-007), the running bill (BIL-001 to BIL-003, D-062) and connecting a shop's records to the app (CON-001, CON-002, D-063) are done. Credit waits for the ID-document rules (question 57); push notifications (NOT-001) are postponed. The next feature is for the owner to choose.  
 **Overall status:** Foundation complete with CI green on GitHub. Implemented and verified locally: platform admin sign-in, shop self-registration with tenant-scoped access, the platform shop registry, and Shop App sign-in (Android emulator).  
 **Product name:** SevenPalette (D-040, 2026-11-06), a product of zero.byt
 
@@ -212,7 +212,7 @@ Details, commands and environment variables: `docs/TECHNICAL_ARCHITECTURE.md` §
 - [ ] Production SMS vendor + DLT registration (question 46). Platform admin MFA and password reset (question 47). Session policy after sign-out (question 48).
 - [ ] Hosting approved or any cloud resource created: none exists, including no Supabase project.
 - [ ] Final app identifiers (currently `com.example`).
-- [ ] Customer App features (registration, discovery, ordering); the Shop App now uses Riverpod, go_router, Dio and supabase_flutter.
+- [x] Customer App features (registration, discovery, ordering, sites, bills): CUS-001 to CUS-007, BIL-003, CON-001.
 - [ ] Playwright browser tests. (Interactive walkthroughs now run in the product owner's Chrome through Claude in Chrome, since SHP-003.)
 - [ ] iOS build verification (requires macOS).
 
@@ -533,7 +533,7 @@ Android emulator (`emulator-5554`, 1080 x 1920), local Postgres, local Supabase 
    - **Step B (Phase 2 ordering, server and shop web):** ~~ORD-001 orders API~~ (done, D-053, D-054; `orders:seed-test`); ~~ORD-002 shop Orders page~~ (done); ~~ORD-003 order figures on the Overview~~ (done). Step B is complete. ~~ORD-004 shop-recorded customers, sites and orders~~ (done, D-055). Next: the Shop App (mobile).
    - **Then mobile:** Shop App, then the Customer App on the same APIs. Shop App order chosen by the owner on 2026-11-13: ~~SHP-007 orders and home figures~~ (done); ~~SHP-009 record phone and counter orders~~ (done). Redesign first (owner, 2026-11-15): ~~SHP-010 permissions~~, ~~SHP-011 app shell~~ (done); ~~SHP-012 Customers tab~~, ~~SHP-013 profile and settings~~, ~~SHP-014 shades and categories~~ (done). The redesign is complete and was checked on the Android emulator (2026-11-16); next, plan the Customer App (item 2). Postponed: NOT-001 push notifications for orders (Firebase Cloud Messaging behind a replaceable sender, Android first; needs a decision record, ADR 0010 and the owner's Firebase project: `google-services.json` and a service-account key. The app id is still `com.example.shop_app`, question 41).
    - Owner: domains, trademark check, bundle IDs (question 41).
-2. **Customer App foundation** (owner, 2026-11-20: looks from the reference design at claude.ai artifact `Km98amERdBbJ7DWN4fGVcp`, features from these documents; tabs Home, Orders, My Shops, More, plus Sites for painters; Bills with credit later; features in the design but not in the documents are question 59): ~~DS-005 Customer App theme~~ (done, D-057); ~~CUS-001 sign-up and profile~~ (done; profile is name and type only, owner 2026-11-20); ~~CUS-002 Find shops and My Shops~~ (done, D-058); ~~CUS-003 storefront~~ (done, browse only); ~~CUS-004 cart~~ (done, D-059). Next: CUS-005 painter's sites (the painter's own sites with a map location, D-049), then CUS-006 checkout (pickup or delivery with the shop's charge, D-046; a site for painters, a delivery location for customers, D-049), placing the order and My Orders with cancel and substitutes (D-045, D-047). Requests for unavailable items come later (question 53). Then: CUS-001 sign-up and profile (customer type, D-036), CUS-002 Find shops and My Shops (D-037, D-038), CUS-003 shop storefront. Ordering questions 30–32 answered (D-045 to D-047).
+2. **Customer App foundation** (owner, 2026-11-20: looks from the reference design at claude.ai artifact `Km98amERdBbJ7DWN4fGVcp`, features from these documents; tabs Home, Orders, My Shops, More, plus Sites for painters; Bills with credit later; features in the design but not in the documents are question 59): ~~DS-005 Customer App theme~~ (done, D-057); ~~CUS-001 sign-up and profile~~ (done; profile is name and type only, owner 2026-11-20); ~~CUS-002 Find shops and My Shops~~ (done, D-058); ~~CUS-003 storefront~~ (done, browse only); ~~CUS-004 cart~~ (done, D-059); ~~CUS-005 painter's sites~~ (done, D-049); ~~CUS-006 checkout and My Orders~~ (done, D-045 to D-047); ~~CUS-007 site spend~~ (done). Requests for unavailable items come later (question 53).
 3. **Product owner checks:** try the platform **Reviews** decision form in Chrome as the platform admin; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
 4. **Test hosting (INFRA-001):** owner completes the Supabase, Render, Vercel and GitHub-variable steps in `docs/guides/DEPLOYMENT.md`, then releases `dev` to `main`. Hardening before production: questions 46, 47, 49 and 51 (the test environment uses test phone numbers and email confirmations).
 5. **Product owner:** real brand catalogue data; confirm the CAT-002 assumptions (price ≤ MRP, 10-product rule).
@@ -549,13 +549,14 @@ Android emulator (`emulator-5554`, 1080 x 1920), local Postgres, local Supabase 
 | Design system | Provisional tokens from one source (DS-001); component tokens and the project's own components on web and Flutter, guarded in CI (DS-002) | `packages/design_tokens` → web `tokens.css` + Flutter `flutter_shared`; DESIGN_SYSTEM §8 |
 | Platform admin sign-in | **Complete (local)** | AUTH-001 |
 | Shop onboarding | **Complete locally:** registration (SHP-001), Shop App sign-in (SHP-002), profile + map location + checklist (SHP-003), photo (SHP-004), products (CAT-002), review and approval (PLT-002) | Decision notifications later (question 53) |
-| Customer authentication | Not started | Supabase phone OTP decided; SMS vendor open |
+| Customer authentication | **Complete (local):** Customer App phone OTP sign-up and profile (CUS-001) | Production SMS vendor open (question 46) |
 | Catalogue | Brand catalogue (CAT-001) and shop catalogue (CAT-002) on the web; everyday catalogue in the Shop App (SHP-005) | Customer requests for unavailable items with the Customer App (D-029); tinting open (question 52) |
 | Cross-shop search | Not started | Price visibility open |
-| Orders | Shop side done: API (ORD-001), shop web (ORD-002 to ORD-004), Shop App (SHP-007) | Customer ordering comes with the Customer App; push notifications NOT-001 |
-| Painter sites | Sites of painters the shop recorded (ORD-004, web) | Painters' own sites come with the Customer App |
-| Bills/payments | Not started | GST and adjustment rules open |
-| Shop credit | Not started | Shop-specific rules |
+| Orders | **Complete (local):** API (ORD-001), shop web (ORD-002 to ORD-004), Shop App (SHP-007, SHP-009), Customer App cart, checkout and My Orders (CUS-004, CUS-006) | Push notifications NOT-001 postponed |
+| Painter sites | **Complete (local):** shop-recorded sites (ORD-004), painters' own sites (CUS-005) and site spend (CUS-007) | |
+| Bills/payments | **Complete (local):** running bill, manual payments and refunds on every surface (BIL-001 to BIL-003, D-062) | GST invoices open (question 35); online gateway later |
+| Connecting records | **Complete (local):** shop-recorded customer linked to the person's app (CON-001, CON-002, D-063) | |
+| Shop credit | Not started; blocked | Needs the ID-document rules (question 57, D-050) |
 | Rewards | Not started | Earning/redemption rules open |
 | Painter references | Not started | Visibility/dispute rules open |
 | Online payment gateway | Deferred | Later phase |
@@ -671,3 +672,4 @@ Android emulator (`emulator-5554`, 1080 x 1920), local Postgres, local Supabase 
 | 2026-11-22 | D-063 connecting records. CON-001: `customer_connect_requests`, merge into the app record (bill-entry trigger allows the move only inside a merge), shop web Connection requests, Customer App connect card. |
 | 2026-11-22 | CON-002: Connection requests on the Shop App Customers tab; `ApiClient.post` for 204 answers. |
 | 2026-11-22 | Chrome check of BIL-001 and CON-001 on the shop web: all worked; Connect's confirm button now uses the primary style (`ConfirmActionButton` tone). |
+| 2026-11-27 | PROJECT_STATE brought up to date: current stage, Customer App done in §5, §7 item 2 and §8 feature progress (customer sign-in, orders, sites, bills, connecting records, credit blocked). |
