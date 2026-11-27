@@ -557,8 +557,8 @@ Android emulator (`emulator-5554`, 1080 x 1920), local Postgres, local Supabase 
 | Bills/payments | **Complete (local):** running bill, manual payments and refunds on every surface (BIL-001 to BIL-003, D-062) | GST invoices open (question 35); online gateway later |
 | Connecting records | **Complete (local):** shop-recorded customer linked to the person's app (CON-001, CON-002, D-063) | |
 | Shop credit | Not started; rules decided (D-064) | ID checked in person, any approved customer with an app account, warn over the limit |
-| Rewards | Not started | Earning/redemption rules open |
-| Painter references | Not started | Visibility/dispute rules open |
+| Rewards | Not started; rules decided (D-066) | Per shop; shop sets rate, value, expiry, maximum per bill; app orders only |
+| Painter references | Not started; rules decided (D-067) | Shops and the painter see them; after 3 orders; reply and report |
 | Online payment gateway | Deferred | Later phase |
 | Subscription billing | Deferred | Later phase |
 
@@ -674,3 +674,4 @@ Android emulator (`emulator-5554`, 1080 x 1920), local Postgres, local Supabase 
 | 2026-11-22 | Chrome check of BIL-001 and CON-001 on the shop web: all worked; Connect's confirm button now uses the primary style (`ConfirmActionButton` tone). |
 | 2026-11-27 | PROJECT_STATE brought up to date: current stage, Customer App done in §5, §7 item 2 and §8 feature progress (customer sign-in, orders, sites, bills, connecting records, credit blocked). |
 | 2026-11-27 | Owner decided the credit rules (D-064): ID checked in person with only the type and last 4 digits kept, credit for any approved customer with a connected app account, credit permission with audited limit changes, warn (not block) over the limit or without credit. Questions 28, 29 and 57 resolved. |
+| 2026-11-27 | Owner decided the Phase 4 rules: painter commission (D-065), reward points (D-066), shop references (D-067). Questions 18–27 resolved. Painter commission has no feature row yet; it comes with the painter confirmation step (D-036). |
