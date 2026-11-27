@@ -8463,6 +8463,286 @@
         ]
       }
     },
+    "/v1/shops/{shopId}/customers/{customerId}/credit": {
+      "get": {
+        "operationId": "CreditController_read",
+        "parameters": [
+          {
+            "name": "customerId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "shopId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Credit"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown shop, or the caller is not a member.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "One customer's credit with this shop: limit, what they owe, the ID check and the history.",
+        "tags": [
+          "credit"
+        ]
+      },
+      "put": {
+        "operationId": "CreditController_change",
+        "parameters": [
+          {
+            "name": "customerId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "shopId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreditChangeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Credit"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown shop, or the caller is not a member.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "credit_needs_app_account, credit_needs_id_check, credit_already_active, credit_not_active or request_id_reused.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Give credit, change the limit or stop credit, with a reason.",
+        "tags": [
+          "credit"
+        ]
+      }
+    },
+    "/v1/shops/{shopId}/customers/{customerId}/credit/id-check": {
+      "post": {
+        "operationId": "CreditController_checkId",
+        "parameters": [
+          {
+            "name": "customerId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "shopId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdCheckRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Credit"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown shop, or the caller is not a member.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "request_id_reused.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Record that the shop saw the original ID: the type and last 4 characters only.",
+        "tags": [
+          "credit"
+        ]
+      }
+    },
     "/v1/me/shops/{shopId}/connect": {
       "get": {
         "operationId": "MyConnectController_get",
@@ -11015,6 +11295,10 @@
             "default": false,
             "type": "boolean"
           },
+          "acceptOverLimit": {
+            "default": false,
+            "type": "boolean"
+          },
           "paymentMethod": {
             "type": "string",
             "enum": [
@@ -11305,6 +11589,14 @@
               ],
               "additionalProperties": false
             }
+          },
+          "creditWarning": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreditWarning"
+              }
+            ]
           }
         },
         "required": [
@@ -11327,7 +11619,8 @@
           "canEditItems",
           "canRecordPayment",
           "canReturnItems",
-          "events"
+          "events",
+          "creditWarning"
         ],
         "additionalProperties": false
       },
@@ -11428,6 +11721,36 @@
         ],
         "additionalProperties": false
       },
+      "CreditWarning": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "over_limit",
+              "no_credit"
+            ]
+          },
+          "owedPaise": {
+            "nullable": true,
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "limitPaise": {
+            "nullable": true,
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "kind",
+          "owedPaise",
+          "limitPaise"
+        ],
+        "additionalProperties": false
+      },
       "OrderSummary": {
         "type": "object",
         "properties": {
@@ -11522,6 +11845,10 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 200
+          },
+          "acceptOverLimit": {
+            "default": false,
+            "type": "boolean"
           }
         },
         "required": [
@@ -11938,6 +12265,7 @@
                 "shop.profile",
                 "shop.settings",
                 "reports.view",
+                "credit.manage",
                 "staff.manage"
               ]
             }
@@ -15428,12 +15756,13 @@
             ]
           },
           "status": {
-            "description": "owing: the customer owes; shop_owes: the shop owes; settled: 0.",
+            "description": "owing: the customer owes; shop_owes: the shop owes; settled: 0; over_limit: owes more than their credit limit (CRD-001).",
             "type": "string",
             "enum": [
               "owing",
               "shop_owes",
-              "settled"
+              "settled",
+              "over_limit"
             ]
           },
           "page": {
@@ -15495,12 +15824,37 @@
                   "type": "string",
                   "format": "date-time",
                   "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                },
+                "credit": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "none",
+                        "active",
+                        "stopped"
+                      ]
+                    },
+                    "limitPaise": {
+                      "nullable": true,
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "limitPaise"
+                  ],
+                  "additionalProperties": false
                 }
               },
               "required": [
                 "customer",
                 "balancePaise",
-                "lastEntryAt"
+                "lastEntryAt",
+                "credit"
               ],
               "additionalProperties": false
             }
@@ -15961,6 +16315,329 @@
           "entries"
         ],
         "additionalProperties": false
+      },
+      "CreditQuery": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "default": 1,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          }
+        }
+      },
+      "Credit": {
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "none",
+              "active",
+              "stopped"
+            ]
+          },
+          "limitPaise": {
+            "nullable": true,
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "owedPaise": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "leftPaise": {
+            "nullable": true,
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "idCheck": {
+            "nullable": true,
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "AADHAAR",
+                  "PAN",
+                  "VOTER_ID",
+                  "DRIVING_LICENCE",
+                  "PASSPORT"
+                ]
+              },
+              "last4": {
+                "type": "string"
+              },
+              "checkedBy": {
+                "type": "string"
+              },
+              "checkedAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              }
+            },
+            "required": [
+              "type",
+              "last4",
+              "checkedBy",
+              "checkedAt"
+            ],
+            "additionalProperties": false
+          },
+          "eligible": {
+            "type": "boolean"
+          },
+          "ineligibleReason": {
+            "nullable": true,
+            "type": "string",
+            "enum": [
+              "no_app_account"
+            ]
+          },
+          "events": {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "ID_CHECKED",
+                        "GIVEN",
+                        "LIMIT_CHANGED",
+                        "STOPPED",
+                        "OVERRIDE"
+                      ]
+                    },
+                    "limitPaise": {
+                      "nullable": true,
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "previousPaise": {
+                      "nullable": true,
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "owedPaise": {
+                      "nullable": true,
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "idType": {
+                      "nullable": true,
+                      "type": "string",
+                      "enum": [
+                        "AADHAAR",
+                        "PAN",
+                        "VOTER_ID",
+                        "DRIVING_LICENCE",
+                        "PASSPORT"
+                      ]
+                    },
+                    "idLast4": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "reason": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "order": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "number": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "number"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "by": {
+                      "type": "string"
+                    },
+                    "at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "kind",
+                    "limitPaise",
+                    "previousPaise",
+                    "owedPaise",
+                    "idType",
+                    "idLast4",
+                    "reason",
+                    "order",
+                    "by",
+                    "at"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "page": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "hasMore": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "items",
+              "page",
+              "hasMore"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "customerId",
+          "status",
+          "limitPaise",
+          "owedPaise",
+          "leftPaise",
+          "idCheck",
+          "eligible",
+          "ineligibleReason",
+          "events"
+        ],
+        "additionalProperties": false
+      },
+      "IdCheckRequest": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "AADHAAR",
+              "PAN",
+              "VOTER_ID",
+              "DRIVING_LICENCE",
+              "PASSPORT"
+            ]
+          },
+          "last4": {
+            "type": "string",
+            "pattern": "^[A-Z0-9]{4}$"
+          },
+          "sawOriginal": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "clientRequestId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          }
+        },
+        "required": [
+          "type",
+          "last4",
+          "sawOriginal",
+          "clientRequestId"
+        ]
+      },
+      "CreditChangeRequest": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "give",
+                  "change"
+                ]
+              },
+              "limitPaise": {
+                "type": "integer",
+                "minimum": 100,
+                "maximum": 100000000
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 2,
+                "maxLength": 300
+              },
+              "clientRequestId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              }
+            },
+            "required": [
+              "action",
+              "limitPaise",
+              "reason",
+              "clientRequestId"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "stop"
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 2,
+                "maxLength": 300
+              },
+              "clientRequestId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              }
+            },
+            "required": [
+              "action",
+              "reason",
+              "clientRequestId"
+            ]
+          }
+        ]
       },
       "MyConnectRequest": {
         "type": "object",

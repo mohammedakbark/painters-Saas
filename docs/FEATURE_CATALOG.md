@@ -77,7 +77,7 @@ Status meanings: **Confirmed** = stated requirement; **Proposed** = recommended 
 | Manual product promotion/order | Confirmed | Shop can promote selected products. |
 | Painter commission configuration | Confirmed direction / Open rules | Calculation and settlement not finalized. |
 | Customer/painter management | Confirmed | Shop sees only its own relationships. |
-| Credit approval and limits | Confirmed | Shop-specific. |
+| Credit approval and limits | **Implemented on the server and shop web (CRD-001, D-064)** | ID checked in person (type and last 4 only), credit for connected app customers, `credit.manage` permission, limit history, warning on accepting or recording an order over the limit (override recorded). Shop App CRD-002, Customer App CRD-003. Spec: `docs/features/CRD-001-shop-credit.md`. |
 | Orders and fulfilment | Confirmed direction / Open lifecycle | Pickup/delivery and partial fulfilment need clarification. |
 | Bills and manual payment records | **Implemented on the server and shop web (BIL-001, D-062)** | Running bill per customer, payments of any amount, refunds after returns; also in the Shop App (BIL-002) and the Customer App (BIL-003). Online gateway later. Spec: `docs/features/BIL-001-running-bill.md`. |
 | Reward-point rules | Confirmed direction / Open rules | Shop-specific ledger proposed. |

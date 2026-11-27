@@ -27,6 +27,7 @@ export type ShopPermission =
   | 'shop.profile'
   | 'shop.settings'
   | 'reports.view'
+  | 'credit.manage'
   | 'staff.manage';
 
 /** Whether the caller may do [permission] in [shop]. */

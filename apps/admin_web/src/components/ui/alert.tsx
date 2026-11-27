@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 
-export type AlertTone = 'error' | 'success' | 'info';
+export type AlertTone = 'error' | 'warning' | 'success' | 'info';
 
 const TONES: Record<AlertTone, { label: string; border: string }> = {
   error: { label: 'Error', border: 'border-status-error' },
+  warning: { label: 'Warning', border: 'border-status-warning' },
   success: { label: 'Success', border: 'border-status-success' },
   info: { label: 'Information', border: 'border-status-info' },
 };

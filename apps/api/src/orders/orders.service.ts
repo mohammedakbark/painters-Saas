@@ -3,6 +3,11 @@ import { AuditAction, recordAuditEvent } from '../audit/audit.js';
 import type { CurrentUserContext } from '../auth/current-user.js';
 import type { Prisma } from '../generated/prisma/client.js';
 import type { OrderStatus } from '../generated/prisma/enums.js';
+import {
+  checkOrderCredit,
+  orderCreditWarning,
+  warningFor,
+} from '../credit/credit-ledger.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { ShopContext } from '../shop-access/shop-access.guard.js';
 import {
@@ -264,7 +269,18 @@ export class OrdersService {
     if (!row) {
       throw orderNotFound();
     }
-    return toDetail(row);
+    // Before the shop accepts it, the order says how it stands with the
+    // customer's credit (CRD-001).
+    const warning =
+      row.status === 'NEW'
+        ? await orderCreditWarning(this.prisma, {
+            shopId: shop.shopId,
+            customerId: row.customer.id,
+            orderPaise: row.totalPaise,
+            orderId: row.id,
+          })
+        : null;
+    return { ...toDetail(row), creditWarning: warningFor(shop, warning) };
   }
 
   async changeStatus(
@@ -275,13 +291,30 @@ export class OrdersService {
   ): Promise<OrderDetail> {
     requireShopPermission(shop, 'orders.handle');
     await this.prisma.$transaction(async (tx) => {
-      // Completing puts the order on the running bill (BIL-001).
+      // Completing puts the order on the running bill (BIL-001); accepting
+      // checks it against the customer's credit (CRD-001). Both lock the
+      // bill first.
+      const accepting = input.to === 'PACKING';
       const order =
-        input.to === 'COMPLETED'
+        input.to === 'COMPLETED' || accepting
           ? await lockOrderAndBill(tx, shop.shopId, orderId)
           : await lockOrder(tx, shop.shopId, orderId);
       if (!canShopMove(order.status, input.to, order.fulfilment)) {
         throw statusInvalid();
+      }
+      if (accepting && order.status === 'NEW') {
+        const { totalPaise } = await tx.order.findUniqueOrThrow({
+          where: { id: orderId },
+          select: { totalPaise: true },
+        });
+        await checkOrderCredit(tx, {
+          shop,
+          userId: user.id,
+          customerId: order.customerId,
+          orderId,
+          orderPaise: totalPaise,
+          accept: input.acceptOverLimit,
+        });
       }
       const now = new Date();
       await tx.order.update({
@@ -646,7 +679,7 @@ async function findItem(
   return item;
 }
 
-function toDetail(row: DetailRow): OrderDetail {
+function toDetail(row: DetailRow): Omit<OrderDetail, 'creditWarning'> {
   const delivery =
     row.fulfilment === 'DELIVERY' && row.deliveryAddress !== null
       ? {

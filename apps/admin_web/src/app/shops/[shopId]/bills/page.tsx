@@ -19,6 +19,7 @@ import type { CustomerKind } from '@/lib/api/customers';
 import { can } from '@/lib/api/shops';
 import { requireShopAccess, requireShopSession } from '@/lib/auth/shop-access';
 import { balanceState, billsBase } from '@/lib/bills/labels';
+import { creditState } from '@/lib/credit/labels';
 import { customerPath, KIND_LABEL } from '@/lib/customers/customer-forms';
 import { listLink, oneOf, readPaging, text } from '@/lib/list-params';
 import { formatRupees } from '@/lib/money';
@@ -68,7 +69,7 @@ async function Bills({ params, searchParams }: Props) {
     kind: (oneOf(['PAINTER', 'CUSTOMER', ''] as const, text(search.kind), '') ||
       undefined) as CustomerKind | undefined,
     status: (oneOf(
-      ['owing', 'shop_owes', 'settled', ''] as const,
+      ['owing', 'shop_owes', 'settled', 'over_limit', ''] as const,
       text(search.status),
       '',
     ) || undefined) as BillStatus | undefined,
@@ -118,6 +119,27 @@ async function Bills({ params, searchParams }: Props) {
           <div className="flex flex-wrap items-center justify-end gap-2 desktop:justify-start">
             <span className="font-semibold tabular-nums">{balance.amount}</span>
             <Badge tone={balance.tone}>{balance.label}</Badge>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'credit',
+      header: 'Credit',
+      width: 'w-48',
+      cell: (row) => {
+        const { status, limitPaise } = row.credit;
+        const over =
+          status === 'active' &&
+          limitPaise !== null &&
+          row.balancePaise > limitPaise;
+        const credit = creditState(status, over ? -1 : null);
+        return (
+          <div className="flex flex-wrap items-center justify-end gap-2 desktop:justify-start">
+            {limitPaise !== null ? (
+              <span className="tabular-nums">{formatRupees(limitPaise)}</span>
+            ) : null}
+            <Badge tone={credit.tone}>{credit.label}</Badge>
           </div>
         );
       },
@@ -182,6 +204,7 @@ async function Bills({ params, searchParams }: Props) {
             { value: 'owing', label: 'Owes you' },
             { value: 'shop_owes', label: 'You owe' },
             { value: 'settled', label: 'Settled' },
+            { value: 'over_limit', label: 'Over credit limit' },
           ]}
         />
       </FilterForm>

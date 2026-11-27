@@ -9,6 +9,9 @@ import {
   PaymentSheet,
 } from '@/components/orders/order-forms';
 import { StepButton } from '@/components/orders/step-button';
+import { Alert } from '@/components/ui/alert';
+import { ConfirmActionButton } from '@/components/ui/confirm-action-button';
+import { creditWarningText } from '@/lib/credit/labels';
 import { ProgressSteps } from '@/components/ui/progress-steps';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -82,6 +85,11 @@ async function OrderView({ params, searchParams }: Props) {
   const canCancel = order.nextSteps.includes('CANCELLED');
   const justRecorded = (await searchParams).recorded === '1';
   const progress = orderProgress(order.status, order.fulfilment);
+  // New orders: over the credit limit needs "Accept anyway" (CRD-001).
+  const warning = order.creditWarning
+    ? creditWarningText(order.creditWarning)
+    : null;
+  const overLimit = order.creditWarning?.kind === 'over_limit';
 
   return (
     <div className="flex flex-col gap-6">
@@ -100,20 +108,41 @@ async function OrderView({ params, searchParams }: Props) {
         actions={
           steps.length > 0 || canCancel ? (
             <div className="flex flex-wrap gap-3">
-              {steps.map((step) => (
-                <StepButton
-                  key={step}
-                  action={moveOrderAction.bind(
-                    null,
-                    shopId,
-                    order.id,
-                    order.number,
-                    step,
-                  )}
-                  label={STEP_ACTION[step]}
-                  variant="primary"
-                />
-              ))}
+              {steps.map((step) =>
+                overLimit && step === 'PACKING' && warning ? (
+                  <ConfirmActionButton
+                    key={step}
+                    action={moveOrderAction.bind(
+                      null,
+                      shopId,
+                      order.id,
+                      order.number,
+                      step,
+                      true,
+                    )}
+                    label={STEP_ACTION[step]}
+                    title="Accept over the credit limit?"
+                    message={`${warning.message} Accepting is recorded on the customer's credit.`}
+                    confirmLabel="Accept anyway"
+                    variant="primary"
+                    size="default"
+                    tone="default"
+                  />
+                ) : (
+                  <StepButton
+                    key={step}
+                    action={moveOrderAction.bind(
+                      null,
+                      shopId,
+                      order.id,
+                      order.number,
+                      step,
+                    )}
+                    label={STEP_ACTION[step]}
+                    variant="primary"
+                  />
+                ),
+              )}
               {canCancel ? <CancelOrderButton /> : null}
             </div>
           ) : undefined
@@ -125,6 +154,11 @@ async function OrderView({ params, searchParams }: Props) {
           param="recorded"
           message={`${orderNumber(order.number)} is recorded for ${order.customer.name}.${order.status === 'COMPLETED' ? ' It is saved as handed over.' : ''}`}
         />
+      ) : null}
+      {warning ? (
+        <Alert tone="warning" title={warning.title}>
+          {warning.message}
+        </Alert>
       ) : null}
       {progress ? (
         <Card className="px-5 py-4">

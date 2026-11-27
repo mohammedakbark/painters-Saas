@@ -7,6 +7,7 @@ import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { CheckboxField } from '@/components/ui/checkbox-field';
 import { RadioGroupField } from '@/components/ui/choice-group-fields';
 import { Combobox, type ComboboxOption } from '@/components/ui/combobox';
 import { Field } from '@/components/ui/field';
@@ -45,6 +46,8 @@ export interface RecordOrderPayload {
   items: { shopProductPackId: string; quantity: number; shadeCode?: string }[];
   handedOver: boolean;
   paymentMethod?: PaymentMethod;
+  /** Save although it goes past the customer's credit limit (CRD-001). */
+  acceptOverLimit?: boolean;
 }
 
 const ADD_CUSTOMER_SHEET = 'new-order-add-customer';
@@ -73,10 +76,13 @@ export function NewOrderForm({
   loadCustomer: (id: string) => Promise<OrderCustomerChoice | null>;
   searchPacks: (text: string) => Promise<PackOption[]>;
   addCustomerAction: FormAction;
-  record: (
-    payload: RecordOrderPayload,
-  ) => Promise<
-    { error?: string; fieldErrors?: Record<string, string> } | undefined
+  record: (payload: RecordOrderPayload) => Promise<
+    | {
+        error?: string;
+        fieldErrors?: Record<string, string>;
+        creditOverLimit?: string;
+      }
+    | undefined
   >;
 }) {
   const [customer, setCustomer] = useState(initialCustomer);
@@ -87,6 +93,9 @@ export function NewOrderForm({
   const [payment, setPayment] = useState<PaymentMethod | ''>('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState<string | null>(null);
+  // The API's over-limit warning (CRD-001); saving again needs the tick.
+  const [overLimit, setOverLimit] = useState<string | null>(null);
+  const [acceptOverLimit, setAcceptOverLimit] = useState(false);
   const [saving, startSaving] = useTransition();
   const [savingKind, setSavingKind] = useState<'new' | 'handed' | null>(null);
 
@@ -172,8 +181,13 @@ export function NewOrderForm({
         })),
         handedOver,
         ...(handedOver && payment ? { paymentMethod: payment } : {}),
+        ...(overLimit && acceptOverLimit ? { acceptOverLimit: true } : {}),
       });
       // On success the action opens the order; only failures come back.
+      if (result?.creditOverLimit) {
+        setOverLimit(result.creditOverLimit);
+        setAcceptOverLimit(false);
+      }
       if (result?.error) setServerError(result.error);
       if (result?.fieldErrors) setErrors(result.fieldErrors);
       setSavingKind(null);
@@ -438,6 +452,20 @@ export function NewOrderForm({
               })),
             ]}
           />
+        ) : null}
+        {overLimit ? (
+          <Alert tone="warning" title="Over credit limit">
+            <div className="flex flex-col gap-3">
+              <p>{overLimit}</p>
+              <CheckboxField
+                label="Accept anyway"
+                name="acceptOverLimit"
+                description="Recorded on the customer's credit."
+                checked={acceptOverLimit}
+                onChange={(event) => setAcceptOverLimit(event.target.checked)}
+              />
+            </div>
+          </Alert>
         ) : null}
         <div className="flex flex-wrap gap-3">
           <Button

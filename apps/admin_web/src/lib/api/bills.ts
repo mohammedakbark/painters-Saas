@@ -7,7 +7,7 @@ import type { CustomerKind } from './customers';
 // packages/api_contracts/openapi.json (BIL-001, D-062).
 
 const method = z.enum(['CASH', 'UPI', 'BANK_TRANSFER']);
-export type BillStatus = 'owing' | 'shop_owes' | 'settled';
+export type BillStatus = 'owing' | 'shop_owes' | 'settled' | 'over_limit';
 export type BillEntryKind = 'CHARGE' | 'ADJUSTMENT' | 'PAYMENT' | 'REFUND';
 
 const listPageSchema = z.object({
@@ -21,6 +21,10 @@ const listPageSchema = z.object({
       }),
       balancePaise: z.number().int(),
       lastEntryAt: z.string(),
+      credit: z.object({
+        status: z.enum(['none', 'active', 'stopped']),
+        limitPaise: z.number().int().nullable(),
+      }),
     }),
   ),
   totals: z.object({

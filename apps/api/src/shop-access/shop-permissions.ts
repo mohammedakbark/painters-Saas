@@ -28,6 +28,8 @@ export const SHOP_PERMISSIONS = [
   'shop.settings',
   /** Money figures: today's sales and unpaid totals. */
   'reports.view',
+  /** Check IDs, give credit, change or stop a limit (CRD-001, D-064). */
+  'credit.manage',
   /** Add employees and set their permissions (owner only). */
   'staff.manage',
 ] as const;

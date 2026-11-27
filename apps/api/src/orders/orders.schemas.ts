@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { CreditWarningSchema } from '../credit/credit.schemas.js';
 import {
   OrderFulfilment,
   OrderItemStatus,
@@ -188,6 +189,11 @@ export const OrderDetailSchema = z
         createdAt: z.iso.datetime(),
       }),
     ),
+    /**
+     * New orders only (CRD-001, D-064): over the customer's credit limit, or
+     * no credit while they owe. Figures need credit or money permission.
+     */
+    creditWarning: CreditWarningSchema.nullable(),
   })
   .meta({ id: 'OrderDetail' });
 
@@ -203,6 +209,8 @@ export const UpdateOrderStatusRequestSchema = z
   .object({
     to: z.enum(OrderStatus, { error: 'Choose the next step.' }),
     reason: reason.optional(),
+    /** Accept a new order although it goes past the credit limit (D-064). */
+    acceptOverLimit: z.boolean().default(false),
   })
   .superRefine((value, context) => {
     if (value.to === 'CANCELLED' && !value.reason) {
@@ -273,6 +281,8 @@ export const RecordOrderRequestSchema = z
       .max(ORDER_LIMITS.maxItems, { error: 'An order has at most 50 items.' }),
     /** Handed over at the counter: saved as completed. */
     handedOver: z.boolean().default(false),
+    /** Save although the order goes past the credit limit (D-064). */
+    acceptOverLimit: z.boolean().default(false),
     /** Owner only; with handedOver. */
     paymentMethod: z
       .enum(PaymentMethod, { error: 'Choose cash, UPI or bank transfer.' })

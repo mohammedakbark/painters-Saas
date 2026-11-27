@@ -13,7 +13,12 @@ const page = z.coerce
   .default(1);
 
 /** Which balances the Bills page shows (BIL-001). */
-export const BillStatus = ['owing', 'shop_owes', 'settled'] as const;
+export const BillStatus = [
+  'owing',
+  'shop_owes',
+  'settled',
+  'over_limit',
+] as const;
 
 export const BillListQuerySchema = z
   .object({
@@ -28,12 +33,12 @@ export const BillListQuerySchema = z
       .optional(),
     status: z
       .enum(BillStatus, {
-        error: 'status must be owing, shop_owes or settled.',
+        error: 'status must be owing, shop_owes, settled or over_limit.',
       })
       .optional()
       .meta({
         description:
-          'owing: the customer owes; shop_owes: the shop owes; settled: 0.',
+          'owing: the customer owes; shop_owes: the shop owes; settled: 0; over_limit: owes more than their credit limit (CRD-001).',
       }),
     page,
     pageSize: z.coerce
@@ -61,6 +66,11 @@ export const BillListPageSchema = z
         /** Positive: the customer owes; negative: the shop owes. */
         balancePaise: z.int(),
         lastEntryAt: z.iso.datetime(),
+        /** The shop's credit (CRD-001); the limit needs money permission. */
+        credit: z.object({
+          status: z.enum(['none', 'active', 'stopped']),
+          limitPaise: z.int().nullable(),
+        }),
       }),
     ),
     /** Everything customers owe this shop, and what it owes them. */

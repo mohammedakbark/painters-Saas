@@ -6,6 +6,7 @@ import {
 } from '../bills/bill-ledger.js';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { AuditAction, recordAuditEvent } from '../audit/audit.js';
+import { checkOrderCredit } from '../credit/credit-ledger.js';
 import type { CurrentUserContext } from '../auth/current-user.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { ShopContext } from '../shop-access/shop-access.guard.js';
@@ -168,6 +169,19 @@ export class OrderRecordingService {
         },
         select: { id: true, number: true },
       });
+      // Not paid on the spot: check it against the customer's credit
+      // (CRD-001, D-064). The customer's bill row is locked first.
+      await lockBill(tx, shop.shopId, customer.id);
+      if (!input.paymentMethod) {
+        await checkOrderCredit(tx, {
+          shop,
+          userId: user.id,
+          customerId: customer.id,
+          orderId: order.id,
+          orderPaise: itemsPaise + chargePaise,
+          accept: input.acceptOverLimit,
+        });
+      }
       const data = {
         items: lines.length,
         fulfilment: input.fulfilment,
@@ -186,7 +200,6 @@ export class OrderRecordingService {
       // Handed over: on the running bill now; paid: paid on the order
       // (BIL-001). The new order's customer row is locked first.
       if (input.handedOver) {
-        await lockBill(tx, shop.shopId, customer.id);
         await chargeOrder(tx, shop.shopId, order.id, now);
         if (input.paymentMethod) {
           await payOrder(tx, shop.shopId, order.id, {

@@ -11,6 +11,7 @@ import {
   requireShopPermission,
 } from '../shop-access/shop-permissions.js';
 import { problem } from '../shop-catalogue/shop-catalogue-mapping.js';
+import { canSeeCreditFigures } from '../credit/credit-ledger.js';
 import { billBalance, lockBill, settleBill } from './bill-ledger.js';
 import {
   BILL_ENTRIES_PAGE_SIZE,
@@ -62,15 +63,28 @@ export class BillsService {
           ? Prisma.sql`HAVING sum(e.amount_paise) < 0`
           : query.status === 'settled'
             ? Prisma.sql`HAVING sum(e.amount_paise) = 0`
-            : Prisma.empty;
+            : query.status === 'over_limit'
+              ? Prisma.sql`HAVING cr.kind IN ('GIVEN', 'LIMIT_CHANGED')
+                  AND sum(e.amount_paise) > cr.limit_paise`
+              : Prisma.empty;
+    // The latest credit decision per customer (CRD-001): its kind says the
+    // status, its limit the limit.
     const balances = Prisma.sql`
       SELECT c.id, c.name, c.phone, c.kind,
              sum(e.amount_paise)::int AS balance,
-             max(e.created_at) AS last_entry_at
+             max(e.created_at) AS last_entry_at,
+             cr.kind AS credit_kind, cr.limit_paise AS credit_limit
       FROM shop_customers c
       JOIN bill_entries e ON e.shop_id = c.shop_id AND e.customer_id = c.id
+      LEFT JOIN LATERAL (
+        SELECT ce.kind, ce.limit_paise FROM credit_events ce
+        WHERE ce.shop_id = c.shop_id AND ce.customer_id = c.id
+          AND ce.kind IN ('GIVEN', 'LIMIT_CHANGED', 'STOPPED')
+        ORDER BY ce.created_at DESC, ce.id DESC
+        LIMIT 1
+      ) cr ON true
       WHERE ${Prisma.join(conditions, ' AND ')}
-      GROUP BY c.id
+      GROUP BY c.id, cr.kind, cr.limit_paise
       ${having}`;
     const [rows, counts] = await Promise.all([
       this.prisma.$queryRaw<
@@ -81,6 +95,8 @@ export class BillsService {
           kind: CustomerKind;
           balance: number;
           last_entry_at: Date;
+          credit_kind: 'GIVEN' | 'LIMIT_CHANGED' | 'STOPPED' | null;
+          credit_limit: number | null;
         }[]
       >`
         ${balances}
@@ -95,6 +111,7 @@ export class BillsService {
         FROM (${balances}) b`,
     ]);
     const count = counts[0] ?? { total: 0, owing: 0, shop_owes: 0 };
+    const figures = canSeeCreditFigures(shop);
     return {
       items: rows.map((row) => ({
         customer: {
@@ -105,6 +122,15 @@ export class BillsService {
         },
         balancePaise: row.balance,
         lastEntryAt: row.last_entry_at.toISOString(),
+        credit:
+          row.credit_kind === null
+            ? { status: 'none' as const, limitPaise: null }
+            : row.credit_kind === 'STOPPED'
+              ? { status: 'stopped' as const, limitPaise: null }
+              : {
+                  status: 'active' as const,
+                  limitPaise: figures ? row.credit_limit : null,
+                },
       })),
       totals: { owingPaise: count.owing, shopOwesPaise: count.shop_owes },
       total: count.total,

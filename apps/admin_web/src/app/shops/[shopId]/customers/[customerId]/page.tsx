@@ -6,6 +6,7 @@ import {
   SitesPanel,
 } from '@/components/customers/customer-forms';
 import { BillSection } from '@/components/bills/bill-section';
+import { CreditSection } from '@/components/credit/credit-section';
 import { PageLoading } from '@/components/layout/page-loading';
 import { ActionButtonForm } from '@/components/shop-catalogue/shop-catalogue-forms';
 import { Badge } from '@/components/ui/badge';
@@ -71,9 +72,15 @@ export default function CustomerPage(props: Props) {
 async function CustomerView({ params, searchParams }: Props) {
   const { shopId, customerId } = await params;
   const shop = await requireShopAccess(shopId);
-  const billPageNumber = Number(text((await searchParams).billPage));
-  const billPage =
-    Number.isInteger(billPageNumber) && billPageNumber > 0 ? billPageNumber : 1;
+  const query = await searchParams;
+  const pageOf = (value: unknown) => {
+    const number = Number(text(value as string | string[] | undefined));
+    return Number.isInteger(number) && number > 0 ? number : 1;
+  };
+  const billPage = pageOf(query.billPage);
+  const creditPage = pageOf(query.creditPage);
+  // Credit is money too: credit or money figures only (CRD-001).
+  const seesCredit = can(shop, 'credit.manage') || can(shop, 'reports.view');
   // The bill is money: payments or money figures only (D-056, BIL-001).
   const seesBill = can(shop, 'orders.payments') || can(shop, 'reports.view');
   const token = await requireShopSession();
@@ -132,6 +139,19 @@ async function CustomerView({ params, searchParams }: Props) {
                   `${customerPath(shopId, customer.id)}${page > 1 ? `?billPage=${page}` : ''}#bill-heading`
                 }
                 canRecord={can(shop, 'orders.payments')}
+              />
+            </Suspense>
+          ) : null}
+          {seesCredit ? (
+            <Suspense fallback={<SectionLoading label="Loading credit…" />}>
+              <CreditSection
+                shopId={shopId}
+                customerId={customer.id}
+                page={creditPage}
+                pageHref={(page) =>
+                  `${customerPath(shopId, customer.id)}${page > 1 ? `?creditPage=${page}` : ''}#credit-heading`
+                }
+                canManage={can(shop, 'credit.manage')}
               />
             </Suspense>
           ) : null}

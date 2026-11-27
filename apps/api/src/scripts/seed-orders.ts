@@ -243,6 +243,8 @@ async function main(): Promise<void> {
         }
         await orders.changeStatus(owner, shopContext, id, {
           to,
+          // Test data: seeded customers have no credit.
+          acceptOverLimit: true,
           ...(to === 'CANCELLED'
             ? { reason: 'Customer asked to cancel.' }
             : {}),

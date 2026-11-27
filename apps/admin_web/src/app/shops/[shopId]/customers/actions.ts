@@ -323,6 +323,8 @@ export async function loadOrderCustomerAction(
 export interface RecordOrderState {
   error?: string;
   fieldErrors?: Record<string, string>;
+  /** Over the customer's credit limit (CRD-001): save again with the tick. */
+  creditOverLimit?: string;
 }
 
 /** Saves an order the shop records, then opens it. */
@@ -335,6 +337,13 @@ export async function recordOrderAction(
     const order = await recordOrder(await requireShopSession(), shopId, body);
     orderId = order.id;
   } catch (error) {
+    if (error instanceof ApiError && error.code === 'credit_over_limit') {
+      return {
+        creditOverLimit:
+          error.problem?.detail ??
+          'This order takes the customer over their credit limit.',
+      };
+    }
     const state = failure(error);
     return { error: state.error, fieldErrors: state.fieldErrors };
   }

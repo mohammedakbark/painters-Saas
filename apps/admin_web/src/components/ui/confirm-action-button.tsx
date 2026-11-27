@@ -29,7 +29,7 @@ export function ConfirmActionButton({
   title: string;
   message: string;
   confirmLabel: string;
-  variant?: 'secondary' | 'tertiary';
+  variant?: 'primary' | 'secondary' | 'tertiary';
   size?: 'default' | 'compact';
   /** `default` for a positive but hard-to-undo action, such as Connect. */
   tone?: 'danger' | 'default';

@@ -1,6 +1,7 @@
 import 'server-only';
 import { z } from 'zod';
 import { apiRequest } from './client';
+import { creditWarningSchema } from './credit';
 
 // Mirrors OrderListPage and OrderDetail in packages/api_contracts/openapi.json (ORD-001).
 
@@ -127,6 +128,8 @@ const detailSchema = z.object({
   canEditItems: z.boolean(),
   canRecordPayment: z.boolean(),
   canReturnItems: z.boolean(),
+  /** New orders: their standing with the customer's credit (CRD-001). */
+  creditWarning: creditWarningSchema.nullable(),
   events: z.array(
     z.object({
       id: z.string(),
@@ -232,6 +235,8 @@ export interface RecordOrderBody {
   items: { shopProductPackId: string; quantity: number; shadeCode?: string }[];
   handedOver: boolean;
   paymentMethod?: PaymentMethod;
+  /** Save although it goes past the credit limit (CRD-001). */
+  acceptOverLimit?: boolean;
 }
 
 /** Records an order for a customer (phone or counter, ORD-004). */
@@ -266,7 +271,7 @@ export function changeOrderStatus(
   token: string,
   shopId: string,
   orderId: string,
-  body: { to: OrderStatus; reason?: string },
+  body: { to: OrderStatus; reason?: string; acceptOverLimit?: boolean },
 ): Promise<OrderDetail> {
   return post(token, orderPath(shopId, orderId, '/status'), body);
 }

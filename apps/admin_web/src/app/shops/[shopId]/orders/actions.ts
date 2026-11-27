@@ -80,12 +80,21 @@ export async function moveOrderAction(
   orderId: string,
   number: number,
   to: OrderStatus,
+  acceptOverLimit = false,
 ): Promise<CatalogueFormState> {
   try {
     await changeOrderStatus(await requireShopSession(), shopId, orderId, {
       to,
+      ...(acceptOverLimit ? { acceptOverLimit } : {}),
     });
   } catch (error) {
+    // Over the credit limit (CRD-001): accepting it anyway is on the order
+    // page, where the shop sees the warning.
+    if (error instanceof ApiError && error.code === 'credit_over_limit') {
+      return {
+        error: `${orderNumber(number)} goes over the customer's credit limit. Open the order to accept it anyway.`,
+      };
+    }
     return failure(error);
   }
   refresh();
